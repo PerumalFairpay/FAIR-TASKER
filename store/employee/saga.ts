@@ -5,7 +5,7 @@ import { getEmployeeListSuccess, getEmployeeListFailure } from "./action";
 import api from "../api";
 
 function getEmployeeListApi(page: number, perPage: number) {
-    return api.get(`employee-list?page=${page}&perPage=${perPage}`);
+    return api.get(`employeeList `);
 }
 
 function* onGetEmployeeList({ payload }: any): SagaIterator {
