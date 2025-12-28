@@ -28,6 +28,10 @@ function* onLogin({ payload }: any): SagaIterator {
         if (response.data.status) {
             yield put(loginSuccess(response.data));
             localStorage.setItem("token", response.data.token);
+            if (response.data.data) {
+                localStorage.setItem("name", response.data.data.name);
+                localStorage.setItem("email", response.data.data.email);
+            }
         } else {
             yield put(loginFailure(response.data.message || "Login failed"));
         }
@@ -54,6 +58,8 @@ function* onLogout(): SagaIterator {
         const response = yield call(logoutApi);
         yield put(logoutSuccess(response.data));
         localStorage.removeItem("token");
+        localStorage.removeItem("name");
+        localStorage.removeItem("email");
     } catch (error: any) {
         yield put(logoutFailure(error.response?.data?.message || "Logout failed"));
     }

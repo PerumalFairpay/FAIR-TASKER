@@ -9,8 +9,15 @@ import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
-  ChevronLeftIcon, ChevronRightIcon, Logo
+  ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon
 } from "@/components/icons";
+
+import { useDispatch } from "react-redux";
+import { logoutRequest } from "@/store/auth/action";
+
+import Image from "next/image";
+import FairPayLogo from "@/app/assets/FairPay.png";
+import { User } from "@heroui/user";
 
 interface NavbarProps {
   isExpanded?: boolean;
@@ -20,11 +27,13 @@ interface NavbarProps {
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   /* eslint-disable react-hooks/exhaustive-deps */
   // Custom simple useMediaQuery hook
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -34,11 +43,24 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     checkMobile();
     // Listener
     window.addEventListener('resize', checkMobile);
+
+    // Load user data
+    const name = localStorage.getItem("name");
+    const email = localStorage.getItem("email");
+    if (name) {
+      setUser({ name, email: email || "" });
+    }
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const toggleSidebar = () => {
     if (onToggle) onToggle();
+  };
+
+  const handleLogout = () => {
+    dispatch(logoutRequest());
+    setUser(null);
   };
 
   // Prevent hydration mismatch
@@ -80,9 +102,10 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               </NextLink>
             );
           })}
-          <div className="flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1">
+          {/* ThemeSwitch Hidden */}
+          {/* <div className="flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1">
             <ThemeSwitch />
-          </div>
+          </div> */}
         </div>
       </div>
     );
@@ -104,15 +127,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               className="flex justify-start items-center gap-2"
               href="/"
             >
-              <Logo
-                size={isExpanded ? 32 : 28}
-                className="text-primary transition-all duration-300"
+              <Image
+                src={FairPayLogo}
+                alt="FairPay"
+                className={clsx(
+                  "object-contain transition-all duration-300",
+                  isExpanded ? "h-8 w-auto" : "h-8 w-8"
+                )}
               />
-              {isExpanded && (
-                <p className="font-bold text-inherit whitespace-nowrap">
-                  ACME
-                </p>
-              )}
             </NextLink>
           </div>
 
@@ -141,13 +163,47 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           </div>
 
           <div className="p-1 border-t border-divider">
+            {user && (
+              <div className={clsx(
+                "flex items-center mb-2 overflow-hidden transition-all duration-300",
+                isExpanded ? "justify-between px-2" : "justify-center"
+              )}>
+                <User
+                  name={isExpanded ? user.name : ""}
+                  description={isExpanded ? (
+                    <p className="truncate max-w-[100px] text-tiny text-default-500">
+                      {user.email}
+                    </p>
+                  ) : ""}
+                  avatarProps={{
+                    name: user.name?.charAt(0).toUpperCase()
+                  }}
+                  classNames={{
+                    name: clsx("text-sm font-semibold", !isExpanded && "hidden"),
+                    description: clsx(!isExpanded && "hidden"),
+                    base: clsx("transition-transform", !isExpanded && "justify-center")
+                  }}
+                />
+                {isExpanded && (
+                  <Button
+                    isIconOnly
+                    variant="light"
+                    className="text-default-500 hover:text-danger data-[hover=true]:bg-default-100 min-w-0 w-6 h-6"
+                    onPress={handleLogout}
+                  >
+                    <LogoutIcon size={16} />
+                  </Button>
+                )}
+              </div>
+            )}
+            {/* ThemeSwitch Hidden
             <div className={clsx(
               "flex items-center gap-1 mb-2",
               isExpanded ? "justify-start px-2" : "justify-center"
             )}>
               <ThemeSwitch />
               {isExpanded && <span className="text-sm">Theme</span>}
-            </div>
+            </div> */}
 
             <div className={clsx(
               "flex items-center gap-1",
