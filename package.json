@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint --fix"
@@ -51,13 +51,18 @@
     "@heroui/user": "2.2.24",
     "@react-aria/ssr": "3.9.10",
     "@react-aria/visually-hidden": "3.8.29",
+    "@reduxjs/toolkit": "^2.11.2",
+    "axios": "^1.13.2",
     "clsx": "2.1.1",
     "framer-motion": "11.18.2",
     "intl-messageformat": "10.7.16",
     "next": "15.5.9",
     "next-themes": "0.4.6",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "react-redux": "^9.2.0",
+    "redux": "^5.0.1",
+    "redux-saga": "^1.4.2"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "15.5.9",
