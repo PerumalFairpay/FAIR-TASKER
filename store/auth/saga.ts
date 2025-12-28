@@ -1,56 +1,61 @@
 import { takeEvery, put, call } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import {
-    loginSuccess,
-    loginFailure,
-    registerSuccess,
-    registerFailure,
-    logoutSuccess,
-    logoutFailure
-} from "./action";
-import {
-    LOGIN_REQUEST,
-    REGISTER_REQUEST,
-    LOGOUT_REQUEST
+    LOGIN_REQUEST, REGISTER_REQUEST, LOGOUT_REQUEST
 } from "./actionType";
-import api from "../api";
+import {
+    loginSuccess, loginFailure,
+    registerSuccess, registerFailure,
+    logoutSuccess, logoutFailure
+} from "./action";
+import axios from "axios";
 
 function loginApi(payload: any) {
-    return api.post("/login", payload);
+    return axios.post("/login", payload);
 }
 
 function registerApi(payload: any) {
-    return api.post("/register", payload);
+    return axios.post("/register", payload);
 }
 
 function logoutApi() {
-    return api.post("/logout");
+    return axios.post("/logout");
 }
 
-function* onLogin({ payload }: { type: string; payload: any }): SagaIterator {
+function* onLogin({ payload }: any): SagaIterator {
     try {
         const response = yield call(loginApi, payload);
-        yield put(loginSuccess(response.data));
+        if (response.data.status) {
+            yield put(loginSuccess(response.data));
+            localStorage.setItem("token", response.data.token);
+        } else {
+            yield put(loginFailure(response.data.message || "Login failed"));
+        }
     } catch (error: any) {
-        yield put(loginFailure(error.response?.data?.detail || "Login failed"));
+        yield put(loginFailure(error.response?.data?.message || "Login failed"));
     }
 }
 
-function* onRegister({ payload }: { type: string; payload: any }): SagaIterator {
+function* onRegister({ payload }: any): SagaIterator {
     try {
         const response = yield call(registerApi, payload);
-        yield put(registerSuccess(response.data));
+        if (response.data.status) {
+            yield put(registerSuccess(response.data));
+        } else {
+            yield put(registerFailure(response.data.message || "Registration failed"));
+        }
     } catch (error: any) {
-        yield put(registerFailure(error.response?.data?.detail || "Registration failed"));
+        yield put(registerFailure(error.response?.data?.message || "Registration failed"));
     }
 }
 
 function* onLogout(): SagaIterator {
     try {
-        yield call(logoutApi);
-        yield put(logoutSuccess());
+        const response = yield call(logoutApi);
+        yield put(logoutSuccess(response.data));
+        localStorage.removeItem("token");
     } catch (error: any) {
-        yield put(logoutFailure(error.response?.data?.detail || "Logout failed"));
+        yield put(logoutFailure(error.response?.data?.message || "Logout failed"));
     }
 }
 
