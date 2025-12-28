@@ -2,10 +2,10 @@ import { takeEvery, put, call } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import { GET_SETTINGS_REQUEST } from "./actionType";
 import { getSettingsSuccess, getSettingsFailure } from "./action";
-import axios from "axios";
+import api from "../api";
 
 function getSettingsApi() {
-    return axios.get("/settingsDetails");
+    return api.get("settingsDetails");
 }
 
 function* onGetSettings(): SagaIterator {

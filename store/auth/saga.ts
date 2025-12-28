@@ -8,18 +8,18 @@ import {
     registerSuccess, registerFailure,
     logoutSuccess, logoutFailure
 } from "./action";
-import axios from "axios";
+import api from "../api";
 
 function loginApi(payload: any) {
-    return axios.post("/login", payload);
+    return api.post("login", payload);
 }
 
 function registerApi(payload: any) {
-    return axios.post("/register", payload);
+    return api.post("register", payload);
 }
 
 function logoutApi() {
-    return axios.post("/logout");
+    return api.post("logout");
 }
 
 function* onLogin({ payload }: any): SagaIterator {

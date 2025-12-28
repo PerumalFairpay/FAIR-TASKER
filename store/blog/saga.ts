@@ -19,14 +19,14 @@ import {
     UPDATE_BLOG_REQUEST,
     DELETE_BLOG_REQUEST
 } from "./actionType";
- 
-import axios from "axios";
+
+import api from "../api";
 function getBlogsApi(params: { page: number; limit: number; search?: string }) {
-    return axios.get("/blogs", { params });
+    return api.get("blogs", { params });
 }
 
 function getBlogApi(payload: { blog_id: string }) {
-    return axios.get(`/blogs/${payload.blog_id}`);
+    return api.get(`blogs/${payload.blog_id}`);
 }
 
 function createBlogApi(payload: any) {
@@ -39,7 +39,7 @@ function createBlogApi(payload: any) {
         }
     });
 
-    return axios.post("/blogs", formData, {
+    return api.post("blogs", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -57,7 +57,7 @@ function updateBlogApi(payload: { blog_id: string;[key: string]: any }) {
         }
     });
 
-    return axios.put(`/blogs/${blog_id}`, formData, {
+    return api.put(`blogs/${blog_id}`, formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -65,7 +65,7 @@ function updateBlogApi(payload: { blog_id: string;[key: string]: any }) {
 }
 
 function deleteBlogApi(payload: { blog_id: string }) {
-    return axios.delete(`/blogs/${payload.blog_id}`);
+    return api.delete(`blogs/${payload.blog_id}`);
 }
 
 // Saga handlers
