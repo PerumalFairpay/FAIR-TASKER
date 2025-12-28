@@ -31,7 +31,7 @@ export default function LoginPage() {
       // For now, maybe just stay here or go to a dashboard route if it exists?
       // The user didn't specify, but I'll add a comment/placeholder.
       console.log("Logged in!");
-      // router.push("/dashboard"); 
+      router.push("/dashboard");
     }
   }, [token, router]);
 
