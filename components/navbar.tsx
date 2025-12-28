@@ -12,10 +12,14 @@ import {
   ChevronLeftIcon, ChevronRightIcon, Logo
 } from "@/components/icons";
 
-export const Navbar = () => {
+interface NavbarProps {
+  isExpanded?: boolean;
+  onToggle?: () => void;
+}
+
+export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const [isExpanded, setIsExpanded] = useState(false);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   // Custom simple useMediaQuery hook
@@ -34,7 +38,7 @@ export const Navbar = () => {
   }, []);
 
   const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
+    if (onToggle) onToggle();
   };
 
   // Prevent hydration mismatch
