@@ -27,7 +27,11 @@ function getEmployeeListApi(page: number, perPage: number) {
 }
 
 function addEmployeeApi(data: FormData) {
-    return api.post("employee", data);
+    return api.post("employee", data, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function viewEmployeeApi(id: string | number) {
@@ -35,7 +39,11 @@ function viewEmployeeApi(id: string | number) {
 }
 
 function updateEmployeeApi(id: string | number, data: FormData) {
-    return api.post(`employee/${id}`, data);
+    return api.post(`employee/${id}`, data, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function deleteEmployeeApi(id: string | number) {
