@@ -75,6 +75,11 @@ export const siteConfig = {
       href: "/project/list",
       icon: "Briefcase",
     },
+    {
+      label: "Holiday",
+      href: "/holiday",
+      icon: "Calendar",
+    },
   ],
   navMenuItems: [
     {

@@ -9,8 +9,7 @@ import documentCategorySaga from "./documentCategory/saga";
 import documentSaga from "./document/saga";
 import clientSaga from "./client/saga";
 import projectSaga from "./project/saga";
-
-
+import holidaySaga from "./holiday/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -24,5 +23,6 @@ export default function* rootSaga() {
     fork(documentSaga),
     fork(clientSaga),
     fork(projectSaga),
+    fork(holidaySaga),
   ]);
 }

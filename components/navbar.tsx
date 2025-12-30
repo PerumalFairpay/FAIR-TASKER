@@ -25,7 +25,8 @@ import {
   Banknote,
   FileText,
   FolderTree,
-  Files
+  Files,
+  Calendar
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -52,6 +53,7 @@ const iconMap: Record<string, any> = {
   FileText,
   FolderTree,
   Files,
+  Calendar,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

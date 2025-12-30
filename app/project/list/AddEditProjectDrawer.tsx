@@ -179,7 +179,7 @@ export default function AddEditProjectDrawer({
                                 value={formData.name}
                                 onChange={handleInputChange}
                                 variant="bordered"
-                                required
+                                isRequired
                             />
 
                             <Select
@@ -188,7 +188,7 @@ export default function AddEditProjectDrawer({
                                 selectedKeys={formData.client_id ? [formData.client_id] : []}
                                 onSelectionChange={(keys) => handleSelectChange("client_id", Array.from(keys)[0])}
                                 variant="bordered"
-                                required
+                                isRequired
                             >
                                 {clients.map((client: any) => (
                                     <SelectItem key={client.id}>

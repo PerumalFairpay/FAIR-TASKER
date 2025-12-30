@@ -11,6 +11,7 @@ import documentCategoryReducer from "./documentCategory/reducer";
 import documentReducer from "./document/reducer";
 import clientReducer from "./client/reducer";
 import projectReducer from "./project/reducer";
+import holidayReducer from "./holiday/reducer";
 
 const rootReducer = combineReducers({
     Blog: blogReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     Document: documentReducer,
     Client: clientReducer,
     Project: projectReducer,
+    Holiday: holidayReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
