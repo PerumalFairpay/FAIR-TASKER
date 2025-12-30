@@ -74,29 +74,16 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const dispatch = useDispatch();
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  // Custom simple useMediaQuery hook
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    setMounted(true);
-
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    // Initial check
-    checkMobile();
-    // Listener
-    window.addEventListener('resize', checkMobile);
-
     // Load user data
     const name = localStorage.getItem("name");
     const email = localStorage.getItem("email");
     if (name) {
       setUser({ name, email: email || "" });
     }
-
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const toggleSidebar = () => {
@@ -124,13 +111,10 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     }));
   };
 
-  // Prevent hydration mismatch
-  if (!mounted) return null;
-
-  // Mobile Bottom Navbar
-  if (isMobile) {
-    return (
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
+  return (
+    <>
+      {/* Mobile Bottom Navbar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
         <div className="flex items-center justify-around h-full px-2">
           {siteConfig.navItems.map((item: any) => {
             // For mobile, simpler to just show top level or flat list? 
@@ -170,11 +154,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           })}
         </div>
       </div>
-    );
-  }
 
-  return (
-    <>
+      {/* Desktop Sidebar */}
       <div
         className={clsx(
           "fixed top-0 left-0 h-full bg-background border-r border-divider z-50 transition-all duration-300 ease-in-out",
