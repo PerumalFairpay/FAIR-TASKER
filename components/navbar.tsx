@@ -21,7 +21,8 @@ import {
   ShieldAlert,
   Contact,
   Wallet,
-  Receipt
+  Receipt,
+  Banknote
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -44,6 +45,7 @@ const iconMap: Record<string, any> = {
   Contact,
   Wallet,
   Receipt,
+  Banknote,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

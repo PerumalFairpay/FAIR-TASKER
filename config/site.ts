@@ -41,6 +41,11 @@ export const siteConfig = {
           href: "/expense/category",
           icon: "Receipt",
         },
+        {
+          label: "Expense",
+          href: "/expense/list",
+          icon: "Banknote",
+        },
       ],
     },
   ],
