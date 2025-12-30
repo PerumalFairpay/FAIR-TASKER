@@ -234,13 +234,26 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                     key={child.href}
                                     href={child.href}
                                     className={clsx(
-                                      "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                      "relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
                                       isChildActive
-                                        ? "bg-default-100 text-primary"
+                                        ? "bg-primary/10 text-primary"
                                         : "text-default-500 hover:bg-default-50 hover:text-default-900"
                                     )}
                                   >
-                                    <ChildIcon size={18} strokeWidth={1.5} />
+                                    {isChildActive && (
+                                      <motion.div
+                                        layoutId="active-indicator-child"
+                                        className="absolute left-0 w-1 h-5 bg-primary rounded-r-full"
+                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                      />
+                                    )}
+                                    <motion.div
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.95 }}
+                                      className="flex items-center justify-center"
+                                    >
+                                      <ChildIcon size={18} strokeWidth={1.5} className={isChildActive ? "text-primary" : "text-default-500"} />
+                                    </motion.div>
                                     <span>{child.label}</span>
                                   </NextLink>
                                 );
@@ -259,13 +272,26 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                     className={clsx(
                       linkStyles({ color: "foreground" }),
                       "data-[active=true]:text-primary data-[active=true]:font-medium",
-                      "p-2 rounded-lg flex items-center transition-colors h-10",
+                      "relative p-2 rounded-lg flex items-center transition-colors h-10",
                       isExpanded ? "justify-start gap-2" : "justify-center",
-                      pathname === item.href ? "bg-default-100 text-primary" : "hover:bg-default-50 text-default-600"
+                      pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
                     )}
                     href={item.href}
                   >
-                    <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                    {pathname === item.href && (
+                      <motion.div
+                        layoutId="active-indicator"
+                        className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center"
+                    >
+                      <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                    </motion.div>
                     {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
                   </NextLink>
                 )
