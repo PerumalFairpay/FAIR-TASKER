@@ -5,12 +5,20 @@ import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import {
   ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon
 } from "@/components/icons";
+import {
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  ChevronDown,
+  ChevronRight // Lucide chevron
+} from "lucide-react";
 
 import { useDispatch } from "react-redux";
 import { logoutRequest } from "@/store/auth/action";
@@ -24,6 +32,12 @@ interface NavbarProps {
   onToggle?: () => void;
 }
 
+const iconMap: Record<string, any> = {
+  LayoutDashboard,
+  Users,
+  Briefcase,
+};
+
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -34,6 +48,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -63,6 +78,22 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     setUser(null);
   };
 
+  const toggleMenu = (label: string) => {
+    if (!isExpanded && onToggle) {
+      onToggle();
+      // If we are expanding, we also want to open this menu
+      setOpenMenus(prev => ({
+        ...prev,
+        [label]: true
+      }));
+      return;
+    }
+    setOpenMenus(prev => ({
+      ...prev,
+      [label]: !prev[label]
+    }));
+  };
+
   // Prevent hydration mismatch
   if (!mounted) return null;
 
@@ -71,9 +102,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     return (
       <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
         <div className="flex items-center justify-around h-full px-2">
-          {siteConfig.navItems.map((item) => {
+          {siteConfig.navItems.map((item: any) => {
+            // For mobile, simpler to just show top level or flat list? 
+            // Logic: If it has children, maybe skip or show parent link if it exists.
+            // For now, let's just render parent links for mobile to keep it simple as per original
+            if (item.children) return null; // Skip complex items on mobile bottom bar for now or handle differently
+
             const isActive = pathname === item.href;
-            const Icon = Logo; // Fallback to Logo since items don't have icons in siteConfig yet
+            const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
             return (
               <NextLink
                 key={item.href}
@@ -102,10 +138,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               </NextLink>
             );
           })}
-          {/* ThemeSwitch Hidden */}
-          {/* <div className="flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1">
-            <ThemeSwitch />
-          </div> */}
         </div>
       </div>
     );
@@ -116,7 +148,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       <div
         className={clsx(
           "fixed top-0 left-0 h-full bg-background border-r border-divider z-50 transition-all duration-300 ease-in-out",
-          isExpanded ? "w-64" : "w-16", // Increased collapsed width slightly for better spacing
+          isExpanded ? "w-64" : "w-16",
           "hidden lg:block", "bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg"
         )}
       >
@@ -138,24 +170,92 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
             </NextLink>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-4">
-            <nav className="flex flex-col gap-2 px-2">
-              {siteConfig.navItems.map((item) => {
-                const Icon = Logo; // Fallback
+          <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
+            <nav className="flex flex-col gap-1 px-2">
+              {siteConfig.navItems.map((item: any) => {
+                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                const isActive = pathname === item.href;
+                const hasChildren = item.children && item.children.length > 0;
+                const isOpen = openMenus[item.label];
+
+                if (hasChildren) {
+                  return (
+                    <div key={item.label}>
+                      <Button
+                        onPress={() => toggleMenu(item.label)}
+                        className={clsx(
+                          "w-full bg-transparent justify-start gap-2 h-10 px-2",
+                          "hover:bg-default-50 text-default-600",
+                          !isExpanded && "justify-center px-0"
+                        )}
+                        disableRipple
+                      >
+                        <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                        {isExpanded && (
+                          <>
+                            <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                            <motion.div
+                              animate={{ rotate: isOpen ? 90 : 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <ChevronRight size={16} />
+                            </motion.div>
+                          </>
+                        )}
+                      </Button>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pl-4 mt-1 space-y-1">
+                              {item.children.map((child: any) => {
+                                const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                const isChildActive = pathname === child.href;
+
+                                return (
+                                  <NextLink
+                                    key={child.href}
+                                    href={child.href}
+                                    className={clsx(
+                                      "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                      isChildActive
+                                        ? "bg-default-100 text-primary"
+                                        : "text-default-500 hover:bg-default-50 hover:text-default-900"
+                                    )}
+                                  >
+                                    <ChildIcon size={18} strokeWidth={1.5} />
+                                    <span>{child.label}</span>
+                                  </NextLink>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
+
                 return (
                   <NextLink
                     key={item.href}
                     className={clsx(
                       linkStyles({ color: "foreground" }),
                       "data-[active=true]:text-primary data-[active=true]:font-medium",
-                      "p-2 rounded-lg flex items-center transition-colors",
+                      "p-2 rounded-lg flex items-center transition-colors h-10",
                       isExpanded ? "justify-start gap-2" : "justify-center",
-                      pathname === item.href ? "bg-default-100 text-primary" : "hover:bg-default-50"
+                      pathname === item.href ? "bg-default-100 text-primary" : "hover:bg-default-50 text-default-600"
                     )}
                     href={item.href}
                   >
-                    <Icon className="flex-shrink-0 w-5 h-5" />
-                    {isExpanded && item.label}
+                    <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                    {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
                   </NextLink>
                 )
               })}
@@ -196,14 +296,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 )}
               </div>
             )}
-            {/* ThemeSwitch Hidden
-            <div className={clsx(
-              "flex items-center gap-1 mb-2",
-              isExpanded ? "justify-start px-2" : "justify-center"
-            )}>
-              <ThemeSwitch />
-              {isExpanded && <span className="text-sm">Theme</span>}
-            </div> */}
 
             <div className={clsx(
               "flex items-center gap-1",

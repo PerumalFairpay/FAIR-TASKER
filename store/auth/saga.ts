@@ -11,7 +11,7 @@ import {
 import api from "../api";
 
 function loginApi(payload: any) {
-    return api.post("login", payload);
+    return api.post("/auth/login", payload);
 }
 
 function registerApi(payload: any) {

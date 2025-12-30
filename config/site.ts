@@ -7,10 +7,19 @@ export const siteConfig = {
     {
       label: "Dashboard",
       href: "/dashboard",
+      icon: "LayoutDashboard",
     },
     {
       label: "Employee",
       href: "/employee",
+      icon: "Users",
+      children: [
+        {
+          label: "Department",
+          href: "/employee/department",
+          icon: "Briefcase",
+        },
+      ],
     },
   ],
   navMenuItems: [
