@@ -31,6 +31,18 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      label: "Expense Management",
+      href: "/expense",
+      icon: "Wallet",
+      children: [
+        {
+          label: "Category",
+          href: "/expense/category",
+          icon: "Receipt",
+        },
+      ],
+    },
   ],
   navMenuItems: [
     {

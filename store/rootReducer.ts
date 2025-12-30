@@ -5,16 +5,20 @@ import settingsReducer from "./settings/reducer";
 import departmentReducer from "./department/reducer";
 import roleReducer from "./role/reducer";
 import employeeReducer from "./employee/reducer";
+import expenseCategoryReducer from "./expenseCategory/reducer";
+import expenseReducer from "./expense/reducer";
 
 
 
 const rootReducer = combineReducers({
-      Blog: blogReducer,
-      Auth: authReducer,
-      Settings: settingsReducer,
-      Department: departmentReducer,
-      Role: roleReducer,
-      Employee: employeeReducer,
+    Blog: blogReducer,
+    Auth: authReducer,
+    Settings: settingsReducer,
+    Department: departmentReducer,
+    Role: roleReducer,
+    Employee: employeeReducer,
+    ExpenseCategory: expenseCategoryReducer,
+    Expense: expenseReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
