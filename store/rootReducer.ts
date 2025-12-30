@@ -4,6 +4,7 @@ import authReducer from "./auth/reducer";
 import settingsReducer from "./settings/reducer";
 import departmentReducer from "./department/reducer";
 import roleReducer from "./role/reducer";
+import employeeReducer from "./employee/reducer";
 
 
 
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
       Settings: settingsReducer,
       Department: departmentReducer,
       Role: roleReducer,
+      Employee: employeeReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

@@ -4,6 +4,7 @@ import authSaga from "./auth/saga";
 import settingsSaga from "./settings/saga";
 import departmentSaga from "./department/saga";
 import roleSaga from "./role/saga";
+import employeeSaga from "./employee/saga";
 
 
 
@@ -14,6 +15,7 @@ export default function* rootSaga() {
     settingsSaga(),
     departmentSaga(),
     roleSaga(),
+    employeeSaga(),
 
   ]);
 }
