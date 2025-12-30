@@ -25,6 +25,8 @@ import { PlusIcon, PencilIcon, TrashIcon, Eye } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import AddEditAssetDrawer from "./AddEditAssetDrawer";
 import DeleteAssetModal from "./DeleteAssetModal";
+// import AddEditAssetDrawer from "./AddEditAssetDrawer";
+// import DeleteAssetModal from "./DeleteAssetModal";
 
 export default function AssetListPage() {
     const dispatch = useDispatch();
