@@ -70,6 +70,11 @@ export const siteConfig = {
       href: "/client",
       icon: "Users",
     },
+    {
+      label: "Project",
+      href: "/project/list",
+      icon: "Briefcase",
+    },
   ],
   navMenuItems: [
     {

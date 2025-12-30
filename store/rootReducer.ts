@@ -10,6 +10,7 @@ import expenseReducer from "./expense/reducer";
 import documentCategoryReducer from "./documentCategory/reducer";
 import documentReducer from "./document/reducer";
 import clientReducer from "./client/reducer";
+import projectReducer from "./project/reducer";
 
 const rootReducer = combineReducers({
     Blog: blogReducer,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     DocumentCategory: documentCategoryReducer,
     Document: documentReducer,
     Client: clientReducer,
+    Project: projectReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
