@@ -18,7 +18,8 @@ import {
   Briefcase,
   ChevronDown,
   ChevronRight, // Lucide chevron
-  ShieldAlert
+  ShieldAlert,
+  Contact
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -38,6 +39,7 @@ const iconMap: Record<string, any> = {
   Users,
   Briefcase,
   ShieldAlert,
+  Contact,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

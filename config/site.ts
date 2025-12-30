@@ -10,19 +10,24 @@ export const siteConfig = {
       icon: "LayoutDashboard",
     },
     {
-      label: "Employee Management",
-      href: "/employee_management",
+      label: "Employee",
+      href: "/employee",
       icon: "Users",
       children: [
         {
           label: "Department",
-          href: "/employee_management/department",
+          href: "/employee/department",
           icon: "Briefcase",
         },
         {
           label: "Role",
-          href: "/employee_management/role",
+          href: "/employee/role",
           icon: "ShieldAlert",
+        },
+        {
+          label: "Employee List",
+          href: "/employee/list",
+          icon: "Contact",
         },
       ],
     },
