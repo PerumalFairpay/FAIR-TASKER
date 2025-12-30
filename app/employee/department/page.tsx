@@ -127,9 +127,9 @@ const DepartmentTreeNode = ({
 
             <div className={clsx(
                 "group relative flex items-center gap-4 p-3 mb-2 rounded-2xl transition-all duration-300",
-                "bg-white dark:bg-default-50 border border-default-200 shadow-sm hover:shadow-md",
-                "hover:border-primary/50 hover:bg-primary/5 dark:hover:bg-primary/10",
-                level === 0 && "bg-gradient-to-r from-primary/5 to-transparent border-primary/20"
+                "bg-transparent border border-default-200 shadow-sm hover:shadow-md",
+                "hover:border-primary/50 hover:bg-primary/5",
+                level === 0 && "bg-gradient-to-r from-primary/5 to-transparent border-primary/20 shadow-md shadow-primary/5"
             )}>
                 {/* Visual Accent */}
                 <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-primary rounded-r-full scale-y-0 group-hover:scale-y-100 transition-transform duration-300" />
@@ -226,8 +226,17 @@ export default function DepartmentPage() {
     );
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const {
+        isOpen: isDeleteOpen,
+        onOpen: onDeleteOpen,
+        onOpenChange: onDeleteOpenChange,
+        onClose: onDeleteClose
+    } = useDisclosure();
+
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showParentSelect, setShowParentSelect] = useState(true);
     const [formData, setFormData] = useState({
         name: "",
         parent_id: "",
@@ -247,12 +256,14 @@ export default function DepartmentPage() {
     const handleCreate = () => {
         setMode("create");
         setFormData({ name: "", parent_id: "" });
+        setShowParentSelect(false);
         onOpen();
     };
 
     const handleAddSub = (parentId: string) => {
         setMode("create");
         setFormData({ name: "", parent_id: parentId });
+        setShowParentSelect(false);
         onOpen();
     };
 
@@ -263,12 +274,19 @@ export default function DepartmentPage() {
             name: department.name,
             parent_id: department.parent_id || "",
         });
+        setShowParentSelect(true);
         onOpen();
     };
 
     const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this department?")) {
-            dispatch(deleteDepartmentRequest(id));
+        setDeleteId(id);
+        onDeleteOpen();
+    };
+
+    const confirmDelete = () => {
+        if (deleteId) {
+            dispatch(deleteDepartmentRequest(deleteId));
+            onDeleteClose();
         }
     };
 
@@ -293,7 +311,7 @@ export default function DepartmentPage() {
     const treeData = React.useMemo(() => buildTree(departments || []), [departments]);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-3xl font-bold tracking-tight text-default-900">Department Structure</h1>
@@ -301,17 +319,17 @@ export default function DepartmentPage() {
                 </div>
                 <Button
                     color="primary"
-                    size="lg"
+                    size="md"
                     variant="shadow"
                     startContent={<PlusIcon size={18} />}
                     onPress={handleCreate}
                     className="font-semibold px-6"
                 >
-                    Add Root Department
+                    Department
                 </Button>
             </div>
 
-            <div className="relative bg-default-50/50 dark:bg-default-100/10 rounded-[2.5rem] p-8 border border-default-200/50 backdrop-blur-sm min-h-[600px]">
+            <div className="relative p-0 pt-4">
                 {!loading && treeData.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full py-20 text-center">
                         <div className="p-4 bg-default-100 rounded-2xl mb-4 text-default-400">
@@ -351,21 +369,23 @@ export default function DepartmentPage() {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
-                                <Select
-                                    label="Parent Department"
-                                    placeholder="Select a parent (optional)"
-                                    selectedKeys={formData.parent_id ? [formData.parent_id] : []}
-                                    onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
-                                >
-                                    {[
-                                        { id: "", name: "None (Root)" },
-                                        ...(departments || []).filter((d: any) => d.id !== selectedDepartment?.id)
-                                    ].map((dept: any) => (
-                                        <SelectItem key={dept.id || "root"} textValue={dept.name}>
-                                            {dept.name}
-                                        </SelectItem>
-                                    ))}
-                                </Select>
+                                {showParentSelect && (
+                                    <Select
+                                        label="Parent Department"
+                                        placeholder="Select a parent (optional)"
+                                        selectedKeys={formData.parent_id ? [formData.parent_id] : []}
+                                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                                    >
+                                        {[
+                                            { id: "", name: "None (Root)" },
+                                            ...(departments || []).filter((d: any) => d.id !== selectedDepartment?.id)
+                                        ].map((dept: any) => (
+                                            <SelectItem key={dept.id || "root"} textValue={dept.name}>
+                                                {dept.name}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                )}
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="light" onPress={onClose}>
@@ -373,6 +393,30 @@ export default function DepartmentPage() {
                                 </Button>
                                 <Button color="primary" onPress={handleSubmit} isLoading={loading}>
                                     {mode === "create" ? "Create" : "Update"}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Confirm Delete</ModalHeader>
+                            <ModalBody>
+                                <p className="text-default-600">
+                                    Are you sure you want to delete this department? This action cannot be undone.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="danger" variant="shadow" onPress={confirmDelete} isLoading={loading}>
+                                    Delete
                                 </Button>
                             </ModalFooter>
                         </>
