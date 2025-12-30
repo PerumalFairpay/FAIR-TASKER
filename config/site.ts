@@ -19,6 +19,11 @@ export const siteConfig = {
           href: "/employee/department",
           icon: "Briefcase",
         },
+        {
+          label: "Role",
+          href: "/employee/role",
+          icon: "ShieldAlert",
+        },
       ],
     },
   ],

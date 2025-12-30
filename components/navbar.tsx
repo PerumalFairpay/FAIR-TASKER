@@ -17,7 +17,8 @@ import {
   Users,
   Briefcase,
   ChevronDown,
-  ChevronRight // Lucide chevron
+  ChevronRight, // Lucide chevron
+  ShieldAlert
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -36,6 +37,7 @@ const iconMap: Record<string, any> = {
   LayoutDashboard,
   Users,
   Briefcase,
+  ShieldAlert,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

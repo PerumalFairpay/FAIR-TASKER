@@ -3,6 +3,7 @@ import blogReducer from "./blog/reducer";
 import authReducer from "./auth/reducer";
 import settingsReducer from "./settings/reducer";
 import departmentReducer from "./department/reducer";
+import roleReducer from "./role/reducer";
 
 
 
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
       Auth: authReducer,
       Settings: settingsReducer,
       Department: departmentReducer,
+      Role: roleReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

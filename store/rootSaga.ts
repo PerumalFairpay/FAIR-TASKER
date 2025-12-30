@@ -3,6 +3,7 @@ import blogSaga from "./blog/saga";
 import authSaga from "./auth/saga";
 import settingsSaga from "./settings/saga";
 import departmentSaga from "./department/saga";
+import roleSaga from "./role/saga";
 
 
 
@@ -12,6 +13,7 @@ export default function* rootSaga() {
     authSaga(),
     settingsSaga(),
     departmentSaga(),
+    roleSaga(),
 
   ]);
 }
