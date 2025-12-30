@@ -21,9 +21,50 @@ import {
     ModalFooter,
     useDisclosure,
 } from "@heroui/modal";
-import { PlusIcon, PencilIcon, TrashIcon, ChevronRight, ChevronDown, Tag } from "lucide-react";
+import {
+    PlusIcon,
+    PencilIcon,
+    TrashIcon,
+    ChevronRight,
+    ChevronDown,
+    Folder,
+    FolderOpen,
+    Files,
+    FileText,
+    Image,
+    FileCode,
+    Archive,
+    FileSignature,
+    FileSearch,
+    FileCheck,
+    Cloud,
+    Shield
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
+
+// Helper to get specialized icons for document categories
+const getCategoryIcon = (name: string, level: number, hasChildren: boolean, isOpen: boolean) => {
+    const lowerName = name.toLowerCase();
+
+    // Level 0 (Root) usually gets a Files icon
+    if (level === 0) return <Files size={22} />;
+
+    // Name-based icons
+    if (lowerName.includes("legal") || lowerName.includes("contract") || lowerName.includes("agree")) return <FileSignature size={20} />;
+    if (lowerName.includes("report") || lowerName.includes("stat") || lowerName.includes("data")) return <FileSearch size={20} />;
+    if (lowerName.includes("image") || lowerName.includes("photo") || lowerName.includes("asset")) return <Image size={20} />;
+    if (lowerName.includes("code") || lowerName.includes("script") || lowerName.includes("tech")) return <FileCode size={20} />;
+    if (lowerName.includes("archive") || lowerName.includes("old") || lowerName.includes("backup")) return <Archive size={20} />;
+    if (lowerName.includes("policy") || lowerName.includes("rule") || lowerName.includes("guide")) return <Shield size={20} />;
+    if (lowerName.includes("cloud") || lowerName.includes("share") || lowerName.includes("public")) return <Cloud size={20} />;
+    if (lowerName.includes("cert") || lowerName.includes("proof") || lowerName.includes("verify")) return <FileCheck size={20} />;
+    if (lowerName.includes("text") || lowerName.includes("doc") || lowerName.includes("note")) return <FileText size={20} />;
+
+    // Fallback based on children/state
+    if (hasChildren) return isOpen ? <FolderOpen size={20} /> : <Folder size={20} />;
+    return <FileText size={20} />;
+};
 
 // Helper to build tree structure
 const buildTree = (categories: any[]) => {
@@ -49,44 +90,101 @@ const buildTree = (categories: any[]) => {
 };
 
 // Recursive Tree Node Component
-const CategoryTreeNode = ({ node, onEdit, onDelete, onAddSub }: { node: any, onEdit: (d: any) => void, onDelete: (id: string) => void, onAddSub: (id: string) => void }) => {
-    const [isOpen, setIsOpen] = useState(false);
+const CategoryTreeNode = ({
+    node,
+    onEdit,
+    onDelete,
+    onAddSub,
+    isLast = false,
+    level = 0
+}: {
+    node: any,
+    onEdit: (d: any) => void,
+    onDelete: (id: string) => void,
+    onAddSub: (id: string) => void,
+    isLast?: boolean,
+    level?: number
+}) => {
+    const [isOpen, setIsOpen] = useState(true);
     const hasChildren = node.children && node.children.length > 0;
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
+    const icon = getCategoryIcon(node.name, level, hasChildren, isOpen);
+
     return (
-        <div className="ml-4">
+        <div className="relative">
+            {/* Connecting lines for children */}
+            {level > 0 && (
+                <div
+                    className={clsx(
+                        "absolute -left-6 top-0 w-6 border-l-2 border-primary/20",
+                        isLast ? "h-6 rounded-bl-xl border-b-2" : "h-full"
+                    )}
+                />
+            )}
+
             <div className={clsx(
-                "flex items-center gap-2 p-2 rounded-lg hover:bg-default-100 transition-colors group",
-                !hasChildren && "ml-6" // Indent if no chevron
+                "group relative flex items-center gap-4 p-3 mb-2 rounded-2xl transition-all duration-300",
+                "bg-transparent border border-default-200 shadow-sm hover:shadow-md",
+                "hover:border-primary/50 hover:bg-primary/5",
+                level === 0 && "bg-gradient-to-r from-primary/5 to-transparent border-primary/20 shadow-md shadow-primary/5"
             )}>
-                {hasChildren && (
-                    <button onClick={toggleOpen} className="p-1 hover:bg-default-200 rounded-full transition-colors">
-                        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                    </button>
-                )}
+                {/* Visual Accent */}
+                <div className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-primary rounded-r-full scale-y-0 group-hover:scale-y-100 transition-transform duration-300" />
 
-                <div className="text-secondary">
-                    <Tag size={20} />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={clsx(
+                        "p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center",
+                        level === 0 ? "bg-primary text-white shadow-lg shadow-primary/30" :
+                            hasChildren ? "bg-primary/10 text-primary" : "bg-default-100 text-default-600",
+                        "group-hover:scale-110"
+                    )}>
+                        {icon}
+                    </div>
+
+                    <div className="flex flex-col min-w-0">
+                        <span className={clsx(
+                            "font-semibold text-default-800 truncate transition-colors",
+                            level === 0 ? "text-lg" : "text-base",
+                            "group-hover:text-primary transition-colors"
+                        )}>
+                            {node.name}
+                        </span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] uppercase tracking-wider font-bold text-default-400">
+                                {level === 0 ? 'Main Collection' : `Sub Collection`}
+                            </span>
+                            {hasChildren && (
+                                <span className="w-1 h-1 rounded-full bg-default-300" />
+                            )}
+                            <span className="text-xs text-default-400">
+                                {hasChildren ? `${node.children.length} categories` : 'Unit'}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="flex flex-col flex-1">
-                    <span className="font-medium text-default-700">{node.name}</span>
-                    {node.description && <span className="text-tiny text-default-400">{node.description}</span>}
-                </div>
-
-                {/* Actions - visible on hover */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button size="sm" isIconOnly variant="light" color="primary" onPress={() => onAddSub(node.id)} title="Add Sub-category">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
+                    <Button size="sm" isIconOnly variant="flat" color="primary" onPress={() => onAddSub(node.id)} className="rounded-lg">
                         <PlusIcon size={16} />
                     </Button>
-                    <Button size="sm" isIconOnly variant="light" color="warning" onPress={() => onEdit(node)} title="Edit">
+                    <Button size="sm" isIconOnly variant="flat" color="warning" onPress={() => onEdit(node)} className="rounded-lg">
                         <PencilIcon size={16} />
                     </Button>
-                    <Button size="sm" isIconOnly variant="light" color="danger" onPress={() => onDelete(node.id)} title="Delete">
+                    <Button size="sm" isIconOnly variant="flat" color="danger" onPress={() => onDelete(node.id)} className="rounded-lg">
                         <TrashIcon size={16} />
                     </Button>
+                    {hasChildren && (
+                        <Button size="sm" isIconOnly variant="light" onClick={toggleOpen} className="rounded-lg ml-1">
+                            <motion.div
+                                animate={{ rotate: isOpen ? 90 : 0 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <ChevronRight size={16} />
+                            </motion.div>
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -96,16 +194,21 @@ const CategoryTreeNode = ({ node, onEdit, onDelete, onAddSub }: { node: any, onE
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden border-l border-default-200 ml-5"
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden ml-10 relative"
                     >
-                        {node.children.map((child: any) => (
+                        {/* Vertical line through children */}
+                        <div className="absolute left-[-24px] top-[-8px] bottom-6 w-0.5 bg-primary/20" />
+
+                        {node.children.map((child: any, index: number) => (
                             <CategoryTreeNode
                                 key={child.id}
                                 node={child}
                                 onEdit={onEdit}
                                 onDelete={onDelete}
                                 onAddSub={onAddSub}
+                                level={level + 1}
+                                isLast={index === node.children.length - 1}
                             />
                         ))}
                     </motion.div>
@@ -122,8 +225,17 @@ export default function DocumentCategoryPage() {
     );
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const {
+        isOpen: isDeleteOpen,
+        onOpen: onDeleteOpen,
+        onOpenChange: onDeleteOpenChange,
+        onClose: onDeleteClose
+    } = useDisclosure();
+
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedCategory, setSelectedCategory] = useState<any>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showParentSelect, setShowParentSelect] = useState(true);
     const [formData, setFormData] = useState({
         name: "",
         description: "",
@@ -137,19 +249,22 @@ export default function DocumentCategoryPage() {
     useEffect(() => {
         if (success) {
             onClose();
+            onDeleteClose();
             dispatch(clearDocumentCategoryDetails());
         }
-    }, [success, onClose, dispatch]);
+    }, [success, onClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
         setFormData({ name: "", description: "", parent_id: "" });
+        setShowParentSelect(false);
         onOpen();
     };
 
     const handleAddSub = (parentId: string) => {
         setMode("create");
         setFormData({ name: "", description: "", parent_id: parentId });
+        setShowParentSelect(false);
         onOpen();
     };
 
@@ -161,12 +276,18 @@ export default function DocumentCategoryPage() {
             description: category.description || "",
             parent_id: category.parent_id || "",
         });
+        setShowParentSelect(true);
         onOpen();
     };
 
     const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this category?")) {
-            dispatch(deleteDocumentCategoryRequest(id));
+        setDeleteId(id);
+        onDeleteOpen();
+    };
+
+    const confirmDelete = () => {
+        if (deleteId) {
+            dispatch(deleteDocumentCategoryRequest(deleteId));
         }
     };
 
@@ -193,29 +314,48 @@ export default function DocumentCategoryPage() {
     const treeData = React.useMemo(() => buildTree(documentCategories || []), [documentCategories]);
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Document Categories</h1>
-                    <p className="text-default-500">Manage categories for document classification</p>
+        <div className="p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-3xl font-bold tracking-tight text-default-900">Document Categories</h1>
+                    <p className="text-default-500 text-sm">Organize and manage your document classification hierarchy.</p>
                 </div>
-                <Button color="secondary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
-                    Add Root Category
+                <Button
+                    color="primary"
+                    size="md"
+                    variant="shadow"
+                    startContent={<PlusIcon size={18} />}
+                    onPress={handleCreate}
+                    className="font-semibold px-6"
+                >
+                    Category
                 </Button>
             </div>
 
-            <div className="bg-default-50 rounded-xl p-4 min-h-[400px] border border-default-200">
-                {!loading && treeData.length === 0 && <p className="text-default-500">No categories found.</p>}
+            <div className="relative p-0 pt-4">
+                {!loading && treeData.length === 0 && (
+                    <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+                        <div className="p-4 bg-default-100 rounded-2xl mb-4 text-default-400">
+                            <Files size={48} />
+                        </div>
+                        <h3 className="text-lg font-semibold text-default-900">No Categories Found</h3>
+                        <p className="text-default-500 max-w-xs">Start by creating your first root category to build your document classification tree.</p>
+                    </div>
+                )}
 
-                {treeData.map((node: any) => (
-                    <CategoryTreeNode
-                        key={node.id}
-                        node={node}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                        onAddSub={handleAddSub}
-                    />
-                ))}
+                <div className="space-y-4">
+                    {treeData.map((node: any, index: number) => (
+                        <CategoryTreeNode
+                            key={node.id}
+                            node={node}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onAddSub={handleAddSub}
+                            level={0}
+                            isLast={index === treeData.length - 1}
+                        />
+                    ))}
+                </div>
             </div>
 
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
@@ -239,28 +379,54 @@ export default function DocumentCategoryPage() {
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 />
-                                <Select
-                                    label="Parent Category"
-                                    placeholder="Select a parent (optional)"
-                                    selectedKeys={formData.parent_id ? [formData.parent_id] : []}
-                                    onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
-                                >
-                                    {[
-                                        { id: "", name: "None (Root)" },
-                                        ...(documentCategories || []).filter((c: any) => c.id !== selectedCategory?.id)
-                                    ].map((cat: any) => (
-                                        <SelectItem key={cat.id || "root"} textValue={cat.name}>
-                                            {cat.name}
-                                        </SelectItem>
-                                    ))}
-                                </Select>
+                                {showParentSelect && (
+                                    <Select
+                                        label="Parent Category"
+                                        placeholder="Select a parent (optional)"
+                                        selectedKeys={formData.parent_id ? [formData.parent_id] : []}
+                                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                                    >
+                                        {[
+                                            { id: "", name: "None (Root)" },
+                                            ...(documentCategories || []).filter((cat: any) => cat.id !== selectedCategory?.id)
+                                        ].map((cat: any) => (
+                                            <SelectItem key={cat.id || "root"} textValue={cat.name}>
+                                                {cat.name}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                )}
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>
-                                <Button color="secondary" onPress={handleSubmit} isLoading={loading}>
+                                <Button color="primary" onPress={handleSubmit} isLoading={loading}>
                                     {mode === "create" ? "Create" : "Update"}
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Confirm Delete</ModalHeader>
+                            <ModalBody>
+                                <p className="text-default-600">
+                                    Are you sure you want to delete this category? This action cannot be undone.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="danger" variant="shadow" onPress={confirmDelete} isLoading={loading}>
+                                    Delete
                                 </Button>
                             </ModalFooter>
                         </>
