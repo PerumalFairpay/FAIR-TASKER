@@ -10,6 +10,8 @@ import documentSaga from "./document/saga";
 import clientSaga from "./client/saga";
 import projectSaga from "./project/saga";
 import holidaySaga from "./holiday/saga";
+import assetCategorySaga from "./assetCategory/saga";
+import assetSaga from "./asset/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -24,5 +26,7 @@ export default function* rootSaga() {
     fork(clientSaga),
     fork(projectSaga),
     fork(holidaySaga),
+    fork(assetCategorySaga),
+    fork(assetSaga),
   ]);
 }

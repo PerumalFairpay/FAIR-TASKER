@@ -26,7 +26,10 @@ import {
   FileText,
   FolderTree,
   Files,
-  Calendar
+  Calendar,
+  Package,
+  Layers,
+  Box
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -54,6 +57,9 @@ const iconMap: Record<string, any> = {
   FolderTree,
   Files,
   Calendar,
+  Package,
+  Layers,
+  Box,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

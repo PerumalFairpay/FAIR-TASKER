@@ -80,6 +80,23 @@ export const siteConfig = {
       href: "/holiday",
       icon: "Calendar",
     },
+    {
+      label: "Asset Management",
+      href: "/asset",
+      icon: "Package",
+      children: [
+        {
+          label: "Category",
+          href: "/asset/category",
+          icon: "Layers",
+        },
+        {
+          label: "Asset",
+          href: "/asset/list",
+          icon: "Box",
+        },
+      ],
+    },
   ],
   navMenuItems: [
     {
