@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import blogReducer from "./blog/reducer";
+// import blogReducer from "./blog/reducer";
 import authReducer from "./auth/reducer";
 import settingsReducer from "./settings/reducer";
 import departmentReducer from "./department/reducer";
@@ -14,6 +14,7 @@ import projectReducer from "./project/reducer";
 import holidayReducer from "./holiday/reducer";
 import assetCategoryReducer from "./assetCategory/reducer";
 import assetReducer from "./asset/reducer";
+import blogReducer from "./blog/reducer";
 
 const rootReducer = combineReducers({
     Blog: blogReducer,

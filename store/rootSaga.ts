@@ -12,6 +12,8 @@ import projectSaga from "./project/saga";
 import holidaySaga from "./holiday/saga";
 import assetCategorySaga from "./assetCategory/saga";
 import assetSaga from "./asset/saga";
+import blogSaga from "./blog/saga";
+
 
 export default function* rootSaga() {
   yield all([
@@ -28,5 +30,7 @@ export default function* rootSaga() {
     fork(holidaySaga),
     fork(assetCategorySaga),
     fork(assetSaga),
+    fork(blogSaga),
+
   ]);
 }

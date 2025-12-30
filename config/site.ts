@@ -97,7 +97,13 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      label: "Blog",
+      href: "/blog",
+      icon: "BookOpen",
+    },
   ],
+
   navMenuItems: [
     {
       label: "Profile",
