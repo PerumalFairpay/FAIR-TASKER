@@ -100,7 +100,7 @@ export const siteConfig = {
     {
       label: "Blog",
       href: "/blog",
-      icon: "BookOpen",
+      icon: "Newspaper",
     },
   ],
 

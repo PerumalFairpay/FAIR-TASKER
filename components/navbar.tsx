@@ -29,8 +29,11 @@ import {
   Calendar,
   Package,
   Layers,
-  Box
+  Box,
+  BookOpen,
+  Newspaper
 } from "lucide-react";
+
 
 import { useDispatch } from "react-redux";
 import { logoutRequest } from "@/store/auth/action";
@@ -60,7 +63,10 @@ const iconMap: Record<string, any> = {
   Package,
   Layers,
   Box,
+  BookOpen,
+  Newspaper,
 };
+
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
