@@ -9,6 +9,7 @@ import expenseCategoryReducer from "./expenseCategory/reducer";
 import expenseReducer from "./expense/reducer";
 import documentCategoryReducer from "./documentCategory/reducer";
 import documentReducer from "./document/reducer";
+import clientReducer from "./client/reducer";
 
 const rootReducer = combineReducers({
     Blog: blogReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     Expense: expenseReducer,
     DocumentCategory: documentCategoryReducer,
     Document: documentReducer,
+    Client: clientReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

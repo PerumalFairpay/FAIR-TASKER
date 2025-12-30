@@ -7,6 +7,7 @@ import expenseCategorySaga from "./expenseCategory/saga";
 import expenseSaga from "./expense/saga";
 import documentCategorySaga from "./documentCategory/saga";
 import documentSaga from "./document/saga";
+import clientSaga from "./client/saga";
 
 
 
@@ -20,5 +21,6 @@ export default function* rootSaga() {
     fork(expenseSaga),
     fork(documentCategorySaga),
     fork(documentSaga),
+    fork(clientSaga),
   ]);
 }

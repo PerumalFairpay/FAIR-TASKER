@@ -65,6 +65,11 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      label: "Client/Vendor",
+      href: "/client",
+      icon: "Users",
+    },
   ],
   navMenuItems: [
     {
