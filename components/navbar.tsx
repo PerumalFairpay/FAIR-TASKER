@@ -22,7 +22,10 @@ import {
   Contact,
   Wallet,
   Receipt,
-  Banknote
+  Banknote,
+  FileText,
+  FolderTree,
+  Files
 } from "lucide-react";
 
 import { useDispatch } from "react-redux";
@@ -46,6 +49,9 @@ const iconMap: Record<string, any> = {
   Wallet,
   Receipt,
   Banknote,
+  FileText,
+  FolderTree,
+  Files,
 };
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {

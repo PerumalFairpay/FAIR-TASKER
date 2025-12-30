@@ -7,8 +7,8 @@ import roleReducer from "./role/reducer";
 import employeeReducer from "./employee/reducer";
 import expenseCategoryReducer from "./expenseCategory/reducer";
 import expenseReducer from "./expense/reducer";
-
-
+import documentCategoryReducer from "./documentCategory/reducer";
+import documentReducer from "./document/reducer";
 
 const rootReducer = combineReducers({
     Blog: blogReducer,
@@ -19,6 +19,8 @@ const rootReducer = combineReducers({
     Employee: employeeReducer,
     ExpenseCategory: expenseCategoryReducer,
     Expense: expenseReducer,
+    DocumentCategory: documentCategoryReducer,
+    Document: documentReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

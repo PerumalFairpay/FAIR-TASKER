@@ -48,6 +48,23 @@ export const siteConfig = {
         },
       ],
     },
+    {
+      label: "Document Management",
+      href: "/document",
+      icon: "FileText",
+      children: [
+        {
+          label: "Category",
+          href: "/document/category",
+          icon: "FolderTree",
+        },
+        {
+          label: "Document",
+          href: "/document/list",
+          icon: "Files",
+        },
+      ],
+    },
   ],
   navMenuItems: [
     {

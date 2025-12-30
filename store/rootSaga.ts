@@ -5,6 +5,10 @@ import roleSaga from "./role/saga";
 import employeeSaga from "./employee/saga";
 import expenseCategorySaga from "./expenseCategory/saga";
 import expenseSaga from "./expense/saga";
+import documentCategorySaga from "./documentCategory/saga";
+import documentSaga from "./document/saga";
+
+
 
 export default function* rootSaga() {
   yield all([
@@ -14,5 +18,7 @@ export default function* rootSaga() {
     fork(employeeSaga),
     fork(expenseCategorySaga),
     fork(expenseSaga),
+    fork(documentCategorySaga),
+    fork(documentSaga),
   ]);
 }
