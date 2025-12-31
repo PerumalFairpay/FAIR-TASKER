@@ -3,6 +3,7 @@ import * as actionTypes from "./actionType";
 interface TaskState {
     tasks: any[];
     task: any | null;
+    eodReports: any[];
     loading: boolean;
     error: string | null;
     success: boolean;
@@ -11,6 +12,7 @@ interface TaskState {
 const initialState: TaskState = {
     tasks: [],
     task: null,
+    eodReports: [],
     loading: false,
     error: null,
     success: false,
@@ -24,6 +26,7 @@ const taskReducer = (state = initialState, action: any) => {
         case actionTypes.UPDATE_TASK_REQUEST:
         case actionTypes.DELETE_TASK_REQUEST:
         case actionTypes.SUBMIT_EOD_REPORT_REQUEST:
+        case actionTypes.GET_EOD_REPORTS_REQUEST:
             return {
                 ...state,
                 loading: true,
@@ -73,13 +76,17 @@ const taskReducer = (state = initialState, action: any) => {
             };
 
         case actionTypes.SUBMIT_EOD_REPORT_SUCCESS:
-            // Since EOD report might return updated tasks or new rollover tasks
-            // we might need to refresh the list or handle carefully.
-            // For now, let's assume it returns the updated tasks.
             return {
                 ...state,
                 loading: false,
                 success: true,
+            };
+
+        case actionTypes.GET_EOD_REPORTS_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                eodReports: action.payload,
             };
 
         case actionTypes.CREATE_TASK_FAILURE:
@@ -88,6 +95,7 @@ const taskReducer = (state = initialState, action: any) => {
         case actionTypes.UPDATE_TASK_FAILURE:
         case actionTypes.DELETE_TASK_FAILURE:
         case actionTypes.SUBMIT_EOD_REPORT_FAILURE:
+        case actionTypes.GET_EOD_REPORTS_FAILURE:
             return {
                 ...state,
                 loading: false,

@@ -7,6 +7,7 @@ import {
     UPDATE_TASK_REQUEST,
     DELETE_TASK_REQUEST,
     SUBMIT_EOD_REPORT_REQUEST,
+    GET_EOD_REPORTS_REQUEST,
 } from "./actionType";
 import {
     createTaskSuccess,
@@ -21,6 +22,8 @@ import {
     deleteTaskFailure,
     submitEodReportSuccess,
     submitEodReportFailure,
+    getEodReportsSuccess,
+    getEodReportsFailure,
 } from "./action";
 import api from "../api";
 
@@ -47,6 +50,10 @@ function deleteTaskApi(id: string) {
 
 function submitEodReportApi(payload: any) {
     return api.post("/tasks/eod-report", payload);
+}
+
+function getEodReportsApi(params: any) {
+    return api.get("/tasks/eod-reports", { params });
 }
 
 // Sagas
@@ -143,6 +150,21 @@ function* onSubmitEodReport({ payload }: any): SagaIterator {
     }
 }
 
+function* onGetEodReports({ payload }: any): SagaIterator {
+    try {
+        const response = yield call(getEodReportsApi, payload);
+        if (response.data.success) {
+            yield put(getEodReportsSuccess(response.data.data));
+        } else {
+            yield put(getEodReportsFailure(response.data.message || "Failed to fetch EOD reports"));
+        }
+    } catch (error: any) {
+        yield put(
+            getEodReportsFailure(error.response?.data?.message || "Failed to fetch EOD reports")
+        );
+    }
+}
+
 export default function* taskSaga(): SagaIterator {
     yield takeEvery(CREATE_TASK_REQUEST, onCreateTask);
     yield takeEvery(GET_TASKS_REQUEST, onGetTasks);
@@ -150,4 +172,5 @@ export default function* taskSaga(): SagaIterator {
     yield takeEvery(UPDATE_TASK_REQUEST, onUpdateTask);
     yield takeEvery(DELETE_TASK_REQUEST, onDeleteTask);
     yield takeEvery(SUBMIT_EOD_REPORT_REQUEST, onSubmitEodReport);
+    yield takeEvery(GET_EOD_REPORTS_REQUEST, onGetEodReports);
 }

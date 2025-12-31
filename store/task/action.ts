@@ -89,3 +89,18 @@ export const submitEodReportFailure = (error: string) => ({
     type: actionTypes.SUBMIT_EOD_REPORT_FAILURE,
     payload: error,
 });
+
+export const getEodReportsRequest = (params?: any) => ({
+    type: actionTypes.GET_EOD_REPORTS_REQUEST,
+    payload: params,
+});
+
+export const getEodReportsSuccess = (payload: any) => ({
+    type: actionTypes.GET_EOD_REPORTS_SUCCESS,
+    payload,
+});
+
+export const getEodReportsFailure = (error: string) => ({
+    type: actionTypes.GET_EOD_REPORTS_FAILURE,
+    payload: error,
+});

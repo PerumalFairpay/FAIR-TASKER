@@ -93,9 +93,23 @@ export const siteConfig: SiteConfig = {
     },
     {
       label: "Task Management",
-      href: "/task/board",
+      href: "/task",
       icon: "ClipboardList",
       allowedRoles: ["admin", "employee"],
+      children: [
+        {
+          label: "Task Board",
+          href: "/task/board",
+          icon: "Layout",
+          allowedRoles: ["admin", "employee"],
+        },
+        {
+          label: "EOD Reports",
+          href: "/task/reports",
+          icon: "FileText",
+          allowedRoles: ["admin", "employee"],
+        },
+      ],
     },
     {
       label: "Client/Vendor",

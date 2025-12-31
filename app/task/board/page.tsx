@@ -9,7 +9,7 @@ import { Button } from "@heroui/button";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight
+    Paperclip, Clock, MoveRight, FileText
 } from "lucide-react";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest } from "@/store/task/action";
@@ -101,6 +101,14 @@ const TaskBoard = () => {
                         onPress={() => setIsEodDrawerOpen(true)}
                     >
                         EOD Report
+                    </Button>
+                    <Button
+                        variant="flat"
+                        color="secondary"
+                        startContent={<FileText size={18} />}
+                        onPress={() => window.location.href = "/task/reports"}
+                    >
+                        View Reports
                     </Button>
                 </div>
             </div>
