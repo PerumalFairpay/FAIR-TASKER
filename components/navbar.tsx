@@ -37,8 +37,9 @@ import {
 } from "lucide-react";
 
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logoutRequest } from "@/store/auth/action";
+import { AppState } from "@/store/rootReducer";
 
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
@@ -76,19 +77,10 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
+  const { user } = useSelector((state: AppState) => state.Auth);
 
   /* eslint-disable react-hooks/exhaustive-deps */
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    // Load user data
-    const name = localStorage.getItem("name");
-    const email = localStorage.getItem("email");
-    if (name) {
-      setUser({ name, email: email || "" });
-    }
-  }, []);
 
   const toggleSidebar = () => {
     if (onToggle) onToggle();
@@ -96,7 +88,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
   const handleLogout = () => {
     dispatch(logoutRequest());
-    setUser(null);
   };
 
   const toggleMenu = (label: string) => {
@@ -310,14 +301,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 isExpanded ? "justify-between px-2" : "justify-center"
               )}>
                 <User
-                  name={isExpanded ? user.name : ""}
+                  name={isExpanded ? `${user.first_name || ""} ${user.last_name || ""}`.trim() : ""}
                   description={isExpanded ? (
                     <p className="truncate max-w-[100px] text-tiny text-default-500">
                       {user.email}
                     </p>
                   ) : ""}
                   avatarProps={{
-                    name: user.name?.charAt(0).toUpperCase()
+                    name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
                   }}
                   classNames={{
                     name: clsx("text-sm font-semibold", !isExpanded && "hidden"),
