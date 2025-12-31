@@ -86,7 +86,10 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
                                                     <h4 className="font-semibold text-sm">{task.task_name}</h4>
-                                                    <p className="text-xs text-default-500">{task.description}</p>
+                                                    <div
+                                                        className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
+                                                        dangerouslySetInnerHTML={{ __html: task.description || "" }}
+                                                    />
                                                 </div>
                                                 <div className="flex flex-col items-end gap-2">
                                                     <Select

@@ -7,10 +7,14 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
-import { createTaskRequest, updateTaskRequest } from "@/store/task/action";
+import { createTaskRequest, updateTaskRequest, deleteTaskRequest } from "@/store/task/action";
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 interface AddEditTaskDrawerProps {
     isOpen: boolean;
@@ -100,12 +104,36 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                             required
                         />
 
-                        <Textarea
-                            label="Description"
-                            placeholder="Describe the task details..."
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        />
+                        <div className="flex flex-col gap-2">
+                            <label className="text-small font-medium text-foreground">
+                                Description
+                            </label>
+                            <ReactQuill
+                                theme="snow"
+                                value={formData.description}
+                                onChange={(value) => setFormData({ ...formData, description: value })}
+                                className="rounded-xl mb-4"
+                                style={{ height: "200px", marginBottom: "50px" }}
+                            />
+                        </div>
+
+                        <style jsx global>{`
+                            .ql-toolbar.ql-snow {
+                                border-color: var(--heroui-default-200) !important;
+                                border-top-left-radius: 0.75rem;
+                                border-top-right-radius: 0.75rem;
+                            }
+                            .ql-container.ql-snow {
+                                border-color: var(--heroui-default-200) !important;
+                                border-bottom-left-radius: 0.75rem;
+                                border-bottom-right-radius: 0.75rem;
+                                min-height: 150px;
+                            }
+                            .dark .ql-editor { color: #E3E3E3; }
+                            .dark .ql-stroke { stroke: #E3E3E3 !important; }
+                            .dark .ql-fill { fill: #E3E3E3 !important; }
+                            .dark .ql-picker { color: #E3E3E3 !important; }
+                        `}</style>
 
                         <div className="flex gap-4">
                             <Input
@@ -175,12 +203,29 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                         />
                     </DrawerBody>
                     <DrawerFooter>
-                        <Button variant="light" onPress={onClose}>
-                            Cancel
-                        </Button>
-                        <Button color="primary" type="submit">
-                            {task ? "Update Task" : "Create Task"}
-                        </Button>
+                        <div className="flex w-full justify-between">
+                            {task && (
+                                <Button
+                                    color="danger"
+                                    variant="flat"
+                                    startContent={<Trash2 size={18} />}
+                                    onPress={() => {
+                                        dispatch(deleteTaskRequest(task.id));
+                                        onClose();
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                            <div className="flex gap-2 ml-auto">
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="primary" type="submit">
+                                    {task ? "Update Task" : "Create Task"}
+                                </Button>
+                            </div>
+                        </div>
                     </DrawerFooter>
                 </form>
             </DrawerContent>

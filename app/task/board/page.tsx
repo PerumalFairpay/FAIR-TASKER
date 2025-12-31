@@ -222,9 +222,12 @@ const TaskBoard = () => {
                                                                 </div>
 
                                                                 {task.description && (
-                                                                    <p className="text-xs text-default-500 line-clamp-2">
-                                                                        {task.description}
-                                                                    </p>
+                                                                    <div
+                                                                        className="text-xs text-default-500 line-clamp-5 [&>p]:mb-0 [&>p]:inline [&>ol]:list-decimal [&>ol]:ml-4 [&>ul]:list-disc [&>ul]:ml-4 [&>li]:ml-2"
+                                                                        dangerouslySetInnerHTML={{
+                                                                            __html: task.description || ""
+                                                                        }}
+                                                                    />
                                                                 )}
 
                                                                 <div className="flex flex-wrap gap-1">
