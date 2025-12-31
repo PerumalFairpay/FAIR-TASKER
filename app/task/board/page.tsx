@@ -6,11 +6,15 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
+import { Input } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
     Paperclip, Clock, MoveRight, FileText
 } from "lucide-react";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
@@ -39,12 +43,25 @@ const TaskBoard = () => {
     const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
     const [eodDrawerInitialReports, setEodDrawerInitialReports] = useState<Record<string, any>>({});
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${year}-${month}-${day}`;
+
+    // Filters
+    const [filterDate, setFilterDate] = useState(todayStr);
+    const [filterEmployee, setFilterEmployee] = useState("");
+
     useEffect(() => {
-        dispatch(getTasksRequest());
+        dispatch(getTasksRequest({
+            start_date: filterDate,
+            assigned_to: filterEmployee
+        }));
         dispatch(getProjectsRequest());
         dispatch(getEmployeesRequest());
         setEnabled(true);
-    }, [dispatch]);
+    }, [dispatch, filterDate, filterEmployee]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
@@ -102,8 +119,23 @@ const TaskBoard = () => {
         const day = String(today.getDate()).padStart(2, "0");
         const todayStr = `${year}-${month}-${day}`;
 
+        // Use filterDate if present, otherwise default to today logic
+        const comparisonDate = filterDate || todayStr;
+
         return tasks.filter((task: any) => {
             if (task.status !== status) return false;
+
+            // If explicit date filter is set, rely on backend or just simple match
+            if (filterDate) {
+                // Backend handles the date filtering mostly, but if we want to be safe:
+                // return true (backend filtered) or specific logic.
+                // Current logic was: hide future tasks (> today) and hide past moved/completed tasks (< today).
+
+                // If viewing past/future date explicitly, we show everything returned by backend for that date
+                return true;
+            }
+
+            // Default "Today" View Logic
             // Hide future tasks (tasks scheduled for tomorrow onwards)
             if (task.start_date && task.start_date > todayStr) {
                 return false;
@@ -140,12 +172,40 @@ const TaskBoard = () => {
 
     return (
         <div className="h-full flex flex-col gap-6 p-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold">Task Management</h1>
                     <p className="text-default-500">Manage your daily tasks and project progress</p>
                 </div>
-                <div className="flex gap-2">
+
+                <div className="flex gap-2 items-center">
+                    <DatePicker
+                        size="sm"
+                        variant="bordered"
+                        className="w-40"
+                        value={filterDate ? parseDate(filterDate) : undefined}
+                        onChange={(date) => setFilterDate(date ? date.toString() : "")}
+                        aria-label="Select Date"
+                    />
+
+                    <Select
+                        size="sm"
+                        variant="bordered"
+                        placeholder="Employee"
+                        className="w-40"
+                        selectedKeys={filterEmployee ? [filterEmployee] : []}
+                        onChange={(e) => setFilterEmployee(e.target.value)}
+                    >
+                        {employees.map((emp: any) => (
+                            <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                <div className="flex items-center gap-2">
+                                    <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                    <span>{emp.name}</span>
+                                </div>
+                            </SelectItem>
+                        ))}
+                    </Select>
+
                     <Button
                         color="primary"
                         startContent={<Plus size={18} />}
