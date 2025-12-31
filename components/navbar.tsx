@@ -165,7 +165,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       >
         <div className="flex flex-col h-full">
 
-          <div className="flex items-center justify-center p-2 border-b border-divider h-14">
+          <div className="flex items-center justify-center p-2 border-b border-divider h-16">
             <NextLink
               className="flex justify-start items-center gap-2"
               href="/"
@@ -175,7 +175,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 alt="FairPay"
                 className={clsx(
                   "object-contain transition-all duration-300",
-                  isExpanded ? "h-8 w-auto" : "h-8 w-8"
+                  isExpanded ? "h-10 w-auto" : "h-8 w-8"
                 )}
               />
             </NextLink>
