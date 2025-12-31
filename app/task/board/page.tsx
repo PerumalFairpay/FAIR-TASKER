@@ -159,9 +159,9 @@ const TaskBoard = () => {
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide min-h-[calc(100vh-250px)]">
+                <div className="flex gap-6 overflow-x-auto pb-4 min-h-[calc(100vh-250px)]">
                     {COLUMNS.map((column) => (
-                        <div key={column.id} className="flex flex-col min-w-[300px] w-[300px] gap-4">
+                        <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
                             <div className={clsx(
                                 "flex items-center justify-between p-3 rounded-xl border border-divider shadow-sm",
                                 column.color
