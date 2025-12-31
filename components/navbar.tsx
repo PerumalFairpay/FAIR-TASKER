@@ -31,7 +31,9 @@ import {
   Layers,
   Box,
   BookOpen,
-  Newspaper
+  Newspaper,
+  CalendarCheck,
+  ClipboardList
 } from "lucide-react";
 
 
@@ -65,6 +67,8 @@ const iconMap: Record<string, any> = {
   Box,
   BookOpen,
   Newspaper,
+  CalendarCheck,
+  ClipboardList,
 };
 
 

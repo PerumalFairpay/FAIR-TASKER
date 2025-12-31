@@ -15,6 +15,8 @@ import holidayReducer from "./holiday/reducer";
 import assetCategoryReducer from "./assetCategory/reducer";
 import assetReducer from "./asset/reducer";
 import blogReducer from "./blog/reducer";
+import leaveTypeReducer from "./leaveType/reducer";
+
 
 const rootReducer = combineReducers({
     Blog: blogReducer,
@@ -32,6 +34,7 @@ const rootReducer = combineReducers({
     Holiday: holidayReducer,
     AssetCategory: assetCategoryReducer,
     Asset: assetReducer,
+    LeaveType: leaveTypeReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

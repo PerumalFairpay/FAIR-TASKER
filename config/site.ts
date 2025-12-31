@@ -98,6 +98,23 @@ export const siteConfig = {
       ],
     },
     {
+      label: "Leave Management",
+      href: "/leave-management",
+      icon: "CalendarCheck",
+      children: [
+        {
+          label: "Leave Type",
+          href: "/leave-management/leave-type",
+          icon: "ClipboardList",
+        },
+        {
+          label: "Leave Request",
+          href: "/leave-management/request",
+          icon: "Calendar",
+        },
+      ],
+    },
+    {
       label: "Blog",
       href: "/blog",
       icon: "Newspaper",
