@@ -24,7 +24,7 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Next.js + HeroUI",
+  name: "Fair Tasker",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
