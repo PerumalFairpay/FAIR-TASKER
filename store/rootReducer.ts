@@ -17,6 +17,7 @@ import assetReducer from "./asset/reducer";
 import blogReducer from "./blog/reducer";
 import leaveTypeReducer from "./leaveType/reducer";
 import leaveRequestReducer from "./leaveRequest/reducer";
+import taskReducer from "./task/reducer";
 
 
 const rootReducer = combineReducers({
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
     Asset: assetReducer,
     LeaveType: leaveTypeReducer,
     LeaveRequest: leaveRequestReducer,
+    Task: taskReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
