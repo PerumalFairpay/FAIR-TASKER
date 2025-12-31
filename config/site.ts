@@ -92,6 +92,12 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin"],
     },
     {
+      label: "Task Management",
+      href: "/task/board",
+      icon: "ClipboardList",
+      allowedRoles: ["admin", "employee"],
+    },
+    {
       label: "Client/Vendor",
       href: "/client",
       icon: "Users",
