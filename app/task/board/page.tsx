@@ -16,8 +16,9 @@ import { getTasksRequest, updateTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesRequest } from "@/store/employee/action";
 import clsx from "clsx";
-import AddEditTaskDrawer from "./AddEditTaskDrawer";
+// import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import EodReportDrawer from "./EodReportDrawer";
+import AddEditTaskDrawer from "./AddEditTaskDrawer";
 
 const COLUMNS = [
     { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
