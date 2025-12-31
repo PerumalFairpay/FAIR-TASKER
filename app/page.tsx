@@ -162,7 +162,7 @@ export default function LoginPage() {
                 isRequired
                 label="Email"
                 labelPlacement="outside"
-                placeholder="name@company.com"
+                placeholder="john@gmail.com"
                 type="email"
                 variant="bordered"
                 value={email}
