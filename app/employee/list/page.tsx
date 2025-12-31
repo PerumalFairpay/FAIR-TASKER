@@ -30,7 +30,7 @@ import {
 import { User } from "@heroui/user";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
-import AddEditEmployeeModal from "./AddEditEmployeeModal";
+import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
@@ -144,7 +144,7 @@ export default function EmployeeListPage() {
                 </TableBody>
             </Table>
 
-            <AddEditEmployeeModal
+            <AddEditEmployeeDrawer
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 mode={mode}
