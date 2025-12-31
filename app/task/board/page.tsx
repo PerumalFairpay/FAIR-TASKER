@@ -36,6 +36,8 @@ const TaskBoard = () => {
     const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
     const [isEodDrawerOpen, setIsEodDrawerOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
+    const [eodDrawerInitialReports, setEodDrawerInitialReports] = useState<Record<string, any>>({});
 
     useEffect(() => {
         dispatch(getTasksRequest());
@@ -44,11 +46,48 @@ const TaskBoard = () => {
         setEnabled(true);
     }, [dispatch]);
 
+    const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
+        setEodDrawerTasks([task]);
+
+        let initialReport: any = {
+            task_id: task.id,
+            eod_summary: "",
+            progress: task.progress || 0,
+            status: task.status,
+            move_to_tomorrow: false
+        };
+
+        if (targetStatus === "Moved") {
+            // If moved to rollover column, we assume it's "In Progress" but moving to tomorrow
+            initialReport.status = "In Progress";
+            initialReport.move_to_tomorrow = true;
+        } else if (targetStatus === "Completed") {
+            initialReport.status = "Completed";
+            initialReport.progress = 100;
+            initialReport.move_to_tomorrow = false;
+        }
+
+        setEodDrawerInitialReports({
+            [task.id]: initialReport
+        });
+        setIsEodDrawerOpen(true);
+    };
+
+
+
     const onDragEnd = (result: DropResult) => {
         const { destination, source, draggableId } = result;
 
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+        if (destination.droppableId === "Moved" || destination.droppableId === "Completed") {
+            const task = tasks.find((t: any) => t.id === draggableId);
+            if (task) {
+                handleOpenEodForSingleTask(task, destination.droppableId);
+            }
+            return;
+        }
 
         // Update status in backend
         dispatch(updateTaskRequest(draggableId, { status: destination.droppableId }));
@@ -57,7 +96,20 @@ const TaskBoard = () => {
     if (!enabled) return null;
 
     const getTasksByStatus = (status: string) => {
-        return tasks.filter((task: any) => task.status === status);
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${year}-${month}-${day}`;
+
+        return tasks.filter((task: any) => {
+            if (task.status !== status) return false;
+            // Hide future tasks (tasks scheduled for tomorrow onwards)
+            if (task.start_date && task.start_date > todayStr) {
+                return false;
+            }
+            return true;
+        });
     };
 
     const getPriorityColor = (priority: string) => {
@@ -94,13 +146,6 @@ const TaskBoard = () => {
                         onPress={handleCreateTask}
                     >
                         Create Task
-                    </Button>
-                    <Button
-                        variant="bordered"
-                        startContent={<MoveRight size={18} />}
-                        onPress={() => setIsEodDrawerOpen(true)}
-                    >
-                        EOD Report
                     </Button>
                     <Button
                         variant="flat"
@@ -260,7 +305,8 @@ const TaskBoard = () => {
             <EodReportDrawer
                 isOpen={isEodDrawerOpen}
                 onClose={() => setIsEodDrawerOpen(false)}
-                tasks={tasks.filter((t: any) => t.status !== "Completed" && t.status !== "Moved")}
+                tasks={eodDrawerTasks}
+                initialReports={eodDrawerInitialReports}
             />
         </div>
     );

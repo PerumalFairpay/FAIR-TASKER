@@ -16,11 +16,18 @@ interface EodReportDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     tasks: any[];
+    initialReports?: Record<string, any>;
 }
 
-const EodReportDrawer = ({ isOpen, onClose, tasks }: EodReportDrawerProps) => {
+const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDrawerProps) => {
     const dispatch = useDispatch();
     const [reports, setReports] = useState<Record<string, any>>({});
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setReports(initialReports || {});
+        }
+    }, [isOpen, initialReports]);
 
     const handleUpdateReport = (taskId: string, field: string, value: any) => {
         setReports(prev => ({
@@ -87,20 +94,29 @@ const EodReportDrawer = ({ isOpen, onClose, tasks }: EodReportDrawerProps) => {
                                                         size="sm"
                                                         className="w-40"
                                                         selectedKeys={[report.status]}
-                                                        onChange={(e) => handleUpdateReport(task.id, "status", e.target.value)}
+                                                        onChange={(e) => {
+                                                            const newStatus = e.target.value;
+                                                            handleUpdateReport(task.id, "status", newStatus);
+                                                            if (newStatus === "Completed") {
+                                                                handleUpdateReport(task.id, "move_to_tomorrow", false);
+                                                                handleUpdateReport(task.id, "progress", 100);
+                                                            }
+                                                        }}
                                                     >
                                                         <SelectItem key="Todo">To Do</SelectItem>
                                                         <SelectItem key="In Progress">In Progress</SelectItem>
                                                         <SelectItem key="Completed">Completed</SelectItem>
                                                     </Select>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
-                                                        <Switch
-                                                            size="sm"
-                                                            isSelected={report.move_to_tomorrow}
-                                                            onValueChange={(val) => handleUpdateReport(task.id, "move_to_tomorrow", val)}
-                                                        />
-                                                    </div>
+                                                    {report.status !== "Completed" && (
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
+                                                            <Switch
+                                                                size="sm"
+                                                                isSelected={report.move_to_tomorrow}
+                                                                onValueChange={(val) => handleUpdateReport(task.id, "move_to_tomorrow", val)}
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
