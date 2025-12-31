@@ -86,7 +86,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                             required
                         >
                             {projects.map((project: any) => (
-                                <SelectItem key={project.id} value={project.id}>
+                                <SelectItem key={project.id}>
                                     {project.name}
                                 </SelectItem>
                             ))}
@@ -129,10 +129,10 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                             selectedKeys={[formData.priority]}
                             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                         >
-                            <SelectItem key="Low" value="Low">Low</SelectItem>
-                            <SelectItem key="Medium" value="Medium">Medium</SelectItem>
-                            <SelectItem key="High" value="High">High</SelectItem>
-                            <SelectItem key="Urgent" value="Urgent">Urgent</SelectItem>
+                            <SelectItem key="Low">Low</SelectItem>
+                            <SelectItem key="Medium">Medium</SelectItem>
+                            <SelectItem key="High">High</SelectItem>
+                            <SelectItem key="Urgent">Urgent</SelectItem>
                         </Select>
 
                         <Select
@@ -154,7 +154,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                             {employees.map((employee: any) => (
                                 <SelectItem
                                     key={employee.employee_no_id}
-                                    value={employee.employee_no_id}
                                     textValue={employee.name}
                                 >
                                     <div className="flex items-center gap-2">

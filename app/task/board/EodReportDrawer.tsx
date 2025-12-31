@@ -74,7 +74,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks }: EodReportDrawerProps) => {
                                 };
 
                                 return (
-                                    <Card key={task.id} variant="bordered" shadow="sm">
+                                    <Card key={task.id} shadow="sm" className="border-divider border-1">
                                         <CardBody className="gap-4">
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
@@ -89,9 +89,9 @@ const EodReportDrawer = ({ isOpen, onClose, tasks }: EodReportDrawerProps) => {
                                                         selectedKeys={[report.status]}
                                                         onChange={(e) => handleUpdateReport(task.id, "status", e.target.value)}
                                                     >
-                                                        <SelectItem key="Todo" value="Todo">To Do</SelectItem>
-                                                        <SelectItem key="In Progress" value="In Progress">In Progress</SelectItem>
-                                                        <SelectItem key="Completed" value="Completed">Completed</SelectItem>
+                                                        <SelectItem key="Todo">To Do</SelectItem>
+                                                        <SelectItem key="In Progress">In Progress</SelectItem>
+                                                        <SelectItem key="Completed">Completed</SelectItem>
                                                     </Select>
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
@@ -144,7 +144,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks }: EodReportDrawerProps) => {
                         <Button
                             color="primary"
                             type="submit"
-                            disabled={tasks.length === 0}
+                            isDisabled={tasks.length === 0}
                         >
                             Submit Daily Report
                         </Button>
