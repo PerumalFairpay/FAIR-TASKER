@@ -111,11 +111,15 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       {/* Mobile Bottom Navbar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
         <div className="flex items-center justify-around h-full px-2">
-          {siteConfig.navItems.map((item: any) => {
+          {siteConfig.navItems.filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee")).map((item: any) => {
             // For mobile, simpler to just show top level or flat list? 
             // Logic: If it has children, maybe skip or show parent link if it exists.
             // For now, let's just render parent links for mobile to keep it simple as per original
-            if (item.children) return null; // Skip complex items on mobile bottom bar for now or handle differently
+            if (item.children && !item.children.some((child: any) => child.href === item.href)) {
+              // If it's a dropdown parent without its own link, hide on mobile bottom bar
+              // (existing logic was skip if hasChildren)
+              if (item.children) return null;
+            }
 
             const isActive = pathname === item.href;
             const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
@@ -178,119 +182,126 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
           <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
             <nav className="flex flex-col gap-1 px-2">
-              {siteConfig.navItems.map((item: any) => {
-                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
-                const isActive = pathname === item.href;
-                const hasChildren = item.children && item.children.length > 0;
-                const isOpen = openMenus[item.label];
+              {siteConfig.navItems
+                .filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee"))
+                .map((item: any) => {
+                  const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                  const isActive = pathname === item.href;
 
-                if (hasChildren) {
-                  return (
-                    <div key={item.label}>
-                      <Button
-                        onPress={() => toggleMenu(item.label)}
-                        className={clsx(
-                          "w-full bg-transparent justify-start gap-2 h-10 px-2",
-                          "hover:bg-default-50 text-default-600",
-                          !isExpanded && "justify-center px-0"
-                        )}
-                        disableRipple
-                      >
-                        <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
-                        {isExpanded && (
-                          <>
-                            <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
-                            <motion.div
-                              animate={{ rotate: isOpen ? 90 : 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <ChevronRight size={16} />
-                            </motion.div>
-                          </>
-                        )}
-                      </Button>
-
-                      <AnimatePresence initial={false}>
-                        {isOpen && isExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: "easeInOut" }}
-                            className="overflow-hidden"
-                          >
-                            <div className="pl-4 mt-1 space-y-1">
-                              {item.children.map((child: any) => {
-                                const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
-                                const isChildActive = pathname === child.href;
-
-                                return (
-                                  <NextLink
-                                    key={child.href}
-                                    href={child.href}
-                                    className={clsx(
-                                      "relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
-                                      isChildActive
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-default-500 hover:bg-default-50 hover:text-default-900"
-                                    )}
-                                  >
-                                    {isChildActive && (
-                                      <motion.div
-                                        layoutId="active-indicator-child"
-                                        className="absolute left-0 w-1 h-5 bg-primary rounded-r-full"
-                                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                      />
-                                    )}
-                                    <motion.div
-                                      whileHover={{ scale: 1.1 }}
-                                      whileTap={{ scale: 0.95 }}
-                                      className="flex items-center justify-center"
-                                    >
-                                      <ChildIcon size={18} strokeWidth={1.5} className={isChildActive ? "text-primary" : "text-default-500"} />
-                                    </motion.div>
-                                    <span>{child.label}</span>
-                                  </NextLink>
-                                );
-                              })}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                  // Filter children based on role
+                  const filteredChildren = item.children?.filter((child: any) =>
+                    !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee")
                   );
-                }
+                  const hasChildren = filteredChildren && filteredChildren.length > 0;
+                  const isOpen = openMenus[item.label];
 
-                return (
-                  <NextLink
-                    key={item.href}
-                    className={clsx(
-                      linkStyles({ color: "foreground" }),
-                      "data-[active=true]:text-primary data-[active=true]:font-medium",
-                      "relative p-2 rounded-lg flex items-center transition-colors h-10",
-                      isExpanded ? "justify-start gap-2" : "justify-center",
-                      pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
-                    )}
-                    href={item.href}
-                  >
-                    {pathname === item.href && (
-                      <motion.div
-                        layoutId="active-indicator"
-                        className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center justify-center"
+                  if (hasChildren) {
+                    return (
+                      <div key={item.label}>
+                        <Button
+                          onPress={() => toggleMenu(item.label)}
+                          className={clsx(
+                            "w-full bg-transparent justify-start gap-2 h-10 px-2",
+                            "hover:bg-default-50 text-default-600",
+                            !isExpanded && "justify-center px-0"
+                          )}
+                          disableRipple
+                        >
+                          <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                          {isExpanded && (
+                            <>
+                              <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                              <motion.div
+                                animate={{ rotate: isOpen ? 90 : 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <ChevronRight size={16} />
+                              </motion.div>
+                            </>
+                          )}
+                        </Button>
+
+                        <AnimatePresence initial={false}>
+                          {isOpen && isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pl-4 mt-1 space-y-1">
+                                {filteredChildren.map((child: any) => {
+                                  const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                  const isChildActive = pathname === child.href;
+
+                                  return (
+                                    <NextLink
+                                      key={child.href}
+                                      href={child.href}
+                                      className={clsx(
+                                        "relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                        isChildActive
+                                          ? "bg-primary/10 text-primary"
+                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
+                                      )}
+                                    >
+                                      {isChildActive && (
+                                        <motion.div
+                                          layoutId="active-indicator-child"
+                                          className="absolute left-0 w-1 h-5 bg-primary rounded-r-full"
+                                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                        />
+                                      )}
+                                      <motion.div
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="flex items-center justify-center"
+                                      >
+                                        <ChildIcon size={18} strokeWidth={1.5} className={isChildActive ? "text-primary" : "text-default-500"} />
+                                      </motion.div>
+                                      <span>{child.label}</span>
+                                    </NextLink>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NextLink
+                      key={item.href}
+                      className={clsx(
+                        linkStyles({ color: "foreground" }),
+                        "data-[active=true]:text-primary data-[active=true]:font-medium",
+                        "relative p-2 rounded-lg flex items-center transition-colors h-10",
+                        isExpanded ? "justify-start gap-2" : "justify-center",
+                        pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
+                      )}
+                      href={item.href}
                     >
-                      <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
-                    </motion.div>
-                    {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
-                  </NextLink>
-                )
-              })}
+                      {pathname === item.href && (
+                        <motion.div
+                          layoutId="active-indicator"
+                          className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center justify-center"
+                      >
+                        <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                      </motion.div>
+                      {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
+                    </NextLink>
+                  )
+                })}
             </nav>
           </div>
 
