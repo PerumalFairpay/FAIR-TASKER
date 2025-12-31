@@ -1,12 +1,13 @@
 import { takeEvery, put, call } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import {
-    LOGIN_REQUEST, REGISTER_REQUEST, LOGOUT_REQUEST
+    LOGIN_REQUEST, REGISTER_REQUEST, LOGOUT_REQUEST, GET_USER_REQUEST
 } from "./actionType";
 import {
     loginSuccess, loginFailure,
     registerSuccess, registerFailure,
-    logoutSuccess, logoutFailure
+    logoutSuccess, logoutFailure,
+    getUserSuccess, getUserFailure
 } from "./action";
 import api from "../api";
 
@@ -15,19 +16,22 @@ function loginApi(payload: any) {
 }
 
 function registerApi(payload: any) {
-    return api.post("register", payload);
+    return api.post("/auth/register", payload);
 }
 
 function logoutApi() {
-    return api.post("logout");
+    return api.post("/auth/logout");
+}
+
+function getUserApi() {
+    return api.get("/auth/me");
 }
 
 function* onLogin({ payload }: any): SagaIterator {
     try {
         const response = yield call(loginApi, payload);
-        if (response.data.status) {
+        if (response.data.success) {
             yield put(loginSuccess(response.data));
-            localStorage.setItem("token", response.data.token);
             if (response.data.data) {
                 localStorage.setItem("name", response.data.data.name);
                 localStorage.setItem("email", response.data.data.email);
@@ -43,7 +47,7 @@ function* onLogin({ payload }: any): SagaIterator {
 function* onRegister({ payload }: any): SagaIterator {
     try {
         const response = yield call(registerApi, payload);
-        if (response.data.status) {
+        if (response.data.id || response.data.success) {
             yield put(registerSuccess(response.data));
         } else {
             yield put(registerFailure(response.data.message || "Registration failed"));
@@ -57,7 +61,6 @@ function* onLogout(): SagaIterator {
     try {
         const response = yield call(logoutApi);
         yield put(logoutSuccess(response.data));
-        localStorage.removeItem("token");
         localStorage.removeItem("name");
         localStorage.removeItem("email");
     } catch (error: any) {
@@ -65,8 +68,26 @@ function* onLogout(): SagaIterator {
     }
 }
 
+function* onGetUser(): SagaIterator {
+    try {
+        const response = yield call(getUserApi);
+        if (response.data.success) {
+            yield put(getUserSuccess(response.data));
+            if (response.data.data) {
+                localStorage.setItem("name", response.data.data.name);
+                localStorage.setItem("email", response.data.data.email);
+            }
+        } else {
+            yield put(getUserFailure(response.data.message || "Failed to fetch user"));
+        }
+    } catch (error: any) {
+        yield put(getUserFailure(error.response?.data?.message || "Failed to fetch user"));
+    }
+}
+
 export default function* authSaga(): SagaIterator {
     yield takeEvery(LOGIN_REQUEST, onLogin);
     yield takeEvery(REGISTER_REQUEST, onRegister);
     yield takeEvery(LOGOUT_REQUEST, onLogout);
+    yield takeEvery(GET_USER_REQUEST, onGetUser);
 }

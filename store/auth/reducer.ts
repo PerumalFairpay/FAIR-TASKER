@@ -2,7 +2,8 @@ import {
     LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
     REGISTER_REQUEST, REGISTER_SUCCESS, REGISTER_FAILURE,
     LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE,
-    CLEAR_AUTH
+    CLEAR_AUTH,
+    GET_USER_REQUEST, GET_USER_SUCCESS, GET_USER_FAILURE
 } from "./actionType";
 
 interface AuthState {
@@ -17,6 +18,10 @@ interface AuthState {
     loginSuccess: string | null;
     registerSuccess: string | null;
     logoutSuccess: string | null;
+    getUserSuccess: string | null;
+
+    getUserLoading: boolean;
+    getUserError: string | null;
 
     user: any | null;
     token: string | null;
@@ -34,6 +39,10 @@ const initialAuthState: AuthState = {
     loginSuccess: null,
     registerSuccess: null,
     logoutSuccess: null,
+    getUserSuccess: null,
+
+    getUserLoading: false,
+    getUserError: null,
 
     user: null,
     token: null,
@@ -55,7 +64,6 @@ const authReducer = (state: AuthState = initialAuthState, action: any): AuthStat
                 loginLoading: false,
                 loginSuccess: action.payload.message,
                 token: action.payload.token,
-                // Note: User might need to be fetched separately or included in login response
             };
         case LOGIN_FAILURE:
             return {
@@ -106,6 +114,28 @@ const authReducer = (state: AuthState = initialAuthState, action: any): AuthStat
                 ...state,
                 logoutLoading: false,
                 logoutError: action.payload,
+            };
+
+        // Get User
+        case GET_USER_REQUEST:
+            return {
+                ...state,
+                getUserLoading: true,
+                getUserError: null,
+            };
+        case GET_USER_SUCCESS:
+            return {
+                ...state,
+                getUserLoading: false,
+                user: action.payload.data,
+                token: "authenticated",
+            };
+        case GET_USER_FAILURE:
+            return {
+                ...state,
+                getUserLoading: false,
+                getUserError: action.payload,
+                token: null,
             };
 
         case CLEAR_AUTH:

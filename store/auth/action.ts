@@ -2,7 +2,8 @@ import {
     LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE,
     REGISTER_REQUEST, REGISTER_SUCCESS, REGISTER_FAILURE,
     LOGOUT_REQUEST, LOGOUT_SUCCESS, LOGOUT_FAILURE,
-    CLEAR_AUTH
+    CLEAR_AUTH,
+    GET_USER_REQUEST, GET_USER_SUCCESS, GET_USER_FAILURE
 } from "./actionType";
 
 export const loginRequest = (payload: any) => ({
@@ -45,4 +46,16 @@ export const logoutFailure = (payload: any) => ({
 
 export const clearAuth = () => ({
     type: CLEAR_AUTH,
+});
+
+export const getUserRequest = () => ({
+    type: GET_USER_REQUEST,
+});
+export const getUserSuccess = (payload: any) => ({
+    type: GET_USER_SUCCESS,
+    payload,
+});
+export const getUserFailure = (payload: any) => ({
+    type: GET_USER_FAILURE,
+    payload,
 });

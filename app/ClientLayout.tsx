@@ -2,14 +2,20 @@
 
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/navbar";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getUserRequest } from "@/store/auth/action";
 import clsx from "clsx";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isLoginPage = pathname === "/";
     const [isExpanded, setIsExpanded] = useState(true);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(getUserRequest());
+    }, [dispatch]);
 
     // If it's the login page, render full width without sidebar
     if (isLoginPage) {
