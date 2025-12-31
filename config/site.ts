@@ -32,6 +32,55 @@ export const siteConfig = {
       ],
     },
     {
+      label: "Leave Management",
+      href: "/leave-management",
+      icon: "CalendarCheck",
+      children: [
+        {
+          label: "Leave Type",
+          href: "/leave-management/leave-type",
+          icon: "ClipboardList",
+        },
+        {
+          label: "Leave Request",
+          href: "/leave-management/request",
+          icon: "Calendar",
+        },
+      ],
+    },
+    {
+      label: "Holiday",
+      href: "/holiday",
+      icon: "Calendar",
+    },
+    {
+      label: "Project",
+      href: "/project/list",
+      icon: "Briefcase",
+    },
+    {
+      label: "Client/Vendor",
+      href: "/client",
+      icon: "Users",
+    },
+    {
+      label: "Asset Management",
+      href: "/asset",
+      icon: "Package",
+      children: [
+        {
+          label: "Category",
+          href: "/asset/category",
+          icon: "Layers",
+        },
+        {
+          label: "Asset",
+          href: "/asset/list",
+          icon: "Box",
+        },
+      ],
+    },
+    {
       label: "Expense Management",
       href: "/expense",
       icon: "Wallet",
@@ -62,55 +111,6 @@ export const siteConfig = {
           label: "Document",
           href: "/document/list",
           icon: "Files",
-        },
-      ],
-    },
-    {
-      label: "Client/Vendor",
-      href: "/client",
-      icon: "Users",
-    },
-    {
-      label: "Project",
-      href: "/project/list",
-      icon: "Briefcase",
-    },
-    {
-      label: "Holiday",
-      href: "/holiday",
-      icon: "Calendar",
-    },
-    {
-      label: "Asset Management",
-      href: "/asset",
-      icon: "Package",
-      children: [
-        {
-          label: "Category",
-          href: "/asset/category",
-          icon: "Layers",
-        },
-        {
-          label: "Asset",
-          href: "/asset/list",
-          icon: "Box",
-        },
-      ],
-    },
-    {
-      label: "Leave Management",
-      href: "/leave-management",
-      icon: "CalendarCheck",
-      children: [
-        {
-          label: "Leave Type",
-          href: "/leave-management/leave-type",
-          icon: "ClipboardList",
-        },
-        {
-          label: "Leave Request",
-          href: "/leave-management/request",
-          icon: "Calendar",
         },
       ],
     },
