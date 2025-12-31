@@ -27,40 +27,38 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
 
-    const [formData, setFormData] = useState({
+    const initialFormData = {
         project_id: "",
         task_name: "",
         description: "",
-        start_date: "",
-        end_date: "",
+        start_date: new Date().toISOString().split("T")[0],
+        end_date: new Date().toISOString().split("T")[0],
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
-        if (task) {
-            setFormData({
-                project_id: task.project_id || "",
-                task_name: task.task_name || "",
-                description: task.description || "",
-                start_date: task.start_date || "",
-                end_date: task.end_date || "",
-                priority: task.priority || "Medium",
-                assigned_to: task.assigned_to || [],
-                tags: task.tags || [],
-            });
+        if (isOpen) {
+            if (task) {
+                setFormData({
+                    project_id: task.project_id || "",
+                    task_name: task.task_name || "",
+                    description: task.description || "",
+                    start_date: task.start_date || "",
+                    end_date: task.end_date || "",
+                    priority: task.priority || "Medium",
+                    assigned_to: task.assigned_to || [],
+                    tags: task.tags || [],
+                });
+            } else {
+                setFormData(initialFormData);
+            }
         } else {
-            setFormData({
-                project_id: "",
-                task_name: "",
-                description: "",
-                start_date: new Date().toISOString().split("T")[0],
-                end_date: new Date().toISOString().split("T")[0],
-                priority: "Medium",
-                assigned_to: [],
-                tags: [],
-            });
+            // Reset form when drawer closes
+            setFormData(initialFormData);
         }
     }, [task, isOpen]);
 

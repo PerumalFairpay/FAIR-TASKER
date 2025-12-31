@@ -12,7 +12,7 @@ import {
     Paperclip, Clock, MoveRight, FileText
 } from "lucide-react";
 import { AppState } from "@/store/rootReducer";
-import { getTasksRequest, updateTaskRequest } from "@/store/task/action";
+import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesRequest } from "@/store/employee/action";
 import clsx from "clsx";
@@ -29,7 +29,7 @@ const COLUMNS = [
 
 const TaskBoard = () => {
     const dispatch = useDispatch();
-    const { tasks, loading } = useSelector((state: AppState) => state.Task);
+    const { tasks, task: currentTask, loading } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
 
     const [enabled, setEnabled] = useState(false);
@@ -108,6 +108,12 @@ const TaskBoard = () => {
             if (task.start_date && task.start_date > todayStr) {
                 return false;
             }
+
+            // Hide past 'Moved' or 'Completed' tasks (keep board fresh for today)
+            if ((status === "Moved" || status === "Completed") && task.start_date && task.start_date < todayStr) {
+                return false;
+            }
+
             return true;
         });
     };
@@ -128,6 +134,7 @@ const TaskBoard = () => {
 
     const handleEditTask = (task: any) => {
         setSelectedTask(task);
+        dispatch(getTaskRequest(task.id));
         setIsTaskDrawerOpen(true);
     };
 
@@ -302,7 +309,7 @@ const TaskBoard = () => {
             <AddEditTaskDrawer
                 isOpen={isTaskDrawerOpen}
                 onClose={() => setIsTaskDrawerOpen(false)}
-                task={selectedTask}
+                task={currentTask && currentTask.id === selectedTask?.id ? currentTask : selectedTask}
             />
 
             <EodReportDrawer
