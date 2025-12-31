@@ -14,6 +14,7 @@ import assetCategorySaga from "./assetCategory/saga";
 import assetSaga from "./asset/saga";
 import blogSaga from "./blog/saga";
 import leaveTypeSaga from "./leaveType/saga";
+import leaveRequestSaga from "./leaveRequest/saga";
 
 
 export default function* rootSaga() {
@@ -33,6 +34,7 @@ export default function* rootSaga() {
     fork(assetSaga),
     fork(blogSaga),
     fork(leaveTypeSaga),
+    fork(leaveRequestSaga),
 
   ]);
 }

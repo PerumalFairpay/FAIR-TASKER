@@ -1,0 +1,236 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import {
+    getLeaveRequestsRequest,
+    createLeaveRequestRequest,
+    updateLeaveRequestRequest,
+    updateLeaveStatusRequest,
+    deleteLeaveRequestRequest,
+    clearLeaveRequestDetails,
+} from "@/store/leaveRequest/action";
+import {
+    Table,
+    TableHeader,
+    TableColumn,
+    TableBody,
+    TableRow,
+    TableCell,
+} from "@heroui/table";
+import { Button } from "@heroui/button";
+import { useDisclosure } from "@heroui/modal";
+import {
+    PlusIcon, PencilIcon, TrashIcon,
+    Calendar, CheckCircle2, XCircle,
+    Clock, User as UserIcon, FileText,
+    MoreVertical, Eye
+} from "lucide-react";
+import { Chip } from "@heroui/chip";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+import AddEditLeaveRequestDrawer from "./AddEditLeaveRequestDrawer";
+import { User } from "@heroui/user";
+
+export default function LeaveRequestPage() {
+    const dispatch = useDispatch();
+    const { leaveRequests, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+
+    const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const [mode, setMode] = useState<"create" | "edit">("create");
+    const [selectedRequest, setSelectedRequest] = useState<any>(null);
+
+    useEffect(() => {
+        dispatch(getLeaveRequestsRequest());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (success) {
+            onClose();
+            dispatch(clearLeaveRequestDetails());
+        }
+    }, [success, onClose, dispatch]);
+
+    const handleCreate = () => {
+        setMode("create");
+        setSelectedRequest(null);
+        onOpen();
+    };
+
+    const handleEdit = (request: any) => {
+        setMode("edit");
+        setSelectedRequest(request);
+        onOpen();
+    };
+
+    const handleStatusUpdate = (id: string, status: string) => {
+        dispatch(updateLeaveStatusRequest(id, status));
+    };
+
+    const handleDelete = (id: string) => {
+        dispatch(deleteLeaveRequestRequest(id));
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Approved": return "success";
+            case "Rejected": return "danger";
+            case "Pending": return "warning";
+            default: return "default";
+        }
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case "Approved": return <CheckCircle2 size={14} />;
+            case "Rejected": return <XCircle size={14} />;
+            case "Pending": return <Clock size={14} />;
+            default: return null;
+        }
+    };
+
+    return (
+        <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold">Leave Requests</h1>
+                    <p className="text-default-500">Track and manage employee leave applications</p>
+                </div>
+                <Button
+                    color="primary"
+                    endContent={<PlusIcon size={16} />}
+                    onPress={handleCreate}
+                >
+                    Apply Leave
+                </Button>
+            </div>
+
+            <Table aria-label="Leave request table" shadow="sm">
+                <TableHeader>
+                    <TableColumn>EMPLOYEE</TableColumn>
+                    <TableColumn>LEAVE TYPE</TableColumn>
+                    <TableColumn>DURATION</TableColumn>
+                    <TableColumn>DAYS</TableColumn>
+                    <TableColumn>STATUS</TableColumn>
+                    <TableColumn align="center">ACTIONS</TableColumn>
+                </TableHeader>
+                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={loading}>
+                    {(item: any) => (
+                        <TableRow key={item.id}>
+                            <TableCell>
+                                <User
+                                    name={item.employee_details?.name || "Unknown"}
+                                    description={item.employee_details?.employee_no_id}
+                                    avatarProps={{
+                                        src: item.employee_details?.profile_picture,
+                                        name: item.employee_details?.name?.charAt(0)
+                                    }}
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{item.leave_type_details?.name}</span>
+                                    <span className="text-tiny text-default-400">{item.leave_duration_type}</span>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Calendar size={12} className="text-default-400" />
+                                        <span>{item.start_date}</span>
+                                        {item.start_date !== item.end_date && (
+                                            <>
+                                                <span className="text-default-300">→</span>
+                                                <span>{item.end_date}</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    {item.half_day_session && (
+                                        <span className="text-tiny text-primary-500 font-medium">
+                                            {item.half_day_session}
+                                        </span>
+                                    )}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Chip variant="flat" size="sm" color="secondary">
+                                    {item.total_days} {item.total_days === 1 ? "Day" : "Days"}
+                                </Chip>
+                            </TableCell>
+                            <TableCell>
+                                <Chip
+                                    color={getStatusColor(item.status)}
+                                    size="sm"
+                                    variant="flat"
+                                    startContent={getStatusIcon(item.status)}
+                                    className="gap-1 px-2 font-medium"
+                                >
+                                    {item.status}
+                                </Chip>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center justify-center gap-2">
+                                    <Dropdown>
+                                        <DropdownTrigger>
+                                            <Button isIconOnly variant="light" size="sm">
+                                                <MoreVertical size={18} className="text-default-400" />
+                                            </Button>
+                                        </DropdownTrigger>
+                                        <DropdownMenu aria-label="Action Menu">
+                                            <DropdownItem
+                                                key="approve"
+                                                startContent={<CheckCircle2 size={16} className="text-success" />}
+                                                onPress={() => handleStatusUpdate(item.id, "Approved")}
+                                                className="text-success"
+                                            >
+                                                Approve
+                                            </DropdownItem>
+                                            <DropdownItem
+                                                key="reject"
+                                                startContent={<XCircle size={16} className="text-danger" />}
+                                                onPress={() => handleStatusUpdate(item.id, "Rejected")}
+                                                className="text-danger"
+                                            >
+                                                Reject
+                                            </DropdownItem>
+                                            <DropdownItem
+                                                key="edit"
+                                                startContent={<PencilIcon size={16} />}
+                                                onPress={() => handleEdit(item)}
+                                            >
+                                                Edit
+                                            </DropdownItem>
+                                            <DropdownItem
+                                                key="delete"
+                                                startContent={<TrashIcon size={16} />}
+                                                onPress={() => handleDelete(item.id)}
+                                                className="text-danger"
+                                            >
+                                                Delete
+                                            </DropdownItem>
+                                        </DropdownMenu>
+                                    </Dropdown>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+
+            <AddEditLeaveRequestDrawer
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                mode={mode}
+                selectedRequest={selectedRequest}
+                loading={loading}
+                onSubmit={(data) => {
+                    if (mode === "create") {
+                        dispatch(createLeaveRequestRequest(data));
+                    } else {
+                        dispatch(updateLeaveRequestRequest(selectedRequest.id, data));
+                    }
+                }}
+            />
+        </div>
+    );
+}
