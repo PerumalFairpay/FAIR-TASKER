@@ -63,6 +63,7 @@ const authReducer = (state: AuthState = initialAuthState, action: any): AuthStat
                 ...state,
                 loginLoading: false,
                 loginSuccess: action.payload.message,
+                user: action.payload.data,
                 token: action.payload.token,
             };
         case LOGIN_FAILURE:

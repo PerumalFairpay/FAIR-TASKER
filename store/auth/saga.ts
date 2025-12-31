@@ -32,10 +32,8 @@ function* onLogin({ payload }: any): SagaIterator {
         const response = yield call(loginApi, payload);
         if (response.data.success) {
             yield put(loginSuccess(response.data));
-            if (response.data.data) {
-                localStorage.setItem("name", response.data.data.name);
-                localStorage.setItem("email", response.data.data.email);
-            }
+            // Fetch full profile immediately after successful login
+            yield put({ type: GET_USER_REQUEST });
         } else {
             yield put(loginFailure(response.data.message || "Login failed"));
         }
@@ -74,8 +72,10 @@ function* onGetUser(): SagaIterator {
         if (response.data.success) {
             yield put(getUserSuccess(response.data));
             if (response.data.data) {
-                localStorage.setItem("name", response.data.data.name);
-                localStorage.setItem("email", response.data.data.email);
+                const userData = response.data.data;
+                const fullName = userData.name || `${userData.first_name || ""} ${userData.last_name || ""}`.trim();
+                localStorage.setItem("name", fullName);
+                localStorage.setItem("email", userData.email);
             }
         } else {
             yield put(getUserFailure(response.data.message || "Failed to fetch user"));
