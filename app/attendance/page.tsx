@@ -324,7 +324,7 @@ export default function AttendancePage() {
                 <Card className="shadow-sm border-l-4 border-warning">
                     <CardBody className="py-4">
                         <p className="text-small text-default-500 uppercase font-bold">Avg Hours</p>
-                        <h4 className="text-2xl font-bold mt-1 text-warning">8.5</h4>
+                        <h4 className="text-2xl font-bold mt-1 text-warning">10</h4>
                     </CardBody>
                 </Card>
             </div>
