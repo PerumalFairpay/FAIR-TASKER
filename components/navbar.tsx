@@ -33,7 +33,8 @@ import {
   BookOpen,
   Newspaper,
   CalendarCheck,
-  ClipboardList
+  ClipboardList,
+  KanbanSquare
 } from "lucide-react";
 
 
@@ -70,6 +71,7 @@ const iconMap: Record<string, any> = {
   Newspaper,
   CalendarCheck,
   ClipboardList,
+  KanbanSquare,
 };
 
 

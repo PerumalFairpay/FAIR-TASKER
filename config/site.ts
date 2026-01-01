@@ -100,7 +100,7 @@ export const siteConfig: SiteConfig = {
         {
           label: "Task Board",
           href: "/task/board",
-          icon: "Layout",
+          icon: "KanbanSquare",
           allowedRoles: ["admin", "employee"],
         },
         {

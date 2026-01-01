@@ -254,9 +254,9 @@ const TaskBoard = () => {
                                         {getTasksByStatus(column.id).length}
                                     </Chip>
                                 </div>
-                                <Button isIconOnly size="sm" variant="light" className="text-default-400">
+                                {/* <Button isIconOnly size="sm" variant="light" className="text-default-400">
                                     <MoreVertical size={16} />
-                                </Button>
+                                </Button> */}
                             </div>
 
                             <Droppable droppableId={column.id}>
