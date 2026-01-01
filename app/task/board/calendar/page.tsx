@@ -4,12 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer"; // Adapted import
 import { getTasksRequest } from "@/store/task/action"; // Adapted action
+import { getEmployeesRequest } from "@/store/employee/action";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import { Button } from "@heroui/button";
+import { Select, SelectItem } from "@heroui/select";
+import { Avatar } from "@heroui/avatar";
 import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -88,10 +91,19 @@ export default function CalendarPage() {
     const { tasks, loading: getTasksLoading } = useSelector(
         (state: AppState) => state.Task
     );
+    const { employees } = useSelector((state: AppState) => state.Employee);
+
+    const [filterEmployee, setFilterEmployee] = useState("");
 
     useEffect(() => {
-        dispatch(getTasksRequest({})); // Fetch all tasks
+        dispatch(getEmployeesRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        dispatch(getTasksRequest({
+            assigned_to: filterEmployee
+        }));
+    }, [dispatch, filterEmployee]);
 
     // Calendar Navigation Handlers
     const handlePrev = () => {
@@ -240,7 +252,33 @@ export default function CalendarPage() {
                             </Button>
                         </div>
 
+
                         <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+
+                        {/* Employee Filter */}
+                        <Select
+                            size="sm"
+                            variant="flat"
+                            placeholder="Employee"
+                            className="w-40"
+                            classNames={{
+                                trigger: "bg-gray-100 dark:bg-gray-800",
+                            }}
+                            selectedKeys={filterEmployee ? [filterEmployee] : []}
+                            onChange={(e) => setFilterEmployee(e.target.value)}
+                        >
+                            {employees.map((emp: any) => (
+                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                    <div className="flex items-center gap-2">
+                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-5 h-5" />
+                                        <span className="text-xs">{emp.name}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+
 
                         {/* View Switcher */}
                         <div className="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg shrink-0">
