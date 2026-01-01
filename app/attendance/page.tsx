@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getMyAttendanceHistoryRequest,
+    getAllAttendanceRequest,
     clockInRequest,
     clockOutRequest,
     clearAttendanceStatus
@@ -47,31 +48,42 @@ const columns = [
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
-    const { attendanceHistory, loading, success, error } = useSelector((state: AppState) => state.Attendance);
+    const { attendanceHistory, allAttendance, loading, success, error } = useSelector((state: AppState) => state.Attendance);
+    const { user } = useSelector((state: AppState) => state.Auth);
+    const isAdmin = user?.role === 'admin';
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
     useEffect(() => {
         setCurrentDate(new Date()); // Set initial date on client
-        dispatch(getMyAttendanceHistoryRequest());
+
+        if (isAdmin) {
+            dispatch(getAllAttendanceRequest());
+        } else {
+            dispatch(getMyAttendanceHistoryRequest());
+        }
 
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
-    }, [dispatch]);
+    }, [dispatch, isAdmin]);
 
     // Handle Toasts
     useEffect(() => {
         if (success) {
             toast.success(success);
             dispatch(clearAttendanceStatus());
-            dispatch(getMyAttendanceHistoryRequest()); // Refresh table
+            if (isAdmin) {
+                dispatch(getAllAttendanceRequest());
+            } else {
+                dispatch(getMyAttendanceHistoryRequest());
+            }
         }
         if (error) {
             toast.error(error);
             dispatch(clearAttendanceStatus());
         }
-    }, [success, error, dispatch]);
+    }, [success, error, dispatch, isAdmin]);
 
     const handleClockIn = () => {
         const now = new Date();
@@ -101,7 +113,7 @@ export default function AttendancePage() {
     );
 
     const isTodayClockOut = attendanceHistory.some((record: any) =>
-        record.date === format(new Date(), "yyyy-MM-dd") && record.clock_out !== null
+        record.date === format(new Date(), "yyyy-MM-dd") && record.clock_out
     );
 
     const getDeviceIcon = (device: string) => {
@@ -153,17 +165,19 @@ export default function AttendancePage() {
         }
     };
 
+    const displayData = isAdmin ? allAttendance : attendanceHistory;
+
     // Helper stats
-    const totalDays = attendanceHistory.length;
-    const presentDays = attendanceHistory.filter((r: any) => r.status === "Present").length;
+    const totalDays = displayData.length;
+    const presentDays = displayData.filter((r: any) => r.status === "Present").length;
 
     return (
         <div className="p-6">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">My Attendance</h1>
-                    <p className="text-default-500">Track your daily work logs</p>
+                    <h1 className="text-2xl font-bold">{isAdmin ? "Employee Attendance" : "My Attendance"}</h1>
+                    <p className="text-default-500">{isAdmin ? "Monitor all employee records" : "Track your daily work logs"}</p>
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -176,33 +190,37 @@ export default function AttendancePage() {
                         </div>
                     </div>
 
-                    {!isTodayClockIn ? (
-                        <Button
-                            color="primary"
-                            size="lg"
-                            startContent={<Clock size={20} />}
-                            onPress={handleClockIn}
-                            isLoading={loading}
-                            className="shadow-lg shadow-primary/40 font-semibold"
-                        >
-                            Clock In
-                        </Button>
-                    ) : !isTodayClockOut ? (
-                        <Button
-                            color="warning"
-                            size="lg"
-                            variant="flat"
-                            startContent={<LogOut size={20} />}
-                            onPress={handleClockOut}
-                            isLoading={loading}
-                            className="font-semibold"
-                        >
-                            Clock Out
-                        </Button>
-                    ) : (
-                        <Button disabled variant="faded" color="success" startContent={<Clock size={20} />}>
-                            Done for Today
-                        </Button>
+                    {!isAdmin && (
+                        <>
+                            {!isTodayClockIn ? (
+                                <Button
+                                    color="primary"
+                                    size="lg"
+                                    startContent={<Clock size={20} />}
+                                    onPress={handleClockIn}
+                                    isLoading={loading}
+                                    className="shadow-lg shadow-primary/40 font-semibold"
+                                >
+                                    Clock In
+                                </Button>
+                            ) : !isTodayClockOut ? (
+                                <Button
+                                    color="warning"
+                                    size="lg"
+                                    variant="flat"
+                                    startContent={<LogOut size={20} />}
+                                    onPress={handleClockOut}
+                                    isLoading={loading}
+                                    className="font-semibold"
+                                >
+                                    Clock Out
+                                </Button>
+                            ) : (
+                                <Button disabled variant="faded" color="success" startContent={<Clock size={20} />}>
+                                    Done for Today
+                                </Button>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
@@ -211,7 +229,7 @@ export default function AttendancePage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <Card className="shadow-sm">
                     <CardBody className="py-4">
-                        <p className="text-small text-default-500 uppercase font-bold">Total Days</p>
+                        <p className="text-small text-default-500 uppercase font-bold">{isAdmin ? "Total Records" : "Total Days"}</p>
                         <h4 className="text-2xl font-bold mt-1">{totalDays}</h4>
                     </CardBody>
                 </Card>
@@ -244,7 +262,7 @@ export default function AttendancePage() {
                         </TableColumn>
                     )}
                 </TableHeader>
-                <TableBody items={attendanceHistory} emptyContent={"No attendance history found."}>
+                <TableBody items={displayData} emptyContent={"No attendance records found."}>
                     {(item: AttendanceRecord) => (
                         <TableRow key={item.id}>
                             {(columnKey: React.Key) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
