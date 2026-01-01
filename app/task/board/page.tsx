@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
@@ -35,6 +37,7 @@ const TaskBoard = () => {
     const dispatch = useDispatch();
     const { tasks, task: currentTask, loading } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const router = useRouter();
 
     const [enabled, setEnabled] = useState(false);
     const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
@@ -221,6 +224,14 @@ const TaskBoard = () => {
                         onPress={() => window.location.href = "/task/reports"}
                     >
                         View Reports
+                    </Button>
+                    <Button
+                        variant="flat"
+                        color="warning"
+                        startContent={<CalendarIcon size={18} />}
+                        onPress={() => router.push("/task/board/calendar")}
+                    >
+                        Calendar View
                     </Button>
                 </div>
             </div>
