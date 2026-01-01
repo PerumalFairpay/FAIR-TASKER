@@ -18,6 +18,8 @@ import blogReducer from "./blog/reducer";
 import leaveTypeReducer from "./leaveType/reducer";
 import leaveRequestReducer from "./leaveRequest/reducer";
 import taskReducer from "./task/reducer";
+import attendanceReducer from "./attendance/reducer";
+
 
 
 const rootReducer = combineReducers({
@@ -39,6 +41,7 @@ const rootReducer = combineReducers({
     LeaveType: leaveTypeReducer,
     LeaveRequest: leaveRequestReducer,
     Task: taskReducer,
+    Attendance: attendanceReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

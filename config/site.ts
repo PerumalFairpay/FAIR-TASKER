@@ -86,6 +86,12 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin", "employee"],
     },
     {
+      label: "Attendance",
+      href: "/attendance",
+      icon: "Clock",
+      allowedRoles: ["admin", "employee"],
+    },
+    {
       label: "Project",
       href: "/project/list",
       icon: "Briefcase",
