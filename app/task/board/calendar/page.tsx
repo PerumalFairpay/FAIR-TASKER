@@ -196,64 +196,82 @@ export default function CalendarPage() {
             {/* Main Calendar Content */}
             <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#131314] overflow-hidden">
                 {/* Custom Header */}
-                <div className="h-auto md:h-16 py-4 md:py-0 border-b border-[#e5e7eb] dark:border-[#2d2e30] flex flex-col md:flex-row items-center justify-between px-4 md:px-6 shrink-0 bg-white dark:bg-[#131314] gap-4 md:gap-0">
-                    <div className="flex items-center justify-between w-full md:w-auto gap-4">
-                        <div className="flex items-center bg-[#f3f4f6] dark:bg-[#2d2e30] rounded-lg p-1">
-                            <Button
-                                isIconOnly
-                                size="sm"
-                                variant="light"
-                                onPress={handlePrev}
-                                className="text-[#4b5563] dark:text-[#9ca3af]"
-                            >
-                                <ChevronLeft size={16} />
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="light"
-                                onPress={handleToday}
-                                className="font-medium text-[#4b5563] dark:text-[#9ca3af] px-3"
-                            >
-                                Today
-                            </Button>
-                            <Button
-                                isIconOnly
-                                size="sm"
-                                variant="light"
-                                onPress={handleNext}
-                                className="text-[#4b5563] dark:text-[#9ca3af]"
-                            >
-                                <ChevronRight size={16} />
-                            </Button>
+                <div className="flex flex-col md:flex-row items-center justify-between p-4 bg-white dark:bg-[#131314] border-b border-gray-200 dark:border-gray-800 gap-4">
+                    {/* Left Section: Date & Navigation */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </h2>
+                            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-full p-0.5 ml-2">
+                                <Button
+                                    isIconOnly
+                                    size="sm"
+                                    radius="full"
+                                    variant="light"
+                                    onPress={handlePrev}
+                                    className="w-7 h-7 min-w-7 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                                >
+                                    <ChevronLeft size={16} />
+                                </Button>
+                                <Button
+                                    isIconOnly
+                                    size="sm"
+                                    radius="full"
+                                    variant="light"
+                                    onPress={handleToday}
+                                    className="h-7 px-3 min-w-16 text-xs font-semibold text-gray-600 dark:text-gray-300"
+                                >
+                                    Today
+                                </Button>
+                                <Button
+                                    isIconOnly
+                                    size="sm"
+                                    radius="full"
+                                    variant="light"
+                                    onPress={handleNext}
+                                    className="w-7 h-7 min-w-7 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                                >
+                                    <ChevronRight size={16} />
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        {['timeGridDay', 'timeGridWeek', 'dayGridMonth', 'listWeek'].map((view) => (
-                            <button
-                                key={view}
-                                onClick={() => handleViewChange(view)}
-                                className={`view-btn ${currentView === view ? 'active' : ''}`}
-                            >
-                                {view === 'timeGridDay' && 'Day'}
-                                {view === 'timeGridWeek' && 'Week'}
-                                {view === 'dayGridMonth' && 'Month'}
-                                {view === 'listWeek' && 'List'}
-                            </button>
-                        ))}
+                    {/* Right Section: View Switcher & Actions */}
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end overflow-x-auto">
+                        <div className="flex items-center bg-gray-100 dark:bg-gray-800 p-1 rounded-lg shrink-0">
+                            {['timeGridDay', 'timeGridWeek', 'dayGridMonth', 'listWeek'].map((view) => (
+                                <button
+                                    key={view}
+                                    onClick={() => handleViewChange(view)}
+                                    className={`
+                                        px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-200
+                                        ${currentView === view
+                                            ? 'bg-white dark:bg-[#131314] text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10'
+                                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}
+                                    `}
+                                >
+                                    {view === 'timeGridDay' && 'Day'}
+                                    {view === 'timeGridWeek' && 'Week'}
+                                    {view === 'dayGridMonth' && 'Month'}
+                                    {view === 'listWeek' && 'List'}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+
                         <Button
                             color="primary"
                             variant="flat"
-                            startContent={<FileText size={18} />}
+                            size="sm"
+                            startContent={<FileText size={16} />}
                             onPress={() => router.push('/task/board')}
-                            className="bg-primary/10 text-primary"
+                            className="bg-primary/10 text-primary font-medium shrink-0"
                         >
-                            Board View
+                            Board
                         </Button>
-                    </div>
-
-                    <div className="text-lg md:text-xl font-semibold text-[#1f1f1f] dark:text-[#E3E3E3] order-first md:order-none">
-                        {currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </div>
                 </div>
 
