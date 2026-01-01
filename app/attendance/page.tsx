@@ -21,7 +21,6 @@ import { Avatar } from "@heroui/avatar";
 import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
-import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 interface AttendanceRecord {
@@ -40,6 +39,10 @@ interface AttendanceRecord {
     date: string;
 }
 
+import { getHolidaysRequest } from "@/store/holiday/action";
+import { startOfMonth, endOfMonth, format } from "date-fns";
+import AttendanceCalendar from "./AttendanceCalendar";
+
 const columns = [
     { name: "DATE", uid: "date" },
     { name: "EMPLOYEE", uid: "employee" },
@@ -56,10 +59,13 @@ export default function AttendancePage() {
     const { attendanceHistory, allAttendance, loading, success, error } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
     const isAdmin = user?.role === 'admin';
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
+    const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
     // Filters
     const [filters, setFilters] = useState({
@@ -73,7 +79,15 @@ export default function AttendancePage() {
         setCurrentDate(new Date()); // Set initial date on client
 
         if (isAdmin) {
-            dispatch(getAllAttendanceRequest(filters));
+            // Fetch logic based on view mode
+            if (viewMode === "calendar") {
+                const start = format(startOfMonth(currentMonth), "yyyy-MM-dd");
+                const end = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+                dispatch(getAllAttendanceRequest({ start_date: start, end_date: end }));
+            } else {
+                dispatch(getAllAttendanceRequest(filters));
+            }
+
             if (employees.length === 0) {
                 dispatch(getEmployeesRequest());
             }
@@ -81,13 +95,24 @@ export default function AttendancePage() {
             dispatch(getMyAttendanceHistoryRequest());
         }
 
+        // Fetch holidays for Calendar view for all users
+        if (viewMode === "calendar") {
+            dispatch(getHolidaysRequest());
+        }
+
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
-    }, [dispatch, isAdmin, filters]);
+    }, [dispatch, isAdmin, filters, viewMode, currentMonth]);
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters(prev => ({ ...prev, [key]: value }));
     };
+
+    const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value) {
+            setCurrentMonth(new Date(e.target.value));
+        }
+    }
 
     // Handle Toasts
     useEffect(() => {
@@ -95,7 +120,13 @@ export default function AttendancePage() {
             toast.success(success);
             dispatch(clearAttendanceStatus());
             if (isAdmin) {
-                dispatch(getAllAttendanceRequest(filters));
+                if (viewMode === "calendar") {
+                    const start = format(startOfMonth(currentMonth), "yyyy-MM-dd");
+                    const end = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+                    dispatch(getAllAttendanceRequest({ start_date: start, end_date: end }));
+                } else {
+                    dispatch(getAllAttendanceRequest(filters));
+                }
             } else {
                 dispatch(getMyAttendanceHistoryRequest());
             }
@@ -104,7 +135,7 @@ export default function AttendancePage() {
             toast.error(error);
             dispatch(clearAttendanceStatus());
         }
-    }, [success, error, dispatch, isAdmin]);
+    }, [success, error, dispatch, isAdmin, viewMode, currentMonth, filters]);
 
     const handleClockIn = () => {
         const now = new Date();
@@ -197,63 +228,100 @@ export default function AttendancePage() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">{isAdmin ? "Employee Attendance" : "My Attendance"}</h1>
-                    <p className="text-default-500">{isAdmin ? "Monitor all employee records" : "Track your daily work logs"}</p>
+                    <h1 className="text-2xl font-bold">{isAdmin ? "Attendance" : "My Attendance"}</h1>
+                    {/* <p className="text-default-500">{isAdmin ? "Monitor all employee records" : "Track your daily work logs"}</p> */}
                 </div>
 
                 <div className="flex items-center gap-4 flex-wrap justify-end">
 
-                    {isAdmin && (
-                        <div className="flex gap-2 items-center">
-                            <DatePicker
+                    {/* Controls Section - View Toggle & Filters */}
+                    <div className="flex gap-2 items-center">
+                        {/* View Toggle */}
+                        <div className="flex bg-default-100 p-1 rounded-lg">
+                            <Button
                                 size="sm"
-                                variant="bordered"
-                                className="w-36"
-                                value={filters.start_date ? parseDate(filters.start_date) : undefined}
-                                onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
-                                aria-label="Start Date"
-                            />
-                            <span className="text-default-400">-</span>
-                            <DatePicker
-                                size="sm"
-                                variant="bordered"
-                                className="w-36"
-                                value={filters.end_date ? parseDate(filters.end_date) : undefined}
-                                onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
-                                aria-label="End Date"
-                            />
-
-                            <Select
-                                size="sm"
-                                variant="bordered"
-                                placeholder="Status"
-                                className="w-32"
-                                selectedKeys={filters.status ? [filters.status] : []}
-                                onChange={(e) => handleFilterChange("status", e.target.value)}
+                                variant={viewMode === "list" ? "solid" : "light"}
+                                color={viewMode === "list" ? "primary" : "default"}
+                                onPress={() => setViewMode("list")}
+                                className="rounded-md"
                             >
-                                <SelectItem key="Present">Present</SelectItem>
-                                {/* <SelectItem key="Absent">Absent</SelectItem> */}
-                            </Select>
-
-                            <Select
+                                List
+                            </Button>
+                            <Button
                                 size="sm"
-                                variant="bordered"
-                                placeholder="Employee"
-                                className="w-40"
-                                selectedKeys={filters.employee_id ? [filters.employee_id] : []}
-                                onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                variant={viewMode === "calendar" ? "solid" : "light"}
+                                color={viewMode === "calendar" ? "primary" : "default"}
+                                onPress={() => setViewMode("calendar")}
+                                className="rounded-md"
                             >
-                                {employees?.map((emp: any) => (
-                                    <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                        <div className="flex items-center gap-2">
-                                            <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                            <span>{emp.name}</span>
-                                        </div>
-                                    </SelectItem>
-                                ))}
-                            </Select>
+                                Calendar
+                            </Button>
                         </div>
-                    )}
+
+                        {/* Admin List Filters */}
+                        {isAdmin && viewMode === "list" && (
+                            <>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
+                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
+                                    aria-label="Start Date"
+                                />
+                                <span className="text-default-400">-</span>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
+                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
+                                    aria-label="End Date"
+                                />
+
+                                <Select
+                                    size="sm"
+                                    variant="bordered"
+                                    placeholder="Status"
+                                    className="w-32"
+                                    selectedKeys={filters.status ? [filters.status] : []}
+                                    onChange={(e) => handleFilterChange("status", e.target.value)}
+                                >
+                                    <SelectItem key="Present">Present</SelectItem>
+                                </Select>
+
+                                <Select
+                                    size="sm"
+                                    variant="bordered"
+                                    placeholder="Employee"
+                                    className="w-40"
+                                    selectedKeys={filters.employee_id ? [filters.employee_id] : []}
+                                    onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                >
+                                    {employees?.map((emp: any) => (
+                                        <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                                <span>{emp.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                            </>
+                        )}
+
+                        {/* Calendar Month Picker - For All Users */}
+                        {viewMode === "calendar" && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="month"
+                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
+                                    value={format(currentMonth, "yyyy-MM")}
+                                    onChange={handleMonthChange}
+                                />
+                            </div>
+                        )}
+                    </div>
 
                     <div className="text-right hidden xl:block border-l pl-4 ml-2 border-divider">
                         <div className="text-xl font-bold">
@@ -301,51 +369,71 @@ export default function AttendancePage() {
 
 
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {viewMode === "calendar" ? (
                 <Card className="shadow-sm">
-                    <CardBody className="py-4">
-                        <p className="text-small text-default-500 uppercase font-bold">{isAdmin ? "Total Records" : "Total Days"}</p>
-                        <h4 className="text-2xl font-bold mt-1">{totalDays}</h4>
+                    <CardBody>
+                        <AttendanceCalendar
+                            employees={isAdmin ? employees : [{
+                                name: user?.name,
+                                email: user?.email,
+                                employee_no_id: user?.employee_no_id,
+                                profile_picture: user?.profile_picture
+                            }]}
+                            attendance={isAdmin ? allAttendance : attendanceHistory}
+                            holidays={holidays || []}
+                            currentMonth={currentMonth}
+                        />
                     </CardBody>
                 </Card>
-                <Card className="shadow-sm border-l-4 border-success">
-                    <CardBody className="py-4">
-                        <p className="text-small text-default-500 uppercase font-bold">Present</p>
-                        <h4 className="text-2xl font-bold mt-1 text-success">{presentDays}</h4>
-                    </CardBody>
-                </Card>
-                <Card className="shadow-sm border-l-4 border-danger">
-                    <CardBody className="py-4">
-                        <p className="text-small text-default-500 uppercase font-bold">Absent</p>
-                        <h4 className="text-2xl font-bold mt-1 text-danger">0</h4>
-                    </CardBody>
-                </Card>
-                <Card className="shadow-sm border-l-4 border-warning">
-                    <CardBody className="py-4">
-                        <p className="text-small text-default-500 uppercase font-bold">Avg Hours</p>
-                        <h4 className="text-2xl font-bold mt-1 text-warning">10</h4>
-                    </CardBody>
-                </Card>
-            </div>
+            ) : (
+                <>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <Card className="shadow-sm">
+                            <CardBody className="py-4">
+                                <p className="text-small text-default-500 uppercase font-bold">{isAdmin ? "Total Records" : "Total Days"}</p>
+                                <h4 className="text-2xl font-bold mt-1">{totalDays}</h4>
+                            </CardBody>
+                        </Card>
+                        <Card className="shadow-sm border-l-4 border-success">
+                            <CardBody className="py-4">
+                                <p className="text-small text-default-500 uppercase font-bold">Present</p>
+                                <h4 className="text-2xl font-bold mt-1 text-success">{presentDays}</h4>
+                            </CardBody>
+                        </Card>
+                        <Card className="shadow-sm border-l-4 border-danger">
+                            <CardBody className="py-4">
+                                <p className="text-small text-default-500 uppercase font-bold">Absent</p>
+                                <h4 className="text-2xl font-bold mt-1 text-danger">0</h4>
+                            </CardBody>
+                        </Card>
+                        <Card className="shadow-sm border-l-4 border-warning">
+                            <CardBody className="py-4">
+                                <p className="text-small text-default-500 uppercase font-bold">Avg Hours</p>
+                                <h4 className="text-2xl font-bold mt-1 text-warning">10</h4>
+                            </CardBody>
+                        </Card>
+                    </div>
 
-            {/* Data Table */}
-            <Table aria-label="Attendance History Table">
-                <TableHeader columns={columns}>
-                    {(column: any) => (
-                        <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                            {column.name}
-                        </TableColumn>
-                    )}
-                </TableHeader>
-                <TableBody items={displayData} emptyContent={"No attendance records found."}>
-                    {(item: AttendanceRecord) => (
-                        <TableRow key={item.id}>
-                            {(columnKey: React.Key) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                    {/* Data Table */}
+                    <Table aria-label="Attendance History Table">
+                        <TableHeader columns={columns}>
+                            {(column: any) => (
+                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                                    {column.name}
+                                </TableColumn>
+                            )}
+                        </TableHeader>
+                        <TableBody items={displayData} emptyContent={"No attendance records found."}>
+                            {(item: AttendanceRecord) => (
+                                <TableRow key={item.id}>
+                                    {(columnKey: React.Key) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </>
+            )}
         </div>
     );
 }
