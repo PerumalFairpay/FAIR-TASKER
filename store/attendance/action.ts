@@ -48,9 +48,9 @@ export const getMyAttendanceHistoryFailure = (error: any) => ({
 });
 
 // Get All Attendance (Admin)
-export const getAllAttendanceRequest = (date?: string) => ({
+export const getAllAttendanceRequest = (filters?: { date?: string, start_date?: string, end_date?: string, employee_id?: string, status?: string } | string) => ({
     type: GET_ALL_ATTENDANCE_REQUEST,
-    payload: date,
+    payload: filters,
 });
 export const getAllAttendanceSuccess = (response: any) => ({
     type: GET_ALL_ATTENDANCE_SUCCESS,

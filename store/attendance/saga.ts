@@ -27,11 +27,27 @@ function getMyAttendanceHistoryApi() {
     return api.get("/attendance/my-history");
 }
 
-function getAllAttendanceApi(date?: string) {
+function getAllAttendanceApi(filters?: any) {
     let url = "/attendance/";
-    if (date) {
-        url += `?date=${date}`;
+    const params = new URLSearchParams();
+
+    if (filters) {
+        if (typeof filters === 'string') {
+            params.append('date', filters);
+        } else {
+            if (filters.date) params.append('date', filters.date);
+            if (filters.start_date) params.append('start_date', filters.start_date);
+            if (filters.end_date) params.append('end_date', filters.end_date);
+            if (filters.employee_id) params.append('employee_id', filters.employee_id);
+            if (filters.status) params.append('status', filters.status);
+        }
     }
+
+    const queryString = params.toString();
+    if (queryString) {
+        url += `?${queryString}`;
+    }
+
     return api.get(url);
 }
 

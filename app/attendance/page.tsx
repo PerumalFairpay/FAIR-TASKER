@@ -15,7 +15,12 @@ import { User } from "@heroui/user";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
-import { Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone } from "lucide-react";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
+import { Avatar } from "@heroui/avatar";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone } from "lucide-react";
+import { Select, SelectItem } from "@heroui/select";
+import { getEmployeesRequest } from "@/store/employee/action";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
 
@@ -50,23 +55,39 @@ export default function AttendancePage() {
     const dispatch = useDispatch();
     const { attendanceHistory, allAttendance, loading, success, error } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
+    const { employees } = useSelector((state: AppState) => state.Employee);
     const isAdmin = user?.role === 'admin';
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
 
+    // Filters
+    const [filters, setFilters] = useState({
+        start_date: "",
+        end_date: "",
+        employee_id: "",
+        status: ""
+    });
+
     useEffect(() => {
         setCurrentDate(new Date()); // Set initial date on client
 
         if (isAdmin) {
-            dispatch(getAllAttendanceRequest());
+            dispatch(getAllAttendanceRequest(filters));
+            if (employees.length === 0) {
+                dispatch(getEmployeesRequest());
+            }
         } else {
             dispatch(getMyAttendanceHistoryRequest());
         }
 
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
-    }, [dispatch, isAdmin]);
+    }, [dispatch, isAdmin, filters]);
+
+    const handleFilterChange = (key: string, value: any) => {
+        setFilters(prev => ({ ...prev, [key]: value }));
+    };
 
     // Handle Toasts
     useEffect(() => {
@@ -74,7 +95,7 @@ export default function AttendancePage() {
             toast.success(success);
             dispatch(clearAttendanceStatus());
             if (isAdmin) {
-                dispatch(getAllAttendanceRequest());
+                dispatch(getAllAttendanceRequest(filters));
             } else {
                 dispatch(getMyAttendanceHistoryRequest());
             }
@@ -180,8 +201,61 @@ export default function AttendancePage() {
                     <p className="text-default-500">{isAdmin ? "Monitor all employee records" : "Track your daily work logs"}</p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <div className="text-right hidden md:block">
+                <div className="flex items-center gap-4 flex-wrap justify-end">
+
+                    {isAdmin && (
+                        <div className="flex gap-2 items-center">
+                            <DatePicker
+                                size="sm"
+                                variant="bordered"
+                                className="w-36"
+                                value={filters.start_date ? parseDate(filters.start_date) : undefined}
+                                onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
+                                aria-label="Start Date"
+                            />
+                            <span className="text-default-400">-</span>
+                            <DatePicker
+                                size="sm"
+                                variant="bordered"
+                                className="w-36"
+                                value={filters.end_date ? parseDate(filters.end_date) : undefined}
+                                onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
+                                aria-label="End Date"
+                            />
+
+                            <Select
+                                size="sm"
+                                variant="bordered"
+                                placeholder="Status"
+                                className="w-32"
+                                selectedKeys={filters.status ? [filters.status] : []}
+                                onChange={(e) => handleFilterChange("status", e.target.value)}
+                            >
+                                <SelectItem key="Present">Present</SelectItem>
+                                {/* <SelectItem key="Absent">Absent</SelectItem> */}
+                            </Select>
+
+                            <Select
+                                size="sm"
+                                variant="bordered"
+                                placeholder="Employee"
+                                className="w-40"
+                                selectedKeys={filters.employee_id ? [filters.employee_id] : []}
+                                onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                            >
+                                {employees?.map((emp: any) => (
+                                    <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                        <div className="flex items-center gap-2">
+                                            <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                            <span>{emp.name}</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
+
+                    <div className="text-right hidden xl:block border-l pl-4 ml-2 border-divider">
                         <div className="text-xl font-bold">
                             {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
                         </div>
@@ -224,6 +298,8 @@ export default function AttendancePage() {
                     )}
                 </div>
             </div>
+
+
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
