@@ -210,14 +210,6 @@ const TaskBoard = () => {
                     </Select>
 
                     <Button
-                        color="primary"
-                        startContent={<Plus size={18} />}
-                        variant="shadow"
-                        onPress={handleCreateTask}
-                    >
-                        Create Task
-                    </Button>
-                    <Button
                         variant="flat"
                         color="secondary"
                         startContent={<FileText size={18} />}
@@ -232,6 +224,15 @@ const TaskBoard = () => {
                         onPress={() => router.push("/task/board/calendar")}
                     >
                         Calendar View
+                    </Button>
+
+                    <Button
+                        color="primary"
+                        startContent={<Plus size={18} />}
+                        variant="shadow"
+                        onPress={handleCreateTask}
+                    >
+                        Create Task
                     </Button>
                 </div>
             </div>
