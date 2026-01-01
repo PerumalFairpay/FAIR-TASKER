@@ -169,19 +169,57 @@ export default function CalendarPage() {
 
 
     const renderEventContent = (eventInfo: any) => {
-        const { colorPalette } = eventInfo.event.extendedProps;
+        const { colorPalette, priority, assigned_to } = eventInfo.event.extendedProps;
         const displayName = eventInfo.event.title;
+
+        // map IDs to employee objects
+        const assignedEmployees = Array.isArray(assigned_to) && employees.length > 0
+            ? employees.filter((emp: any) => assigned_to.includes(emp.employee_no_id))
+            : [];
 
         return (
             <div
-                className="custom-calendar-event p-1 text-xs truncate rounded"
+                className="custom-calendar-event p-1.5 flex flex-col gap-1.5 rounded-md border-l-4 shadow-sm transition-all hover:scale-[1.01] hover:brightness-95 h-auto min-h-[50px] justify-between cursor-pointer"
                 style={{
                     borderLeftColor: colorPalette.border,
                     backgroundColor: colorPalette.bg,
                     color: colorPalette.text
                 }}
             >
-                {displayName}
+                <div className="font-semibold text-xs leading-tight line-clamp-2">
+                    {displayName}
+                </div>
+
+                <div className="flex items-center justify-between">
+                    {/* Priority Badge */}
+                    {priority && (
+                        <div
+                            className="text-[10px] px-1.5 py-[2px] rounded-full bg-white/60 dark:bg-black/20 font-medium uppercase tracking-wider"
+                            style={{ color: colorPalette.border }} // Use border color for text to ensure contrast
+                        >
+                            {priority}
+                        </div>
+                    )}
+
+                    {/* Avatars */}
+                    {assignedEmployees.length > 0 && (
+                        <div className="flex -space-x-1.5 overflow-hidden">
+                            {assignedEmployees.slice(0, 3).map((emp: any) => (
+                                <Avatar
+                                    key={emp.employee_no_id}
+                                    src={emp.profile_picture}
+                                    name={emp.name}
+                                    className="w-4 h-4 min-w-4 min-h-4 text-[8px] border-[1.5px] border-white dark:border-gray-900"
+                                />
+                            ))}
+                            {assignedEmployees.length > 3 && (
+                                <div className="w-4 h-4 min-w-4 min-h-4 rounded-full bg-gray-200 dark:bg-gray-700 text-[8px] flex items-center justify-center border-[1.5px] border-white dark:border-gray-900 text-gray-500 dark:text-gray-300 font-bold">
+                                    +{assignedEmployees.length - 3}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     };
@@ -371,13 +409,52 @@ export default function CalendarPage() {
                                                     {selectedTask.task_name}
                                                 </h3>
                                                 <div className="flex items-center flex-wrap gap-2">
-                                                    <div className="px-3 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold dark:border-gray-800 dark:bg-gray-800 dark:text-gray-400 flex items-center gap-1.5">
+                                                    <div className={`px-3 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5
+                                                        ${selectedTask.priority === 'High' ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' :
+                                                            selectedTask.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
+                                                                'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'}`}>
                                                         Priority: {selectedTask.priority}
                                                     </div>
                                                     <div className="px-3 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold dark:border-gray-800 dark:bg-gray-800 dark:text-gray-400 flex items-center gap-1.5">
                                                         Status: {selectedTask.status}
                                                     </div>
                                                 </div>
+                                            </div>
+
+                                            {/* Assigned Users & Tags */}
+                                            <div className="flex flex-col gap-4">
+                                                {/* Assignees */}
+                                                <div>
+                                                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned To</h4>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {selectedTask.assigned_to && selectedTask.assigned_to.map((id: string) => {
+                                                            const emp = employees.find((e: any) => e.employee_no_id === id);
+                                                            return emp ? (
+                                                                <div key={id} className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800">
+                                                                    <Avatar src={emp.profile_picture} name={emp.name} className="w-5 h-5 text-[10px]" />
+                                                                    <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">{emp.name}</span>
+                                                                </div>
+                                                            ) : null;
+                                                        })}
+                                                        {(!selectedTask.assigned_to || selectedTask.assigned_to.length === 0) && (
+                                                            <span className="text-xs text-gray-400 italic">No one assigned</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Tags */}
+                                                {selectedTask.tags && selectedTask.tags.length > 0 && (
+                                                    <div>
+                                                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tags</h4>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {selectedTask.tags.map((tag: string) => (
+                                                                <span key={tag} className="px-2.5 py-1 rounded-md text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+                                                                    #{tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Schedule Grid */}
@@ -410,6 +487,24 @@ export default function CalendarPage() {
                                                         Description
                                                     </p>
                                                     <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-normal pl-3.5 border-l-2 border-gray-200 dark:border-gray-700" dangerouslySetInnerHTML={{ __html: selectedTask.description }} />
+                                                </div>
+                                            )}
+
+                                            {/* Attachments (Placeholder count) */}
+                                            {selectedTask.attachments && selectedTask.attachments.length > 0 && (
+                                                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800">
+                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                                        <LinkIcon size={12} />
+                                                        Attachments ({selectedTask.attachments.length})
+                                                    </p>
+                                                    <div className="flex flex-col gap-2">
+                                                        {selectedTask.attachments.map((att: any, idx: number) => (
+                                                            <div key={idx} className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
+                                                                <FileText size={12} />
+                                                                {att.name || `Attachment ${idx + 1}`}
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
