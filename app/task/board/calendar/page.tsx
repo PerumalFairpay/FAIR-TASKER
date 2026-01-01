@@ -83,8 +83,7 @@ export default function CalendarPage() {
         onOpen();
     };
 
-    // Mini Calendar State
-    const [miniCalDate, setMiniCalDate] = useState(new Date());
+
 
     const { tasks, loading: getTasksLoading } = useSelector(
         (state: AppState) => state.Task
@@ -100,7 +99,7 @@ export default function CalendarPage() {
         calendarApi?.prev();
         const newDate = calendarApi?.getDate();
         setCurrentDate(newDate);
-        setMiniCalDate(newDate); // Sync mini cal
+
     };
 
     const handleNext = () => {
@@ -108,7 +107,7 @@ export default function CalendarPage() {
         calendarApi?.next();
         const newDate = calendarApi?.getDate();
         setCurrentDate(newDate);
-        setMiniCalDate(newDate); // Sync mini cal
+
     };
 
     const handleToday = () => {
@@ -116,7 +115,7 @@ export default function CalendarPage() {
         calendarApi?.today();
         const newDate = calendarApi?.getDate();
         setCurrentDate(newDate);
-        setMiniCalDate(newDate);
+
     };
 
     const handleViewChange = (view: string) => {
@@ -152,71 +151,10 @@ export default function CalendarPage() {
         };
     });
 
-    // Helper functions for Sidebar Agenda
-    const getFormattedDateGroup = (dateStr: string) => {
-        if (!dateStr) return "NO DATE";
-        const date = new Date(dateStr);
-        const today = new Date();
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
-        if (date.toDateString() === today.toDateString()) return "TODAY";
-        if (date.toDateString() === tomorrow.toDateString()) return "TOMORROW";
-
-        return date.toLocaleDateString('en-US', { weekday: 'long', month: 'numeric', day: 'numeric' }).toUpperCase();
-    };
-
-    const sortedTasks = [...tasksList].sort((a: any, b: any) =>
-        new Date(a.start_date || 0).getTime() - new Date(b.start_date || 0).getTime()
-    ).filter((m: any) => new Date(m.start_date) >= new Date(new Date().setHours(0, 0, 0, 0)));
-
-    const groupedTasks = sortedTasks.slice(0, 5).reduce((acc: any, task: any) => {
-        const group = getFormattedDateGroup(task.start_date);
-        if (!acc[group]) acc[group] = [];
-        acc[group].push(task);
-        return acc;
-    }, {});
 
 
-    // Mini Calendar Generation
-    const generateMiniCalendar = () => {
-        const year = miniCalDate.getFullYear();
-        const month = miniCalDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
 
-        const days = [];
-        const startPadding = firstDay.getDay(); // 0 = Sunday
 
-        // Prev month padding
-        for (let i = 0; i < startPadding; i++) {
-            days.push(<div key={`prev-${i}`} className="mini-day-cell other-month"></div>);
-        }
-
-        // Current month days
-        for (let i = 1; i <= lastDay.getDate(); i++) {
-            const currentDayDate = new Date(year, month, i);
-            const isToday = currentDayDate.toDateString() === new Date().toDateString();
-            const isSelected = currentDayDate.toDateString() === currentDate.toDateString();
-            const hasEvent = tasksList.some((m: any) => m.start_date && new Date(m.start_date).toDateString() === currentDayDate.toDateString());
-
-            days.push(
-                <div
-                    key={i}
-                    className={`mini-day-cell current-month ${isSelected ? 'selected' : ''} ${hasEvent ? 'has-events' : ''}`}
-                    onClick={() => {
-                        const calendarApi = calendarRef.current?.getApi();
-                        calendarApi?.gotoDate(currentDayDate);
-                        setCurrentDate(currentDayDate);
-                        setMiniCalDate(currentDayDate);
-                    }}
-                >
-                    {i}
-                </div>
-            );
-        }
-        return days;
-    };
 
     const renderEventContent = (eventInfo: any) => {
         const { colorPalette } = eventInfo.event.extendedProps;
@@ -253,79 +191,7 @@ export default function CalendarPage() {
 
     return (
         <div className="calendar-page-container">
-            {/* Sidebar */}
-            <div className="calendar-sidebar">
 
-
-                <div className="mini-calendar-header">
-                    <div className="mini-calendar-title">
-                        {miniCalDate.toLocaleString('default', { month: 'long' })}
-                        <span className="mini-calendar-year ml-2">{miniCalDate.getFullYear()}</span>
-                    </div>
-                    <div className="flex gap-1 text-gray-400">
-                        <ChevronLeft
-                            size={20}
-                            className="cursor-pointer hover:text-white"
-                            onClick={() => setMiniCalDate(new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() - 1, 1))}
-                        />
-                        <ChevronRight
-                            size={20}
-                            className="cursor-pointer hover:text-white"
-                            onClick={() => setMiniCalDate(new Date(miniCalDate.getFullYear(), miniCalDate.getMonth() + 1, 1))}
-                        />
-                    </div>
-                </div>
-
-                <div className="mini-calendar-grid">
-                    <span className="mini-day-header">S</span>
-                    <span className="mini-day-header">M</span>
-                    <span className="mini-day-header">T</span>
-                    <span className="mini-day-header">W</span>
-                    <span className="mini-day-header">T</span>
-                    <span className="mini-day-header">F</span>
-                    <span className="mini-day-header">S</span>
-                    {generateMiniCalendar()}
-                </div>
-
-                {/* Highlight Card for demo purpose based on image */}
-                {/* <div className="agenda-highlight-card">
-                    <h3 className="font-semibold text-sm mb-1">Upcoming Highlight</h3>
-                </div> */}
-
-                {/* Agenda List */}
-                <div className="flex-1 overflow-y-auto">
-                    {Object.entries(groupedTasks).map(([group, groupTasks]: [string, any]) => (
-                        <div key={group} className="agenda-item">
-                            <div className="agenda-header">
-                                <span>{group}</span>
-                            </div>
-                            {groupTasks.map((task: any) => {
-                                const color = getEventColor(task.id || "default");
-
-                                return (
-                                    <div key={task.id} className="agenda-card">
-                                        <div
-                                            className="absolute left-0 top-[6px] w-[8px] h-[8px] rounded-full"
-                                            style={{ backgroundColor: color.border }}
-                                        />
-                                        <div className="agenda-time">
-                                            {task.start_date}
-                                        </div>
-                                        <div className="agenda-title">{task.task_name}</div>
-                                        {task.description && (
-                                            <div className="text-[10px] text-gray-400 mt-1 truncate" dangerouslySetInnerHTML={{ __html: task.description.replace(/<[^>]*>?/gm, '') }} />
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ))}
-
-                    {Object.keys(groupedTasks).length === 0 && (
-                        <div className="text-sm text-gray-500 text-center mt-4">No upcoming tasks</div>
-                    )}
-                </div>
-            </div>
 
             {/* Main Calendar Content */}
             <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#131314] overflow-hidden">
