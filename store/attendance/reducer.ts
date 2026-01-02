@@ -9,6 +9,7 @@ import {
 interface AttendanceState {
     attendanceHistory: any[];
     allAttendance: any[];
+    metrics: any | null;
     loading: boolean;
     error: string | null;
     success: string | null;
@@ -18,6 +19,7 @@ interface AttendanceState {
 const initialAttendanceState: AttendanceState = {
     attendanceHistory: [],
     allAttendance: [],
+    metrics: null,
     loading: false,
     error: null,
     success: null,
@@ -87,6 +89,7 @@ const attendanceReducer = (state: AttendanceState = initialAttendanceState, acti
                 ...state,
                 loading: false,
                 attendanceHistory: action.payload.data,
+                metrics: action.payload.metrics,
             };
         case GET_MY_ATTENDANCE_HISTORY_FAILURE:
             return {
@@ -107,6 +110,7 @@ const attendanceReducer = (state: AttendanceState = initialAttendanceState, acti
                 ...state,
                 loading: false,
                 allAttendance: action.payload.data,
+                metrics: action.payload.metrics,
             };
         case GET_ALL_ATTENDANCE_FAILURE:
             return {

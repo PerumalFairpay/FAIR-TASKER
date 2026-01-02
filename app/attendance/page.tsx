@@ -56,7 +56,7 @@ const columns = [
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
-    const { attendanceHistory, allAttendance, loading, success, error } = useSelector((state: AppState) => state.Attendance);
+    const { attendanceHistory, allAttendance, metrics, loading, success, error } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
@@ -226,14 +226,14 @@ export default function AttendancePage() {
     const displayData = isAdmin ? allAttendance : attendanceHistory;
 
     // Helper stats
-    const totalDays = displayData.length;
-    const presentDays = displayData.filter((r: any) => r.status === "Present").length;
-    const absentDays = displayData.filter((r: any) => r.status === "Absent").length;
-    const leaveDays = displayData.filter((r: any) => r.status === "Leave").length;
-    const holidayDays = displayData.filter((r: any) => r.status === "Holiday").length;
+    const totalDays = metrics?.total_records || 0;
+    const presentDays = metrics?.present || 0;
+    const absentDays = metrics?.absent || 0;
+    // const leaveDays = metrics?.leave || 0;
+    // const holidayDays = metrics?.holiday || 0;
 
-    const totalWorkHours = displayData.reduce((acc: number, curr: any) => acc + (parseFloat(curr.total_work_hours) || 0), 0);
-    const avgWorkHours = presentDays > 0 ? (totalWorkHours / presentDays).toFixed(1) : "0";
+    // const totalWorkHours = metrics?.total_work_hours || 0;
+    const avgWorkHours = metrics?.avg_work_hours || 0;
 
     return (
         <div className="p-6">
