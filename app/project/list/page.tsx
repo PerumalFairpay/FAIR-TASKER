@@ -137,7 +137,7 @@ export default function ProjectListPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Project table" shadow="sm">
+            <Table aria-label="Project table" shadow="sm" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>PROJECT</TableColumn>
                     <TableColumn>CLIENT</TableColumn>

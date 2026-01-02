@@ -104,7 +104,7 @@ export default function AssetListPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Asset table">
+            <Table aria-label="Asset table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>ASSET NAME</TableColumn>
                     <TableColumn>CATEGORY</TableColumn>

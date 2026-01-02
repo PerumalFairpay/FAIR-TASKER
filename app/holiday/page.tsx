@@ -21,7 +21,7 @@ import {
 import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon, Calendar, Info } from "lucide-react";
-import { Chip } from "@heroui/chip"; 
+import { Chip } from "@heroui/chip";
 import DeleteHolidayModal from "./DeleteHolidayModal";
 import AddEditHolidayDrawer from "./AddEditHolidayDrawer";
 
@@ -44,7 +44,7 @@ export default function HolidayPage() {
             onAddEditClose();
             onDeleteClose();
             dispatch(clearHolidayDetails());
-            
+
         }
     }, [success, onAddEditClose, onDeleteClose, dispatch]);
 
@@ -105,7 +105,7 @@ export default function HolidayPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Holiday table" shadow="sm">
+            <Table aria-label="Holiday table" shadow="sm" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>HOLIDAY NAME</TableColumn>
                     <TableColumn>DATE</TableColumn>

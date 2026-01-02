@@ -95,67 +95,65 @@ export default function DocumentListPage() {
                     <h1 className="text-2xl font-bold">Document Management</h1>
                     <p className="text-default-500">Manage and track your documents</p>
                 </div>
-                <Button color="secondary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                     Upload Document
                 </Button>
             </div>
 
-            <div className="bg-background rounded-xl border border-default-200 overflow-hidden">
-                <Table aria-label="Documents Table" shadow="none">
-                    <TableHeader>
-                        <TableColumn>NAME</TableColumn>
-                        <TableColumn>CATEGORY</TableColumn>
-                        <TableColumn>UPLOAD DATE</TableColumn>
-                        <TableColumn>EXPIRY DATE</TableColumn>
-                        <TableColumn>STATUS</TableColumn>
-                        <TableColumn>ACTIONS</TableColumn>
-                    </TableHeader>
-                    <TableBody emptyContent="No documents found" loadingContent="Loading..." isLoading={loading}>
-                        {(documents || []).map((doc: any) => {
-                            const category = documentCategories?.find((c: any) => c.id === doc.document_category_id);
-                            return (
-                                <TableRow key={doc.id}>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <FileIcon size={18} className="text-default-400" />
-                                            <span className="font-medium">{doc.name}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>{category?.name || "N/A"}</TableCell>
-                                    <TableCell>
-                                        {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : "-"}
-                                    </TableCell>
-                                    <TableCell>{doc.expiry_date || "-"}</TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            color={doc.status === "Active" ? "success" : "danger"}
-                                            variant="flat"
-                                            size="sm"
-                                        >
-                                            {doc.status}
-                                        </Chip>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            {doc.file_path && (
-                                                <Button size="sm" isIconOnly variant="light" as="a" href={doc.file_path} target="_blank">
-                                                    <DownloadIcon size={16} />
-                                                </Button>
-                                            )}
-                                            <Button size="sm" isIconOnly variant="light" color="warning" onPress={() => handleEdit(doc)}>
-                                                <PencilIcon size={16} />
+            <Table aria-label="Documents Table" shadow="sm" removeWrapper isHeaderSticky>
+                <TableHeader>
+                    <TableColumn>NAME</TableColumn>
+                    <TableColumn>CATEGORY</TableColumn>
+                    <TableColumn>UPLOAD DATE</TableColumn>
+                    <TableColumn>EXPIRY DATE</TableColumn>
+                    <TableColumn>STATUS</TableColumn>
+                    <TableColumn align="center">ACTIONS</TableColumn>
+                </TableHeader>
+                <TableBody items={documents || []} emptyContent="No documents found" loadingContent="Loading..." isLoading={loading}>
+                    {(doc: any) => {
+                        const category = documentCategories?.find((c: any) => c.id === doc.document_category_id);
+                        return (
+                            <TableRow key={doc.id}>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                        <FileIcon size={18} className="text-default-400" />
+                                        <span className="font-medium">{doc.name}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{category?.name || "N/A"}</TableCell>
+                                <TableCell>
+                                    {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : "-"}
+                                </TableCell>
+                                <TableCell>{doc.expiry_date || "-"}</TableCell>
+                                <TableCell>
+                                    <Chip
+                                        color={doc.status === "Active" ? "success" : "danger"}
+                                        variant="flat"
+                                        size="sm"
+                                    >
+                                        {doc.status}
+                                    </Chip>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center justify-center gap-2">
+                                        {doc.file_path && (
+                                            <Button size="sm" isIconOnly variant="light" as="a" href={doc.file_path} target="_blank">
+                                                <DownloadIcon size={16} />
                                             </Button>
-                                            <Button size="sm" isIconOnly variant="light" color="danger" onPress={() => handleDeleteClick(doc.id)}>
-                                                <TrashIcon size={16} />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                    </TableBody>
-                </Table>
-            </div>
+                                        )}
+                                        <Button size="sm" isIconOnly variant="light" color="warning" onPress={() => handleEdit(doc)}>
+                                            <PencilIcon size={16} />
+                                        </Button>
+                                        <Button size="sm" isIconOnly variant="light" color="danger" onPress={() => handleDeleteClick(doc.id)}>
+                                            <TrashIcon size={16} />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    }}
+                </TableBody>
+            </Table>
 
             <AddEditDocumentDrawer
                 isOpen={isOpen}

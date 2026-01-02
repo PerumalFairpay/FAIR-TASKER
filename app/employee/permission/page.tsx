@@ -96,7 +96,7 @@ export default function PermissionPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Permissions table">
+            <Table aria-label="Permissions table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
                     <TableColumn>SLUG</TableColumn>

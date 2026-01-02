@@ -103,7 +103,7 @@ export default function ExpenseListPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Expense table">
+            <Table aria-label="Expense table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>DATE</TableColumn>
                     <TableColumn>CATEGORY</TableColumn>

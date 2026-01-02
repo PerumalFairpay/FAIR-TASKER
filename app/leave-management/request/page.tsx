@@ -107,7 +107,7 @@ export default function LeaveRequestPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"}>
+            <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"} removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>EMPLOYEE</TableColumn>
                     <TableColumn>LEAVE TYPE</TableColumn>

@@ -104,7 +104,7 @@ export default function LeaveTypePage() {
                 </Button>
             </div>
 
-            <Table aria-label="Leave type table" shadow="sm">
+            <Table aria-label="Leave type table" shadow="sm" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>LEAVE NAME (CODE)</TableColumn>
                     <TableColumn>TYPE</TableColumn>

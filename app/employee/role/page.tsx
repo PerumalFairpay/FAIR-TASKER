@@ -112,7 +112,7 @@ export default function RolePage() {
                 </Button>
             </div>
 
-            <Table aria-label="Roles table">
+            <Table aria-label="Roles table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
                     <TableColumn>DESCRIPTION</TableColumn>
