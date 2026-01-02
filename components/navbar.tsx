@@ -121,8 +121,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
             const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
             const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
             return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
-          }).map((item: any) => { 
-            if (item.children && !item.children.some((child: any) => child.href === item.href)) { 
+          }).map((item: any) => {
+            if (item.children && !item.children.some((child: any) => child.href === item.href)) {
               if (item.children) return null;
             }
 
