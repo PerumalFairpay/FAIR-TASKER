@@ -314,10 +314,10 @@ export default function DocumentCategoryPage() {
     const treeData = React.useMemo(() => buildTree(documentCategories || []), [documentCategories]);
 
     return (
-        <div className="p-8">
+        <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-3xl font-bold tracking-tight text-default-900">Document Categories</h1>
+                    <h1 className="text-2xl font-bold">Document Categories</h1>
                     <p className="text-default-500 text-sm">Organize and manage your document classification hierarchy.</p>
                 </div>
                 <Button

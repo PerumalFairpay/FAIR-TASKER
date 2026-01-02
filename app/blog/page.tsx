@@ -69,10 +69,10 @@ export default function BlogPage() {
 
     return (
         <div className="flex-1 h-full bg-white dark:bg-[#131314] overflow-y-auto">
-            <div className="max-w-[1200px] mx-auto px-4 py-6 md:px-8 md:py-8">
+            <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-[20px] md:text-[24px] font-normal text-[#1f1f1f] dark:text-[#E3E3E3]">Blogs</h1>
+                    <h1 className="text-2xl font-bold text-[#1f1f1f] dark:text-[#E3E3E3]">Blogs</h1>
 
                     <div className="flex items-center gap-3">
                         <Button

@@ -311,10 +311,10 @@ export default function DepartmentPage() {
     const treeData = React.useMemo(() => buildTree(departments || []), [departments]);
 
     return (
-        <div className="p-8">
+        <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-3xl font-bold tracking-tight text-default-900">Department Structure</h1>
+                    <h1 className="text-2xl font-bold">Department Structure</h1>
                     <p className="text-default-500 text-sm">Manage your organization's hierarchy and departments.</p>
                 </div>
                 <Button

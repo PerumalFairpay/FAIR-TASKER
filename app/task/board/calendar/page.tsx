@@ -246,12 +246,12 @@ export default function CalendarPage() {
             {/* Main Calendar Content */}
             <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#131314] overflow-hidden">
                 {/* Custom Header */}
-                <div className="flex flex-col md:flex-row items-center justify-between p-4 bg-white dark:bg-[#131314] border-b border-gray-200 dark:border-gray-800 gap-4">
+                <div className="flex flex-col md:flex-row items-center justify-between p-6 bg-white dark:bg-[#131314] border-b border-gray-200 dark:border-gray-800 gap-4">
                     {/* Left Section: Date Title */}
                     <div className="flex items-center w-full md:w-auto">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                             {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                        </h2>
+                        </h1>
                     </div>
 
                     {/* Right Section: Navigation & View Switcher */}
