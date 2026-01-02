@@ -71,6 +71,8 @@ const EODReportsPage = () => {
 
             <Table
                 aria-label="EOD Reports Table"
+                removeWrapper
+                isHeaderSticky
             >
                 <TableHeader>
                     <TableColumn>DATE</TableColumn>
