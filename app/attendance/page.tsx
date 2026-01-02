@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getMyAttendanceHistoryRequest,
@@ -249,10 +250,7 @@ export default function AttendancePage() {
         <div className="p-6">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold">{isAdmin ? "Attendance" : "My Attendance"}</h1>
-                    {/* <p className="text-default-500">{isAdmin ? "Monitor all employee records" : "Track your daily work logs"}</p> */}
-                </div>
+                <PageHeader title={isAdmin ? "Attendance" : "My Attendance"} />
 
                 <div className="flex items-center gap-4 flex-wrap justify-end">
 

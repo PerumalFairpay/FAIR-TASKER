@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEodReportsRequest } from "@/store/task/action";
 import { AppState } from "@/store/rootReducer";
@@ -60,13 +61,10 @@ const EODReportsPage = () => {
         <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <FileText className="text-primary" />
-                        Submitted EOD Reports
-                    </h1>
-                    <p className="text-default-500 text-sm">
-                        Track daily progress and task summaries.
-                    </p>
+                    <PageHeader
+                        title="Submitted EOD Reports"
+                        description="Track daily progress and task summaries."
+                    />
                 </div>
 
             </div>

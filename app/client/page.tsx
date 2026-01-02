@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
@@ -82,10 +83,10 @@ export default function ClientListPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Clients & Vendors</h1>
-                    <p className="text-default-500">Manage your business partners and service providers</p>
-                </div>
+                <PageHeader
+                    title="Clients & Vendors"
+                    description="Manage your business partners and service providers"
+                />
                 <Button
                     color="primary"
                     endContent={<PlusIcon size={16} />}

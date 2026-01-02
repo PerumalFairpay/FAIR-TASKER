@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getDocumentCategoriesRequest,
@@ -316,10 +317,10 @@ export default function DocumentCategoryPage() {
     return (
         <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold">Document Categories</h1>
-                    <p className="text-default-500 text-sm">Organize and manage your document classification hierarchy.</p>
-                </div>
+                <PageHeader
+                    title="Document Categories"
+                    description="Organize and manage your document classification hierarchy."
+                />
                 <Button
                     color="primary"
                     size="md"

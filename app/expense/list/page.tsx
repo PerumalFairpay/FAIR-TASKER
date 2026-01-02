@@ -90,10 +90,10 @@ export default function ExpenseListPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Expenses</h1>
-                    <p className="text-default-500">Track and manage your business expenses</p>
-                </div>
+                <PageHeader
+                    title="Expenses"
+                    description="Track and manage your business expenses"
+                />
                 <Button
                     color="primary"
                     endContent={<PlusIcon size={16} />}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getDepartmentsRequest,
@@ -313,10 +314,10 @@ export default function DepartmentPage() {
     return (
         <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold">Department Structure</h1>
-                    <p className="text-default-500 text-sm">Manage your organization's hierarchy and departments.</p>
-                </div>
+                <PageHeader
+                    title="Department Structure"
+                    description="Manage your organization's hierarchy and departments."
+                />
                 <Button
                     color="primary"
                     size="md"

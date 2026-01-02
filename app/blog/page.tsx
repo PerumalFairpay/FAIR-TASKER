@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getBlogsRequest } from "@/store/blog/action";
 import { Card, CardBody, CardFooter } from "@heroui/card";
@@ -72,7 +73,7 @@ export default function BlogPage() {
             <div className="p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    <h1 className="text-2xl font-bold text-[#1f1f1f] dark:text-[#E3E3E3]">Blogs</h1>
+                    <PageHeader title="Blogs" />
 
                     <div className="flex items-center gap-3">
                         <Button

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
@@ -91,10 +92,10 @@ export default function AssetListPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Assets</h1>
-                    <p className="text-default-500">Manage company assets and inventory</p>
-                </div>
+                <PageHeader
+                    title="Assets"
+                    description="Manage company assets and inventory"
+                />
                 <Button
                     color="primary"
                     endContent={<PlusIcon size={16} />}

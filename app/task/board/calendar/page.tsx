@@ -24,6 +24,7 @@ import {
 } from "@heroui/drawer";
 import { useDisclosure } from "@heroui/use-disclosure";
 import { Image } from "@heroui/image";
+import { PageHeader } from "@/components/PageHeader";
 // import GoogleMeetIcon from "../../../../assets/google_meet.svg"; // Removed
 // import ZoomIcon from "../../../../assets/zoom.svg"; // Removed
 import "./calendar.css";
@@ -249,9 +250,9 @@ export default function CalendarPage() {
                 <div className="flex flex-col md:flex-row items-center justify-between p-6 bg-white dark:bg-[#131314] border-b border-gray-200 dark:border-gray-800 gap-4">
                     {/* Left Section: Date Title */}
                     <div className="flex items-center w-full md:w-auto">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                            {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                        </h1>
+                        <PageHeader
+                            title={currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        />
                     </div>
 
                     {/* Right Section: Navigation & View Switcher */}

@@ -25,6 +25,7 @@ import { Chip } from "@heroui/chip";
 import { useDisclosure } from "@heroui/modal";
 import AddEditDocumentDrawer from "./AddEditDocumentDrawer";
 import DeleteDocumentModal from "./DeleteDocumentModal";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function DocumentListPage() {
     const dispatch = useDispatch();
@@ -91,10 +92,10 @@ export default function DocumentListPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Document Management</h1>
-                    <p className="text-default-500">Manage and track your documents</p>
-                </div>
+                <PageHeader
+                    title="Document Management"
+                    description="Manage and track your documents"
+                />
                 <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                     Upload Document
                 </Button>

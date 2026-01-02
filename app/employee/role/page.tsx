@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getRolesRequest,
@@ -106,7 +107,7 @@ export default function RolePage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Roles</h1>
+                <PageHeader title="Roles" />
                 <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                     Add New Role
                 </Button>

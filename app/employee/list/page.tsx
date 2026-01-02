@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getEmployeesRequest,
@@ -108,7 +109,7 @@ export default function EmployeeListPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Employees</h1>
+                <PageHeader title="Employees" />
                 <PermissionGuard permission="employee:create">
                     <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                         Add New Employee

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getExpenseCategoriesRequest,
@@ -322,10 +323,10 @@ export default function ExpenseCategoryPage() {
     return (
         <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-bold">Expense Categories</h1>
-                    <p className="text-default-500 text-sm">Organize and manage your expense tracking hierarchy.</p>
-                </div>
+                <PageHeader
+                    title="Expense Categories"
+                    description="Organize and manage your expense tracking hierarchy."
+                />
                 <Button
                     color="primary"
                     size="md"

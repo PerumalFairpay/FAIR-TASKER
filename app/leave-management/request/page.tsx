@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
@@ -94,10 +95,10 @@ export default function LeaveRequestPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold">Leave Requests</h1>
-                    <p className="text-default-500">Track and manage employee leave applications</p>
-                </div>
+                <PageHeader
+                    title="Leave Requests"
+                    description="Track and manage employee leave applications"
+                />
                 <Button
                     color="primary"
                     endContent={<PlusIcon size={16} />}

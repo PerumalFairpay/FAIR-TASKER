@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Card, CardBody } from "@heroui/card";
@@ -176,10 +177,10 @@ const TaskBoard = () => {
     return (
         <div className="h-full flex flex-col gap-6 p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold">Task Management</h1>
-                    <p className="text-default-500">Manage your daily tasks and project progress</p>
-                </div>
+                <PageHeader
+                    title="Task Management"
+                    description="Manage your daily tasks and project progress"
+                />
 
                 <div className="flex gap-2 items-center">
                     <DatePicker
