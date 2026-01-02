@@ -23,7 +23,7 @@ import {
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
-import AddEditRoleModal from "./AddEditRoleModal";
+import AddEditRoleDrawer from "./AddEditRoleDrawer";
 import DeleteRoleModal from "./DeleteRoleModal";
 
 export default function RolePage() {
@@ -166,7 +166,7 @@ export default function RolePage() {
                 </TableBody>
             </Table>
 
-            <AddEditRoleModal
+            <AddEditRoleDrawer
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 mode={mode}

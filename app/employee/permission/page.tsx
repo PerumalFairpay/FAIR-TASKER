@@ -22,7 +22,7 @@ import {
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
-import AddEditPermissionModal from "./AddEditPermissionModal";
+import AddEditPermissionDrawer from "./AddEditPermissionDrawer";
 import DeletePermissionModal from "./DeletePermissionModal";
 
 export default function PermissionPage() {
@@ -134,7 +134,7 @@ export default function PermissionPage() {
                 </TableBody>
             </Table>
 
-            <AddEditPermissionModal
+            <AddEditPermissionDrawer
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 mode={mode}
