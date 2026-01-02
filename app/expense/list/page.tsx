@@ -25,6 +25,7 @@ import { PlusIcon, PencilIcon, TrashIcon, Eye } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import AddEditExpenseDrawer from "./AddEditExpenseDrawer";
 import DeleteExpenseModal from "./DeleteExpenseModal";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function ExpenseListPage() {
     const dispatch = useDispatch();
