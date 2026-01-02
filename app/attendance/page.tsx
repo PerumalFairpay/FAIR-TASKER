@@ -198,8 +198,14 @@ export default function AttendancePage() {
                 }
                 return "-";
             case "status":
+                let color: "success" | "danger" | "warning" | "primary" | "default" = "default";
+                if (cellValue === "Present") color = "success";
+                else if (cellValue === "Absent") color = "danger";
+                else if (cellValue === "Leave") color = "warning";
+                else if (cellValue === "Holiday") color = "primary";
+
                 return (
-                    <Chip className="capitalize" color={cellValue === "Present" ? "success" : "danger"} size="sm" variant="flat">
+                    <Chip className="capitalize" color={color} size="sm" variant="flat">
                         {cellValue as string}
                     </Chip>
                 );
@@ -222,6 +228,12 @@ export default function AttendancePage() {
     // Helper stats
     const totalDays = displayData.length;
     const presentDays = displayData.filter((r: any) => r.status === "Present").length;
+    const absentDays = displayData.filter((r: any) => r.status === "Absent").length;
+    const leaveDays = displayData.filter((r: any) => r.status === "Leave").length;
+    const holidayDays = displayData.filter((r: any) => r.status === "Holiday").length;
+
+    const totalWorkHours = displayData.reduce((acc: number, curr: any) => acc + (parseFloat(curr.total_work_hours) || 0), 0);
+    const avgWorkHours = presentDays > 0 ? (totalWorkHours / presentDays).toFixed(1) : "0";
 
     return (
         <div className="p-6">
@@ -283,6 +295,7 @@ export default function AttendancePage() {
                                     size="sm"
                                     variant="bordered"
                                     placeholder="Status"
+                                    aria-label="Filter by Status"
                                     className="w-32"
                                     selectedKeys={filters.status ? [filters.status] : []}
                                     onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -294,6 +307,7 @@ export default function AttendancePage() {
                                     size="sm"
                                     variant="bordered"
                                     placeholder="Employee"
+                                    aria-label="Filter by Employee"
                                     className="w-40"
                                     selectedKeys={filters.employee_id ? [filters.employee_id] : []}
                                     onChange={(e) => handleFilterChange("employee_id", e.target.value)}
@@ -315,6 +329,7 @@ export default function AttendancePage() {
                             <div className="flex items-center gap-2">
                                 <input
                                     type="month"
+                                    aria-label="Select Month"
                                     className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
                                     value={format(currentMonth, "yyyy-MM")}
                                     onChange={handleMonthChange}
@@ -404,13 +419,13 @@ export default function AttendancePage() {
                         <Card className="shadow-sm border-l-4 border-danger">
                             <CardBody className="py-4">
                                 <p className="text-small text-default-500 uppercase font-bold">Absent</p>
-                                <h4 className="text-2xl font-bold mt-1 text-danger">0</h4>
+                                <h4 className="text-2xl font-bold mt-1 text-danger">{absentDays}</h4>
                             </CardBody>
                         </Card>
                         <Card className="shadow-sm border-l-4 border-warning">
                             <CardBody className="py-4">
                                 <p className="text-small text-default-500 uppercase font-bold">Avg Hours</p>
-                                <h4 className="text-2xl font-bold mt-1 text-warning">10</h4>
+                                <h4 className="text-2xl font-bold mt-1 text-warning">{avgWorkHours}</h4>
                             </CardBody>
                         </Card>
                     </div>
