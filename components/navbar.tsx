@@ -121,13 +121,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
             const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
             const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
             return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
-          }).map((item: any) => {
-            // For mobile, simpler to just show top level or flat list? 
-            // Logic: If it has children, maybe skip or show parent link if it exists.
-            // For now, let's just render parent links for mobile to keep it simple as per original
-            if (item.children && !item.children.some((child: any) => child.href === item.href)) {
-              // If it's a dropdown parent without its own link, hide on mobile bottom bar
-              // (existing logic was skip if hasChildren)
+          }).map((item: any) => { 
+            if (item.children && !item.children.some((child: any) => child.href === item.href)) { 
               if (item.children) return null;
             }
 
