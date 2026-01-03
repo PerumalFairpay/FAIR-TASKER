@@ -4,7 +4,7 @@
 import React, { useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/store/rootReducer"; // Assuming rootReducer exports RootState
+import { RootState } from "@/store/store";
 import { getDashboardData } from "@/store/dashboard/action";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
