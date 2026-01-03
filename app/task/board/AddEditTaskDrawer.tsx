@@ -8,9 +8,11 @@ import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import { createTaskRequest, updateTaskRequest, deleteTaskRequest } from "@/store/task/action";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -139,12 +141,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
 
                         <div className="flex flex-col gap-4">
                             <div className="flex gap-4">
-                                <Input
-                                    type="date"
+                                <DatePicker
                                     label="Start Date"
-                                    value={formData.start_date}
-                                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                    required
+                                    value={formData.start_date ? parseDate(formData.start_date) : undefined}
+                                    onChange={(date) => setFormData({ ...formData, start_date: date ? date.toString() : "" })}
+                                    isRequired
                                     className="flex-1"
                                 />
                                 <Input
@@ -156,12 +157,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                                 />
                             </div>
                             <div className="flex gap-4">
-                                <Input
-                                    type="date"
+                                <DatePicker
                                     label="End Date"
-                                    value={formData.end_date}
-                                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                                    required
+                                    value={formData.end_date ? parseDate(formData.end_date) : undefined}
+                                    onChange={(date) => setFormData({ ...formData, end_date: date ? date.toString() : "" })}
+                                    isRequired
                                     className="flex-1"
                                 />
                                 <Input
