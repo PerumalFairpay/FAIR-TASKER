@@ -35,7 +35,8 @@ import {
   CalendarCheck,
   ClipboardList,
   KanbanSquare,
-  Clock
+  Clock,
+  Key
 } from "lucide-react";
 
 
@@ -74,6 +75,7 @@ const iconMap: Record<string, any> = {
   ClipboardList,
   KanbanSquare,
   Clock,
+  Key
 };
 
 

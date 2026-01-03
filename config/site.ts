@@ -38,7 +38,7 @@ export const siteConfig: SiteConfig = {
       label: "Employee",
       href: "/employee",
       icon: "Users",
-      allowedRoles: ["admin", "employee"],
+      allowedRoles: ["admin"],
       children: [
         {
           label: "Employee List",
@@ -67,6 +67,12 @@ export const siteConfig: SiteConfig = {
       ],
     },
     {
+      label: "Attendance",
+      href: "/attendance",
+      icon: "Clock",
+      allowedRoles: ["admin", "employee"],
+    },
+    {
       label: "Leave Management",
       href: "/leave-management",
       icon: "CalendarCheck",
@@ -90,13 +96,7 @@ export const siteConfig: SiteConfig = {
       label: "Holiday",
       href: "/holiday",
       icon: "Calendar",
-      allowedRoles: ["admin", "employee"],
-    },
-    {
-      label: "Attendance",
-      href: "/attendance",
-      icon: "Clock",
-      allowedRoles: ["admin", "employee"],
+      allowedRoles: ["admin"],
     },
     {
       label: "Project",
@@ -154,7 +154,7 @@ export const siteConfig: SiteConfig = {
       label: "Expense Management",
       href: "/expense",
       icon: "Wallet",
-      allowedRoles: ["admin", "employee"],
+      allowedRoles: ["admin"],
       children: [
         {
           label: "Category",
@@ -166,7 +166,7 @@ export const siteConfig: SiteConfig = {
           label: "Expenses",
           href: "/expense/list",
           icon: "Banknote",
-          allowedRoles: ["admin", "employee"],
+          allowedRoles: ["admin"],
         },
       ],
     },

@@ -31,10 +31,12 @@ import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import AddEditLeaveRequestDrawer from "./AddEditLeaveRequestDrawer";
 import { User } from "@heroui/user";
+import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
 
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
     const { leaveRequests, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+    const { hasPermission } = usePermissions();
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const [mode, setMode] = useState<"create" | "edit">("create");
@@ -177,37 +179,44 @@ export default function LeaveRequestPage() {
                                             </Button>
                                         </DropdownTrigger>
                                         <DropdownMenu aria-label="Action Menu">
-                                            <DropdownItem
-                                                key="approve"
-                                                startContent={<CheckCircle2 size={16} className="text-success" />}
-                                                onPress={() => handleStatusUpdate(item.id, "Approved")}
-                                                className="text-success"
-                                            >
-                                                Approve
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="reject"
-                                                startContent={<XCircle size={16} className="text-danger" />}
-                                                onPress={() => handleStatusUpdate(item.id, "Rejected")}
-                                                className="text-danger"
-                                            >
-                                                Reject
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="edit"
-                                                startContent={<PencilIcon size={16} />}
-                                                onPress={() => handleEdit(item)}
-                                            >
-                                                Edit
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                key="delete"
-                                                startContent={<TrashIcon size={16} />}
-                                                onPress={() => handleDelete(item.id)}
-                                                className="text-danger"
-                                            >
-                                                Delete
-                                            </DropdownItem>
+                                            {hasPermission("leave:approve") && (
+                                                <DropdownItem
+                                                    key="approve"
+                                                    startContent={<CheckCircle2 size={16} className="text-success" />}
+                                                    onPress={() => handleStatusUpdate(item.id, "Approved")}
+                                                    className="text-success"
+                                                >
+                                                    Approve
+                                                </DropdownItem>
+                                            )}
+                                                <DropdownItem
+                                                    key="reject"
+                                                    startContent={<XCircle size={16} className="text-danger" />}
+                                                    onPress={() => handleStatusUpdate(item.id, "Rejected")}
+                                                    className="text-danger"
+                                                >
+                                                    Reject
+                                                </DropdownItem>
+                                           
+                                            
+                                                <DropdownItem
+                                                    key="edit"
+                                                    startContent={<PencilIcon size={16} />}
+                                                    onPress={() => handleEdit(item)}
+                                                >
+                                                    Edit
+                                                </DropdownItem>
+                                          
+                                             
+                                                <DropdownItem
+                                                    key="delete"
+                                                    startContent={<TrashIcon size={16} />}
+                                                    onPress={() => handleDelete(item.id)}
+                                                    className="text-danger"
+                                                >
+                                                    Delete
+                                                </DropdownItem>
+                                        
                                         </DropdownMenu>
                                     </Dropdown>
                                 </div>

@@ -12,6 +12,44 @@ interface PermissionGuardProps {
 }
 
 /**
+ * Helper function to check permissions
+ */
+export const hasPermission = (user: any, permission?: string, permissions?: string[], requireAll = false) => {
+    if (!user || !user.role) return false;
+    if (user.role.toLowerCase() === "admin") return true;
+
+    const userPermissions = user.permissions || [];
+
+    if (permission) {
+        return userPermissions.includes(permission);
+    }
+
+    if (permissions && permissions.length > 0) {
+        if (requireAll) {
+            return permissions.every(p => userPermissions.includes(p));
+        } else {
+            return permissions.some(p => userPermissions.includes(p));
+        }
+    }
+
+    return true;
+};
+
+/**
+ * Hook to check permissions in functional components
+ */
+export const usePermissions = () => {
+    const { user } = useSelector((state: AppState) => state.Auth);
+
+    return {
+        hasPermission: (permission?: string, permissions?: string[], requireAll = false) =>
+            hasPermission(user, permission, permissions, requireAll),
+        user,
+        isAdmin: user?.role?.toLowerCase() === "admin"
+    };
+};
+
+/**
  * A component that only renders its children if the user has the required permission(s).
  * Admins bypass all permission checks.
  */
@@ -24,37 +62,9 @@ export const PermissionGuard = ({
 }: PermissionGuardProps) => {
     const { user } = useSelector((state: AppState) => state.Auth);
 
-    // If no user, or no role, deny access
-    if (!user || !user.role) {
-        return <>{fallback}</>;
-    }
-
-    // Admin bypass
-    if (user.role.toLowerCase() === "admin") {
+    if (hasPermission(user, permission, permissions, requireAll)) {
         return <>{children}</>;
     }
 
-    const userPermissions = user.permissions || [];
-
-    // Single permission check
-    if (permission) {
-        if (userPermissions.includes(permission)) {
-            return <>{children}</>;
-        }
-        return <>{fallback}</>;
-    }
-
-    // Multiple permissions check
-    if (permissions && permissions.length > 0) {
-        if (requireAll) {
-            const hasAll = permissions.every(p => userPermissions.includes(p));
-            return hasAll ? <>{children}</> : <>{fallback}</>;
-        } else {
-            const hasAny = permissions.some(p => userPermissions.includes(p));
-            return hasAny ? <>{children}</> : <>{fallback}</>;
-        }
-    }
-
-    // If no permission requirements provided, allow access
-    return <>{children}</>;
+    return <>{fallback}</>;
 };
