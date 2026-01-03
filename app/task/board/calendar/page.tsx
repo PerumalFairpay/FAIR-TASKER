@@ -12,8 +12,10 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
-import { Avatar } from "@heroui/avatar";
-import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText } from "lucide-react";
+import { Avatar, AvatarGroup } from "@heroui/avatar";
+import { Chip } from "@heroui/chip";
+import { Divider } from "@heroui/divider";
+import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText, CheckCircle2, AlertCircle, Timer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
     Drawer,
@@ -398,133 +400,175 @@ export default function CalendarPage() {
             </div>
 
             {/* Task Details Drawer */}
-            <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+            <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md" classNames={{
+                base: "data-[placement=right]:sm:m-2 data-[placement=right]:sm:rounded-medium",
+                backdrop: "bg-gradient-to-t from-zinc-900/50 to-zinc-900/10 backdrop-opacity-20"
+            }}>
                 <DrawerContent>
                     {(onClose) => (
                         <>
-                            <DrawerHeader className="flex flex-col gap-1 border-b border-gray-100 dark:border-gray-800">
-                                <h2 className="text-xl font-semibold text-[#1f1f1f] dark:text-[#E3E3E3]">Task Details</h2>
-                            </DrawerHeader>
-                            <DrawerBody className="pt-6">
-                                {selectedTask && (
-                                    <div className="flex flex-col gap-6">
-
-                                        {/* Header Info */}
-                                        <div className="flex flex-col gap-6">
-                                            {/* Title & Badges */}
-                                            <div>
-                                                <h3 className="text-2xl font-bold text-[#1f1f1f] dark:text-[#E3E3E3] leading-snug mb-3">
-                                                    {selectedTask.task_name}
-                                                </h3>
-                                                <div className="flex items-center flex-wrap gap-2">
-                                                    <div className={`px-3 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5
-                                                        ${selectedTask.priority === 'High' ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' :
-                                                            selectedTask.priority === 'Medium' ? 'bg-yellow-50 text-yellow-600 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
-                                                                'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'}`}>
-                                                        Priority: {selectedTask.priority}
-                                                    </div>
-                                                    <div className="px-3 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold dark:border-gray-800 dark:bg-gray-800 dark:text-gray-400 flex items-center gap-1.5">
-                                                        Status: {selectedTask.status}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Assigned Users & Tags */}
-                                            <div className="flex flex-col gap-4">
-                                                {/* Assignees */}
-                                                <div>
-                                                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assigned To</h4>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {selectedTask.assigned_to && selectedTask.assigned_to.map((id: string) => {
-                                                            const emp = employees.find((e: any) => e.employee_no_id === id);
-                                                            return emp ? (
-                                                                <div key={id} className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800">
-                                                                    <Avatar src={emp.profile_picture} name={emp.name} className="w-5 h-5 text-[10px]" />
-                                                                    <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">{emp.name}</span>
-                                                                </div>
-                                                            ) : null;
-                                                        })}
-                                                        {(!selectedTask.assigned_to || selectedTask.assigned_to.length === 0) && (
-                                                            <span className="text-xs text-gray-400 italic">No one assigned</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* Tags */}
-                                                {selectedTask.tags && selectedTask.tags.length > 0 && (
-                                                    <div>
-                                                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tags</h4>
-                                                        <div className="flex flex-wrap gap-1.5">
-                                                            {selectedTask.tags.map((tag: string) => (
-                                                                <span key={tag} className="px-2.5 py-1 rounded-md text-[10px] font-medium bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
-                                                                    #{tag}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Schedule Grid */}
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800 transition-colors hover:bg-gray-100 dark:hover:bg-[#252628]">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <CalendarIcon size={14} className="text-gray-400" />
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Start Date</span>
-                                                    </div>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        {selectedTask.start_date}
-                                                    </p>
-                                                </div>
-                                                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800 transition-colors hover:bg-gray-100 dark:hover:bg-[#252628]">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <CalendarIcon size={14} className="text-gray-400" />
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">End Date</span>
-                                                    </div>
-                                                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                                                        {selectedTask.end_date}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Description Block */}
-                                            {selectedTask.description && (
-                                                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                                        Description
-                                                    </p>
-                                                    <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-normal pl-3.5 border-l-2 border-gray-200 dark:border-gray-700" dangerouslySetInnerHTML={{ __html: selectedTask.description }} />
-                                                </div>
-                                            )}
-
-                                            {/* Attachments (Placeholder count) */}
-                                            {selectedTask.attachments && selectedTask.attachments.length > 0 && (
-                                                <div className="p-4 rounded-2xl bg-gray-50 dark:bg-[#1e1f21] border border-gray-100 dark:border-gray-800">
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                                        <LinkIcon size={12} />
-                                                        Attachments ({selectedTask.attachments.length})
-                                                    </p>
-                                                    <div className="flex flex-col gap-2">
-                                                        {selectedTask.attachments.map((att: any, idx: number) => (
-                                                            <div key={idx} className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
-                                                                <FileText size={12} />
-                                                                {att.name || `Attachment ${idx + 1}`}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
+                            <DrawerHeader className="absolute top-0 inset-x-0 z-50 bg-white/80 dark:bg-[#1f1f1f]/80 backdrop-blur-md border-b border-default-100 px-6 py-4">
+                                <div className="flex flex-col gap-2 w-full">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2 text-tiny text-default-500 font-bold uppercase tracking-wider">
+                                            <span className="flex items-center gap-1">
+                                                <CalendarIcon size={12} />
+                                                Task Details
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {selectedTask && (
+                                                <Chip
+                                                    size="sm"
+                                                    variant="flat"
+                                                    color={
+                                                        selectedTask.status === 'Completed' ? "success" :
+                                                            selectedTask.status === 'In Progress' ? "primary" :
+                                                                selectedTask.status === 'Pending' ? "warning" : "default"
+                                                    }
+                                                    className="capitalize"
+                                                >
+                                                    {selectedTask.status || "Unknown Status"}
+                                                </Chip>
                                             )}
                                         </div>
                                     </div>
+                                    {selectedTask && (
+                                        <h2 className="text-xl font-bold text-foreground leading-tight pr-6">
+                                            {selectedTask.task_name}
+                                        </h2>
+                                    )}
+                                </div>
+                            </DrawerHeader>
+
+                            <DrawerBody className="pt-24 pb-6 px-6 overflow-y-auto scrollbar-hide">
+                                {selectedTask && (
+                                    <div className="flex flex-col gap-6">
+
+                                        {/* Priority & Tags Row */}
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <Chip
+                                                size="sm"
+                                                variant="dot"
+                                                color={
+                                                    selectedTask.priority === 'High' || selectedTask.priority === 'Urgent' ? "danger" :
+                                                        selectedTask.priority === 'Medium' ? "warning" : "success"
+                                                }
+                                                className="border-none pl-1"
+                                            >
+                                                {selectedTask.priority || "Normal"} Priority
+                                            </Chip>
+
+                                            {selectedTask.tags?.map((tag: string) => (
+                                                <Chip key={tag} size="sm" variant="flat" className="bg-default-100 text-default-600">
+                                                    #{tag}
+                                                </Chip>
+                                            ))}
+                                        </div>
+
+                                        <Divider className="my-1" />
+
+                                        {/* Time & Duration Card */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="flex flex-col gap-2 p-3 rounded-xl bg-default-50 border border-default-100 dark:bg-default-50/50">
+                                                <span className="text-tiny font-semibold text-default-500 uppercase flex items-center gap-1.5">
+                                                    <CheckCircle2 size={12} className="text-success" /> Start
+                                                </span>
+                                                <div>
+                                                    <div className="text-sm font-semibold">{selectedTask.start_date}</div>
+                                                    <div className="text-xs text-default-500">{selectedTask.start_time || "09:00"}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 p-3 rounded-xl bg-default-50 border border-default-100 dark:bg-default-50/50">
+                                                <span className="text-tiny font-semibold text-default-500 uppercase flex items-center gap-1.5">
+                                                    <Timer size={12} className="text-danger" /> Due
+                                                </span>
+                                                <div>
+                                                    <div className="text-sm font-semibold">{selectedTask.end_date}</div>
+                                                    <div className="text-xs text-default-500">{selectedTask.end_time || "18:00"}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Assignees Section */}
+                                        <div className="flex flex-col gap-3">
+                                            <h3 className="text-sm font-semibold text-default-700">Assigned Team</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {selectedTask.assigned_to && selectedTask.assigned_to.length > 0 ? (
+                                                    selectedTask.assigned_to.map((id: string) => {
+                                                        const emp = employees.find((e: any) => e.employee_no_id === id);
+                                                        if (!emp) return null;
+                                                        return (
+                                                            <div key={id} className="flex items-center gap-3 p-2 pr-4 rounded-full bg-default-50 border border-default-100">
+                                                                <Avatar
+                                                                    src={emp.profile_picture}
+                                                                    name={emp.name}
+                                                                    size="sm"
+                                                                    isBordered
+                                                                />
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-xs font-medium text-foreground">{emp.name}</span>
+                                                                    {emp.designation && <span className="text-[10px] text-default-400">{emp.designation}</span>}
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="text-sm text-default-400 italic flex items-center gap-2">
+                                                        <User size={16} /> No team members assigned
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Description Section */}
+                                        {selectedTask.description && (
+                                            <div className="flex flex-col gap-3">
+                                                <h3 className="text-sm font-semibold text-default-700">Description</h3>
+                                                <div
+                                                    className="text-sm text-default-600 leading-relaxed font-normal p-4 rounded-xl bg-default-50/50 border border-default-100 prose prose-sm dark:prose-invert max-w-none"
+                                                    dangerouslySetInnerHTML={{ __html: selectedTask.description }}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {/* Attachments Section */}
+                                        {selectedTask.attachments && selectedTask.attachments.length > 0 && (
+                                            <div className="flex flex-col gap-3">
+                                                <h3 className="text-sm font-semibold text-default-700 flex items-center gap-2">
+                                                    Attachments <Chip size="sm" variant="flat">{selectedTask.attachments.length}</Chip>
+                                                </h3>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {selectedTask.attachments.map((att: any, idx: number) => (
+                                                        <div key={idx} className="group flex items-center justify-between p-3 rounded-xl bg-default-50 hover:bg-default-100 border border-default-100 transition-all cursor-pointer">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                                                    <FileText size={16} />
+                                                                </div>
+                                                                <div className="flex flex-col overflow-hidden">
+                                                                    <span className="text-xs font-medium truncate">{att.name || `Attachment ${idx + 1}`}</span>
+                                                                    <span className="text-[10px] text-default-400">{att.size || "Unknown size"}</span>
+                                                                </div>
+                                                            </div>
+                                                            <ExternalLink size={14} className="text-default-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="h-4"></div>
+                                    </div>
                                 )}
                             </DrawerBody>
-                            <DrawerFooter className="border-t border-gray-100 dark:border-gray-800 pt-1 pb-2 px-6 bg-white/50 dark:bg-[#1e1f21]/50 backdrop-blur-md">
+                            <DrawerFooter className="border-t border-default-100 px-6 py-4">
                                 <Button
-                                    color="secondary"
+                                    fullWidth
+                                    variant="flat"
+                                    color="default"
                                     onPress={onClose}
                                 >
-                                    Close
+                                    Close Details
                                 </Button>
                             </DrawerFooter>
                         </>
