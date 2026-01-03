@@ -40,6 +40,12 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin"],
       children: [
         {
+          label: "Employee List",
+          href: "/employee/list",
+          icon: "Contact",
+          allowedRoles: ["admin"],
+        },
+        {
           label: "Department",
           href: "/employee/department",
           icon: "Briefcase",
@@ -49,12 +55,6 @@ export const siteConfig: SiteConfig = {
           label: "Role",
           href: "/employee/role",
           icon: "ShieldAlert",
-          allowedRoles: ["admin"],
-        },
-        {
-          label: "Employee List",
-          href: "/employee/list",
-          icon: "Contact",
           allowedRoles: ["admin"],
         },
       ],
