@@ -20,7 +20,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
@@ -273,10 +273,11 @@ export default function AttendancePage() {
                         <Button
                             color="secondary"
                             variant="flat"
-                            startContent={<Upload size={18} />}
+                            isIconOnly
                             onPress={onImportOpen}
+                            aria-label="Import Attendance"
                         >
-                            Import
+                            <Upload size={18} />
                         </Button>
                     )}
 
@@ -286,21 +287,23 @@ export default function AttendancePage() {
                         <div className="flex bg-default-100 p-1 rounded-lg">
                             <Button
                                 size="sm"
+                                isIconOnly
                                 variant={viewMode === "list" ? "solid" : "light"}
                                 color={viewMode === "list" ? "primary" : "default"}
                                 onPress={() => setViewMode("list")}
                                 className="rounded-md"
                             >
-                                List
+                                <List size={18} />
                             </Button>
                             <Button
                                 size="sm"
+                                isIconOnly
                                 variant={viewMode === "calendar" ? "solid" : "light"}
                                 color={viewMode === "calendar" ? "primary" : "default"}
                                 onPress={() => setViewMode("calendar")}
                                 className="rounded-md"
                             >
-                                Calendar
+                                <CalendarIcon size={18} />
                             </Button>
                         </div>
 
