@@ -22,9 +22,10 @@ interface AddEditTaskDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     task?: any;
+    selectedDate?: string;
 }
 
-const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) => {
+const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskDrawerProps) => {
     const dispatch = useDispatch();
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
@@ -33,8 +34,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
         project_id: "",
         task_name: "",
         description: "",
-        start_date: new Date().toISOString().split("T")[0],
-        end_date: new Date().toISOString().split("T")[0],
+        start_date: selectedDate || new Date().toISOString().split("T")[0],
+        end_date: selectedDate || new Date().toISOString().split("T")[0],
         start_time: "09:00",
         end_time: "18:00",
         priority: "Medium",
@@ -60,13 +61,17 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                     tags: task.tags || [],
                 });
             } else {
-                setFormData(initialFormData);
+                setFormData({
+                    ...initialFormData,
+                    start_date: selectedDate || new Date().toISOString().split("T")[0],
+                    end_date: selectedDate || new Date().toISOString().split("T")[0],
+                });
             }
         } else {
             // Reset form when drawer closes
             setFormData(initialFormData);
         }
-    }, [task, isOpen]);
+    }, [task, isOpen, selectedDate]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -144,8 +149,16 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                                 <DatePicker
                                     label="Start Date"
                                     value={formData.start_date ? parseDate(formData.start_date) : undefined}
-                                    onChange={(date) => setFormData({ ...formData, start_date: date ? date.toString() : "" })}
+                                    onChange={(date) => {
+                                        const newStartStr = date ? date.toString() : "";
+                                        let newEndStr = formData.end_date;
+                                        if (newStartStr && formData.end_date && newStartStr > formData.end_date) {
+                                            newEndStr = newStartStr;
+                                        }
+                                        setFormData({ ...formData, start_date: newStartStr, end_date: newEndStr });
+                                    }}
                                     isRequired
+                                    isDisabled={!task}
                                     className="flex-1"
                                 />
                                 <Input
@@ -162,6 +175,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                                     value={formData.end_date ? parseDate(formData.end_date) : undefined}
                                     onChange={(date) => setFormData({ ...formData, end_date: date ? date.toString() : "" })}
                                     isRequired
+                                    minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
                                     className="flex-1"
                                 />
                                 <Input

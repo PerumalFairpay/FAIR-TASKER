@@ -183,7 +183,7 @@ const TaskBoard = () => {
     };
 
     const handleEditTask = (task: any) => {
-        if (task.status === "Completed") return;
+        if (task.status === "Completed" || filterDate > todayStr) return;
         setSelectedTask(task);
         dispatch(getTaskRequest(task.id));
         setIsTaskDrawerOpen(true);
@@ -320,7 +320,7 @@ const TaskBoard = () => {
                                         )}
                                     >
                                         {getTasksByStatus(column.id).map((task: any, index: number) => (
-                                            <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={task.status === "Completed"}>
+                                            <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={task.status === "Completed" || filterDate > todayStr}>
                                                 {(provided, snapshot) => (
                                                     <div
                                                         ref={provided.innerRef}
@@ -433,6 +433,7 @@ const TaskBoard = () => {
                 isOpen={isTaskDrawerOpen}
                 onClose={() => setIsTaskDrawerOpen(false)}
                 task={currentTask && currentTask.id === selectedTask?.id ? currentTask : selectedTask}
+                selectedDate={filterDate}
             />
 
             <EodReportDrawer
