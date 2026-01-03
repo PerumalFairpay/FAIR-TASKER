@@ -78,7 +78,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     bgColor="bg-warning-50"
                 />
                 <Card className="shadow-sm border-none bg-white h-full">
-                    <CardBody className="flex flex-col gap-4 p-4">
+                    <CardBody className="flex flex-col p-4">
                         <div className="flex justify-between items-start">
                             <p className="text-small font-semibold text-default-500 uppercase tracking-wider">Attendance Today</p>
                             <div className="p-3 rounded-xl bg-success-50 -mt-1 -mr-1">
@@ -325,7 +325,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 function DashboardStatCard({ title, value, subtext, icon, bgColor }: { title: string, value: string | number, subtext: string, icon: React.ReactNode, bgColor: string }) {
     return (
         <Card className="shadow-sm border-none h-full bg-white">
-            <CardBody className="flex flex-col gap-4 p-4">
+            <CardBody className="flex flex-col p-4">
                 <div className="flex justify-between items-start">
                     <p className="text-small font-semibold text-default-500 uppercase tracking-wider">{title}</p>
                     <div className={`p-3 rounded-xl ${bgColor} -mt-1 -mr-1`}>

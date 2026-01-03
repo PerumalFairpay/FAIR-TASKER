@@ -101,7 +101,7 @@ export default function EmployeeDashboard({ data }: { data: EmployeeDashboardDat
 
                 {/* Custom Attendance Card to match Admin's style */}
                 <Card className="shadow-sm border-none bg-white h-full">
-                    <CardBody className="flex flex-col gap-4 p-4">
+                    <CardBody className="flex flex-col p-4">
                         <div className="flex justify-between items-start">
                             <p className="text-small font-semibold text-default-500 uppercase tracking-wider">Attendance</p>
                             <div className="p-3 rounded-xl bg-purple-50 -mt-1 -mr-1">
@@ -335,7 +335,7 @@ export default function EmployeeDashboard({ data }: { data: EmployeeDashboardDat
 function DashboardStatCard({ title, value, subtext, icon, bgColor }: { title: string, value: string | number, subtext: string, icon: React.ReactNode, bgColor: string }) {
     return (
         <Card className="shadow-sm border-none h-full bg-white">
-            <CardBody className="flex flex-col gap-4 p-4">
+            <CardBody className="flex flex-col p-4">
                 <div className="flex justify-between items-start">
                     <p className="text-small font-semibold text-default-500 uppercase tracking-wider">{title}</p>
                     <div className={`p-3 rounded-xl ${bgColor} -mt-1 -mr-1`}>
