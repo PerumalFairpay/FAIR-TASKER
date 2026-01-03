@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@heroui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
+
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { link as linkStyles } from "@heroui/theme";
@@ -87,6 +89,22 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = (label: string) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setHoveredItem(label);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredItem(null);
+    }, 200);
+  };
 
   const toggleSidebar = () => {
     if (onToggle) onToggle();
@@ -208,29 +226,92 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
                   if (hasChildren) {
                     return (
-                      <div key={item.label}>
-                        <Button
-                          onPress={() => toggleMenu(item.label)}
-                          className={clsx(
-                            "w-full bg-transparent justify-start gap-2 h-10 px-2",
-                            "hover:bg-default-50 text-default-600",
-                            !isExpanded && "justify-center px-0"
-                          )}
-                          disableRipple
-                        >
-                          <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
-                          {isExpanded && (
-                            <>
-                              <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
-                              <motion.div
-                                animate={{ rotate: isOpen ? 90 : 0 }}
-                                transition={{ duration: 0.2 }}
+                      <div key={item.label} className="relative">
+                        {!isExpanded ? (
+                          <Popover
+                            isOpen={hoveredItem === item.label}
+                            placement="right-start"
+                            offset={10}
+                          >
+                            <PopoverTrigger>
+                              <div
+                                onMouseEnter={() => handleMouseEnter(item.label)}
+                                onMouseLeave={handleMouseLeave}
+                                className="w-full flex justify-center h-10 items-center"
                               >
-                                <ChevronRight size={16} />
-                              </motion.div>
-                            </>
-                          )}
-                        </Button>
+                                <Button
+                                  onPress={() => toggleMenu(item.label)}
+                                  className={clsx(
+                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center",
+                                    "hover:bg-default-50 text-default-600"
+                                  )}
+                                  disableRipple
+                                  isIconOnly
+                                >
+                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                                </Button>
+                              </div>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              onMouseEnter={() => handleMouseEnter(item.label)}
+                              onMouseLeave={handleMouseLeave}
+                              className="p-2 min-w-[200px]"
+                            >
+                              <div className="space-y-1">
+                                <div className="px-2 py-1.5 border-b border-default-100 mb-1">
+                                  <span className="font-semibold text-small text-default-700">{item.label}</span>
+                                </div>
+                                {filteredChildren.map((child: any) => {
+                                  const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                  const isChildActive = pathname === child.href;
+
+                                  return (
+                                    <NextLink
+                                      key={child.href}
+                                      href={child.href}
+                                      className={clsx(
+                                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                                        isChildActive
+                                          ? "bg-primary/10 text-primary"
+                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
+                                      )}
+                                      onClick={() => setHoveredItem(null)}
+                                    >
+                                      <ChildIcon size={16} strokeWidth={2} />
+                                      <span>{child.label}</span>
+                                    </NextLink>
+                                  );
+                                })}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        ) : (
+                          <>
+                            <Button
+                              onPress={() => toggleMenu(item.label)}
+                              className={clsx(
+                                "w-full bg-transparent justify-start gap-2 h-10 px-2",
+                                "hover:bg-default-50 text-default-600",
+                                !isExpanded && "justify-center px-0"
+                              )}
+                              disableRipple
+                            >
+                              <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                              {isExpanded && (
+                                <>
+                                  <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                                  <motion.div
+                                    animate={{ rotate: isOpen ? 90 : 0 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <ChevronRight size={16} />
+                                  </motion.div>
+                                </>
+                              )}
+                            </Button>
+                          </>
+                        )}
+
 
                         <AnimatePresence initial={false}>
                           {isOpen && isExpanded && (
