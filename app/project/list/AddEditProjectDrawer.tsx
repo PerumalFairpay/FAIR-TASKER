@@ -15,6 +15,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
+import FileUpload from "@/components/common/FileUpload";
 
 interface AddEditProjectDrawerProps {
     isOpen: boolean;
@@ -51,8 +52,7 @@ export default function AddEditProjectDrawer({
         currency: "USD",
         tags: [] as string[],
     });
-    const [logo, setLogo] = useState<File | null>(null);
-    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [logoFiles, setLogoFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (mode === "edit" && selectedProject) {
@@ -71,26 +71,8 @@ export default function AddEditProjectDrawer({
                 currency: selectedProject.currency || "USD",
                 tags: selectedProject.tags || [],
             });
-            setLogoPreview(selectedProject.logo || null);
-        } else {
-            setFormData({
-                name: "",
-                client_id: "",
-                description: "",
-                start_date: "",
-                end_date: "",
-                status: "Planned",
-                priority: "Medium",
-                project_manager_ids: [],
-                team_leader_ids: [],
-                team_member_ids: [],
-                budget: 0,
-                currency: "USD",
-                tags: [],
-            });
-            setLogoPreview(null);
+            setLogoFiles([]);
         }
-        setLogo(null);
     }, [mode, selectedProject, isOpen]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -108,11 +90,7 @@ export default function AddEditProjectDrawer({
     };
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setLogo(file);
-            setLogoPreview(URL.createObjectURL(file));
-        }
+        // Handled by FileUpload
     };
 
     const handleSubmit = () => {
@@ -133,8 +111,8 @@ export default function AddEditProjectDrawer({
         data.append("team_member_ids", JSON.stringify(formData.team_member_ids));
         data.append("tags", JSON.stringify(formData.tags));
 
-        if (logo) {
-            data.append("logo", logo);
+        if (logoFiles.length > 0) {
+            data.append("logo", logoFiles[0].file);
         }
 
         onSubmit(data);
@@ -152,23 +130,14 @@ export default function AddEditProjectDrawer({
                             {mode === "create" ? "Add New Project" : "Edit Project"}
                         </DrawerHeader>
                         <DrawerBody className="gap-4 pb-8 scrollbar-hide overflow-y-auto">
-                            <div className="flex flex-col items-center gap-4 mb-2">
-                                <div className="relative w-24 h-24 rounded-xl border-2 border-dashed border-default-300 flex items-center justify-center overflow-hidden bg-default-50">
-                                    {logoPreview ? (
-                                        <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="text-default-400 text-xs text-center p-2">Project Logo</div>
-                                    )}
-                                </div>
-                                <Button size="sm" variant="flat" onPress={() => document.getElementById("logo-upload")?.click()}>
-                                    Upload Logo
-                                </Button>
-                                <input
-                                    id="logo-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleLogoChange}
+                            <div className="flex flex-col gap-2 mb-4">
+                                <label className="text-small font-medium text-foreground">Project Logo</label>
+                                <FileUpload
+                                    files={logoFiles}
+                                    setFiles={setLogoFiles}
+                                    name="logo"
+                                    labelIdle='Drag & Drop your logo or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['image/*']}
                                 />
                             </div>
 

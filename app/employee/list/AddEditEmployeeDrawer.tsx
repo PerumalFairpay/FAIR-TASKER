@@ -18,6 +18,7 @@ import { User, Briefcase, PhoneCall, Files, Eye, EyeOff } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
+import FileUpload from "@/components/common/FileUpload";
 
 
 interface AddEditEmployeeDrawerProps {
@@ -42,7 +43,8 @@ export default function AddEditEmployeeDrawer({
     const { departments } = useSelector((state: RootState) => state.Department);
 
     const [formData, setFormData] = useState<any>({});
-    const [files, setFiles] = useState<{ profile_picture?: File; document_proof?: File }>({});
+    const [profileFiles, setProfileFiles] = useState<any[]>([]);
+    const [documentFiles, setDocumentFiles] = useState<any[]>([]);
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
@@ -87,7 +89,7 @@ export default function AddEditEmployeeDrawer({
         if (isOpen && mode === "edit" && selectedEmployee) {
             const allDepts = departments || [];
             const currentDeptName = selectedEmployee.department;
- 
+
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
 
             if (!isRoot && currentDeptName) {
@@ -115,8 +117,9 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...selectedEmployee });
             setSelectedTab("personal");
         } else if (isOpen && mode === "create") {
-            setFormData({ status: "Active" }); 
-            setFiles({});
+            setFormData({ status: "Active" });
+            setProfileFiles([]);
+            setDocumentFiles([]);
             setSelectedTab("personal");
         }
     }, [isOpen, mode, selectedEmployee, departments, rootDepartments]);
@@ -134,9 +137,7 @@ export default function AddEditEmployeeDrawer({
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
-        if (e.target.files && e.target.files[0]) {
-            setFiles((prev) => ({ ...prev, [name]: e.target.files![0] }));
-        }
+        // This is kept for reference or direct usage, but FilePond uses its own state
     };
 
     const handleSubmit = () => {
@@ -147,11 +148,11 @@ export default function AddEditEmployeeDrawer({
             }
         });
 
-        if (files.profile_picture) {
-            data.append("profile_picture", files.profile_picture);
+        if (profileFiles.length > 0) {
+            data.append("profile_picture", profileFiles[0].file);
         }
-        if (files.document_proof) {
-            data.append("document_proof", files.document_proof);
+        if (documentFiles.length > 0) {
+            data.append("document_proof", documentFiles[0].file);
         }
 
         onSubmit(data);
@@ -472,35 +473,23 @@ export default function AddEditEmployeeDrawer({
                                         <div className="grid grid-cols-1 gap-4">
                                             <div className="flex flex-col gap-2">
                                                 <label className="text-small font-medium text-foreground">Profile Picture</label>
-                                                <div className="border-2 border-dashed border-default-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer relative">
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => handleFileChange(e, "profile_picture")}
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                                    />
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <p className="text-tiny text-default-500">
-                                                            {files.profile_picture ? files.profile_picture.name : "Click to upload profile picture"}
-                                                        </p>
-                                                    </div>
-                                                </div>
+                                                <FileUpload
+                                                    files={profileFiles}
+                                                    setFiles={setProfileFiles}
+                                                    name="profile_picture"
+                                                    labelIdle='Drag & Drop your picture or <span class="filepond--label-action">Browse</span>'
+                                                    acceptedFileTypes={['image/*']}
+                                                />
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <label className="text-small font-medium text-foreground">Document Proof</label>
-                                                <div className="border-2 border-dashed border-default-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer relative">
-                                                    <input
-                                                        type="file"
-                                                        accept=".pdf,.doc,.docx,.jpg,.png"
-                                                        onChange={(e) => handleFileChange(e, "document_proof")}
-                                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                                    />
-                                                    <div className="flex flex-col items-center justify-center gap-1">
-                                                        <p className="text-tiny text-default-500">
-                                                            {files.document_proof ? files.document_proof.name : "Click to upload document proof"}
-                                                        </p>
-                                                    </div>
-                                                </div>
+                                                <FileUpload
+                                                    files={documentFiles}
+                                                    setFiles={setDocumentFiles}
+                                                    name="document_proof"
+                                                    labelIdle='Drag & Drop your document or <span class="filepond--label-action">Browse</span>'
+                                                    acceptedFileTypes={['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']}
+                                                />
                                             </div>
                                             <Input
                                                 label="Document Name"

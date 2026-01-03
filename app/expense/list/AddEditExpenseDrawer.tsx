@@ -14,6 +14,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate, today, getLocalTimeZone } from "@internationalized/date";
+import FileUpload from "@/components/common/FileUpload";
 
 // Helper to build hierarchy for dropdown
 const buildDropdownOptions = (categories: any[]) => {
@@ -79,7 +80,7 @@ export default function AddEditExpenseDrawer({
     const categoryOptions = useMemo(() => buildDropdownOptions(expenseCategories || []), [expenseCategories]);
 
     const [formData, setFormData] = useState<any>({});
-    const [file, setFile] = useState<File | null>(null);
+    const [attachmentFiles, setAttachmentFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -95,7 +96,7 @@ export default function AddEditExpenseDrawer({
                 date: new Date().toISOString().split('T')[0],
                 payment_mode: "Cash"
             });
-            setFile(null);
+            setAttachmentFiles([]);
         }
     }, [isOpen, mode, selectedExpense]);
 
@@ -104,9 +105,7 @@ export default function AddEditExpenseDrawer({
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-        }
+        // Handled by FileUpload
     };
 
     const handleSubmit = () => {
@@ -121,8 +120,8 @@ export default function AddEditExpenseDrawer({
             }
         });
 
-        if (file) {
-            data.append("attachment", file);
+        if (attachmentFiles.length > 0) {
+            data.append("attachment", attachmentFiles[0].file);
         }
 
         onSubmit(data);
@@ -206,19 +205,13 @@ export default function AddEditExpenseDrawer({
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-small font-medium text-foreground">Attachment (Optional)</label>
-                                <div className="border-2 border-dashed border-default-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        accept="image/*,.pdf"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <div className="flex flex-col items-center justify-center gap-1">
-                                        <p className="text-tiny text-default-500">
-                                            {file ? file.name : "Click or drag to upload"}
-                                        </p>
-                                    </div>
-                                </div>
+                                <FileUpload
+                                    files={attachmentFiles}
+                                    setFiles={setAttachmentFiles}
+                                    name="attachment"
+                                    labelIdle='Drag & Drop your receipt or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['image/*', 'application/pdf']}
+                                />
                             </div>
                         </DrawerBody>
                         <DrawerFooter>

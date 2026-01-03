@@ -14,6 +14,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate, today, getLocalTimeZone } from "@internationalized/date";
+import FileUpload from "@/components/common/FileUpload";
 
 // Helper to build hierarchy for dropdown
 const buildDropdownOptions = (categories: any[]) => {
@@ -79,7 +80,7 @@ export default function AddEditDocumentDrawer({
     const categoryOptions = useMemo(() => buildDropdownOptions(documentCategories || []), [documentCategories]);
 
     const [formData, setFormData] = useState<any>({});
-    const [file, setFile] = useState<File | null>(null);
+    const [documentFiles, setDocumentFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -94,7 +95,7 @@ export default function AddEditDocumentDrawer({
             setFormData({
                 status: "Active",
             });
-            setFile(null);
+            setDocumentFiles([]);
         }
     }, [isOpen, mode, selectedDocument]);
 
@@ -103,9 +104,7 @@ export default function AddEditDocumentDrawer({
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
-        }
+        // Handled by FileUpload
     };
 
     const handleSubmit = () => {
@@ -120,8 +119,8 @@ export default function AddEditDocumentDrawer({
             }
         });
 
-        if (file) {
-            data.append("file", file);
+        if (documentFiles.length > 0) {
+            data.append("file", documentFiles[0].file);
         }
 
         onSubmit(data);
@@ -195,21 +194,16 @@ export default function AddEditDocumentDrawer({
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-small font-medium text-foreground">Document File</label>
-                                <div className="border-2 border-dashed border-default-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <div className="flex flex-col items-center justify-center gap-1">
-                                        <p className="text-tiny text-default-500">
-                                            {file ? file.name : "Click or drag to upload"}
-                                        </p>
-                                        {mode === "edit" && selectedDocument?.file_path && !file && (
-                                            <p className="text-[10px] text-primary">Keep existing file</p>
-                                        )}
-                                    </div>
-                                </div>
+                                <FileUpload
+                                    files={documentFiles}
+                                    setFiles={setDocumentFiles}
+                                    name="file"
+                                    labelIdle='Drag & Drop your document or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']}
+                                />
+                                {mode === "edit" && selectedDocument?.file_path && documentFiles.length === 0 && (
+                                    <p className="text-[10px] text-primary">Keep existing file</p>
+                                )}
                             </div>
                         </DrawerBody>
                         <DrawerFooter>
