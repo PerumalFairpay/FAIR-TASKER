@@ -38,6 +38,7 @@ const TaskBoard = () => {
     const dispatch = useDispatch();
     const { tasks, task: currentTask, loading } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const { user } = useSelector((state: AppState) => state.Auth);
     const router = useRouter();
 
     const [enabled, setEnabled] = useState(false);
@@ -57,15 +58,20 @@ const TaskBoard = () => {
     const [filterDate, setFilterDate] = useState(todayStr);
     const [filterEmployee, setFilterEmployee] = useState("");
 
+    const isAdmin = user?.role?.toLowerCase() === "admin";
+
     useEffect(() => {
+        // If not admin and user not loaded yet, skip
+        if (!isAdmin && !user) return;
+
         dispatch(getTasksRequest({
             date: filterDate,
-            assigned_to: filterEmployee
+            assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
         dispatch(getProjectsRequest());
         dispatch(getEmployeesRequest());
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee]);
+    }, [dispatch, filterDate, filterEmployee, user]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
@@ -241,23 +247,25 @@ const TaskBoard = () => {
                         </Button>
                     </div>
 
-                    <Select
-                        size="sm"
-                        variant="bordered"
-                        placeholder="Employee"
-                        className="w-40"
-                        selectedKeys={filterEmployee ? [filterEmployee] : []}
-                        onChange={(e) => setFilterEmployee(e.target.value)}
-                    >
-                        {employees.map((emp: any) => (
-                            <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                <div className="flex items-center gap-2">
-                                    <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                    <span>{emp.name}</span>
-                                </div>
-                            </SelectItem>
-                        ))}
-                    </Select>
+                    {isAdmin && (
+                        <Select
+                            size="sm"
+                            variant="bordered"
+                            placeholder="Employee"
+                            className="w-40"
+                            selectedKeys={filterEmployee ? [filterEmployee] : []}
+                            onChange={(e) => setFilterEmployee(e.target.value)}
+                        >
+                            {employees.map((emp: any) => (
+                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                    <div className="flex items-center gap-2">
+                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                        <span>{emp.name}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    )}
 
                     <Button
                         variant="flat"
