@@ -14,7 +14,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText
+    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -189,6 +189,16 @@ const TaskBoard = () => {
         setIsTaskDrawerOpen(true);
     };
 
+    const changeDate = (days: number) => {
+        try {
+            const current = filterDate ? parseDate(filterDate) : parseDate(todayStr);
+            const newDate = current.add({ days });
+            setFilterDate(newDate.toString());
+        } catch (e) {
+            console.error("Invalid date or operation", e);
+        }
+    };
+
     return (
         <div className="h-full flex flex-col gap-6 p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -198,14 +208,38 @@ const TaskBoard = () => {
                 />
 
                 <div className="flex gap-2 items-center">
-                    <DatePicker
-                        size="sm"
-                        variant="bordered"
-                        className="w-40"
-                        value={filterDate ? parseDate(filterDate) : undefined}
-                        onChange={(date) => setFilterDate(date ? date.toString() : "")}
-                        aria-label="Select Date"
-                    />
+                    <div className="flex items-center bg-default-50 rounded-lg border border-default-200 p-0.5">
+                        <Button
+                            isIconOnly
+                            variant="light"
+                            onPress={() => changeDate(-1)}
+                            size="sm"
+                            className="min-w-8 w-8 h-8 text-default-600 hover:text-primary"
+                        >
+                            <ChevronLeft size={16} />
+                        </Button>
+                        <DatePicker
+                            size="sm"
+                            variant="flat"
+                            className="w-32"
+                            classNames={{
+                                inputWrapper: "bg-transparent shadow-none hover:bg-transparent data-[hover=true]:bg-transparent",
+                            }}
+                            value={filterDate ? parseDate(filterDate) : undefined}
+                            onChange={(date) => setFilterDate(date ? date.toString() : "")}
+                            aria-label="Select Date"
+                            showMonthAndYearPickers
+                        />
+                        <Button
+                            isIconOnly
+                            variant="light"
+                            onPress={() => changeDate(1)}
+                            size="sm"
+                            className="min-w-8 w-8 h-8 text-default-600 hover:text-primary"
+                        >
+                            <ChevronRight size={16} />
+                        </Button>
+                    </div>
 
                     <Select
                         size="sm"
