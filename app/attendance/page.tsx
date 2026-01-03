@@ -229,11 +229,7 @@ export default function AttendancePage() {
     const totalDays = metrics?.total_records || 0;
     const presentDays = metrics?.present || 0;
     const absentDays = metrics?.absent || 0;
-    // const leaveDays = metrics?.leave || 0;
-    // const holidayDays = metrics?.holiday || 0;
-
-    // const totalWorkHours = metrics?.total_work_hours || 0;
-    const avgWorkHours = metrics?.avg_work_hours || 0;
+    const leaveDays = metrics?.leave || 0;
 
     return (
         <div className="p-6">
@@ -424,8 +420,8 @@ export default function AttendancePage() {
                         </Card>
                         <Card className="shadow-sm border-l-4 border-warning">
                             <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold">Avg Hours</p>
-                                <h4 className="text-2xl font-bold mt-1 text-warning">{avgWorkHours}</h4>
+                                <p className="text-small text-default-500 uppercase font-bold">Leave</p>
+                                <h4 className="text-2xl font-bold mt-1 text-warning">{leaveDays}</h4>
                             </CardBody>
                         </Card>
                     </div>

@@ -54,6 +54,8 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                 return { type: "Present", label: "P", color: "text-success", icon: <Check size={16} /> };
             } else if (record.status === "Absent") {
                 return { type: "Absent", label: "A", color: "text-danger", icon: <X size={16} /> };
+            } else if (record.status === "Leave") {
+                return { type: "Leave", label: "L", color: "text-warning" };
             }
             // Fallback for other statuses
             return { type: record.status, label: record.status[0], color: "text-primary" };
