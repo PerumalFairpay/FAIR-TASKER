@@ -4,13 +4,15 @@ import {
     CLOCK_IN_REQUEST,
     CLOCK_OUT_REQUEST,
     GET_MY_ATTENDANCE_HISTORY_REQUEST,
-    GET_ALL_ATTENDANCE_REQUEST
+    GET_ALL_ATTENDANCE_REQUEST,
+    IMPORT_ATTENDANCE_REQUEST
 } from "./actionType";
 import {
     clockInSuccess, clockInFailure,
     clockOutSuccess, clockOutFailure,
     getMyAttendanceHistorySuccess, getMyAttendanceHistoryFailure,
-    getAllAttendanceSuccess, getAllAttendanceFailure
+    getAllAttendanceSuccess, getAllAttendanceFailure,
+    importAttendanceSuccess, importAttendanceFailure
 } from "./action";
 import api from "../api";
 
@@ -21,6 +23,16 @@ function clockInApi(payload: any) {
 
 function clockOutApi(payload: any) {
     return api.put("/attendance/clock-out", payload);
+}
+
+function importAttendanceApi(payload: any) {
+    const formData = new FormData();
+    formData.append('file', payload);
+    return api.post("/attendance/import", formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
 }
 
 function getMyAttendanceHistoryApi(filters?: any) {
@@ -96,9 +108,19 @@ function* onGetAllAttendance({ payload }: any): SagaIterator {
     }
 }
 
+function* onImportAttendance({ payload }: any): SagaIterator {
+    try {
+        const response = yield call(importAttendanceApi, payload);
+        yield put(importAttendanceSuccess(response.data));
+    } catch (error: any) {
+        yield put(importAttendanceFailure(error.response?.data?.message || "Failed to import attendance"));
+    }
+}
+
 export default function* attendanceSaga(): SagaIterator {
     yield takeEvery(CLOCK_IN_REQUEST, onClockIn);
     yield takeEvery(CLOCK_OUT_REQUEST, onClockOut);
     yield takeEvery(GET_MY_ATTENDANCE_HISTORY_REQUEST, onGetMyAttendanceHistory);
     yield takeEvery(GET_ALL_ATTENDANCE_REQUEST, onGetAllAttendance);
+    yield takeEvery(IMPORT_ATTENDANCE_REQUEST, onImportAttendance);
 }

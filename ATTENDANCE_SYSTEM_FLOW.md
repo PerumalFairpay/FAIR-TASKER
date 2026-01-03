@@ -97,8 +97,26 @@ total_work_hours = (clock_out_time - clock_in_time).total_seconds() / 3600
   - `GET_ALL_ATTENDANCE_xxx`
 - **Sagas**: Handle async API calls and side effects (toast notifications).
 
-## 7. Future Enhancements
+## 7. Future Enhancements & Features
 
 - **Biometric Integration**: The backend supports `device_type="Biometric"`. A physical device API can push to the `/clock-in` endpoint.
+- **Bulk Import**: Admins can import attendance records from an Excel file (typically exported from biometric software). This feature is already implemented via the `/attendance/import` endpoint.
 - **Geolocation**: The `location` field is currently static/placeholder. Can be integrated with the browser's Geolocation API.
-- **Reports**: Export features (CSV/PDF) for Admin.
+- **Reports**: Bulk export features (CSV/PDF) for Admin.
+
+---
+
+## 8. Bulk Import Flow (Admin)
+
+Admins can import attendance records from an Excel file:
+
+1. **User Action**: Admin clicks "Import" in the Attendance Header.
+2. **Frontend**:
+   - Opens a Modal with `FileUpload` (FilePond).
+   - Dispatches `importAttendanceRequest` with the Excel file.
+3. **Backend (`POST /attendance/import`)**:
+   - Uses `pandas` to parse the Excel file.
+   - Skips metadata rows and extracts: `Employee ID`, `Date`, `Clock In`, `Clock Out`, `Status`, `Remarks`.
+   - **Upsert Logic**: Updates existing records or creates new ones based on `(employee_id, date)` combination.
+   - Status is mapped from common abbreviations (e.g., `(A)` to `Absent`, `(LT)` to `Late`).
+4. **Response**: Returns count of imported/updated records.

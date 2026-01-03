@@ -3,6 +3,7 @@ import {
     CLOCK_OUT_REQUEST, CLOCK_OUT_SUCCESS, CLOCK_OUT_FAILURE,
     GET_MY_ATTENDANCE_HISTORY_REQUEST, GET_MY_ATTENDANCE_HISTORY_SUCCESS, GET_MY_ATTENDANCE_HISTORY_FAILURE,
     GET_ALL_ATTENDANCE_REQUEST, GET_ALL_ATTENDANCE_SUCCESS, GET_ALL_ATTENDANCE_FAILURE,
+    IMPORT_ATTENDANCE_REQUEST, IMPORT_ATTENDANCE_SUCCESS, IMPORT_ATTENDANCE_FAILURE,
     CLEAR_ATTENDANCE_STATUS
 } from "./actionType";
 
@@ -113,6 +114,27 @@ const attendanceReducer = (state: AttendanceState = initialAttendanceState, acti
                 metrics: action.payload.metrics,
             };
         case GET_ALL_ATTENDANCE_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
+        // Import Attendance
+        case IMPORT_ATTENDANCE_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                success: null,
+            };
+        case IMPORT_ATTENDANCE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                success: action.payload.message || "Attendance imported successfully",
+            };
+        case IMPORT_ATTENDANCE_FAILURE:
             return {
                 ...state,
                 loading: false,

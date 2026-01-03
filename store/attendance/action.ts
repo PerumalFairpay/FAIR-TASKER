@@ -3,6 +3,7 @@ import {
     CLOCK_OUT_REQUEST, CLOCK_OUT_SUCCESS, CLOCK_OUT_FAILURE,
     GET_MY_ATTENDANCE_HISTORY_REQUEST, GET_MY_ATTENDANCE_HISTORY_SUCCESS, GET_MY_ATTENDANCE_HISTORY_FAILURE,
     GET_ALL_ATTENDANCE_REQUEST, GET_ALL_ATTENDANCE_SUCCESS, GET_ALL_ATTENDANCE_FAILURE,
+    IMPORT_ATTENDANCE_REQUEST, IMPORT_ATTENDANCE_SUCCESS, IMPORT_ATTENDANCE_FAILURE,
     CLEAR_ATTENDANCE_STATUS
 } from "./actionType";
 
@@ -59,6 +60,20 @@ export const getAllAttendanceSuccess = (response: any) => ({
 });
 export const getAllAttendanceFailure = (error: any) => ({
     type: GET_ALL_ATTENDANCE_FAILURE,
+    payload: error,
+});
+
+// Import Attendance
+export const importAttendanceRequest = (payload: any) => ({
+    type: IMPORT_ATTENDANCE_REQUEST,
+    payload,
+});
+export const importAttendanceSuccess = (response: any) => ({
+    type: IMPORT_ATTENDANCE_SUCCESS,
+    payload: response,
+});
+export const importAttendanceFailure = (error: any) => ({
+    type: IMPORT_ATTENDANCE_FAILURE,
     payload: error,
 });
 

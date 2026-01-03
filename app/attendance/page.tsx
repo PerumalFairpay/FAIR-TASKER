@@ -8,7 +8,8 @@ import {
     getAllAttendanceRequest,
     clockInRequest,
     clockOutRequest,
-    clearAttendanceStatus
+    clearAttendanceStatus,
+    importAttendanceRequest
 } from "@/store/attendance/action";
 import { AppState } from "@/store/rootReducer";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
@@ -23,6 +24,9 @@ import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut,
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import FileUpload from "@/components/common/FileUpload";
+import { FileDown, Upload } from "lucide-react";
 
 interface AttendanceRecord {
     id: string;
@@ -62,6 +66,9 @@ export default function AttendancePage() {
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
     const isAdmin = user?.role === 'admin';
+
+    const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
+    const [importFile, setImportFile] = useState<any[]>([]);
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -183,6 +190,15 @@ export default function AttendancePage() {
         record.date === format(new Date(), "yyyy-MM-dd") && record.clock_out
     );
 
+    const handleImportSubmit = () => {
+        if (importFile.length > 0) {
+            const file = importFile[0].file;
+            dispatch(importAttendanceRequest(file));
+            onImportClose();
+            setImportFile([]);
+        }
+    };
+
     const getDeviceIcon = (device: string) => {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
@@ -253,6 +269,16 @@ export default function AttendancePage() {
                 <PageHeader title={isAdmin ? "Attendance" : "My Attendance"} />
 
                 <div className="flex items-center gap-4 flex-wrap justify-end">
+                    {isAdmin && (
+                        <Button
+                            color="secondary"
+                            variant="flat"
+                            startContent={<Upload size={18} />}
+                            onPress={onImportOpen}
+                        >
+                            Import
+                        </Button>
+                    )}
 
                     {/* Controls Section - View Toggle & Filters */}
                     <div className="flex gap-2 items-center">
@@ -462,6 +488,41 @@ export default function AttendancePage() {
                     </Table>
                 </>
             )}
+
+            {/* Import Modal */}
+            <Modal isOpen={isImportOpen} onClose={onImportClose}>
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">Import Attendance</ModalHeader>
+                    <ModalBody>
+                        <p className="text-small text-default-500 mb-4">
+                            Upload an Excel file containing attendance data. The file should have columns:
+                            <span className="font-semibold"> Employee ID, Date, Clock In, Clock Out, Status.</span>
+                        </p>
+                        <FileUpload
+                            files={importFile}
+                            setFiles={setImportFile}
+                            acceptedFileTypes={[
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel'
+                            ]}
+                            labelIdle='Drag & Drop attendance excel or <span class="filepond--label-action">Browse</span>'
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="light" onPress={onImportClose}>
+                            Cancel
+                        </Button>
+                        <Button
+                            color="primary"
+                            onPress={handleImportSubmit}
+                            isDisabled={importFile.length === 0}
+                            isLoading={loading}
+                        >
+                            Start Import
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     );
 }
