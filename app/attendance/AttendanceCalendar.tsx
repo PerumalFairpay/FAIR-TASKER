@@ -30,47 +30,40 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     });
 
     // Helper to get status for a specific employee and date
-    const getStatus = (employeeId: string, date: Date) => {
+    const getStatus = (emp: any, date: Date) => {
         const dateStr = format(date, "yyyy-MM-dd");
+        const empId = emp.employee_no_id || emp.id || emp.employee_id;
 
-        // 1. Check Holiday
-        const holiday = holidays.find((h) => {
-            // Assuming holiday.date is "YYYY-MM-DD" string
-            return h.date === dateStr;
-        });
-
+        // 1. Check Holiday (from the separate holiday list)
+        const holiday = holidays.find((h) => h.date === dateStr);
         if (holiday) {
             return { type: "Holiday", label: "H", color: "bg-orange-400 text-white", name: holiday.name };
         }
 
-        // 2. Check Attendance
+        // 2. Check Attendance Records (Present, Absent, Leave)
         const record = attendance.find((a) => {
-            const empIdMatch = a.employee_id === employeeId || a.employee_details?.id === employeeId || a.employee_details?.employee_no_id === employeeId;
-            return empIdMatch && a.date === dateStr;
+            const recordEmpId = a.employee_id || a.employee_details?.employee_no_id || a.employee_details?.id;
+            return recordEmpId === empId && a.date === dateStr;
         });
 
         if (record) {
             if (record.status === "Present") {
-                return { type: "Present", label: "P", color: "text-success", icon: <Check size={16} /> };
+                return { type: "Present", label: "P", color: "bg-success text-white" };
             } else if (record.status === "Absent") {
-                return { type: "Absent", label: "A", color: "text-danger", icon: <X size={16} /> };
+                return { type: "Absent", label: "A", color: "bg-danger text-white" };
             } else if (record.status === "Leave") {
-                return { type: "Leave", label: "L", color: "text-warning" };
+                return { type: "Leave", label: "L", color: "bg-warning text-white" };
             }
             // Fallback for other statuses
-            return { type: record.status, label: record.status[0], color: "text-primary" };
+            return { type: record.status, label: record.status[0], color: "bg-primary text-white" };
         }
 
-        // 3. Default/Unknown
-        // If date is in future, return empty? 
-        // If date is past and weekend?
+        // 3. Weekend/Default
         const dayOfWeek = date.getDay();
-        if (dayOfWeek === 0 || dayOfWeek === 6) { // Sun OR Sat
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
             return { type: "Weekend", label: "-", color: "text-default-300" };
         }
 
-        // If past date and no record, assume absent? Or just "-" as originally requested/shown
-        // The image shows "-" for empty cells.
         return { type: "None", label: "-", color: "text-default-300" };
     };
 
@@ -92,32 +85,27 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                 </thead>
                 <tbody>
                     {employees.map((emp) => (
-                        <tr key={emp.id || emp.employee_no_id} className="hover:bg-default-50 transition-colors border-b border-divider/50">
+                        <tr key={emp.employee_no_id || emp.id} className="hover:bg-default-50 transition-colors border-b border-divider/50">
                             <td className="p-3 sticky left-0 bg-background z-10 border-r border-divider">
                                 <div className="flex items-center gap-3">
                                     <Avatar src={emp.profile_picture} name={emp.name} size="sm" />
                                     <div>
                                         <p className="text-sm font-medium text-default-900 line-clamp-1">{emp.name}</p>
-                                        <p className="text-xs text-primary">{emp.employee_no_id}</p>
+                                        <p className="text-xs text-primary">{emp.employee_no_id || emp.id}</p>
                                     </div>
                                 </div>
                             </td>
                             {days.map((day) => {
-                                const status = getStatus(emp.employee_no_id, day);
+                                const status = getStatus(emp, day);
                                 return (
                                     <td key={day.toISOString()} className="p-1 text-center">
                                         <div className="flex justify-center items-center h-full">
-                                            {status.type === "Holiday" ? (
-                                                <Tooltip content={status.name}>
-                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${status.color} shadow-sm cursor-help`}>
+                                            {status.type !== "None" && status.type !== "Weekend" ? (
+                                                <Tooltip content={status.name || status.type}>
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${status.color} shadow-sm cursor-help`}>
                                                         {status.label}
                                                     </div>
                                                 </Tooltip>
-                                            ) : status.type === "Present" || status.type === "Absent" ? (
-                                                <div className={`font-bold ${status.color}`}>
-                                                    {/* Using icons for present/absent as per image X */}
-                                                    {status.type === "Absent" ? <X size={14} strokeWidth={3} /> : (status.label === "P" ? <div className="w-2 h-2 rounded-full bg-success" /> : status.label)}
-                                                </div>
                                             ) : (
                                                 <span className={`text-sm ${status.color}`}>{status.label}</span>
                                             )}

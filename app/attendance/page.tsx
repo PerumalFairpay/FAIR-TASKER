@@ -397,6 +397,7 @@ export default function AttendancePage() {
                             employees={isAdmin ? employees : [{
                                 name: user?.name,
                                 email: user?.email,
+                                employee_id: user?.employee_id || user?.id,
                                 employee_no_id: user?.employee_no_id,
                                 profile_picture: user?.profile_picture
                             }]}
