@@ -17,6 +17,7 @@ import leaveTypeSaga from "./leaveType/saga";
 import leaveRequestSaga from "./leaveRequest/saga";
 import taskSaga from "./task/saga";
 import attendanceSaga from "./attendance/saga";
+import permissionSaga from "./permission/saga";
 
 
 
@@ -40,6 +41,7 @@ export default function* rootSaga() {
     fork(leaveRequestSaga),
     fork(taskSaga),
     fork(attendanceSaga),
+    fork(permissionSaga),
 
 
   ]);

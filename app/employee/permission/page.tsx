@@ -3,13 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    getRolesRequest,
-    createRoleRequest,
-    updateRoleRequest,
-    deleteRoleRequest,
-    clearRoleDetails,
-} from "@/store/role/action";
-import { getPermissionsRequest } from "@/store/permission/action";
+    getPermissionsRequest,
+    createPermissionRequest,
+    updatePermissionRequest,
+    deletePermissionRequest,
+    clearPermissionDetails,
+} from "@/store/permission/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
 import {
@@ -23,57 +22,46 @@ import {
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
-import AddEditRoleModal from "./AddEditRoleModal";
-import DeleteRoleModal from "./DeleteRoleModal";
+import AddEditPermissionModal from "./AddEditPermissionModal";
+import DeletePermissionModal from "./DeletePermissionModal";
 
-export default function RolePage() {
+export default function PermissionPage() {
     const dispatch = useDispatch();
-    const { roles, loading, error, success } = useSelector(
-        (state: RootState) => state.Role
-    );
-    const { permissions } = useSelector(
+    const { permissions, loading, error } = useSelector(
         (state: RootState) => state.Permission
     );
-
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
     const [deleteId, setDeleteId] = useState<string | null>(null);
 
     const [mode, setMode] = useState<"create" | "edit">("create");
-    const [selectedRole, setSelectedRole] = useState<any>(null);
+    const [selectedPermission, setSelectedPermission] = useState<any>(null);
     const [formData, setFormData] = useState({
         name: "",
+        slug: "",
         description: "",
-        permissions: [] as string[], // List of Permission IDs
+        module: "",
     });
 
     useEffect(() => {
-        dispatch(getRolesRequest());
         dispatch(getPermissionsRequest());
     }, [dispatch]);
 
-    useEffect(() => {
-        if (success) {
-            onClose();
-            onDeleteClose();
-            dispatch(clearRoleDetails());
-        }
-    }, [success, onClose, onDeleteClose, dispatch]);
-
     const handleCreate = () => {
         setMode("create");
-        setFormData({ name: "", description: "", permissions: [] });
+        setFormData({ name: "", slug: "", description: "", module: "" });
         onOpen();
     };
 
-    const handleEdit = (role: any) => {
+    const handleEdit = (permission: any) => {
         setMode("edit");
-        setSelectedRole(role);
+        setSelectedPermission(permission);
         setFormData({
-            name: role.name,
-            description: role.description || "",
-            permissions: role.permissions || [],
+            name: permission.name,
+            slug: permission.slug,
+            description: permission.description || "",
+            module: permission.module || "",
         });
         onOpen();
     };
@@ -85,71 +73,51 @@ export default function RolePage() {
 
     const confirmDelete = () => {
         if (deleteId) {
-            dispatch(deleteRoleRequest(deleteId));
+            dispatch(deletePermissionRequest(deleteId));
+            onDeleteClose();
         }
     };
 
     const handleSubmit = () => {
-        const payload = {
-            name: formData.name,
-            description: formData.description,
-            permissions: formData.permissions,
-        };
-
         if (mode === "create") {
-            dispatch(createRoleRequest(payload));
+            dispatch(createPermissionRequest(formData));
         } else {
-            dispatch(updateRoleRequest(selectedRole.id, payload));
+            dispatch(updatePermissionRequest(selectedPermission.id, formData));
         }
+        onClose();
     };
 
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Roles</h1>
+                <h1 className="text-2xl font-bold">Permissions</h1>
                 <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
-                    Add New Role
+                    Add New Permission
                 </Button>
             </div>
 
-            <Table aria-label="Roles table">
+            <Table aria-label="Permissions table">
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
+                    <TableColumn>SLUG</TableColumn>
+                    <TableColumn>MODULE</TableColumn>
                     <TableColumn>DESCRIPTION</TableColumn>
-                    <TableColumn>PERMISSIONS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={roles || []} emptyContent={"No roles found"} isLoading={loading}>
+                <TableBody items={permissions || []} emptyContent={"No permissions found"} isLoading={loading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>
-                                <div className="flex flex-col">
-                                    <p className="text-bold text-sm capitalize">{item.name}</p>
-                                </div>
+                                <p className="text-bold text-sm capitalize">{item.name}</p>
                             </TableCell>
                             <TableCell>
-                                <div className="flex flex-col">
-                                    <p className="text-bold text-sm text-default-500">{item.description || "-"}</p>
-                                </div>
+                                <Chip size="sm" variant="flat" color="primary">{item.slug}</Chip>
                             </TableCell>
                             <TableCell>
-                                <div className="flex gap-1 flex-wrap max-w-xs">
-                                    {item.permissions && item.permissions.length > 0 ? (
-                                        item.permissions.slice(0, 3).map((permId: string) => {
-                                            const perm = permissions.find((p: any) => p.id === permId);
-                                            return (
-                                                <Chip key={permId} size="sm" variant="flat">
-                                                    {perm ? perm.slug : permId}
-                                                </Chip>
-                                            );
-                                        })
-                                    ) : (
-                                        <span className="text-default-400 text-sm">-</span>
-                                    )}
-                                    {item.permissions && item.permissions.length > 3 && (
-                                        <Chip size="sm" variant="flat">+{item.permissions.length - 3}</Chip>
-                                    )}
-                                </div>
+                                <p className="text-sm">{item.module || "-"}</p>
+                            </TableCell>
+                            <TableCell>
+                                <p className="text-sm text-default-500">{item.description || "-"}</p>
                             </TableCell>
                             <TableCell>
                                 <div className="relative flex items-center justify-center gap-2">
@@ -166,7 +134,7 @@ export default function RolePage() {
                 </TableBody>
             </Table>
 
-            <AddEditRoleModal
+            <AddEditPermissionModal
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 mode={mode}
@@ -176,7 +144,7 @@ export default function RolePage() {
                 onSubmit={handleSubmit}
             />
 
-            <DeleteRoleModal
+            <DeletePermissionModal
                 isOpen={isDeleteOpen}
                 onOpenChange={onDeleteOpenChange}
                 loading={loading}
@@ -185,4 +153,3 @@ export default function RolePage() {
         </div>
     );
 }
-

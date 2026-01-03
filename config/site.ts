@@ -58,6 +58,12 @@ export const siteConfig: SiteConfig = {
           icon: "ShieldAlert",
           allowedRoles: ["admin"],
         },
+        {
+          label: "Permission",
+          href: "/employee/permission",
+          icon: "Key",
+          allowedRoles: ["admin"],
+        },
       ],
     },
     {
