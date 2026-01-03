@@ -59,7 +59,7 @@ const TaskBoard = () => {
 
     useEffect(() => {
         dispatch(getTasksRequest({
-            start_date: filterDate,
+            date: filterDate,
             assigned_to: filterEmployee
         }));
         dispatch(getProjectsRequest());
