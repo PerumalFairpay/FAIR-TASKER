@@ -20,6 +20,7 @@ import leaveRequestReducer from "./leaveRequest/reducer";
 import taskReducer from "./task/reducer";
 import attendanceReducer from "./attendance/reducer";
 import permissionReducer from "./permission/reducer";
+import dashboardReducer from "./dashboard/reducer";
 
 
 
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
     Task: taskReducer,
     Attendance: attendanceReducer,
     Permission: permissionReducer,
+    Dashboard: dashboardReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;
