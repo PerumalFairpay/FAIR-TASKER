@@ -473,7 +473,7 @@ export default function AttendancePage() {
                     </div>
 
                     {/* Data Table */}
-                    <Table aria-label="Attendance History Table">
+                    <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
                         <TableHeader columns={columns}>
                             {(column: any) => (
                                 <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
