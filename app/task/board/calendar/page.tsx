@@ -95,18 +95,24 @@ export default function CalendarPage() {
         (state: AppState) => state.Task
     );
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const { user } = useSelector((state: AppState) => state.Auth);
 
     const [filterEmployee, setFilterEmployee] = useState("");
+
+    const isAdmin = user?.role?.toLowerCase() === "admin";
 
     useEffect(() => {
         dispatch(getEmployeesRequest());
     }, [dispatch]);
 
     useEffect(() => {
+        // If not admin and user not loaded yet, skip
+        if (!isAdmin && !user) return;
+
         dispatch(getTasksRequest({
-            assigned_to: filterEmployee
+            assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
-    }, [dispatch, filterEmployee]);
+    }, [dispatch, filterEmployee, user]);
 
     // Calendar Navigation Handlers
     const handlePrev = () => {
@@ -301,31 +307,36 @@ export default function CalendarPage() {
                         </div>
 
 
-                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
 
-                        {/* Employee Filter */}
-                        <Select
-                            size="sm"
-                            variant="flat"
-                            placeholder="Employee"
-                            className="w-40"
-                            classNames={{
-                                trigger: "bg-gray-100 dark:bg-gray-800",
-                            }}
-                            selectedKeys={filterEmployee ? [filterEmployee] : []}
-                            onChange={(e) => setFilterEmployee(e.target.value)}
-                        >
-                            {employees.map((emp: any) => (
-                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                    <div className="flex items-center gap-2">
-                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-5 h-5" />
-                                        <span className="text-xs">{emp.name}</span>
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </Select>
+                        {isAdmin && (
+                            <>
+                                <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
 
-                        <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+                                {/* Employee Filter */}
+                                <Select
+                                    size="sm"
+                                    variant="flat"
+                                    placeholder="Employee"
+                                    className="w-40"
+                                    classNames={{
+                                        trigger: "bg-gray-100 dark:bg-gray-800",
+                                    }}
+                                    selectedKeys={filterEmployee ? [filterEmployee] : []}
+                                    onChange={(e) => setFilterEmployee(e.target.value)}
+                                >
+                                    {employees.map((emp: any) => (
+                                        <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-5 h-5" />
+                                                <span className="text-xs">{emp.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+
+                                <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block"></div>
+                            </>
+                        )}
 
 
                         {/* View Switcher */}

@@ -1,4 +1,4 @@
-import { takeEvery, put, call } from "redux-saga/effects";
+import { takeEvery, put, call, select } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import {
     CREATE_TASK_REQUEST,
@@ -141,7 +141,17 @@ function* onSubmitEodReport({ payload }: any): SagaIterator {
             // Refresh tasks after EOD report
             const date = new Date();
             const todayStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-            yield put({ type: GET_TASKS_REQUEST, payload: { date: todayStr } });
+
+            const { user } = yield select((state: any) => state.Auth);
+            const isAdmin = user?.role?.toLowerCase() === "admin";
+
+            yield put({
+                type: GET_TASKS_REQUEST,
+                payload: {
+                    date: todayStr,
+                    assigned_to: isAdmin ? undefined : user?.employee_id
+                }
+            });
         } else {
             yield put(submitEodReportFailure(response.data.message || "Failed to submit EOD report"));
         }
