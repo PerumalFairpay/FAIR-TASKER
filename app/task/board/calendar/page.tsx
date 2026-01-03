@@ -141,22 +141,28 @@ export default function CalendarPage() {
     const tasksList = Array.isArray(tasks) ? tasks : (tasks ? [tasks] : []);
 
     const events = tasksList.map((task: any) => {
-        const startTime = task.start_date ? new Date(task.start_date) : new Date(); // Default to today if missing
-
-        // If end_date is present, use it. Otherwise same as start.
-        const endTime = task.end_date ? new Date(task.end_date) : startTime;
-
-        // Add 1 day to end time to make it inclusive for fullCalendar if it's all day
-        const isAllDay = true; // Assuming tasks are by date, not time
-
         const color = getEventColor(task.id || "default");
+
+        // Default to today string if missing
+        const startDateStr = task.start_date || new Date().toISOString().split('T')[0];
+        const endDateStr = task.end_date || startDateStr;
+
+        // Default times
+        const startTimeStr = task.start_time || "00:00";
+        const endTimeStr = task.end_time || "23:59";
+
+        // Full ISO strings combining date and time
+        // Note: We need to ensure these are treated as local time or consistently. 
+        // FullCalendar without 'Z' treats as local time.
+        const start = `${startDateStr}T${startTimeStr}:00`;
+        const end = `${endDateStr}T${endTimeStr}:00`;
 
         return {
             id: task.id,
             title: task.task_name,
-            start: startTime.toISOString().split('T')[0], // YYYY-MM-DD
-            end: endTime ? endTime.toISOString().split('T')[0] : undefined,
-            allDay: true,
+            start: start,
+            end: end,
+            allDay: false,
             extendedProps: {
                 ...task,
                 colorPalette: color
@@ -188,6 +194,7 @@ export default function CalendarPage() {
                 }}
             >
                 <div className="font-semibold text-xs leading-tight line-clamp-2">
+                    {eventInfo.timeText && <span className="mr-1 opacity-75">{eventInfo.timeText}</span>}
                     {displayName}
                 </div>
 
