@@ -139,7 +139,9 @@ function* onSubmitEodReport({ payload }: any): SagaIterator {
         if (response.data.success) {
             yield put(submitEodReportSuccess(response.data.data));
             // Refresh tasks after EOD report
-            yield put({ type: GET_TASKS_REQUEST });
+            const date = new Date();
+            const todayStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+            yield put({ type: GET_TASKS_REQUEST, payload: { start_date: todayStr } });
         } else {
             yield put(submitEodReportFailure(response.data.message || "Failed to submit EOD report"));
         }
