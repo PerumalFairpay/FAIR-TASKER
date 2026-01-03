@@ -5,10 +5,9 @@ import { Progress } from "@heroui/progress";
 import { User } from "@heroui/user";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Chip } from "@heroui/chip";
-import { Avatar } from "@heroui/avatar";
 import {
     Users, Briefcase, Calendar, CheckCircle, Clock, AlertCircle,
-    Building, Activity, FileText
+    Building, TrendingUp
 } from "lucide-react";
 
 interface AdminDashboardData {
@@ -55,211 +54,288 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
     return (
         <div className="space-y-6">
-            {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard
+            {/* Top Stats Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <DashboardStatCard
                     title="Total Employees"
                     value={data.overview.total_employees}
-                    icon={<Users className="w-6 h-6 text-blue-500" />}
-                    subtext="Active Workflow"
+                    subtext="Active Employees"
+                    icon={<Users className="w-6 h-6 text-primary-500" />}
+                    bgColor="bg-primary-50"
                 />
-                <StatCard
-                    title="Projects"
-                    value={`${data.overview.active_projects} / ${data.overview.total_projects}`}
-                    icon={<Briefcase className="w-6 h-6 text-purple-500" />}
-                    subtext="Active / Total"
+                <DashboardStatCard
+                    title="Active Projects"
+                    value={data.overview.active_projects}
+                    subtext="Projects In Progress"
+                    icon={<Briefcase className="w-6 h-6 text-secondary-500" />}
+                    bgColor="bg-secondary-50"
                 />
-                <StatCard
-                    title="Attendance Today"
-                    value={`${data.attendance_metrics.today_stats.present} / ${data.overview.total_employees}`}
-                    icon={<CheckCircle className="w-6 h-6 text-green-500" />}
-                    subtext={`Absent: ${data.attendance_metrics.today_stats.absent}, Late: ${data.attendance_metrics.today_stats.late}`}
-                />
-                <StatCard
+                <DashboardStatCard
                     title="Pending Leaves"
                     value={data.overview.pending_leaves}
-                    icon={<Calendar className="w-6 h-6 text-orange-500" />}
-                    subtext={`${data.overview.approved_leaves_today} Approved Today`}
+                    subtext="Awaiting Approval"
+                    icon={<Calendar className="w-6 h-6 text-warning-500" />}
+                    bgColor="bg-warning-50"
                 />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Task Metrics */}
-                <Card className="col-span-1 lg:col-span-2">
-                    <CardHeader className="flex gap-3">
-                        <Activity className="w-6 h-6" />
-                        <div className="flex flex-col">
-                            <p className="text-md font-bold">Task Statistics</p>
-                            <p className="text-small text-default-500">Overall Progress</p>
-                        </div>
-                    </CardHeader>
-                    <CardBody className="gap-6">
-                        <div className="flex justify-between items-center px-4 py-2 bg-default-100 rounded-lg">
-                            <div className="text-center">
-                                <p className="text-2xl font-bold">{data.task_metrics.total_completed}</p>
-                                <p className="text-xs text-default-500">Completed</p>
-                            </div>
-                            <div className="text-center">
-                                <p className="text-2xl font-bold">{data.task_metrics.total_pending}</p>
-                                <p className="text-xs text-default-500">Pending</p>
-                            </div>
-                            <div className="text-center">
-                                <p className="text-2xl font-bold text-danger">{data.task_metrics.overdue}</p>
-                                <p className="text-xs text-default-500">Overdue</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div className="flex justify-between mb-2">
-                                <span className="text-sm font-medium">Completion Rate</span>
-                                <span className="text-sm text-default-500">{data.task_metrics.completion_rate}%</span>
-                            </div>
-                            <Progress value={data.task_metrics.completion_rate} color="success" className="h-2" />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                <Card className="shadow-sm border-none">
+                    <CardBody className="flex flex-row justify-between items-center p-4">
+                        <div className="flex flex-col justify-between h-full">
                             <div>
-                                <h4 className="text-sm font-semibold mb-2">By Priority</h4>
-                                <div className="space-y-2">
-                                    {Object.entries(data.task_metrics.by_priority).map(([key, val]) => (
-                                        <div key={key} className="flex justify-between text-sm">
-                                            <span>{key}</span>
-                                            <span className="font-bold">{val}</span>
-                                        </div>
-                                    ))}
+                                <p className="text-small font-medium text-default-500 uppercase tracking-wider">Attendance Today</p>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                    <h3 className="text-2xl font-bold text-default-900">{data.attendance_metrics.today_stats.present}</h3>
+                                    <span className="text-xs font-medium text-success-600">Present</span>
                                 </div>
                             </div>
-                            <div>
-                                <h4 className="text-sm font-semibold mb-2">By Status</h4>
-                                <div className="space-y-2">
-                                    {Object.entries(data.task_metrics.by_status).map(([key, val]) => (
-                                        <div key={key} className="flex justify-between text-sm">
-                                            <span>{key}</span>
-                                            <span className="font-bold">{val}</span>
-                                        </div>
-                                    ))}
+                            <div className="flex gap-3 mt-3">
+                                <div className="flex flex-col">
+                                    <span className="text-xl font-bold text-danger-500">{data.attendance_metrics.today_stats.absent}</span>
+                                    <span className="text-[10px] text-default-400 uppercase">Absent</span>
+                                </div>
+                                <div className="w-[1px] h-full bg-default-200"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl font-bold text-warning-500">{data.attendance_metrics.today_stats.on_leave}</span>
+                                    <span className="text-[10px] text-default-400 uppercase">Leave</span>
                                 </div>
                             </div>
+                        </div>
+                        <div className={`p-3 rounded-xl bg-success-50 h-fit`}>
+                            <CheckCircle className="w-6 h-6 text-success-500" />
                         </div>
                     </CardBody>
                 </Card>
+            </div>
 
-                {/* Department Distribution */}
-                <Card>
-                    <CardHeader className="flex gap-3">
-                        <Building className="w-6 h-6" />
-                        <div className="flex flex-col">
-                            <p className="text-md font-bold">Departments</p>
-                            <p className="text-small text-default-500">Employee Distribution</p>
-                        </div>
-                    </CardHeader>
-                    <CardBody>
-                        <div className="space-y-4">
-                            {data.department_distribution.map((dept, index) => (
-                                <div key={index} className="flex justify-between items-center">
-                                    <span className="text-sm">{dept.name}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Progress value={(dept.count / data.overview.total_employees) * 100} className="w-20 h-2" />
-                                        <span className="text-xs font-bold w-6 text-right">{dept.count}</span>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column (Main Metrics) */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Metrics Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Efficiency / Completion */}
+                        <Card className="shadow-sm border-none p-2">
+                            <CardHeader className="justify-between px-4 pt-4 pb-0">
+                                <div className="flex gap-3">
+                                    <div className="p-2 bg-default-100 rounded-lg">
+                                        <TrendingUp className="w-5 h-5 text-default-600" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <p className="text-md font-bold text-default-900">Task Efficiency</p>
+                                        <p className="text-tiny text-default-500">Completion Rate</p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </CardBody>
-                </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* New Employees */}
-                <Card>
-                    <CardHeader className="flex gap-3">
-                        <Users className="w-6 h-6" />
-                        <div className="flex flex-col">
-                            <p className="text-md font-bold">New Joiners</p>
-                            <p className="text-small text-default-500">Last 30 Days</p>
-                        </div>
-                    </CardHeader>
-                    <CardBody>
-                        <div className="space-y-4">
-                            {data.new_employees.length === 0 ? (
-                                <p className="text-default-500 text-sm">No new employees recently.</p>
-                            ) : data.new_employees.map((emp, i) => (
-                                <User
-                                    key={i}
-                                    name={emp.name}
-                                    description={`${emp.designation} • ${emp.department}`}
-                                    avatarProps={{
-                                        src: emp.profile_picture,
-                                        fallback: emp.name[0]
-                                    }}
+                                <Chip size="sm" color="primary" variant="flat">YTD</Chip>
+                            </CardHeader>
+                            <CardBody className="px-4 py-5 flex flex-col justify-center">
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-sm font-medium text-default-600">Progress</span>
+                                    <span className="text-sm font-bold text-default-900">{data.task_metrics.completion_rate}%</span>
+                                </div>
+                                <Progress
+                                    aria-label="Task Completion Rate"
+                                    value={data.task_metrics.completion_rate}
+                                    className="h-3"
+                                    color="primary"
                                 />
-                            ))}
-                        </div>
-                    </CardBody>
-                </Card>
+                                <div className="flex justify-between mt-6">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-tiny uppercase text-default-500 font-semibold tracking-wider">Completed</span>
+                                        <span className="text-lg font-bold text-default-900">{data.task_metrics.total_completed}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1 text-right">
+                                        <span className="text-tiny uppercase text-default-500 font-semibold tracking-wider">Total Tasks</span>
+                                        <span className="text-lg font-bold text-default-900">
+                                            {data.task_metrics.total_completed + data.task_metrics.total_pending}
+                                        </span>
+                                    </div>
+                                </div>
+                            </CardBody>
+                        </Card>
 
-                {/* Recent Activity & Holidays */}
+                        {/* Task Stats (Priority) */}
+                        <Card className="shadow-sm border-none p-2">
+                            <CardHeader className="px-4 pt-4 pb-0">
+                                <div className="flex flex-col">
+                                    <p className="text-md font-bold text-default-900">Task Stats</p>
+                                    <p className="text-tiny text-default-500">Priority Distribution</p>
+                                </div>
+                            </CardHeader>
+                            <CardBody className="px-4 py-4 gap-4">
+                                {Object.entries(data.task_metrics.by_priority).slice(0, 3).map(([priority, count]) => (
+                                    <div key={priority}>
+                                        <div className="flex justify-between mb-1">
+                                            <span className="text-sm text-default-600 capitalize">{priority}</span>
+                                            <span className="text-sm font-bold text-default-900">{count}</span>
+                                        </div>
+                                        <Progress
+                                            value={(count / (data.task_metrics.total_pending + data.task_metrics.total_completed || 1)) * 100}
+                                            color={priority.toLowerCase() === 'high' ? 'danger' : priority.toLowerCase() === 'medium' ? 'warning' : 'primary'}
+                                            className="h-2"
+                                            aria-label={`${priority} priority tasks`}
+                                        />
+                                    </div>
+                                ))}
+                            </CardBody>
+                        </Card>
+                    </div>
+
+                    {/* New Joiners Table (Replaces Project Status) */}
+                    <Card className="shadow-sm border-none">
+                        <CardHeader className="flex justify-between px-6 py-4">
+                            <div className="flex gap-2 items-center">
+                                <Users className="w-5 h-5 text-default-500" />
+                                <h3 className="font-bold text-large text-default-900">New Employees</h3>
+                            </div>
+                            <Chip size="sm" variant="flat" color="default">Last 30 Days</Chip>
+                        </CardHeader>
+                        <CardBody className="px-4 pb-4">
+                            <Table aria-label="New Joiners Table" removeWrapper shadow="none">
+                                <TableHeader>
+                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Employee</TableColumn>
+                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Department</TableColumn>
+                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Role</TableColumn>
+                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Joined Date</TableColumn>
+                                </TableHeader>
+                                <TableBody emptyContent={"No new employees found."}>
+                                    {data.new_employees.map((emp, index) => (
+                                        <TableRow key={index} className="border-b border-default-100 last:border-none">
+                                            <TableCell>
+                                                <User
+                                                    name={emp.name}
+                                                    description={emp.designation}
+                                                    avatarProps={{
+                                                        src: emp.profile_picture,
+                                                        radius: "lg",
+                                                        size: "sm",
+                                                        color: "primary",
+                                                        isBordered: true
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-success-500"></span>
+                                                    <span className="text-default-700 font-medium">{emp.department}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-default-500">{emp.designation}</span>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-default-500 font-medium">{new Date(emp.date_of_joining).toLocaleDateString()}</span>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardBody>
+                    </Card>
+                </div>
+
+                {/* Right Column (Sidebar) */}
                 <div className="space-y-6">
-                    <Card>
-                        <CardHeader className="flex gap-3">
-                            <Clock className="w-6 h-6" />
-                            <div className="flex flex-col">
-                                <p className="text-md font-bold">Recent Activity</p>
+                    {/* Departments */}
+                    <Card className="shadow-sm border-none">
+                        <CardHeader className="flex justify-between px-6 py-4 pb-2">
+                            <div className="flex gap-2 items-center">
+                                <Building className="w-5 h-5 text-default-500" />
+                                <h3 className="font-bold text-medium text-default-900">Departments</h3>
                             </div>
                         </CardHeader>
-                        <CardBody>
-                            <ul className="space-y-3">
-                                {data.recent_activities.length === 0 ? <p className="text-sm text-default-500">No activity.</p> :
-                                    data.recent_activities.map((act, i) => (
-                                        <li key={i} className="flex gap-3 items-start text-sm">
-                                            <div className="mt-1 min-w-[6px] min-h-[6px] rounded-full bg-blue-500" />
-                                            <div>
-                                                <p>{act.message}</p>
-                                                <p className="text-xs text-default-400">{new Date(act.timestamp).toLocaleDateString()}</p>
-                                            </div>
-                                        </li>
-                                    ))}
-                            </ul>
+                        <CardBody className="px-6 py-4 pt-2">
+                            <div className="space-y-4">
+                                {data.department_distribution.map((dept, index) => (
+                                    <div key={index} className="flex justify-between items-center py-2 border-b border-default-100 last:border-none">
+                                        <span className="text-sm font-medium text-default-700">{dept.name}</span>
+                                        <Chip size="sm" variant="flat" className="bg-default-100 text-default-700 font-bold min-w-[30px] text-center">
+                                            {dept.count}
+                                        </Chip>
+                                    </div>
+                                ))}
+                            </div>
                         </CardBody>
                     </Card>
 
-                    <Card>
-                        <CardHeader className="flex gap-3">
-                            <Calendar className="w-6 h-6" />
-                            <div className="flex flex-col">
-                                <p className="text-md font-bold">Upcoming Holidays</p>
-                            </div>
+                    {/* Daily Exceptions */}
+                    <Card className="shadow-sm border-none border-l-4 border-danger">
+                        <CardHeader className="flex gap-2 px-6 py-4 text-danger">
+                            <AlertCircle className="w-5 h-5" />
+                            <h3 className="font-bold text-medium">Daily Exceptions</h3>
                         </CardHeader>
-                        <CardBody>
-                            <div className="space-y-3">
-                                {data.upcoming_holidays.length === 0 ? <p className="text-sm text-default-500">No upcoming holidays.</p> :
-                                    data.upcoming_holidays.map((h, i) => (
-                                        <div key={i} className="flex justify-between items-center text-sm p-2 bg-default-50 rounded-lg">
-                                            <span className="font-medium">{h.name}</span>
-                                            <Chip size="sm" variant="flat">{new Date(h.date).toLocaleDateString()}</Chip>
+                        <CardBody className="px-6 py-2 pb-6">
+                            <div className="space-y-4">
+                                <div className="flex flex-col">
+                                    <span className="text-xs uppercase text-default-500 font-semibold mb-1">Late Arrivals</span>
+                                    {data.attendance_metrics.today_stats.late > 0 ? (
+                                        <div className="p-3 bg-danger-50 rounded-lg border border-danger-100">
+                                            <p className="text-sm font-medium text-danger-700">
+                                                {data.attendance_metrics.today_stats.late} employees arrived late today.
+                                            </p>
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <p className="text-sm text-default-400 italic">No one was late today.</p>
+                                    )}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-xs uppercase text-default-500 font-semibold mb-1">On Leave</span>
+                                    {data.attendance_metrics.today_stats.on_leave > 0 ? (
+                                        <div className="p-3 bg-warning-50 rounded-lg border border-warning-100">
+                                            <p className="text-sm font-medium text-warning-700">
+                                                {data.attendance_metrics.today_stats.on_leave} employees are on leave.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-default-400 italic">All employees present.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* Recent Activity */}
+                    <Card className="shadow-sm border-none">
+                        <CardHeader className="flex gap-2 px-6 py-4">
+                            <Clock className="w-5 h-5 text-default-500" />
+                            <h3 className="font-bold text-medium text-default-900">Recent Activity</h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-2 pb-6">
+                            <div className="relative border-l border-default-200 ml-2 space-y-6">
+                                {data.recent_activities.length === 0 ? (
+                                    <p className="pl-6 text-sm text-default-500 italic">No recent activity.</p>
+                                ) : (
+                                    data.recent_activities.slice(0, 5).map((act, index) => (
+                                        <div key={index} className="ml-6 relative">
+                                            <span className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full bg-primary-500 ring-4 ring-white"></span>
+                                            <p className="text-sm font-semibold text-default-900">{act.type === 'new_user' ? 'New Employee' : act.type === 'project_created' ? 'New Project' : 'System Update'}</p>
+                                            <p className="text-xs text-default-600 mt-0.5 line-clamp-2">{act.message}</p>
+                                            <span className="text-[10px] text-default-400 block mt-1">
+                                                {new Date(act.timestamp).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </CardBody>
                     </Card>
                 </div>
             </div>
-
         </div>
     );
 }
 
-function StatCard({ title, value, icon, subtext }: { title: string, value: string | number, icon: React.ReactNode, subtext: string }) {
+function DashboardStatCard({ title, value, subtext, icon, bgColor }: { title: string, value: string | number, subtext: string, icon: React.ReactNode, bgColor: string }) {
     return (
-        <Card>
-            <CardBody className="flex flex-row items-center gap-4">
-                <div className="p-3 bg-default-100 rounded-large">
-                    {icon}
+        <Card className="shadow-sm border-none h-full">
+            <CardBody className="flex flex-row justify-between items-start p-4 h-full">
+                <div className="flex flex-col justify-between h-full">
+                    <p className="text-small font-medium text-default-500 uppercase tracking-wider">{title}</p>
+                    <div className="mt-2">
+                        <h3 className="text-3xl font-bold text-default-900">{value}</h3>
+                        <p className="text-xs text-default-400 mt-1">{subtext}</p>
+                    </div>
                 </div>
-                <div>
-                    <p className="text-lg font-bold">{value}</p>
-                    <p className="text-small text-default-500 font-medium">{title}</p>
-                    <p className="text-xs text-default-400 mt-1">{subtext}</p>
+                <div className={`p-3 rounded-xl ${bgColor} h-fit`}>
+                    {icon}
                 </div>
             </CardBody>
         </Card>
