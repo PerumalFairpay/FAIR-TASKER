@@ -115,7 +115,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       {/* Mobile Bottom Navbar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
         <div className="flex items-center justify-around h-full px-2">
-          {siteConfig.navItems.filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee")).map((item: any) => {
+          {siteConfig.navItems.filter(item => {
+            const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+            const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
+            return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+          }).map((item: any) => {
             // For mobile, simpler to just show top level or flat list? 
             // Logic: If it has children, maybe skip or show parent link if it exists.
             // For now, let's just render parent links for mobile to keep it simple as per original
@@ -187,15 +191,21 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
             <nav className="flex flex-col gap-1 px-2">
               {siteConfig.navItems
-                .filter(item => !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee"))
+                .filter(item => {
+                  const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+                  const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
+                  return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+                })
                 .map((item: any) => {
                   const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
                   const isActive = pathname === item.href;
 
-                  // Filter children based on role
-                  const filteredChildren = item.children?.filter((child: any) =>
-                    !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee")
-                  );
+                  // Filter children based on role and permission
+                  const filteredChildren = item.children?.filter((child: any) => {
+                    const roleMatch = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+                    const permissionMatch = !child.permission || user?.permissions?.includes(child.permission);
+                    return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+                  });
                   const hasChildren = filteredChildren && filteredChildren.length > 0;
                   const isOpen = openMenus[item.label];
 

@@ -3,6 +3,7 @@ export type NavItem = {
   href: string;
   icon?: string;
   allowedRoles?: string[];
+  permission?: string;
   children?: NavItem[];
 };
 
@@ -37,7 +38,7 @@ export const siteConfig: SiteConfig = {
       label: "Employee",
       href: "/employee",
       icon: "Users",
-      allowedRoles: ["admin"],
+      allowedRoles: ["admin", "employee"],
       children: [
         {
           label: "Employee List",

@@ -32,6 +32,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
+import { PermissionGuard } from "@/components/PermissionGuard";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
@@ -108,9 +109,11 @@ export default function EmployeeListPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Employees</h1>
-                <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
-                    Add New Employee
-                </Button>
+                <PermissionGuard permission="employee:create">
+                    <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                        Add New Employee
+                    </Button>
+                </PermissionGuard>
             </div>
 
             <Table aria-label="Employee table" removeWrapper isHeaderSticky>
@@ -145,12 +148,16 @@ export default function EmployeeListPage() {
                             </TableCell>
                             <TableCell>
                                 <div className="relative flex items-center justify-center gap-2">
-                                    <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
-                                        <PencilIcon size={16} />
-                                    </span>
-                                    <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
-                                        <TrashIcon size={16} />
-                                    </span>
+                                    <PermissionGuard permission="employee:edit">
+                                        <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
+                                            <PencilIcon size={16} />
+                                        </span>
+                                    </PermissionGuard>
+                                    <PermissionGuard permission="employee:delete">
+                                        <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
+                                            <TrashIcon size={16} />
+                                        </span>
+                                    </PermissionGuard>
                                 </div>
                             </TableCell>
                         </TableRow>
