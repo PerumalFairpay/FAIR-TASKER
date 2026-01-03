@@ -78,11 +78,11 @@ export default function AttendancePage() {
     useEffect(() => {
         setCurrentDate(new Date()); // Set initial date on client
 
+        const start = format(startOfMonth(currentMonth), "yyyy-MM-dd");
+        const end = format(endOfMonth(currentMonth), "yyyy-MM-dd");
+
         if (isAdmin) {
-            // Fetch logic based on view mode
             if (viewMode === "calendar") {
-                const start = format(startOfMonth(currentMonth), "yyyy-MM-dd");
-                const end = format(endOfMonth(currentMonth), "yyyy-MM-dd");
                 dispatch(getAllAttendanceRequest({ start_date: start, end_date: end }));
             } else {
                 dispatch(getAllAttendanceRequest(filters));
@@ -92,10 +92,16 @@ export default function AttendancePage() {
                 dispatch(getEmployeesRequest());
             }
         } else {
-            dispatch(getMyAttendanceHistoryRequest());
+            if (viewMode === "calendar") {
+                dispatch(getMyAttendanceHistoryRequest({ start_date: start, end_date: end }));
+            } else {
+                dispatch(getMyAttendanceHistoryRequest({
+                    start_date: filters.start_date,
+                    end_date: filters.end_date
+                }));
+            }
         }
 
-        // Fetch holidays for Calendar view for all users
         if (viewMode === "calendar") {
             dispatch(getHolidaysRequest());
         }
@@ -266,8 +272,8 @@ export default function AttendancePage() {
                             </Button>
                         </div>
 
-                        {/* Admin List Filters */}
-                        {isAdmin && viewMode === "list" && (
+                        {/* List Filters */}
+                        {viewMode === "list" && (
                             <>
                                 <DatePicker
                                     size="sm"
@@ -287,36 +293,40 @@ export default function AttendancePage() {
                                     aria-label="End Date"
                                 />
 
-                                <Select
-                                    size="sm"
-                                    variant="bordered"
-                                    placeholder="Status"
-                                    aria-label="Filter by Status"
-                                    className="w-32"
-                                    selectedKeys={filters.status ? [filters.status] : []}
-                                    onChange={(e) => handleFilterChange("status", e.target.value)}
-                                >
-                                    <SelectItem key="Present">Present</SelectItem>
-                                </Select>
+                                {isAdmin && (
+                                    <>
+                                        <Select
+                                            size="sm"
+                                            variant="bordered"
+                                            placeholder="Status"
+                                            aria-label="Filter by Status"
+                                            className="w-32"
+                                            selectedKeys={filters.status ? [filters.status] : []}
+                                            onChange={(e) => handleFilterChange("status", e.target.value)}
+                                        >
+                                            <SelectItem key="Present">Present</SelectItem>
+                                        </Select>
 
-                                <Select
-                                    size="sm"
-                                    variant="bordered"
-                                    placeholder="Employee"
-                                    aria-label="Filter by Employee"
-                                    className="w-40"
-                                    selectedKeys={filters.employee_id ? [filters.employee_id] : []}
-                                    onChange={(e) => handleFilterChange("employee_id", e.target.value)}
-                                >
-                                    {employees?.map((emp: any) => (
-                                        <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                            <div className="flex items-center gap-2">
-                                                <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                                <span>{emp.name}</span>
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </Select>
+                                        <Select
+                                            size="sm"
+                                            variant="bordered"
+                                            placeholder="Employee"
+                                            aria-label="Filter by Employee"
+                                            className="w-40"
+                                            selectedKeys={filters.employee_id ? [filters.employee_id] : []}
+                                            onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                        >
+                                            {employees?.map((emp: any) => (
+                                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                                    <div className="flex items-center gap-2">
+                                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                                        <span>{emp.name}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
+                                    </>
+                                )}
                             </>
                         )}
 

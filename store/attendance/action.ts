@@ -35,8 +35,9 @@ export const clockOutFailure = (error: any) => ({
 });
 
 // Get My History
-export const getMyAttendanceHistoryRequest = () => ({
+export const getMyAttendanceHistoryRequest = (filters?: { start_date?: string, end_date?: string }) => ({
     type: GET_MY_ATTENDANCE_HISTORY_REQUEST,
+    payload: filters,
 });
 export const getMyAttendanceHistorySuccess = (response: any) => ({
     type: GET_MY_ATTENDANCE_HISTORY_SUCCESS,

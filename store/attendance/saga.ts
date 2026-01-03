@@ -23,8 +23,16 @@ function clockOutApi(payload: any) {
     return api.put("/attendance/clock-out", payload);
 }
 
-function getMyAttendanceHistoryApi() {
-    return api.get("/attendance/my-history");
+function getMyAttendanceHistoryApi(filters?: any) {
+    let url = "/attendance/my-history";
+    if (filters) {
+        const params = new URLSearchParams();
+        if (filters.start_date) params.append('start_date', filters.start_date);
+        if (filters.end_date) params.append('end_date', filters.end_date);
+        const queryString = params.toString();
+        if (queryString) url += `?${queryString}`;
+    }
+    return api.get(url);
 }
 
 function getAllAttendanceApi(filters?: any) {
@@ -70,9 +78,9 @@ function* onClockOut({ payload }: any): SagaIterator {
     }
 }
 
-function* onGetMyAttendanceHistory(): SagaIterator {
+function* onGetMyAttendanceHistory({ payload }: any): SagaIterator {
     try {
-        const response = yield call(getMyAttendanceHistoryApi);
+        const response = yield call(getMyAttendanceHistoryApi, payload);
         yield put(getMyAttendanceHistorySuccess(response.data));
     } catch (error: any) {
         yield put(getMyAttendanceHistoryFailure(error.response?.data?.message || "Failed to fetch history"));
