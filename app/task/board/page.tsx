@@ -127,6 +127,19 @@ const TaskBoard = () => {
         const comparisonDate = filterDate || todayStr;
 
         return tasks.filter((task: any) => {
+            const isRolloverForView = task.last_rollover_date === comparisonDate;
+
+            // 1. Handle "Moved" column
+            if (status === "Moved") {
+                // Task appears here if it has status="Moved" OR is a rollover task for this date
+                return task.status === "Moved" || isRolloverForView;
+            }
+
+            // 2. Handle other columns
+            // If it IS a rollover task for this date, it should ONLY appear in Moved, not here.
+            if (isRolloverForView) return false;
+
+            // 3. Normal Status Matching
             if (task.status !== status) return false;
 
             // If explicit date filter is set, rely on backend or just simple match
@@ -146,6 +159,7 @@ const TaskBoard = () => {
             }
 
             // Hide past 'Moved' or 'Completed' tasks (keep board fresh for today)
+            // Note: We don't hide "Move" if it's the current rollover, but that's handled above.
             if ((status === "Moved" || status === "Completed") && task.start_date && task.start_date < todayStr) {
                 return false;
             }
