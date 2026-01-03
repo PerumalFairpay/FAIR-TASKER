@@ -77,30 +77,29 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     icon={<Calendar className="w-6 h-6 text-warning-500" />}
                     bgColor="bg-warning-50"
                 />
-                <Card className="shadow-sm border-none">
-                    <CardBody className="flex flex-row justify-between items-center p-4">
-                        <div className="flex flex-col justify-between h-full">
-                            <div>
-                                <p className="text-small font-medium text-default-500 uppercase tracking-wider">Attendance Today</p>
-                                <div className="flex items-baseline gap-2 mt-1">
-                                    <h3 className="text-2xl font-bold text-default-900">{data.attendance_metrics.today_stats.present}</h3>
-                                    <span className="text-xs font-medium text-success-600">Present</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-3 mt-3">
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-bold text-danger-500">{data.attendance_metrics.today_stats.absent}</span>
-                                    <span className="text-[10px] text-default-400 uppercase">Absent</span>
-                                </div>
-                                <div className="w-[1px] h-full bg-default-200"></div>
-                                <div className="flex flex-col">
-                                    <span className="text-xl font-bold text-warning-500">{data.attendance_metrics.today_stats.on_leave}</span>
-                                    <span className="text-[10px] text-default-400 uppercase">Leave</span>
-                                </div>
+                <Card className="shadow-sm border-none bg-white h-full">
+                    <CardBody className="flex flex-col gap-4 p-4">
+                        <div className="flex justify-between items-start">
+                            <p className="text-small font-semibold text-default-500 uppercase tracking-wider">Attendance Today</p>
+                            <div className="p-3 rounded-xl bg-success-50 -mt-1 -mr-1">
+                                <CheckCircle className="w-6 h-6 text-success-500" />
                             </div>
                         </div>
-                        <div className={`p-3 rounded-xl bg-success-50 h-fit`}>
-                            <CheckCircle className="w-6 h-6 text-success-500" />
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-3xl font-bold text-success-600">{data.attendance_metrics.today_stats.present}</span>
+                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Present</span>
+                            </div>
+                            <div className="w-[1px] h-8 bg-default-200"></div>
+                            <div className="flex flex-col">
+                                <span className="text-3xl font-bold text-danger-500">{data.attendance_metrics.today_stats.absent}</span>
+                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Absent</span>
+                            </div>
+                            <div className="w-[1px] h-8 bg-default-200"></div>
+                            <div className="flex flex-col">
+                                <span className="text-3xl font-bold text-warning-500">{data.overview.approved_leaves_today}</span>
+                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Leave</span>
+                            </div>
                         </div>
                     </CardBody>
                 </Card>
@@ -325,17 +324,17 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 function DashboardStatCard({ title, value, subtext, icon, bgColor }: { title: string, value: string | number, subtext: string, icon: React.ReactNode, bgColor: string }) {
     return (
-        <Card className="shadow-sm border-none h-full">
-            <CardBody className="flex flex-row justify-between items-start p-4 h-full">
-                <div className="flex flex-col justify-between h-full">
-                    <p className="text-small font-medium text-default-500 uppercase tracking-wider">{title}</p>
-                    <div className="mt-2">
-                        <h3 className="text-3xl font-bold text-default-900">{value}</h3>
-                        <p className="text-xs text-default-400 mt-1">{subtext}</p>
+        <Card className="shadow-sm border-none h-full bg-white">
+            <CardBody className="flex flex-col gap-4 p-4">
+                <div className="flex justify-between items-start">
+                    <p className="text-small font-semibold text-default-500 uppercase tracking-wider">{title}</p>
+                    <div className={`p-3 rounded-xl ${bgColor} -mt-1 -mr-1`}>
+                        {icon}
                     </div>
                 </div>
-                <div className={`p-3 rounded-xl ${bgColor} h-fit`}>
-                    {icon}
+                <div>
+                    <h3 className="text-3xl font-bold text-default-900">{value}</h3>
+                    <p className="text-xs text-default-400 mt-1">{subtext}</p>
                 </div>
             </CardBody>
         </Card>
