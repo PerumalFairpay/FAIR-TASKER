@@ -323,7 +323,7 @@ const TaskBoard = () => {
                                                                         <div className="flex items-center gap-1 text-default-400">
                                                                             <CalendarIcon size={14} />
                                                                             <span className="text-[10px] font-medium">
-                                                                                {task.end_date}
+                                                                                {task.end_date} {task.end_time}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-1 text-default-400">

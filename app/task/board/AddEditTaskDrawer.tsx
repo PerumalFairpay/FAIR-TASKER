@@ -33,6 +33,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
         description: "",
         start_date: new Date().toISOString().split("T")[0],
         end_date: new Date().toISOString().split("T")[0],
+        start_time: "09:00",
+        end_time: "18:00",
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
@@ -49,6 +51,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                     description: task.description || "",
                     start_date: task.start_date || "",
                     end_date: task.end_date || "",
+                    start_time: task.start_time || "09:00",
+                    end_time: task.end_time || "18:00",
                     priority: task.priority || "Medium",
                     assigned_to: task.assigned_to || [],
                     tags: task.tags || [],
@@ -133,21 +137,41 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task }: AddEditTaskDrawerProps) =>
                             .dark .ql-picker { color: #E3E3E3 !important; }
                         `}</style>
 
-                        <div className="flex gap-4">
-                            <Input
-                                type="date"
-                                label="Start Date"
-                                value={formData.start_date}
-                                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                required
-                            />
-                            <Input
-                                type="date"
-                                label="End Date"
-                                value={formData.end_date}
-                                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                                required
-                            />
+                        <div className="flex flex-col gap-4">
+                            <div className="flex gap-4">
+                                <Input
+                                    type="date"
+                                    label="Start Date"
+                                    value={formData.start_date}
+                                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                                    required
+                                    className="flex-1"
+                                />
+                                <Input
+                                    type="time"
+                                    label="Start Time"
+                                    value={formData.start_time}
+                                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                                    className="w-[150px]"
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <Input
+                                    type="date"
+                                    label="End Date"
+                                    value={formData.end_date}
+                                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                                    required
+                                    className="flex-1"
+                                />
+                                <Input
+                                    type="time"
+                                    label="End Time"
+                                    value={formData.end_time}
+                                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                                    className="w-[150px]"
+                                />
+                            </div>
                         </div>
 
                         <Select
