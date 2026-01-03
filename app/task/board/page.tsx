@@ -169,6 +169,7 @@ const TaskBoard = () => {
     };
 
     const handleEditTask = (task: any) => {
+        if (task.status === "Completed") return;
         setSelectedTask(task);
         dispatch(getTaskRequest(task.id));
         setIsTaskDrawerOpen(true);
@@ -271,7 +272,7 @@ const TaskBoard = () => {
                                         )}
                                     >
                                         {getTasksByStatus(column.id).map((task: any, index: number) => (
-                                            <Draggable key={task.id} draggableId={task.id} index={index}>
+                                            <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={task.status === "Completed"}>
                                                 {(provided, snapshot) => (
                                                     <div
                                                         ref={provided.innerRef}
@@ -282,7 +283,8 @@ const TaskBoard = () => {
                                                         <Card
                                                             shadow="sm"
                                                             className={clsx(
-                                                                "border-none hover:shadow-md transition-all duration-300 group cursor-pointer",
+                                                                "border-none hover:shadow-md transition-all duration-300 group",
+                                                                task.status === "Completed" ? "cursor-default" : "cursor-pointer",
                                                                 snapshot.isDragging ? "shadow-xl ring-2 ring-primary scale-105" : ""
                                                             )}
                                                         >
