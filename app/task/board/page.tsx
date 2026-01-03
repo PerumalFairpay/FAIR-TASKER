@@ -31,7 +31,7 @@ const COLUMNS = [
     { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
     { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
     { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
-    { id: "Moved", title: "Moved/Rollover", color: "bg-warning-50", textColor: "text-warning-600" },
+    { id: "Moved", title: "Moved to Tomorrow", color: "bg-warning-50", textColor: "text-warning-600" },
 ];
 
 const TaskBoard = () => {
