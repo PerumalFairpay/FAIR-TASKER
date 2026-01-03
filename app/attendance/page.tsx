@@ -21,7 +21,7 @@ import { Avatar } from "@heroui/avatar";
 import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
-import toast from "react-hot-toast";
+import { addToast } from "@heroui/toast";
 
 interface AttendanceRecord {
     id: string;
@@ -123,7 +123,11 @@ export default function AttendancePage() {
     // Handle Toasts
     useEffect(() => {
         if (success) {
-            toast.success(success);
+            addToast({
+                title: "Success",
+                description: success,
+                color: "success"
+            });
             dispatch(clearAttendanceStatus());
             if (isAdmin) {
                 if (viewMode === "calendar") {
@@ -138,7 +142,11 @@ export default function AttendancePage() {
             }
         }
         if (error) {
-            toast.error(error);
+            addToast({
+                title: "Error",
+                description: error,
+                color: "danger"
+            });
             dispatch(clearAttendanceStatus());
         }
     }, [success, error, dispatch, isAdmin, viewMode, currentMonth, filters]);

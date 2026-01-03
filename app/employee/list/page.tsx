@@ -30,11 +30,12 @@ import {
 import { User } from "@heroui/user";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
+import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
-    const { employees, loading, success } = useSelector(
+    const { employees, loading, success, error } = useSelector(
         (state: RootState) => state.Employee
     );
 
@@ -51,11 +52,24 @@ export default function EmployeeListPage() {
 
     useEffect(() => {
         if (success) {
+            addToast({
+                title: "Success",
+                description: success,
+                color: "success"
+            });
             onClose();
             onDeleteClose();
             dispatch(clearEmployeeDetails());
         }
-    }, [success, onClose, onDeleteClose, dispatch]);
+        if (error) {
+            addToast({
+                title: "Error",
+                description: typeof error === 'string' ? error : "Something went wrong",
+                color: "danger"
+            });
+            dispatch(clearEmployeeDetails());
+        }
+    }, [success, error, onClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");

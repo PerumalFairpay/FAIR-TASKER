@@ -89,6 +89,7 @@ export default function AddEditEmployeeDrawer({
     const [files, setFiles] = useState<{ profile_picture?: File; document_proof?: File }>({});
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
+    const [selectedTab, setSelectedTab] = useState<string>("personal");
 
     const toggleVisibility = () => setIsVisible(!isVisible);
     const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible);
@@ -103,9 +104,11 @@ export default function AddEditEmployeeDrawer({
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedEmployee) {
             setFormData({ ...selectedEmployee });
+            setSelectedTab("personal");
         } else if (isOpen && mode === "create") {
             setFormData({ status: "Active" }); // Default status
             setFiles({});
+            setSelectedTab("personal");
         }
     }, [isOpen, mode, selectedEmployee]);
 
@@ -159,6 +162,8 @@ export default function AddEditEmployeeDrawer({
                                 aria-label="Employee Details"
                                 color="primary"
                                 variant="solid"
+                                selectedKey={selectedTab}
+                                onSelectionChange={(key) => setSelectedTab(key as string)}
                                 classNames={{
                                     base: "w-full",
                                     tabList: "bg-default-100 p-1 rounded-xl w-full flex justify-between",
@@ -496,9 +501,21 @@ export default function AddEditEmployeeDrawer({
                             <Button color="danger" variant="light" onPress={onClose} fullWidth>
                                 Close
                             </Button>
-                            <Button color="primary" onPress={handleSubmit} isLoading={loading} fullWidth>
-                                {mode === "create" ? "Create Employee" : "Update Employee"}
-                            </Button>
+                            {selectedTab === "documents" ? (
+                                <Button color="primary" onPress={handleSubmit} isLoading={loading} fullWidth>
+                                    {mode === "create" ? "Create Employee" : "Update Employee"}
+                                </Button>
+                            ) : (
+                                <Button color="primary" onPress={() => {
+                                    const tabs = ["personal", "professional", "emergency", "documents"];
+                                    const currentIndex = tabs.indexOf(selectedTab);
+                                    if (currentIndex < tabs.length - 1) {
+                                        setSelectedTab(tabs[currentIndex + 1]);
+                                    }
+                                }} fullWidth>
+                                    Next
+                                </Button>
+                            )}
                         </DrawerFooter>
                     </>
                 )}
