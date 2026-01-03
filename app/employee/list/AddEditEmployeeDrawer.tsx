@@ -19,47 +19,6 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
 
-// Helper to build hierarchy for dropdown
-const buildDropdownOptions = (departments: any[]) => {
-    if (!departments) return [];
-
-    const map = new Map();
-    const roots: any[] = [];
-
-    // Create nodes
-    departments.forEach(dept => {
-        map.set(dept.id, { ...dept, children: [] });
-    });
-
-    // Build tree
-    departments.forEach(dept => {
-        const node = map.get(dept.id);
-        if (dept.parent_id && map.has(dept.parent_id)) {
-            map.get(dept.parent_id).children.push(node);
-        } else {
-            roots.push(node);
-        }
-    });
-
-    const options: any[] = [];
-
-    // Flatten with level
-    const traverse = (nodes: any[], level: number) => {
-        nodes.forEach(node => {
-            options.push({
-                ...node,
-                // Add prefix based on level for visual hierarchy
-                displayName: level > 0 ? `${".".repeat(level * 4)} ${node.name}` : node.name
-            });
-            if (node.children.length > 0) {
-                traverse(node.children, level + 1);
-            }
-        });
-    };
-
-    traverse(roots, 0);
-    return options;
-};
 
 interface AddEditEmployeeDrawerProps {
     isOpen: boolean;
@@ -82,14 +41,37 @@ export default function AddEditEmployeeDrawer({
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
 
-    // Compute formatted departments with hierarchy
-    const departmentOptions = useMemo(() => buildDropdownOptions(departments || []), [departments]);
-
     const [formData, setFormData] = useState<any>({});
     const [files, setFiles] = useState<{ profile_picture?: File; document_proof?: File }>({});
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
+
+    // Compute root departments
+    const rootDepartments = useMemo(() => {
+        return (departments || []).filter((dept: any) => !dept.parent_id);
+    }, [departments]);
+
+    // Compute designation options (descendants of selected root department)
+    const designationOptions = useMemo(() => {
+        if (!formData.department) return [];
+        const selectedRoot = rootDepartments.find((d: any) => d.name === formData.department);
+        if (!selectedRoot) return [];
+
+        const descendants: any[] = [];
+        const traverse = (parentId: any, level: number) => {
+            const children = (departments || []).filter((d: any) => d.parent_id === parentId);
+            children.forEach((child: any) => {
+                descendants.push({
+                    ...child,
+                    displayName: level > 0 ? `${".".repeat(level * 4)} ${child.name}` : child.name
+                });
+                traverse(child.id, level + 1);
+            });
+        };
+        traverse(selectedRoot.id, 0);
+        return descendants;
+    }, [formData.department, rootDepartments, departments]);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
     const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible);
@@ -103,16 +85,42 @@ export default function AddEditEmployeeDrawer({
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedEmployee) {
+            const allDepts = departments || [];
+            const currentDeptName = selectedEmployee.department;
+ 
+            const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
+
+            if (!isRoot && currentDeptName) {
+                const findRoot = (deptName: string): any => {
+                    const dept = allDepts.find((d: any) => d.name === deptName);
+                    if (dept && dept.parent_id) {
+                        const parent = allDepts.find((p: any) => p.id === dept.parent_id);
+                        if (parent) return findRoot(parent.name);
+                    }
+                    return dept;
+                };
+
+                const root = findRoot(currentDeptName);
+                if (root && root.name !== currentDeptName) {
+                    setFormData({
+                        ...selectedEmployee,
+                        department: root.name,
+                        designation: currentDeptName
+                    });
+                    setSelectedTab("personal");
+                    return;
+                }
+            }
+
             setFormData({ ...selectedEmployee });
             setSelectedTab("personal");
         } else if (isOpen && mode === "create") {
-            setFormData({ status: "Active" }); // Default status
+            setFormData({ status: "Active" }); 
             setFiles({});
             setSelectedTab("personal");
         }
-    }, [isOpen, mode, selectedEmployee]);
+    }, [isOpen, mode, selectedEmployee, departments, rootDepartments]);
 
-    // Auto-populate Full Name
     useEffect(() => {
         if (mode === "create" && formData.first_name && formData.last_name) {
             if (!formData.name) {
@@ -330,22 +338,32 @@ export default function AddEditEmployeeDrawer({
                                                 labelPlacement="outside"
                                                 variant="bordered"
                                                 selectedKeys={formData.department ? [formData.department] : []}
-                                                onChange={(e) => handleChange("department", e.target.value)}
+                                                onChange={(e) => {
+                                                    handleChange("department", e.target.value);
+                                                    handleChange("designation", ""); // Reset designation when department changes
+                                                }}
                                             >
-                                                {departmentOptions.map((dept: any) => (
+                                                {rootDepartments.map((dept: any) => (
                                                     <SelectItem key={dept.name} textValue={dept.name}>
-                                                        {dept.displayName}
+                                                        {dept.name}
                                                     </SelectItem>
                                                 ))}
                                             </Select>
-                                            <Input
+                                            <Select
                                                 label="Designation"
-                                                placeholder="Software Engineer"
+                                                placeholder="Select Designation"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                value={formData.designation || ""}
+                                                selectedKeys={formData.designation ? [formData.designation] : []}
                                                 onChange={(e) => handleChange("designation", e.target.value)}
-                                            />
+                                                isDisabled={!formData.department || designationOptions.length === 0}
+                                            >
+                                                {designationOptions.map((desig: any) => (
+                                                    <SelectItem key={desig.name} textValue={desig.name}>
+                                                        {desig.displayName}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
                                             <Select
                                                 label="Role"
                                                 placeholder="Select Role"

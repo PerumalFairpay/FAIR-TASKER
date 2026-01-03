@@ -113,7 +113,7 @@ export default function EmployeeListPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Employee table">
+            <Table aria-label="Employee table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
                     <TableColumn>ROLE</TableColumn>
