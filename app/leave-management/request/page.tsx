@@ -190,14 +190,16 @@ export default function LeaveRequestPage() {
                                                     Approve
                                                 </DropdownItem>
                                             )}
-                                            <DropdownItem
-                                                key="reject"
-                                                startContent={<XCircle size={16} className="text-danger" />}
-                                                onPress={() => handleStatusUpdate(item.id, "Rejected")}
-                                                className="text-danger"
-                                            >
-                                                Reject
-                                            </DropdownItem>
+                                            {hasPermission("leave:approve") && (
+                                                <DropdownItem
+                                                    key="reject"
+                                                    startContent={<XCircle size={16} className="text-danger" />}
+                                                    onPress={() => handleStatusUpdate(item.id, "Rejected")}
+                                                    className="text-danger"
+                                                >
+                                                    Reject
+                                                </DropdownItem>
+                                            )}
 
 
                                             <DropdownItem
