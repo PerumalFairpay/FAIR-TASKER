@@ -120,9 +120,18 @@ export default function AddEditLeaveRequestDrawer({
             } else if (newData.leave_duration_type === "Half Day") {
                 newData.end_date = newData.start_date;
                 newData.total_days = 0.5;
-            } else {
-                // Calculation logic for multiple days can be added here
-                // For now, simplicity
+            } else if (newData.leave_duration_type === "Multiple") {
+                try {
+                    const start = parseDate(newData.start_date);
+                    const end = parseDate(newData.end_date);
+                    const d1 = new Date(start.year, start.month - 1, start.day);
+                    const d2 = new Date(end.year, end.month - 1, end.day);
+                    const diffTime = d2.getTime() - d1.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    newData.total_days = diffDays > 0 ? diffDays : 0;
+                } catch (e) {
+                    // Keep existing total_days if calculation fails
+                }
             }
         }
 
@@ -255,6 +264,7 @@ export default function AddEditLeaveRequestDrawer({
                                 onChange={handleInputChange}
                                 variant="bordered"
                                 isRequired
+                                isDisabled
                             />
 
                             <Textarea
