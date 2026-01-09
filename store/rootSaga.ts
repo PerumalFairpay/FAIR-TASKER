@@ -19,6 +19,7 @@ import taskSaga from "./task/saga";
 import attendanceSaga from "./attendance/saga";
 import permissionSaga from "./permission/saga";
 import dashboardSaga from "./dashboard/saga";
+import profileSaga from "./profile/saga";
 
 
 
@@ -44,6 +45,7 @@ export default function* rootSaga() {
     fork(attendanceSaga),
     fork(permissionSaga),
     fork(dashboardSaga),
+    fork(profileSaga),
 
 
   ]);
