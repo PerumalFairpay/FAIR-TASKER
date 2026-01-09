@@ -142,8 +142,10 @@ export default function AddEditEmployeeDrawer({
 
     const handleSubmit = () => {
         const data = new FormData();
+        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof"];
+
         Object.keys(formData).forEach((key) => {
-            if (formData[key] !== null && formData[key] !== undefined) {
+            if (formData[key] !== null && formData[key] !== undefined && !excludedKeys.includes(key)) {
                 data.append(key, formData[key]);
             }
         });
