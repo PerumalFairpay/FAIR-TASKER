@@ -130,6 +130,7 @@ export default function LeaveRequestPage() {
                     <TableColumn>LEAVE TYPE</TableColumn>
                     <TableColumn>DURATION</TableColumn>
                     <TableColumn>DAYS</TableColumn>
+                    <TableColumn>REASON</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
@@ -175,6 +176,11 @@ export default function LeaveRequestPage() {
                                 <Chip variant="flat" size="sm" color="secondary">
                                     {item.total_days} {item.total_days === 1 ? "Day" : "Days"}
                                 </Chip>
+                            </TableCell>
+                            <TableCell>
+                                <span className="text-sm text-default-600">
+                                    {item.reason}
+                                </span>
                             </TableCell>
                             <TableCell>
                                 {item.status === "Rejected" && item.rejection_reason ? (
@@ -240,22 +246,26 @@ export default function LeaveRequestPage() {
                                                 </DropdownItem>
                                             )}
 
-                                            <DropdownItem
-                                                key="edit"
-                                                startContent={<PencilIcon size={16} />}
-                                                onPress={() => handleEdit(item)}
-                                            >
-                                                Edit
-                                            </DropdownItem>
+                                            {(user?.role !== "employee" || item.status === "Pending") && (
+                                                <DropdownItem
+                                                    key="edit"
+                                                    startContent={<PencilIcon size={16} />}
+                                                    onPress={() => handleEdit(item)}
+                                                >
+                                                    Edit
+                                                </DropdownItem>
+                                            )}
 
-                                            <DropdownItem
-                                                key="delete"
-                                                startContent={<TrashIcon size={16} />}
-                                                onPress={() => handleDelete(item.id)}
-                                                className="text-danger"
-                                            >
-                                                Delete
-                                            </DropdownItem>
+                                            {(user?.role !== "employee" || item.status === "Pending") && (
+                                                <DropdownItem
+                                                    key="delete"
+                                                    startContent={<TrashIcon size={16} />}
+                                                    onPress={() => handleDelete(item.id)}
+                                                    className="text-danger"
+                                                >
+                                                    Delete
+                                                </DropdownItem>
+                                            )}
                                         </DropdownMenu>
                                     </Dropdown>
                                 </div>
