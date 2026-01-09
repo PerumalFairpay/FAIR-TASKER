@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
+import { getUserRequest } from "@/store/auth/action";
 import { Badge } from "@heroui/badge";
 import { Upload } from "lucide-react";
 
@@ -41,6 +42,7 @@ export default function AddEditLeaveRequestDrawer({
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { leaveTypes } = useSelector((state: RootState) => state.LeaveType);
+    const { user } = useSelector((state: RootState) => state.Auth);
 
     const [formData, setFormData] = useState({
         employee_id: "",
@@ -58,8 +60,22 @@ export default function AddEditLeaveRequestDrawer({
         if (isOpen) {
             dispatch(getEmployeesRequest());
             dispatch(getLeaveTypesRequest());
+            if (!user) {
+                dispatch(getUserRequest());
+            }
         }
-    }, [isOpen, dispatch]);
+    }, [isOpen, dispatch, user]);
+
+    useEffect(() => {
+        if (isOpen && user?.role === "employee" && employees?.length > 0) {
+            const currentEmployee = employees.find(
+                (emp: any) => emp.id === user.employee_id || emp.email === user.email || emp.id === user.id
+            );
+            if (currentEmployee) {
+                setFormData((prev) => ({ ...prev, employee_id: currentEmployee.id }));
+            }
+        }
+    }, [isOpen, user, employees]);
 
     useEffect(() => {
         if (mode === "edit" && selectedRequest) {
@@ -159,6 +175,7 @@ export default function AddEditLeaveRequestDrawer({
                                 onSelectionChange={(keys) => handleSelectChange("employee_id", Array.from(keys)[0])}
                                 variant="bordered"
                                 isRequired
+                                isDisabled={user?.role === "employee"}
                             >
                                 {(employees || []).map((emp: any) => (
                                     <SelectItem key={emp.id} textValue={emp.name}>
