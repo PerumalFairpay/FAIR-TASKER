@@ -65,9 +65,9 @@ export const updateLeaveRequestFailure = (payload: any) => ({
 });
 
 // Update Leave Status
-export const updateLeaveStatusRequest = (id: string, status: string) => ({
+export const updateLeaveStatusRequest = (id: string, status: string, reason?: string) => ({
     type: UPDATE_LEAVE_STATUS_REQUEST,
-    payload: { id, status },
+    payload: { id, status, rejection_reason: reason },
 });
 export const updateLeaveStatusSuccess = (payload: any) => ({
     type: UPDATE_LEAVE_STATUS_SUCCESS,

@@ -8,6 +8,7 @@ import {
     DrawerBody,
     DrawerFooter,
 } from "@heroui/drawer";
+import { Alert } from "@heroui/alert";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
@@ -143,6 +144,14 @@ export default function AddEditLeaveRequestDrawer({
                             {mode === "create" ? "Apply for Leave" : "Edit Leave Request"}
                         </DrawerHeader>
                         <DrawerBody className="gap-4 pb-8">
+                            {mode === "edit" && selectedRequest?.status === "Rejected" && selectedRequest?.rejection_reason && (
+                                <Alert color="danger" title="Validation Error">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="font-semibold text-danger-600">Request Rejected</span>
+                                        <span className="text-sm">{selectedRequest.rejection_reason}</span>
+                                    </div>
+                                </Alert>
+                            )}
                             <Select
                                 label="Employee"
                                 placeholder="Select employee"

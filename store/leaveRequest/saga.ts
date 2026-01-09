@@ -40,9 +40,14 @@ function updateLeaveRequestApi(id: string, payload: FormData) {
     });
 }
 
-function updateLeaveStatusApi(id: string, status: string) {
-    return api.patch(`/leave-requests/status/${id}`, { status });
+function updateLeaveStatusApi(id: string, status: string, rejection_reason?: string) {
+    const data: any = { status };
+    if (rejection_reason) {
+        data.rejection_reason = rejection_reason;
+    }
+    return api.patch(`/leave-requests/status/${id}`, data);
 }
+
 
 function deleteLeaveRequestApi(id: string) {
     return api.delete(`/leave-requests/delete/${id}`);
@@ -104,8 +109,8 @@ function* onUpdateLeaveRequest({ payload }: any): SagaIterator {
 
 function* onUpdateLeaveStatus({ payload }: any): SagaIterator {
     try {
-        const { id, status } = payload;
-        const response = yield call(updateLeaveStatusApi, id, status);
+        const { id, status, rejection_reason } = payload;
+        const response = yield call(updateLeaveStatusApi, id, status, rejection_reason);
         if (response.data.success) {
             yield put(updateLeaveStatusSuccess(response.data));
         } else {

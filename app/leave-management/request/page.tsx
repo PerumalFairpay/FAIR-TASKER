@@ -31,7 +31,9 @@ import {
 import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import AddEditLeaveRequestDrawer from "./AddEditLeaveRequestDrawer";
+import RejectLeaveModal from "./RejectLeaveModal";
 import { User } from "@heroui/user";
+import { Tooltip } from "@heroui/tooltip";
 import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
 
 export default function LeaveRequestPage() {
@@ -40,8 +42,10 @@ export default function LeaveRequestPage() {
     const { hasPermission, user } = usePermissions();
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const { isOpen: isRejectOpen, onOpen: onRejectOpen, onOpenChange: onRejectOpenChange, onClose: onRejectClose } = useDisclosure();
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
+    const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
 
     useEffect(() => {
         dispatch(getLeaveRequestsRequest());
@@ -50,9 +54,10 @@ export default function LeaveRequestPage() {
     useEffect(() => {
         if (success) {
             onClose();
+            onRejectClose();
             dispatch(clearLeaveRequestDetails());
         }
-    }, [success, onClose, dispatch]);
+    }, [success, onClose, onRejectClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -68,6 +73,17 @@ export default function LeaveRequestPage() {
 
     const handleStatusUpdate = (id: string, status: string) => {
         dispatch(updateLeaveStatusRequest(id, status));
+    };
+
+    const handleRejectClick = (id: string) => {
+        setRejectRequestId(id);
+        onRejectOpen();
+    };
+
+    const handleRejectConfirm = (reason: string) => {
+        if (rejectRequestId) {
+            dispatch(updateLeaveStatusRequest(rejectRequestId, "Rejected", reason));
+        }
     };
 
     const handleDelete = (id: string) => {
@@ -161,15 +177,38 @@ export default function LeaveRequestPage() {
                                 </Chip>
                             </TableCell>
                             <TableCell>
-                                <Chip
-                                    color={getStatusColor(item.status)}
-                                    size="sm"
-                                    variant="flat"
-                                    startContent={getStatusIcon(item.status)}
-                                    className="gap-1 px-2 font-medium"
-                                >
-                                    {item.status}
-                                </Chip>
+                                {item.status === "Rejected" && item.rejection_reason ? (
+                                    <Tooltip
+                                        content={item.rejection_reason}
+                                        color="danger"
+                                        closeDelay={0}
+                                        classNames={{
+                                            content: "max-w-xs"
+                                        }}
+                                    >
+                                        <div className="cursor-help">
+                                            <Chip
+                                                color={getStatusColor(item.status)}
+                                                size="sm"
+                                                variant="flat"
+                                                startContent={getStatusIcon(item.status)}
+                                                className="gap-1 px-2 font-medium"
+                                            >
+                                                {item.status}
+                                            </Chip>
+                                        </div>
+                                    </Tooltip>
+                                ) : (
+                                    <Chip
+                                        color={getStatusColor(item.status)}
+                                        size="sm"
+                                        variant="flat"
+                                        startContent={getStatusIcon(item.status)}
+                                        className="gap-1 px-2 font-medium"
+                                    >
+                                        {item.status}
+                                    </Chip>
+                                )}
                             </TableCell>
                             <TableCell>
                                 <div className="flex items-center justify-center gap-2">
@@ -194,13 +233,12 @@ export default function LeaveRequestPage() {
                                                 <DropdownItem
                                                     key="reject"
                                                     startContent={<XCircle size={16} className="text-danger" />}
-                                                    onPress={() => handleStatusUpdate(item.id, "Rejected")}
+                                                    onPress={() => handleRejectClick(item.id)}
                                                     className="text-danger"
                                                 >
                                                     Reject
                                                 </DropdownItem>
                                             )}
-
 
                                             <DropdownItem
                                                 key="edit"
@@ -210,7 +248,6 @@ export default function LeaveRequestPage() {
                                                 Edit
                                             </DropdownItem>
 
-
                                             <DropdownItem
                                                 key="delete"
                                                 startContent={<TrashIcon size={16} />}
@@ -219,7 +256,6 @@ export default function LeaveRequestPage() {
                                             >
                                                 Delete
                                             </DropdownItem>
-
                                         </DropdownMenu>
                                     </Dropdown>
                                 </div>
@@ -242,6 +278,13 @@ export default function LeaveRequestPage() {
                         dispatch(updateLeaveRequestRequest(selectedRequest.id, data));
                     }
                 }}
+            />
+
+            <RejectLeaveModal
+                isOpen={isRejectOpen}
+                onOpenChange={onRejectOpenChange}
+                onConfirm={handleRejectConfirm}
+                loading={loading}
             />
         </div>
     );
