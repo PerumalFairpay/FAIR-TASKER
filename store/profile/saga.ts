@@ -45,9 +45,7 @@ function* onUpdateProfile({ payload }: any): SagaIterator {
     try {
         const response = yield call(updateProfileApi, payload);
         if (response.data.success) {
-            yield put(updateProfileSuccess(response.data));
-            // Optional: Refetch profile to ensure data consistency
-            yield put({ type: GET_PROFILE_REQUEST });
+            yield put(updateProfileSuccess(response.data)); 
         } else {
             yield put(updateProfileFailure(response.data.message || "Failed to update profile"));
         }
