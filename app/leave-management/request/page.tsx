@@ -26,7 +26,7 @@ import {
     PlusIcon, PencilIcon, TrashIcon,
     Calendar, CheckCircle2, XCircle,
     Clock, User as UserIcon, FileText,
-    MoreVertical, Eye
+    MoreVertical, Eye, Paperclip
 } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
@@ -131,6 +131,7 @@ export default function LeaveRequestPage() {
                     <TableColumn>DURATION</TableColumn>
                     <TableColumn>DAYS</TableColumn>
                     <TableColumn>REASON</TableColumn>
+                    <TableColumn>ATTACHMENT</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
@@ -181,6 +182,23 @@ export default function LeaveRequestPage() {
                                 <span className="text-sm text-default-600">
                                     {item.reason}
                                 </span>
+                            </TableCell>
+                            <TableCell>
+                                {item.attachment && (
+                                    <Tooltip content="View Attachment">
+                                        <Button
+                                            isIconOnly
+                                            size="sm"
+                                            variant="light"
+                                            as="a"
+                                            href={item.attachment}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <Paperclip size={18} className="text-primary" />
+                                        </Button>
+                                    </Tooltip>
+                                )}
                             </TableCell>
                             <TableCell>
                                 {item.status === "Rejected" && item.rejection_reason ? (
