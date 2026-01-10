@@ -535,8 +535,8 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                             {/* Icon */}
                                             <div className="relative z-10 flex-shrink-0">
                                                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border transaction-all duration-300 group-hover:scale-110 ${isTask
-                                                        ? 'bg-blue-50 border-blue-100 text-blue-500'
-                                                        : 'bg-emerald-50 border-emerald-100 text-emerald-500'
+                                                    ? 'bg-blue-50 border-blue-100 text-blue-500'
+                                                    : 'bg-emerald-50 border-emerald-100 text-emerald-500'
                                                     }`}>
                                                     {isTask ? <CheckCircle size={14} strokeWidth={2.5} /> : <Calendar size={14} strokeWidth={2.5} />}
                                                 </div>
