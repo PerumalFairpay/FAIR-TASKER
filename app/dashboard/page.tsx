@@ -20,9 +20,9 @@ export default function Dashboard() {
 
     return (
         <div className="p-6 min-h-screen">
-            <div className="mb-6">
+            {/* <div className="mb-6">
                 <PageHeader title="Dashboard" />
-            </div>
+            </div> */}
 
             {loading ? (
                 <div className="flex h-[50vh] items-center justify-center">

@@ -99,7 +99,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-green-50/40 p-4 sm:p-6 lg:p-8 font-sans text-slate-800">
+        <div className="min-h-screen bg-default-50/50 p-4 sm:p-6 lg:p-8 font-sans text-slate-800">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
@@ -146,13 +146,13 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </Card>
 
                     {/* Work Hours Widget */}
-                    <Card className="shadow-sm border border-green-100/50 bg-white h-auto">
+                    <Card className="shadow-sm border border-default-100 bg-white h-auto">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800">Time Tracker</h3>
                                 <p className="text-xs text-slate-400">Work efficiency metrics</p>
                             </div>
-                            <div className="p-2 bg-green-50 rounded-full text-green-600">
+                            <div className="p-2 bg-primary-50 rounded-full text-primary">
                                 <Clock size={20} />
                             </div>
                         </CardHeader>
@@ -162,10 +162,10 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                     {/* Circular Progress Placeholder - CSS based or SVG */}
                                     <svg className="w-full h-full transform -rotate-90">
                                         <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" />
-                                        <circle cx="64" cy="64" r="56" stroke="#22c55e" strokeWidth="12" fill="none"
+                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
                                             strokeDasharray={351}
                                             strokeDashoffset={351 - (351 * (data.work_hours.today / 9))} /* Assuming 9h workday */
-                                            className="transition-all duration-1000 ease-out"
+                                            className="transition-all duration-1000 ease-out text-primary"
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
@@ -198,7 +198,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     <div className="grid grid-cols-2 gap-4">
                         <Card className="shadow-sm border-none bg-white p-4 flex flex-col justify-between">
                             <div className="flex justify-between items-start">
-                                <div className="p-2 rounded-lg bg-green-100 text-green-600">
+                                <div className="p-2 rounded-lg bg-primary-100 text-primary">
                                     <CheckCircle size={18} />
                                 </div>
                                 <span className="text-2xl font-bold text-slate-800">{data.attendance_metrics.present_days}</span>
@@ -227,7 +227,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </div>
 
                     {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-none border-none bg-[#e8f5e9] relative overflow-visible h-[620px] rounded-[40px]">
+                    <Card className="shadow-none border-none bg-primary-50 relative overflow-visible h-[620px] rounded-[40px]">
                         {/* Top Section: Overview */}
                         <div className="px-8 pt-8 pb-4">
                             <div className="flex justify-between items-start mb-6">
@@ -247,12 +247,12 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                         {/* Background Track */}
                                         <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" />
 
-                                        {/* Completed Segment (Green) */}
-                                        <circle cx="64" cy="64" r="56" stroke="#4ade80" strokeWidth="12" fill="none"
+                                        {/* Completed Segment */}
+                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
                                             strokeDasharray={351}
                                             strokeDashoffset={351 - (351 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out"
+                                            className="transition-all duration-1000 ease-out text-primary"
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -346,7 +346,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                         {/* Status Check */}
                                         <div>
                                             {task.status.toLowerCase() === 'completed' ? (
-                                                <div className="w-5 h-5 rounded-full bg-[#4ade80] flex items-center justify-center shadow-[0_0_10px_rgba(74,222,128,0.4)]">
+                                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]">
                                                     <CheckCircle size={12} className="text-[#1c1c1e] fill-current" />
                                                 </div>
                                             ) : task.status.toLowerCase() === 'in progress' ? (
@@ -364,10 +364,10 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </Card>
 
                     {/* Leave Balance Section */}
-                    <Card className="shadow-sm border border-green-100/50 bg-white">
+                    <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between px-6 pt-6">
                             <h3 className="text-lg font-bold text-slate-800">Leave Balance</h3>
-                            <Button size="sm" variant="light" className="text-green-600 font-medium p-0 h-auto">View All</Button>
+                            <Button size="sm" variant="light" className="text-primary font-medium p-0 h-auto">View All</Button>
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-5">
                             <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -377,7 +377,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                 </div>
                                 <div className="w-[1px] h-8 bg-slate-200"></div>
                                 <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-green-600">{data.leave_details.summary.total_remaining}</p>
+                                    <p className="text-2xl font-bold text-primary">{data.leave_details.summary.total_remaining}</p>
                                     <p className="text-[10px] text-slate-500 uppercase font-bold">Left</p>
                                 </div>
                                 <div className="w-[1px] h-8 bg-slate-200"></div>
@@ -396,11 +396,11 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                         </div>
                                         <Progress
                                             value={(item.balance / item.total) * 100}
-                                            color="success"
+                                            color="primary"
                                             size="sm"
                                             className="h-2"
                                             classNames={{
-                                                indicator: "bg-gradient-to-r from-green-400 to-emerald-500"
+                                                indicator: "bg-primary"
                                             }}
                                         />
                                     </div>
@@ -412,12 +412,12 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                 <div className="mt-4 pt-4 border-t border-slate-100">
                                     <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Recent Request</p>
                                     {data.leave_details.recent_requests_status.slice(0, 1).map((req, i) => (
-                                        <div key={i} className="flex justify-between items-center bg-green-50/50 p-2 rounded-lg">
+                                        <div key={i} className="flex justify-between items-center bg-primary-50 p-2 rounded-lg">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-medium text-slate-700">{req.type}</span>
                                                 <span className="text-[10px] text-slate-500">{new Date(req.date).toLocaleDateString()}</span>
                                             </div>
-                                            <Chip size="sm" variant="flat" className="bg-white text-green-700 font-bold shadow-sm h-6">
+                                            <Chip size="sm" variant="flat" className="bg-white text-primary font-bold shadow-sm h-6">
                                                 {req.status}
                                             </Chip>
                                         </div>
@@ -434,7 +434,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                 <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
 
                     {/* Projects List */}
-                    <Card className="shadow-sm border border-green-100/50 bg-white">
+                    <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="px-5 pt-5 pb-0">
                             <h3 className="font-bold text-slate-800">Active Projects</h3>
                         </CardHeader>
@@ -442,7 +442,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                             <div className="space-y-3">
                                 {data.projects.map((project, i) => (
                                     <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div className="w-2 h-10 rounded-full bg-indigo-500"></div>
+                                        <div className="w-2 h-10 rounded-full bg-primary"></div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-semibold text-sm text-slate-800 truncate">{project.name}</p>
                                             <p className="text-xs text-slate-500">{project.role}</p>
@@ -478,34 +478,34 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </Card>
 
                     {/* Upcoming Holidays (List) */}
-                    <Card className="shadow-sm border-none bg-gradient-to-r from-emerald-50 to-green-50">
+                    <Card className="shadow-sm border-none bg-gradient-to-r from-primary-50 to-default-50">
                         <CardHeader className="flex gap-3 px-5 pt-5 pb-1">
                             <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <Calendar size={18} className="text-emerald-600" />
+                                <Calendar size={18} className="text-primary" />
                             </div>
-                            <h3 className="text-sm font-bold text-emerald-900 uppercase tracking-wide flex items-center">Upcoming Holidays</h3>
+                            <h3 className="text-sm font-bold text-primary-900 uppercase tracking-wide flex items-center">Upcoming Holidays</h3>
                         </CardHeader>
                         <CardBody className="px-5 pb-5 pt-1 space-y-2">
                             {data.upcoming_holidays.length > 0 ? (
                                 data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
-                                    <div key={idx} className="flex flex-row items-center justify-between border-b border-emerald-100/50 last:border-0 pb-2 last:pb-0 pt-2">
+                                    <div key={idx} className="flex flex-row items-center justify-between border-b border-primary-100/50 last:border-0 pb-2 last:pb-0 pt-2">
                                         <div className="flex flex-col">
-                                            <p className="text-sm font-semibold text-emerald-900">{holiday.name}</p>
-                                            <p className="text-[10px] text-emerald-700 opacity-80">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                            <p className="text-sm font-semibold text-primary-900">{holiday.name}</p>
+                                            <p className="text-[10px] text-primary-700 opacity-80">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
                                         </div>
-                                        <Chip size="sm" className="bg-white text-emerald-700 font-bold shadow-sm h-7 border border-emerald-100">
+                                        <Chip size="sm" className="bg-white text-primary font-bold shadow-sm h-7 border border-primary-100">
                                             {new Date(holiday.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                                         </Chip>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-sm text-emerald-800">No upcoming holidays</p>
+                                <p className="text-sm text-primary-800">No upcoming holidays</p>
                             )}
                         </CardBody>
                     </Card>
 
                     {/* Recent Activity Feed */}
-                    <Card className="shadow-sm border border-green-100/50 bg-white flex-1">
+                    <Card className="shadow-sm border border-default-100 bg-white flex-1">
                         <CardHeader className="px-5 pt-5 pb-0">
                             <h3 className="font-bold text-slate-800">Recent Activity</h3>
                         </CardHeader>
@@ -513,7 +513,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                             <div className="relative border-l border-slate-200 ml-1.5 space-y-6 my-2">
                                 {data.recent_activity.map((act, i) => (
                                     <div key={i} className="ml-5 relative">
-                                        <div className={`absolute -left-[25px] top-1 w-3 h-3 rounded-full border-2 border-white shadow-sm ${act.type === 'task' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                                        <div className={`absolute -left-[25px] top-1 w-3 h-3 rounded-full border-2 border-white shadow-sm ${act.type === 'task' ? 'bg-blue-500' : 'bg-primary'}`}></div>
                                         <p className="text-sm text-slate-700 leading-tight">{act.message}</p>
                                         <span className="text-[10px] text-slate-400 mt-1 block">{act.time}</span>
                                     </div>
