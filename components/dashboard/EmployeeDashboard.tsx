@@ -187,29 +187,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Upcoming Holidays (Compact) */}
-                    <Card className="shadow-sm border-none bg-gradient-to-r from-emerald-50 to-green-50">
-                        <CardBody className="flex flex-row items-center justify-between p-5">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-white rounded-lg shadow-sm">
-                                    <Calendar size={18} className="text-emerald-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-emerald-600 font-bold uppercase">Next Holiday</p>
-                                    {data.upcoming_holidays.length > 0 ? (
-                                        <p className="text-sm font-semibold text-emerald-900">{data.upcoming_holidays[0].name}</p>
-                                    ) : (
-                                        <p className="text-sm text-emerald-800">No upcoming holidays</p>
-                                    )}
-                                </div>
-                            </div>
-                            {data.upcoming_holidays.length > 0 && (
-                                <Chip size="sm" className="bg-white text-emerald-700 font-bold shadow-sm">
-                                    {new Date(data.upcoming_holidays[0].date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                </Chip>
-                            )}
-                        </CardBody>
-                    </Card>
+
                 </div>
 
 
@@ -496,6 +474,33 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                 </div>
                             ))}
                             {data.birthdays.length === 0 && <p className="text-xs text-slate-500 italic">No upcoming birthdays.</p>}
+                        </CardBody>
+                    </Card>
+
+                    {/* Upcoming Holidays (List) */}
+                    <Card className="shadow-sm border-none bg-gradient-to-r from-emerald-50 to-green-50">
+                        <CardHeader className="flex gap-3 px-5 pt-5 pb-1">
+                            <div className="p-2 bg-white rounded-lg shadow-sm">
+                                <Calendar size={18} className="text-emerald-600" />
+                            </div>
+                            <h3 className="text-sm font-bold text-emerald-900 uppercase tracking-wide flex items-center">Upcoming Holidays</h3>
+                        </CardHeader>
+                        <CardBody className="px-5 pb-5 pt-1 space-y-2">
+                            {data.upcoming_holidays.length > 0 ? (
+                                data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
+                                    <div key={idx} className="flex flex-row items-center justify-between border-b border-emerald-100/50 last:border-0 pb-2 last:pb-0 pt-2">
+                                        <div className="flex flex-col">
+                                            <p className="text-sm font-semibold text-emerald-900">{holiday.name}</p>
+                                            <p className="text-[10px] text-emerald-700 opacity-80">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                        </div>
+                                        <Chip size="sm" className="bg-white text-emerald-700 font-bold shadow-sm h-7 border border-emerald-100">
+                                            {new Date(holiday.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                        </Chip>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-emerald-800">No upcoming holidays</p>
+                            )}
                         </CardBody>
                     </Card>
 
