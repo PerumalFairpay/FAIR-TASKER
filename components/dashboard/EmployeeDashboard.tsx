@@ -183,6 +183,72 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                         </CardBody>
                     </Card>
 
+                    {/* Leave Balance Section */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between px-6 pt-6">
+                            <h3 className="text-lg font-bold text-slate-800">Leave Balance</h3>
+                            <Button size="sm" variant="light" className="text-primary font-medium p-0 h-auto">View All</Button>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-5">
+                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                <div className="text-center px-2">
+                                    <p className="text-2xl font-bold text-slate-800">{data.leave_details.summary.total_allowed}</p>
+                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Total</p>
+                                </div>
+                                <div className="w-[1px] h-8 bg-slate-200"></div>
+                                <div className="text-center px-2">
+                                    <p className="text-2xl font-bold text-primary">{data.leave_details.summary.total_remaining}</p>
+                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Left</p>
+                                </div>
+                                <div className="w-[1px] h-8 bg-slate-200"></div>
+                                <div className="text-center px-2">
+                                    <p className="text-2xl font-bold text-slate-800">{data.leave_details.summary.total_taken}</p>
+                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Used</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {data.leave_details.balance.map((item, idx) => (
+                                    <div key={idx}>
+                                        <div className="flex justify-between mb-1.5">
+                                            <span className="text-sm font-semibold text-slate-700">{item.type}</span>
+                                            <span className="text-xs text-slate-500">{item.balance}/{item.total} Remaining</span>
+                                        </div>
+                                        <Progress
+                                            value={(item.balance / item.total) * 100}
+                                            color="primary"
+                                            size="sm"
+                                            className="h-2"
+                                            classNames={{
+                                                indicator: "bg-primary"
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Recent Leave Request Status */}
+                            {data.leave_details.recent_requests_status.length > 0 && (
+                                <div className="mt-4 pt-4 border-t border-slate-100">
+                                    <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Recent Requests</p>
+                                    <div className="space-y-2">
+                                        {data.leave_details.recent_requests_status.slice(0, 3).map((req, i) => (
+                                            <div key={i} className="flex justify-between items-center bg-primary-50 p-2 rounded-lg">
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-medium text-slate-700">{req.type}</span>
+                                                    <span className="text-[10px] text-slate-500">{new Date(req.date).toLocaleDateString()}</span>
+                                                </div>
+                                                <Chip size="sm" variant="flat" className="bg-white text-primary font-bold shadow-sm h-6">
+                                                    {req.status}
+                                                </Chip>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+
 
                 </div>
 
@@ -367,69 +433,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                         </div>
                     </Card>
 
-                    {/* Leave Balance Section */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
-                        <CardHeader className="flex justify-between px-6 pt-6">
-                            <h3 className="text-lg font-bold text-slate-800">Leave Balance</h3>
-                            <Button size="sm" variant="light" className="text-primary font-medium p-0 h-auto">View All</Button>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-5">
-                            <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800">{data.leave_details.summary.total_allowed}</p>
-                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Total</p>
-                                </div>
-                                <div className="w-[1px] h-8 bg-slate-200"></div>
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-primary">{data.leave_details.summary.total_remaining}</p>
-                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Left</p>
-                                </div>
-                                <div className="w-[1px] h-8 bg-slate-200"></div>
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800">{data.leave_details.summary.total_taken}</p>
-                                    <p className="text-[10px] text-slate-500 uppercase font-bold">Used</p>
-                                </div>
-                            </div>
 
-                            <div className="space-y-4">
-                                {data.leave_details.balance.map((item, idx) => (
-                                    <div key={idx}>
-                                        <div className="flex justify-between mb-1.5">
-                                            <span className="text-sm font-semibold text-slate-700">{item.type}</span>
-                                            <span className="text-xs text-slate-500">{item.balance}/{item.total} Remaining</span>
-                                        </div>
-                                        <Progress
-                                            value={(item.balance / item.total) * 100}
-                                            color="primary"
-                                            size="sm"
-                                            className="h-2"
-                                            classNames={{
-                                                indicator: "bg-primary"
-                                            }}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Recent Leave Request Status */}
-                            {data.leave_details.recent_requests_status.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-slate-100">
-                                    <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Recent Request</p>
-                                    {data.leave_details.recent_requests_status.slice(0, 1).map((req, i) => (
-                                        <div key={i} className="flex justify-between items-center bg-primary-50 p-2 rounded-lg">
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-medium text-slate-700">{req.type}</span>
-                                                <span className="text-[10px] text-slate-500">{new Date(req.date).toLocaleDateString()}</span>
-                                            </div>
-                                            <Chip size="sm" variant="flat" className="bg-white text-primary font-bold shadow-sm h-6">
-                                                {req.status}
-                                            </Chip>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardBody>
-                    </Card>
 
                 </div>
 
@@ -438,18 +442,32 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                 <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
 
                     {/* Projects List */}
+
                     <Card className="shadow-sm border border-default-100 bg-white">
-                        <CardHeader className="px-5 pt-5 pb-0">
-                            <h3 className="font-bold text-slate-800">Active Projects</h3>
+                        <CardHeader className="flex gap-3 px-5 pt-5 pb-2">
+                            <div className="p-2 bg-primary-50 rounded-lg text-primary">
+                                <Briefcase size={18} />
+                            </div>
+                            <h3 className="font-bold text-slate-800 pt-1">Active Projects</h3>
                         </CardHeader>
                         <CardBody className="px-5 py-4">
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {data.projects.map((project, i) => (
-                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                        <div className="w-2 h-10 rounded-full bg-primary"></div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-sm text-slate-800 truncate">{project.name}</p>
-                                            <p className="text-xs text-slate-500">{project.role}</p>
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-sm">
+                                                {project.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-sm text-slate-800 leading-none">{project.name}</p>
+                                                <p className="text-xs text-slate-400 mt-1">{project.role}</p>
+                                            </div>
+                                        </div>
+                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 text-blue-600' :
+                                                project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 text-emerald-600' :
+                                                    'bg-slate-50 text-slate-500'
+                                            }`}>
+                                            {project.status}
                                         </div>
                                     </div>
                                 ))}
@@ -482,28 +500,34 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </Card>
 
                     {/* Upcoming Holidays (List) */}
-                    <Card className="shadow-sm border-none bg-gradient-to-r from-primary-50 to-default-50">
-                        <CardHeader className="flex gap-3 px-5 pt-5 pb-1">
-                            <div className="p-2 bg-white rounded-lg shadow-sm">
-                                <Calendar size={18} className="text-primary" />
+                    {/* Upcoming Holidays */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary-50 rounded-xl text-primary">
+                                    <Calendar size={18} />
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Upcoming Holidays</h3>
                             </div>
-                            <h3 className="text-sm font-bold text-primary-900 uppercase tracking-wide flex items-center">Upcoming Holidays</h3>
                         </CardHeader>
-                        <CardBody className="px-5 pb-5 pt-1 space-y-2">
+                        <CardBody className="px-5 pb-5 pt-2 space-y-4">
                             {data.upcoming_holidays.length > 0 ? (
                                 data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
-                                    <div key={idx} className="flex flex-row items-center justify-between border-b border-primary-100/50 last:border-0 pb-2 last:pb-0 pt-2">
-                                        <div className="flex flex-col">
-                                            <p className="text-sm font-semibold text-primary-900">{holiday.name}</p>
-                                            <p className="text-[10px] text-primary-700 opacity-80">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                    <div key={idx} className="flex items-center gap-4 group cursor-default">
+                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 text-primary border border-primary-100 group-hover:bg-primary group-hover:text-white group-hover:shadow-md transition-all duration-300">
+                                            <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                            <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
                                         </div>
-                                        <Chip size="sm" className="bg-white text-primary font-bold shadow-sm h-7 border border-primary-100">
-                                            {new Date(holiday.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                        </Chip>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-bold text-slate-700 truncate group-hover:text-primary transition-colors">{holiday.name}</p>
+                                            <p className="text-[11px] text-slate-500 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                        </div>
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-sm text-primary-800">No upcoming holidays</p>
+                                <div className="py-2 text-center">
+                                    <p className="text-sm text-slate-400 italic">No upcoming holidays</p>
+                                </div>
                             )}
                         </CardBody>
                     </Card>
