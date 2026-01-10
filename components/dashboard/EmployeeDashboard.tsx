@@ -297,7 +297,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                     </Card>
 
                     {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-none border-none bg-primary-50 relative overflow-visible h-[620px] rounded-[40px]">
+                    <Card className="shadow-none border-none bg-primary-50 relative overflow-visible min-h-[620px] rounded-[40px] flex flex-col">
                         {/* Top Section: Overview */}
                         <div className="px-8 pt-8 pb-4">
                             <div className="flex justify-between items-start mb-6">
@@ -377,7 +377,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                         </div>
 
                         {/* Bottom Section: Dark Task Card */}
-                        <div className="absolute bottom-2 left-2 right-2 top-[320px] bg-[#1c1c1e] rounded-[36px] p-6 text-white overflow-hidden flex flex-col shadow-2xl">
+                        <div className="bg-[#1c1c1e] rounded-[36px] p-6 text-white flex flex-col shadow-2xl mx-2 mb-2 flex-1 mt-auto">
                             {/* Header */}
                             <div className="flex justify-between items-end mb-6 mt-1 px-1">
                                 <h3 className="text-xl font-light text-slate-200">My Tasks</h3>
@@ -387,7 +387,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                             </div>
 
                             {/* Task List */}
-                            <div className="flex-1 overflow-y-auto space-y-5 pr-1 custom-scrollbar">
+                            <div className="space-y-5 pr-1">
                                 {data.recent_tasks.slice(0, 5).map((task, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group cursor-default">
                                         {/* Icon Circle */}
@@ -464,8 +464,8 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                                             </div>
                                         </div>
                                         <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 text-blue-600' :
-                                                project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 text-emerald-600' :
-                                                    'bg-slate-50 text-slate-500'
+                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 text-emerald-600' :
+                                                'bg-slate-50 text-slate-500'
                                             }`}>
                                             {project.status}
                                         </div>
