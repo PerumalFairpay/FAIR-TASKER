@@ -312,51 +312,106 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-8 mb-6">
-                                {/* Circular Chart (SVG) */}
-                                <div className="relative w-32 h-32 flex-shrink-0">
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        {/* Background Track */}
-                                        <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" />
-
-                                        {/* Completed Segment */}
-                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
-                                            strokeDasharray={351}
-                                            strokeDashoffset={351 - (351 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
+                            <div className="flex items-center justify-around gap-2 mb-8 mt-2">
+                                {/* Activity Rings Chart */}
+                                <div className="relative w-44 h-44 flex-shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
+                                        {/* --- Ring 1: Completed (Outer) --- */}
+                                        {/* Background */}
+                                        <circle cx="88" cy="88" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30" />
+                                        {/* Progress */}
+                                        <circle
+                                            cx="88" cy="88" r="80"
+                                            stroke="#10b981"
+                                            strokeWidth="10"
+                                            fill="none"
+                                            strokeDasharray={502} // 2 * pi * 80
+                                            strokeDashoffset={502 - (502 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out text-primary"
+                                            className="transition-all duration-1000 ease-out"
+                                        />
+
+                                        {/* --- Ring 2: Pending (Middle) --- */}
+                                        {/* Background */}
+                                        <circle cx="88" cy="88" r="60" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30" />
+                                        {/* Progress */}
+                                        <circle
+                                            cx="88" cy="88" r="60"
+                                            stroke="#f97316" // Orange for visibility
+                                            strokeWidth="10"
+                                            fill="none"
+                                            strokeDasharray={377} // 2 * pi * 60
+                                            strokeDashoffset={377 - (377 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
+                                        />
+
+                                        {/* --- Ring 3: In Progress (Inner) --- */}
+                                        {/* Background */}
+                                        <circle cx="88" cy="88" r="40" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30" />
+                                        {/* Progress */}
+                                        <circle
+                                            cx="88" cy="88" r="40"
+                                            stroke="#3b82f6"
+                                            strokeWidth="10"
+                                            fill="none"
+                                            strokeDasharray={251} // 2 * pi * 40
+                                            strokeDashoffset={251 - (251 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
                                         />
                                     </svg>
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-3xl font-bold text-slate-800">
-                                            {Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%
-                                        </span>
-                                        <span className="text-[10px] uppercase font-bold text-slate-400">Done</span>
+
+                                    {/* Central Icon */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="bg-white p-3 rounded-full shadow-sm text-primary">
+                                            <Briefcase size={20} fill="currentColor" className="text-primary/20" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Legend / Stats */}
-                                <div className="flex-1 space-y-4">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                            <span className="text-sm font-medium text-slate-600">In Progress</span>
+                                {/* Legend Stats */}
+                                <div className="flex flex-col gap-4 min-w-[140px]">
+                                    {/* Completed (Outer) */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Completed</span>
+                                            <span className="text-sm font-bold text-slate-800">{data.task_metrics.completed}</span>
                                         </div>
-                                        <span className="text-sm font-bold text-slate-800">{data.task_metrics.in_progress}</span>
-                                    </div>
-                                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1.5 bg-emerald-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-emerald-600 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                        </div>
                                     </div>
 
-                                    <div className="flex justify-between items-center pt-1">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                            <span className="text-sm font-medium text-slate-600">Pending</span>
+                                    {/* Pending (Middle) */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Pending</span>
+                                            <span className="text-sm font-bold text-slate-800">{data.task_metrics.pending}</span>
                                         </div>
-                                        <span className="text-sm font-bold text-slate-800">{data.task_metrics.pending}</span>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-orange-600 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                        </div>
                                     </div>
-                                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+
+                                    {/* In Progress (Inner) */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">In Progress</span>
+                                            <span className="text-sm font-bold text-slate-800">{data.task_metrics.in_progress}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-blue-600 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
