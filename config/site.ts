@@ -196,6 +196,12 @@ export const siteConfig: SiteConfig = {
       icon: "Newspaper",
       allowedRoles: ["admin"],
     },
+    {
+      label: "Feeds",
+      href: "/feeds",
+      icon: "Rss", // Using Rss icon for feeds
+      allowedRoles: ["admin", "employee"],
+    },
   ],
 
   navMenuItems: [

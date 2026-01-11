@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Progress } from "@heroui/progress";
 import { User } from "@heroui/user";
@@ -428,7 +429,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             <p className="text-[10px] text-red-600 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
                                         </div>
                                     </div>
-                                    
+
                                 </div>
                             )}
                         </div>
@@ -696,54 +697,59 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-center px-1">
                                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
-
+                                <Link href="/feeds" className="text-xs font-bold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
+                                    View All
+                                    <ArrowUpRight size={14} />
+                                </Link>
                             </div>
 
                             {blogs.slice(0, 3).map((blog, i) => (
-                                <Card
-                                    key={i}
-                                    className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group"
-                                    style={{
-                                        borderRadius: "24px",
-                                        boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
-                                    }}
-                                >
-                                    {/* Card Image Area */}
-                                    <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
-                                        <Image
-                                            removeWrapper
-                                            alt={blog.title}
-                                            className="w-full h-full object-cover"
-                                            src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
-                                        />
-                                        {/* Status Only if needed, maybe skip for dashboard or keep minimal */}
-                                    </div>
-
-                                    <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
-                                        <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
-                                            {blog.title}
-                                        </h2>
-                                        <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
-                                            {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
-                                        </p>
-                                    </CardBody>
-
-                                    <CardFooter className="px-3 pb-2 pt-0">
-                                        <div className="flex items-center gap-2">
-                                            <Avatar
-                                                src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
-                                                name={blog.author?.name || "Admin"}
-                                                className="w-5 h-5 text-[9px]"
+                                <Link href={`/feeds/${blog.id}`} key={i} className="block group">
+                                    <Card
+                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
+                                        style={{
+                                            borderRadius: "24px",
+                                            boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
+                                        }}
+                                        isPressable={false}
+                                    >
+                                        {/* Card Image Area */}
+                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
+                                            <Image
+                                                removeWrapper
+                                                alt={blog.title}
+                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ease-out"
+                                                src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
                                             />
-                                            <span className="text-[10px] font-medium text-slate-400">
-                                                {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric'
-                                                })}
-                                            </span>
+                                            {/* Status Only if needed, maybe skip for dashboard or keep minimal */}
                                         </div>
-                                    </CardFooter>
-                                </Card>
+
+                                        <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
+                                            <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
+                                                {blog.title}
+                                            </h2>
+                                            <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                                                {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
+                                            </p>
+                                        </CardBody>
+
+                                        <CardFooter className="px-3 pb-2 pt-0">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar
+                                                    src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                                    name={blog.author?.name || "Admin"}
+                                                    className="w-5 h-5 text-[9px]"
+                                                />
+                                                <span className="text-[10px] font-medium text-slate-400">
+                                                    {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric'
+                                                    })}
+                                                </span>
+                                            </div>
+                                        </CardFooter>
+                                    </Card>
+                                </Link>
                             ))}
                         </div>
                     )}

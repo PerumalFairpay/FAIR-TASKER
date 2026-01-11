@@ -38,7 +38,8 @@ import {
   ClipboardList,
   KanbanSquare,
   Clock,
-  Key
+  Key,
+  Rss
 } from "lucide-react";
 
 
@@ -77,7 +78,8 @@ const iconMap: Record<string, any> = {
   ClipboardList,
   KanbanSquare,
   Clock,
-  Key
+  Key,
+  Rss
 };
 
 
