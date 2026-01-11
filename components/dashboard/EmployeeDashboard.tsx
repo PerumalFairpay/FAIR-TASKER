@@ -127,7 +127,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <img
                             src={data.profile.profile_picture}
                             alt={data.profile.name}
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="absolute inset-0 w-full h-full object-cover"
                         />
 
                         {/* Gradient Overlay - Smooth fade at bottom */}
@@ -163,7 +163,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
                                             strokeDasharray={351}
                                             strokeDashoffset={351 - (351 * (data.work_hours.today / 9))} /* Assuming 9h workday */
-                                            className="transition-all duration-1000 ease-out text-primary"
+                                            className="text-primary"
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
@@ -233,12 +233,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             {data.upcoming_holidays.length > 0 ? (
                                 data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group cursor-default">
-                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 text-primary border border-primary-100 group-hover:bg-primary group-hover:text-white group-hover:shadow-md transition-all duration-300">
+                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 text-primary border border-primary-100">
                                             <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
                                             <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-700 truncate group-hover:text-primary transition-colors">{holiday.name}</p>
+                                            <p className="text-sm font-bold text-slate-700 truncate">{holiday.name}</p>
                                             <p className="text-[11px] text-slate-500 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
                                         </div>
                                     </div>
@@ -328,7 +328,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             strokeDasharray={502} // 2 * pi * 80
                                             strokeDashoffset={502 - (502 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out"
+                                            className=""
                                         />
 
                                         {/* --- Ring 2: Pending (Middle) --- */}
@@ -343,7 +343,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             strokeDasharray={377} // 2 * pi * 60
                                             strokeDashoffset={377 - (377 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out"
+                                            className=""
                                         />
 
                                         {/* --- Ring 3: In Progress (Inner) --- */}
@@ -358,7 +358,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             strokeDasharray={251} // 2 * pi * 40
                                             strokeDashoffset={251 - (251 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out"
+                                            className=""
                                         />
                                     </svg>
 
@@ -418,7 +418,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Overdue Alert Banner */}
                             {data.task_metrics.overdue > 0 && (
-                                <div className="flex items-center justify-between bg-red-50 border border-red-100 p-3 rounded-2xl mb-2 animate-pulse transition-none">
+                                <div className="flex items-center justify-between bg-red-50 border border-red-100 p-3 rounded-2xl mb-2 transition-none">
                                     <div className="flex items-center gap-3">
                                         <div className="p-1.5 bg-red-100 text-red-600 rounded-full">
                                             <AlertCircle size={16} />
@@ -428,7 +428,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             <p className="text-[10px] text-red-600 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
                                         </div>
                                     </div>
-                                    <Button size="sm" variant="flat" className="bg-white text-red-600 text-[10px] font-bold h-7 min-w-[60px] shadow-sm">Review</Button>
+                                    
                                 </div>
                             )}
                         </div>
@@ -448,7 +448,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 {data.recent_tasks.slice(0, 5).map((task, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group cursor-default">
                                         {/* Icon Circle */}
-                                        <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-colors ${task.status.toLowerCase() === 'completed' ? 'bg-white text-black' :
+                                        <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${task.status.toLowerCase() === 'completed' ? 'bg-white text-black' :
                                             task.status.toLowerCase() === 'in progress' ? 'bg-blue-500/20 text-blue-400' :
                                                 'bg-[#2c2c2e] text-slate-400'
                                             }`}>
@@ -459,7 +459,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                         {/* Text */}
                                         <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate transition-colors ${task.status.toLowerCase() === 'completed' ? 'text-slate-200' : 'text-slate-400'
+                                            <p className={`text-sm font-medium truncate ${task.status.toLowerCase() === 'completed' ? 'text-slate-200' : 'text-slate-400'
                                                 }`}>{task.task_name}</p>
                                             <div className="flex justify-between items-center pr-2 mt-0.5">
                                                 <p className="text-[10px] text-slate-600 font-medium uppercase tracking-wider">
@@ -478,7 +478,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                 </div>
                                             ) : task.status.toLowerCase() === 'in progress' ? (
                                                 <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
-                                                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                 </div>
                                             ) : (
                                                 <div className="w-5 h-5 rounded-full border-2 border-[#3f3f46]"></div>
@@ -497,7 +497,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 <Activity size={16} className="text-slate-400" />
                                 Activity Feed
                             </h3>
-                            <Button size="sm" variant="light" className="text-[10px] font-bold text-primary px-2 h-6 min-w-0">View All</Button>
+
                         </CardHeader>
                         <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
                             <div className="space-y-0">
@@ -511,12 +511,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <div key={i} className="flex gap-4 group relative">
                                             {/* Timeline Line */}
                                             {i !== data.recent_activity.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 group-hover:bg-slate-200 transition-colors"></div>
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100"></div>
                                             )}
 
                                             {/* Icon */}
                                             <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border transaction-all duration-300 group-hover:scale-110 ${isTask
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${isTask
                                                     ? 'bg-blue-50 border-blue-100 text-blue-500'
                                                     : 'bg-emerald-50 border-emerald-100 text-emerald-500'
                                                     }`}>
@@ -526,7 +526,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                             {/* Content */}
                                             <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-sm text-slate-700 font-medium leading-snug group-hover:text-slate-900 transition-colors">
+                                                <p className="text-sm text-slate-700 font-medium leading-snug">
                                                     {act.message}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1.5">
@@ -561,7 +561,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between px-6 pt-6">
                             <h3 className="text-lg font-bold text-slate-800">Leave Balance</h3>
-                            <Button size="sm" variant="light" className="text-primary font-medium p-0 h-auto">View All</Button>
+
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-5">
                             <div className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -588,7 +588,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isSick ? "bg-rose-50 text-rose-500" :
+                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${isSick ? "bg-rose-50 text-rose-500" :
                                                 isCasual ? "bg-orange-50 text-orange-500" :
                                                     "bg-primary-50 text-primary"
                                                 }`}>
@@ -632,10 +632,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             const isRejected = req.status.toLowerCase() === 'rejected';
 
                                             return (
-                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all cursor-default border border-transparent hover:border-slate-100 hover:shadow-sm">
-                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm transition-transform group-hover:scale-105 ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
-                                                            isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
-                                                                'bg-rose-50 border-rose-100 text-rose-600'
+                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent">
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
+                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
+                                                            'bg-rose-50 border-rose-100 text-rose-600'
                                                         }`}>
                                                         {isApproved ? <CheckCircle size={15} strokeWidth={2.5} /> :
                                                             isPending ? <Clock size={15} strokeWidth={2.5} /> :
@@ -646,8 +646,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                         <div className="flex justify-between items-center mb-0.5">
                                                             <p className="text-xs font-bold text-slate-700 truncate">{req.type}</p>
                                                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                    isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                        'bg-rose-50 text-rose-600 border-rose-100'
+                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                                    'bg-rose-50 text-rose-600 border-rose-100'
                                                                 }`}>
                                                                 {req.status}
                                                             </span>
@@ -696,13 +696,13 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-center px-1">
                                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
-                                <Button size="sm" variant="light" className="text-primary font-bold text-[10px] h-6 p-0 min-w-0">View All</Button>
+
                             </div>
 
                             {blogs.slice(0, 3).map((blog, i) => (
                                 <Card
                                     key={i}
-                                    className="bg-white dark:bg-[#1a1a1a] border border-transparent hover:border-default-200 p-2 transition-all duration-300 group"
+                                    className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group"
                                     style={{
                                         borderRadius: "24px",
                                         boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
@@ -713,7 +713,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <Image
                                             removeWrapper
                                             alt={blog.title}
-                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-out"
+                                            className="w-full h-full object-cover"
                                             src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
                                         />
                                         {/* Status Only if needed, maybe skip for dashboard or keep minimal */}
