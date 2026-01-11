@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getDashboardData } from "@/store/dashboard/action";
+import { getBlogsRequest } from "@/store/blog/action";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import { Spinner } from "@heroui/spinner";
@@ -13,9 +14,11 @@ import { Spinner } from "@heroui/spinner";
 export default function Dashboard() {
     const dispatch = useDispatch();
     const { dashboardData, loading, error } = useSelector((state: RootState) => state.Dashboard);
+    const { blogs } = useSelector((state: RootState) => state.Blog);
 
     useEffect(() => {
         dispatch(getDashboardData());
+        dispatch(getBlogsRequest());
     }, [dispatch]);
 
     return (
@@ -37,7 +40,7 @@ export default function Dashboard() {
                     {dashboardData.type === "admin" ? (
                         <AdminDashboard data={dashboardData} />
                     ) : (
-                        <EmployeeDashboard data={dashboardData} />
+                        <EmployeeDashboard data={dashboardData} blogs={blogs || []} />
                     )}
                 </>
             ) : null}

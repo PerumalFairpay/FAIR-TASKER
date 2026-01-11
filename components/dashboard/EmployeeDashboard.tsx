@@ -6,6 +6,8 @@ import { Progress } from "@heroui/progress";
 import { User } from "@heroui/user";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
+import { Image } from "@heroui/image";
+import { Avatar } from "@heroui/avatar";
 import {
     Briefcase, Calendar, Clock, CheckCircle,
     LayoutDashboard, Bell, Search, Menu,
@@ -96,7 +98,7 @@ interface DashboardData {
 
 // --- Component ---
 
-export default function EmployeeDashboard({ data }: { data: DashboardData }) {
+export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
     if (!data) return null;
 
     return (
@@ -532,8 +534,65 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                         </CardBody>
                     </Card>
 
+                    {/* Blog / News Feed */}
+                    {blogs && blogs.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-center px-1">
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Company News</h3>
+                                <Button size="sm" variant="light" className="text-primary font-bold text-[10px] h-6 p-0 min-w-0">View All</Button>
+                            </div>
+
+                            {blogs.slice(0, 3).map((blog, i) => (
+                                <Card
+                                    key={i}
+                                    className="bg-white dark:bg-[#1a1a1a] border border-transparent hover:border-default-200 p-2 transition-all duration-300 group"
+                                    style={{
+                                        borderRadius: "24px",
+                                        boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
+                                    }}
+                                >
+                                    {/* Card Image Area */}
+                                    <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
+                                        <Image
+                                            removeWrapper
+                                            alt={blog.title}
+                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-700 ease-out"
+                                            src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
+                                        />
+                                        {/* Status Only if needed, maybe skip for dashboard or keep minimal */}
+                                    </div>
+
+                                    <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
+                                        <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
+                                            {blog.title}
+                                        </h2>
+                                        <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                                            {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
+                                        </p>
+                                    </CardBody>
+
+                                    <CardFooter className="px-3 pb-2 pt-0">
+                                        <div className="flex items-center gap-2">
+                                            <Avatar
+                                                src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                                name={blog.author?.name || "Admin"}
+                                                className="w-5 h-5 text-[9px]"
+                                            />
+                                            <span className="text-[10px] font-medium text-slate-400">
+                                                {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </CardFooter>
+                                </Card>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Recent Activity Feed (Redesigned) */}
-                    <Card className="shadow-none border border-slate-100 bg-white flex-1 min-h-[300px]">
+                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
                         <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
                             <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
                                 <Activity size={16} className="text-slate-400" />
@@ -541,7 +600,7 @@ export default function EmployeeDashboard({ data }: { data: DashboardData }) {
                             </h3>
                             <Button size="sm" variant="light" className="text-[10px] font-bold text-primary px-2 h-6 min-w-0">View All</Button>
                         </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar">
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
                             <div className="space-y-0">
                                 {data.recent_activity.map((act, i) => {
                                     const isTask = act.type === 'task';
