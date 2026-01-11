@@ -582,23 +582,41 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
 
                             <div className="space-y-4">
-                                {data.leave_details.balance.map((item, idx) => (
-                                    <div key={idx}>
-                                        <div className="flex justify-between mb-1.5">
-                                            <span className="text-sm font-semibold text-slate-700">{item.type}</span>
-                                            <span className="text-xs text-slate-500">{item.balance}/{item.total} Remaining</span>
+                                {data.leave_details.balance.map((item, idx) => {
+                                    const isSick = item.type.toLowerCase().includes("sick");
+                                    const isCasual = item.type.toLowerCase().includes("casual");
+
+                                    return (
+                                        <div key={idx} className="flex items-center gap-3">
+                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isSick ? "bg-rose-50 text-rose-500" :
+                                                    isCasual ? "bg-orange-50 text-orange-500" :
+                                                        "bg-primary-50 text-primary"
+                                                }`}>
+                                                {isSick ? <Activity size={18} strokeWidth={2.5} /> :
+                                                    isCasual ? <Sun size={18} strokeWidth={2.5} /> :
+                                                        <Briefcase size={18} strokeWidth={2.5} />}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-end mb-1.5">
+                                                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">{item.type}</span>
+                                                    <span className="text-[10px] font-semibold text-slate-400">{item.balance}/{item.total} Days</span>
+                                                </div>
+                                                <Progress
+                                                    value={(item.balance / item.total) * 100}
+                                                    size="sm"
+                                                    radius="full"
+                                                    classNames={{
+                                                        track: "bg-slate-100 h-1.5",
+                                                        indicator: `${isSick ? "bg-gradient-to-r from-rose-400 to-rose-500 shadow-rose-200" :
+                                                                isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
+                                                                    "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
+                                                            } h-1.5 shadow-sm`
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                        <Progress
-                                            value={(item.balance / item.total) * 100}
-                                            color="primary"
-                                            size="sm"
-                                            className="h-2"
-                                            classNames={{
-                                                indicator: "bg-primary"
-                                            }}
-                                        />
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             {/* Recent Leave Request Status */}
