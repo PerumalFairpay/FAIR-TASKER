@@ -589,8 +589,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
                                             <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isSick ? "bg-rose-50 text-rose-500" :
-                                                    isCasual ? "bg-orange-50 text-orange-500" :
-                                                        "bg-primary-50 text-primary"
+                                                isCasual ? "bg-orange-50 text-orange-500" :
+                                                    "bg-primary-50 text-primary"
                                                 }`}>
                                                 {isSick ? <Activity size={18} strokeWidth={2.5} /> :
                                                     isCasual ? <Sun size={18} strokeWidth={2.5} /> :
@@ -608,8 +608,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                     classNames={{
                                                         track: "bg-slate-100 h-1.5",
                                                         indicator: `${isSick ? "bg-gradient-to-r from-rose-400 to-rose-500 shadow-rose-200" :
-                                                                isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
-                                                                    "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
+                                                            isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
+                                                                "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
                                                             } h-1.5 shadow-sm`
                                                     }}
                                                 />
@@ -621,20 +621,44 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Recent Leave Request Status */}
                             {data.leave_details.recent_requests_status.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-slate-100">
-                                    <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Recent Requests</p>
-                                    <div className="space-y-2">
-                                        {data.leave_details.recent_requests_status.slice(0, 3).map((req, i) => (
-                                            <div key={i} className="flex justify-between items-center bg-primary-50 p-2 rounded-lg">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-medium text-slate-700">{req.type}</span>
-                                                    <span className="text-[10px] text-slate-500">{new Date(req.date).toLocaleDateString()}</span>
+                                <div className="mt-6 pt-5 border-t border-slate-100/80">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Activity</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        {data.leave_details.recent_requests_status.slice(0, 3).map((req, i) => {
+                                            const isApproved = req.status.toLowerCase() === 'approved';
+                                            const isPending = req.status.toLowerCase() === 'pending';
+                                            const isRejected = req.status.toLowerCase() === 'rejected';
+
+                                            return (
+                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all cursor-default border border-transparent hover:border-slate-100 hover:shadow-sm">
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm transition-transform group-hover:scale-105 ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
+                                                            isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
+                                                                'bg-rose-50 border-rose-100 text-rose-600'
+                                                        }`}>
+                                                        {isApproved ? <CheckCircle size={15} strokeWidth={2.5} /> :
+                                                            isPending ? <Clock size={15} strokeWidth={2.5} /> :
+                                                                <AlertCircle size={15} strokeWidth={2.5} />}
+                                                    </div>
+
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex justify-between items-center mb-0.5">
+                                                            <p className="text-xs font-bold text-slate-700 truncate">{req.type}</p>
+                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                    isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                                        'bg-rose-50 text-rose-600 border-rose-100'
+                                                                }`}>
+                                                                {req.status}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-[10px] text-slate-400 font-medium">
+                                                            {new Date(req.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <Chip size="sm" variant="flat" className="bg-white text-primary font-bold shadow-sm h-6">
-                                                    {req.status}
-                                                </Chip>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
