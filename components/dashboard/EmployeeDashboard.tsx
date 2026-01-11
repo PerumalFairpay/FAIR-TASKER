@@ -120,7 +120,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
                 {/* --- Column 1: Profile & Quick Stats (Span 4) --- */}
-                <div className="md:col-span-4 flex flex-col gap-6">
+                <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-6">
                     {/* Profile Card */}
                     <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[40px] group">
                         {/* Background Image */}
@@ -435,13 +435,72 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
                     </Card>
 
+                    {/* Recent Activity Feed (Redesigned) */}
+                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
+                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400" />
+                                Activity Feed
+                            </h3>
+                            <Button size="sm" variant="light" className="text-[10px] font-bold text-primary px-2 h-6 min-w-0">View All</Button>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activity.map((act, i) => {
+                                    const isTask = act.type === 'task';
+                                    const dateObj = new Date(act.time);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activity.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 group-hover:bg-slate-200 transition-colors"></div>
+                                            )}
+
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border transaction-all duration-300 group-hover:scale-110 ${isTask
+                                                    ? 'bg-blue-50 border-blue-100 text-blue-500'
+                                                    : 'bg-emerald-50 border-emerald-100 text-emerald-500'
+                                                    }`}>
+                                                    {isTask ? <CheckCircle size={14} strokeWidth={2.5} /> : <Calendar size={14} strokeWidth={2.5} />}
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-sm text-slate-700 font-medium leading-snug group-hover:text-slate-900 transition-colors">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-300">•</span>
+                                                    <span className="text-[10px] text-slate-400 font-medium">
+                                                        {timeStr}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {data.recent_activity.length === 0 && (
+                                    <div className="text-center py-8 text-slate-400 text-sm">No recent activity</div>
+                                )}
+                            </div>
+                        </CardBody>
+                    </Card>
+
 
 
                 </div>
 
 
                 {/* --- Column 3: Stats & Lists (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
+                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
 
                     {/* Projects List */}
 
@@ -538,7 +597,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     {blogs && blogs.length > 0 && (
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-center px-1">
-                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Company News</h3>
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
                                 <Button size="sm" variant="light" className="text-primary font-bold text-[10px] h-6 p-0 min-w-0">View All</Button>
                             </div>
 
@@ -591,64 +650,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
                     )}
 
-                    {/* Recent Activity Feed (Redesigned) */}
-                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
-                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400" />
-                                Activity Feed
-                            </h3>
-                            <Button size="sm" variant="light" className="text-[10px] font-bold text-primary px-2 h-6 min-w-0">View All</Button>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activity.map((act, i) => {
-                                    const isTask = act.type === 'task';
-                                    const dateObj = new Date(act.time);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
 
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activity.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 group-hover:bg-slate-200 transition-colors"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border transaction-all duration-300 group-hover:scale-110 ${isTask
-                                                    ? 'bg-blue-50 border-blue-100 text-blue-500'
-                                                    : 'bg-emerald-50 border-emerald-100 text-emerald-500'
-                                                    }`}>
-                                                    {isTask ? <CheckCircle size={14} strokeWidth={2.5} /> : <Calendar size={14} strokeWidth={2.5} />}
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-sm text-slate-700 font-medium leading-snug group-hover:text-slate-900 transition-colors">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-300">•</span>
-                                                    <span className="text-[10px] text-slate-400 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                                {data.recent_activity.length === 0 && (
-                                    <div className="text-center py-8 text-slate-400 text-sm">No recent activity</div>
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
                 </div>
 
 
