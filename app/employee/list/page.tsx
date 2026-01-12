@@ -120,6 +120,9 @@ export default function EmployeeListPage() {
             <Table aria-label="Employee table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
+                    <TableColumn>DESIGNATION</TableColumn>
+                    <TableColumn>WORK MODE</TableColumn>
+                    <TableColumn>CONTACT</TableColumn>
                     <TableColumn>ROLE</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
@@ -138,8 +141,23 @@ export default function EmployeeListPage() {
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col">
+                                    <p className="text-bold text-sm capitalize">{item.designation || "N/A"}</p>
+                                    <p className="text-bold text-tiny capitalize text-default-400">{item.department || "N/A"}</p>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <Chip className="capitalize" size="sm" variant="flat">
+                                    {item.work_mode || "N/A"}
+                                </Chip>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex flex-col">
+                                    <p className="text-bold text-sm capitalize">{item.mobile || "N/A"}</p>
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex flex-col">
                                     <p className="text-bold text-sm capitalize">{item.role}</p>
-                                    <p className="text-bold text-tiny capitalize text-default-400">{item.department}</p>
                                 </div>
                             </TableCell>
                             <TableCell>
