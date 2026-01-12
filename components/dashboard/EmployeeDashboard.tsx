@@ -13,7 +13,7 @@ import {
     Briefcase, Calendar, Clock, CheckCircle,
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
-    Activity, ShieldCheck, AlertCircle
+    Activity, ShieldCheck, AlertCircle, Target, ListTodo
 } from "lucide-react";
 
 interface DashboardData {
@@ -366,7 +366,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     {/* Central Icon */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                                         <div className="bg-white p-3 rounded-full shadow-sm text-primary">
-                                            <Briefcase size={20} fill="currentColor" className="text-primary/20" />
+                                            <ListTodo size={24} className="text-primary" />
                                         </div>
                                     </div>
                                 </div>
