@@ -200,7 +200,7 @@ export const siteConfig: SiteConfig = {
       label: "Feeds",
       href: "/feeds",
       icon: "Rss", // Using Rss icon for feeds
-      allowedRoles: ["admin", "employee"],
+      allowedRoles: ["employee"],
     },
   ],
 

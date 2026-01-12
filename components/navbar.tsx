@@ -140,7 +140,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           {siteConfig.navItems.filter(item => {
             const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
             const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
-            return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+            return roleMatch && permissionMatch;
           }).map((item: any) => {
             if (item.children && !item.children.some((child: any) => child.href === item.href)) {
               if (item.children) return null;
@@ -211,7 +211,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 .filter(item => {
                   const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
                   const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
-                  return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+                  return roleMatch && permissionMatch;
                 })
                 .map((item: any) => {
                   const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
@@ -221,7 +221,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   const filteredChildren = item.children?.filter((child: any) => {
                     const roleMatch = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
                     const permissionMatch = !child.permission || user?.permissions?.includes(child.permission);
-                    return (user?.role?.toLowerCase() === 'admin') || (roleMatch && permissionMatch);
+                    return roleMatch && permissionMatch;
                   });
                   const hasChildren = filteredChildren && filteredChildren.length > 0;
                   const isOpen = openMenus[item.label];
