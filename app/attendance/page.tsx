@@ -83,6 +83,19 @@ export default function AttendancePage() {
         status: ""
     });
 
+    // Keep track of today's record separately to persist button state during filtering
+    const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
+
+    useEffect(() => {
+        if (attendanceHistory?.length) {
+            const todayStr = format(new Date(), "yyyy-MM-dd");
+            const found = attendanceHistory.find((r: any) => r.date === todayStr);
+            if (found) {
+                setTodayRecord(found);
+            }
+        }
+    }, [attendanceHistory]);
+
     useEffect(() => {
         setCurrentDate(new Date()); // Set initial date on client
 
@@ -182,13 +195,13 @@ export default function AttendancePage() {
     };
 
     // Check if already clocked in today
-    const isTodayClockIn = attendanceHistory.some((record: any) =>
+    const relevantRecord = todayRecord || attendanceHistory.find((record: any) =>
         record.date === format(new Date(), "yyyy-MM-dd")
     );
 
-    const isTodayClockOut = attendanceHistory.some((record: any) =>
-        record.date === format(new Date(), "yyyy-MM-dd") && record.clock_out
-    );
+    const isTodayClockIn = !!relevantRecord;
+
+    const isTodayClockOut = !!relevantRecord?.clock_out;
 
     const handleImportSubmit = () => {
         if (importFile.length > 0) {
