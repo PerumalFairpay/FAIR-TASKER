@@ -210,15 +210,20 @@ export default function BlogPage() {
 
                                             <CardFooter className="px-3 pb-3 pt-2">
                                                 <div className="flex items-center justify-between w-full">
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-3">
                                                         <Avatar
                                                             src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
                                                             name={blog.author?.name || "Admin"}
-                                                            className="w-6 h-6 text-tiny"
+                                                            className="w-8 h-8 text-tiny"
                                                         />
-                                                        <span className="text-[12px] font-medium text-[#374151] dark:text-gray-300">
-                                                            {formatDate(blog.created_at)}
-                                                        </span>
+                                                        <div className="flex flex-col">
+                                                            <p className="text-xs font-bold text-[#111827] dark:text-[#E3E3E3]">
+                                                                {blog.author?.name || "Admin"}
+                                                            </p>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                                                {formatDate(blog.created_at)}
+                                                            </p>
+                                                        </div>
                                                     </div>
 
                                                     <div className="flex gap-1">
