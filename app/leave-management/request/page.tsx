@@ -36,9 +36,13 @@ import { User } from "@heroui/user";
 import { Tooltip } from "@heroui/tooltip";
 import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
 
+import { Select, SelectItem } from "@heroui/select";
+import { getEmployeesRequest } from "@/store/employee/action";
+
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
     const { leaveRequests, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+    const { employees } = useSelector((state: RootState) => state.Employee);
     const { hasPermission, user } = usePermissions();
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -47,9 +51,21 @@ export default function LeaveRequestPage() {
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
 
+    const [statusFilter, setStatusFilter] = useState<string>("All");
+    const [employeeFilter, setEmployeeFilter] = useState<string>("");
+
     useEffect(() => {
-        dispatch(getLeaveRequestsRequest());
+        dispatch(getEmployeesRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        const filters: any = { status: statusFilter };
+        if (employeeFilter) filters.id = employeeFilter;
+        // If current user is employee, force their ID (backend might enforce this too via token, but good for UI consistency if "Employee" filter is hidden)
+        // However, if backend enforces token based ID for non-admins, we might not need to send it explicitly unless admin is viewing specific employee.
+        // Assuming backend handles "if employee_id passed, filter by it".
+        dispatch(getLeaveRequestsRequest(filters));
+    }, [dispatch, statusFilter, employeeFilter]);
 
     useEffect(() => {
         if (success) {
@@ -115,13 +131,46 @@ export default function LeaveRequestPage() {
                     title="Leave Requests"
                     description="Track and manage employee leave applications"
                 />
-                <Button
-                    color="primary"
-                    endContent={<PlusIcon size={16} />}
-                    onPress={handleCreate}
-                >
-                    Apply Leave
-                </Button>
+                <div className="flex gap-4">
+                    {(user?.role === "admin" || user?.role === "hr") && (
+                        <Select
+                            label="Employee"
+                            placeholder="Filter by Employee"
+                            className="w-48"
+                            size="sm"
+                            selectedKeys={employeeFilter ? [employeeFilter] : []}
+                            onChange={(e) => setEmployeeFilter(e.target.value)}
+                        >
+                            {/* Assuming employees are fetched and mapped properly later */}
+                            {(employees || []).map((emp: any) => (
+                                <SelectItem key={emp.id}>
+                                    {emp.name}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    )}
+                    <Select
+                        label="Status"
+                        placeholder="Filter by Status"
+                        className="w-36"
+                        size="sm"
+                        selectedKeys={statusFilter ? [statusFilter] : []}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        {["All", "Pending", "Approved", "Rejected"].map((status) => (
+                            <SelectItem key={status}>
+                                {status}
+                            </SelectItem>
+                        ))}
+                    </Select>
+                    <Button
+                        color="primary"
+                        endContent={<PlusIcon size={16} />}
+                        onPress={handleCreate}
+                    >
+                        Apply Leave
+                    </Button>
+                </div>
             </div>
 
             <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"} removeWrapper isHeaderSticky>

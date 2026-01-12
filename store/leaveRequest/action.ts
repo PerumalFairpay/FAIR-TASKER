@@ -23,9 +23,9 @@ export const createLeaveRequestFailure = (payload: any) => ({
 });
 
 // Get All Leave Requests
-export const getLeaveRequestsRequest = (employee_id?: string) => ({
+export const getLeaveRequestsRequest = (filters?: { id?: string; status?: string } | string) => ({
     type: GET_LEAVE_REQUESTS_REQUEST,
-    payload: employee_id,
+    payload: filters,
 });
 export const getLeaveRequestsSuccess = (payload: any) => ({
     type: GET_LEAVE_REQUESTS_SUCCESS,

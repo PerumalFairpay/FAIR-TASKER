@@ -25,8 +25,22 @@ function createLeaveRequestApi(payload: FormData) {
     });
 }
 
-function getLeaveRequestsApi(employee_id?: string) {
-    const url = employee_id ? `/leave-requests/all?employee_id=${employee_id}` : "/leave-requests/all";
+function getLeaveRequestsApi(payload?: { employee_id?: string; status?: string } | string) {
+    let url = "/leave-requests/all";
+    const params = new URLSearchParams();
+
+    if (typeof payload === "string") {
+        params.append("id", payload);
+    } else if (payload && typeof payload === "object") {
+        if (payload.id) params.append("id", payload.id);
+        if (payload.status && payload.status !== "All") params.append("status", payload.status);
+    }
+
+    const queryString = params.toString();
+    if (queryString) {
+        url += `?${queryString}`;
+    }
+
     return api.get(url);
 }
 
