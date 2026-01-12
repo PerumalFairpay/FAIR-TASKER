@@ -13,7 +13,8 @@ import {
     Briefcase, Calendar, Clock, CheckCircle,
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
-    Activity, ShieldCheck, AlertCircle, Target, ListTodo
+    Activity, ShieldCheck, AlertCircle, Target, ListTodo,
+    Bug, Users, ClipboardList
 } from "lucide-react";
 
 interface DashboardData {
@@ -435,58 +436,80 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
 
                         {/* Bottom Section: Dark Task Card */}
-                        <div className="bg-[#1c1c1e] rounded-[20px] p-6 text-white flex flex-col shadow-2xl mx-2 mb-2 flex-1 mt-auto">
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/10 rounded-[28px] p-7 text-white flex flex-col shadow-2xl mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
+                            {/* Decorative Background Glow */}
+                            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
                             {/* Header */}
-                            <div className="flex justify-between items-end mb-6 mt-1 px-1">
-                                <h3 className="text-xl font-light text-slate-200">My Tasks</h3>
-                                <span className="text-3xl font-light text-white tracking-widest">
-                                    {data.task_metrics.completed}/{data.task_metrics.total_assigned}
-                                </span>
+                            <div className="relative flex justify-between items-end mb-8 mt-1 px-1 z-10">
+                                <div>
+                                    <h3 className="text-xl font-light text-slate-200 tracking-wide">My Tasks</h3>
+                                    <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 font-medium">Pending Priorities</p>
+                                </div>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-4xl font-extralight text-white tracking-tight">
+                                        {data.task_metrics.completed}
+                                    </span>
+                                    <span className="text-lg font-light text-slate-500">
+                                        /{data.task_metrics.total_assigned}
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Task List */}
-                            <div className="space-y-5 pr-1">
-                                {data.recent_tasks.slice(0, 5).map((task, idx) => (
-                                    <div key={idx} className="flex items-center gap-4 group cursor-default">
-                                        {/* Icon Circle */}
-                                        <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${task.status.toLowerCase() === 'completed' ? 'bg-white text-black' :
-                                            task.status.toLowerCase() === 'in progress' ? 'bg-blue-500/20 text-blue-400' :
-                                                'bg-[#2c2c2e] text-slate-400'
-                                            }`}>
-                                            {task.task_name.toLowerCase().includes('bug') ? <Activity size={18} /> :
-                                                task.task_name.toLowerCase().includes('meeting') ? <Briefcase size={18} /> :
-                                                    <LayoutDashboard size={18} />}
-                                        </div>
+                            <div className="relative space-y-4 pr-1 z-10">
+                                {data.recent_tasks.slice(0, 5).map((task, idx) => {
+                                    const isCompleted = task.status.toLowerCase() === 'completed';
+                                    const isInProgress = task.status.toLowerCase() === 'in progress';
+                                    const isBug = task.task_name.toLowerCase().includes('bug');
+                                    const isMeeting = task.task_name.toLowerCase().includes('meeting');
 
-                                        {/* Text */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-medium truncate ${task.status.toLowerCase() === 'completed' ? 'text-slate-200' : 'text-slate-400'
-                                                }`}>{task.task_name}</p>
-                                            <div className="flex justify-between items-center pr-2 mt-0.5">
-                                                <p className="text-[10px] text-slate-600 font-medium uppercase tracking-wider">
-                                                    {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                </p>
-                                                <p className={`text-[10px] font-bold uppercase tracking-wider ${task.priority.toLowerCase() === 'high' ? 'text-red-400' : 'text-slate-600'
-                                                    }`}>{task.priority}</p>
+                                    return (
+                                        <div key={idx} className="flex items-center gap-4 group p-2 mx-[-8px] rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                                            {/* Icon Circle */}
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isCompleted ? 'bg-emerald-400 text-emerald-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]' :
+                                                isInProgress ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                                                    'bg-slate-800/80 text-slate-400 border border-white/5'
+                                                }`}>
+                                                {isBug ? <Bug size={16} strokeWidth={2} /> :
+                                                    isMeeting ? <Users size={16} strokeWidth={2} /> :
+                                                        <ClipboardList size={16} strokeWidth={2} />}
+                                            </div>
+
+                                            {/* Text */}
+                                            <div className="flex-1 min-w-0">
+                                                <p className={`text-sm font-medium truncate transition-colors ${isCompleted ? 'text-slate-200 line-through opacity-50' : 'text-slate-200'
+                                                    }`}>{task.task_name}</p>
+                                                <div className="flex justify-between items-center pr-2 mt-1">
+                                                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1">
+                                                        <Calendar size={10} />
+                                                        {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                    </p>
+                                                    <p className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm ${task.priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                                                        }`}>{task.priority}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Status Check */}
+                                            <div className="pl-2">
+                                                {isCompleted ? (
+                                                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-900/50">
+                                                        <CheckCircle size={12} className="text-white fill-current" />
+                                                    </div>
+                                                ) : isInProgress ? (
+                                                    <div className="relative w-5 h-5 flex items-center justify-center">
+                                                        <div className="absolute inset-0 rounded-full border-2 border-blue-500 opacity-30"></div>
+                                                        <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 animate-spin"></div>
+                                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors"></div>
+                                                )}
                                             </div>
                                         </div>
-
-                                        {/* Status Check */}
-                                        <div>
-                                            {task.status.toLowerCase() === 'completed' ? (
-                                                <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.4)]">
-                                                    <CheckCircle size={12} className="text-[#1c1c1e] fill-current" />
-                                                </div>
-                                            ) : task.status.toLowerCase() === 'in progress' ? (
-                                                <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
-                                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                </div>
-                                            ) : (
-                                                <div className="w-5 h-5 rounded-full border-2 border-[#3f3f46]"></div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </Card>
