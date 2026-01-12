@@ -173,7 +173,7 @@ export default function LeaveRequestPage() {
             </div>
 
             {user?.role === "employee" && leaveMetrics && leaveMetrics.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 mb-6">
                     {leaveMetrics.map((metric: any, index: number) => {
                         const percentage = metric.total_allowed > 0 ? (metric.available / metric.total_allowed) * 100 : 0;
                         let color: "success" | "warning" | "danger" = "success";
@@ -188,34 +188,34 @@ export default function LeaveRequestPage() {
 
                         return (
                             <Card key={index} shadow="sm" className="border border-default-100/50">
-                                <CardBody className="p-4">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="flex flex-col gap-1 flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-medium font-semibold text-default-700 truncate" title={metric.leave_type}>{metric.leave_type}</span>
+                                <CardBody className="p-3">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="text-small font-semibold text-default-700 truncate" title={metric.leave_type}>{metric.leave_type}</span>
                                             </div>
-                                            <div className="flex items-center gap-2 mt-0.5">
-                                                <Chip size="sm" variant="flat" color={color} className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider">
+                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                <Chip size="sm" variant="flat" color={color} className="h-4 px-1 text-[9px] uppercase font-bold tracking-wider min-w-min">
                                                     {metric.code}
                                                 </Chip>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-medium text-default-500 bg-default-100/50 px-2.5 py-1 rounded-full border border-default-100/50">
+                                                <div className="flex items-center gap-1 text-[9px] font-medium text-default-500 bg-default-100/50 px-1.5 py-0.5 rounded-full border border-default-100/50 whitespace-nowrap">
                                                     <span className="text-default-700 font-semibold">{metric.used}</span> Used
-                                                    <div className="w-[1px] h-2.5 bg-default-300 mx-0.5"></div>
+                                                    <div className="w-[1px] h-2 bg-default-300 mx-0.5"></div>
                                                     <span className="text-default-700 font-semibold">{metric.total_allowed}</span> Total
                                                 </div>
                                             </div>
 
-                                            <div className="flex items-baseline gap-1 mt-2">
-                                                <span className={`text-3xl font-bold ${textColorMap[color]}`}>
+                                            <div className="flex items-baseline gap-1 mt-1.5">
+                                                <span className={`text-2xl font-bold ${textColorMap[color]} leading-none`}>
                                                     {metric.available}
                                                 </span>
-                                                <span className="text-tiny text-default-500 font-medium">Days Available</span>
+                                                <span className="text-[10px] text-default-500 font-medium">Days Left</span>
                                             </div>
                                         </div>
-                                        <div className="relative flex items-center justify-center">
+                                        <div className="relative flex items-center justify-center flex-shrink-0">
                                             <CircularProgress
                                                 classNames={{
-                                                    svg: "w-14 h-14 drop-shadow-sm",
+                                                    svg: "w-10 h-10 drop-shadow-sm",
                                                     indicator: "stroke-current",
                                                     track: "stroke-default-100",
                                                 }}
@@ -224,7 +224,7 @@ export default function LeaveRequestPage() {
                                                 aria-label="Leave Balance"
                                                 strokeWidth={3}
                                             />
-                                            <span className="absolute text-[10px] font-medium text-default-500">
+                                            <span className="absolute text-[9px] font-medium text-default-500">
                                                 {Math.round(percentage)}%
                                             </span>
                                         </div>
