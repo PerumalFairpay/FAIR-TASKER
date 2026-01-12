@@ -117,7 +117,7 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...selectedEmployee });
             setSelectedTab("personal");
         } else if (isOpen && mode === "create") {
-            setFormData({ status: "Active" });
+            setFormData({ status: "Active", work_mode: "Office" });
             setProfileFiles([]);
             setDocumentFiles([]);
             setSelectedTab("personal");
@@ -433,6 +433,18 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("notice_period", e.target.value)}
                                                 className="md:col-span-2"
                                             />
+                                            <Select
+                                                label="Work Mode"
+                                                placeholder="Select Work Mode"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                selectedKeys={formData.work_mode ? [formData.work_mode] : []}
+                                                onChange={(e) => handleChange("work_mode", e.target.value)}
+                                            >
+                                                <SelectItem key="Office" textValue="Office">Office</SelectItem>
+                                                <SelectItem key="Remote" textValue="Remote">Remote</SelectItem>
+                                                <SelectItem key="Hybrid" textValue="Hybrid">Hybrid</SelectItem>
+                                            </Select>
                                         </div>
                                     </div>
                                 </Tab>
