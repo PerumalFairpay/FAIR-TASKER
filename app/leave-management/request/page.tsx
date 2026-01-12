@@ -22,6 +22,7 @@ import {
 } from "@heroui/table";
 import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
+import { CircularProgress } from "@heroui/progress";
 import { useDisclosure } from "@heroui/modal";
 import {
     PlusIcon, PencilIcon, TrashIcon,
@@ -172,32 +173,66 @@ export default function LeaveRequestPage() {
             </div>
 
             {user?.role === "employee" && leaveMetrics && leaveMetrics.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    {leaveMetrics.map((metric: any, index: number) => (
-                        <Card key={index} shadow="sm" className="border border-default-100">
-                            <CardBody className="p-4">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-medium text-default-600">{metric.leave_type}</span>
-                                        <div className="flex items-baseline gap-1 mt-2">
-                                            <span className="text-2xl font-bold text-primary">{metric.available}</span>
-                                            <span className="text-small text-default-400">/ {metric.total_allowed}</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    {leaveMetrics.map((metric: any, index: number) => {
+                        const percentage = metric.total_allowed > 0 ? (metric.available / metric.total_allowed) * 100 : 0;
+                        let color: "success" | "warning" | "danger" = "success";
+                        if (percentage < 25) color = "danger";
+                        else if (percentage < 50) color = "warning";
+
+                        const textColorMap = {
+                            success: "text-success",
+                            warning: "text-warning",
+                            danger: "text-danger"
+                        };
+
+                        return (
+                            <Card key={index} shadow="sm" className="border border-default-100/50">
+                                <CardBody className="p-4">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="flex flex-col gap-1 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-medium font-semibold text-default-700 truncate" title={metric.leave_type}>{metric.leave_type}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <Chip size="sm" variant="flat" color={color} className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider">
+                                                    {metric.code}
+                                                </Chip>
+                                                <div className="flex items-center gap-1.5 text-[10px] font-medium text-default-500 bg-default-100/50 px-2.5 py-1 rounded-full border border-default-100/50">
+                                                    <span className="text-default-700 font-semibold">{metric.used}</span> Used
+                                                    <div className="w-[1px] h-2.5 bg-default-300 mx-0.5"></div>
+                                                    <span className="text-default-700 font-semibold">{metric.total_allowed}</span> Total
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-baseline gap-1 mt-2">
+                                                <span className={`text-3xl font-bold ${textColorMap[color]}`}>
+                                                    {metric.available}
+                                                </span>
+                                                <span className="text-tiny text-default-500 font-medium">Days Available</span>
+                                            </div>
                                         </div>
-                                        <span className="text-tiny text-default-400 mt-1">Available Days</span>
+                                        <div className="relative flex items-center justify-center">
+                                            <CircularProgress
+                                                classNames={{
+                                                    svg: "w-14 h-14 drop-shadow-sm",
+                                                    indicator: "stroke-current",
+                                                    track: "stroke-default-100",
+                                                }}
+                                                value={percentage}
+                                                color={color}
+                                                aria-label="Leave Balance"
+                                                strokeWidth={3}
+                                            />
+                                            <span className="absolute text-[10px] font-medium text-default-500">
+                                                {Math.round(percentage)}%
+                                            </span>
+                                        </div>
                                     </div>
-                                    <Chip size="sm" variant="flat" color={metric.available > 0 ? "success" : "danger"}>
-                                        {metric.code}
-                                    </Chip>
-                                </div>
-                                <div className="w-full bg-default-100 rounded-full h-1.5 mt-3 overflow-hidden">
-                                    <div
-                                        className={`h-1.5 rounded-full ${metric.available > 0 ? 'bg-primary' : 'bg-danger'}`}
-                                        style={{ width: `${(metric.used / metric.total_allowed) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    ))}
+                                </CardBody>
+                            </Card>
+                        );
+                    })}
                 </div>
             )}
 
