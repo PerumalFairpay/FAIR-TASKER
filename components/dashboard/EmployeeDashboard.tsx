@@ -113,7 +113,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-default-50/50 p-4 sm:p-6 lg:p-8 font-sans text-slate-800">
+        <div className="min-h-screen bg-default-50/50 font-sans text-slate-800">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
