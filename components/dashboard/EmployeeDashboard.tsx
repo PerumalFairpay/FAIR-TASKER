@@ -300,7 +300,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
                     {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-none border-none bg-primary-50 relative overflow-visible min-h-[620px] rounded-[40px] flex flex-col">
+                    <Card className="shadow-sm border border-slate-100 bg-gradient-to-b from-white to-primary-50/30 relative overflow-visible min-h-[620px] rounded-[24px] flex flex-col">
                         {/* Top Section: Overview */}
                         <div className="px-8 pt-8 pb-4">
                             <div className="flex justify-between items-start mb-6">
@@ -435,7 +435,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
 
                         {/* Bottom Section: Dark Task Card */}
-                        <div className="bg-[#1c1c1e] rounded-[36px] p-6 text-white flex flex-col shadow-2xl mx-2 mb-2 flex-1 mt-auto">
+                        <div className="bg-[#1c1c1e] rounded-[20px] p-6 text-white flex flex-col shadow-2xl mx-2 mb-2 flex-1 mt-auto">
                             {/* Header */}
                             <div className="flex justify-between items-end mb-6 mt-1 px-1">
                                 <h3 className="text-xl font-light text-slate-200">My Tasks</h3>
