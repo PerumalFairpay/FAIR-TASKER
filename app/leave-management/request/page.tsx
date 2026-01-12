@@ -20,6 +20,7 @@ import {
     TableRow,
     TableCell,
 } from "@heroui/table";
+import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
 import {
@@ -41,7 +42,7 @@ import { getEmployeesRequest } from "@/store/employee/action";
 
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
-    const { leaveRequests, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+    const { leaveRequests, leaveMetrics, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { hasPermission, user } = usePermissions();
 
@@ -61,9 +62,6 @@ export default function LeaveRequestPage() {
     useEffect(() => {
         const filters: any = { status: statusFilter };
         if (employeeFilter) filters.id = employeeFilter;
-        // If current user is employee, force their ID (backend might enforce this too via token, but good for UI consistency if "Employee" filter is hidden)
-        // However, if backend enforces token based ID for non-admins, we might not need to send it explicitly unless admin is viewing specific employee.
-        // Assuming backend handles "if employee_id passed, filter by it".
         dispatch(getLeaveRequestsRequest(filters));
     }, [dispatch, statusFilter, employeeFilter]);
 
@@ -172,6 +170,36 @@ export default function LeaveRequestPage() {
                     </Button>
                 </div>
             </div>
+
+            {user?.role === "employee" && leaveMetrics && leaveMetrics.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    {leaveMetrics.map((metric: any, index: number) => (
+                        <Card key={index} shadow="sm" className="border border-default-100">
+                            <CardBody className="p-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium text-default-600">{metric.leave_type}</span>
+                                        <div className="flex items-baseline gap-1 mt-2">
+                                            <span className="text-2xl font-bold text-primary">{metric.available}</span>
+                                            <span className="text-small text-default-400">/ {metric.total_allowed}</span>
+                                        </div>
+                                        <span className="text-tiny text-default-400 mt-1">Available Days</span>
+                                    </div>
+                                    <Chip size="sm" variant="flat" color={metric.available > 0 ? "success" : "danger"}>
+                                        {metric.code}
+                                    </Chip>
+                                </div>
+                                <div className="w-full bg-default-100 rounded-full h-1.5 mt-3 overflow-hidden">
+                                    <div
+                                        className={`h-1.5 rounded-full ${metric.available > 0 ? 'bg-primary' : 'bg-danger'}`}
+                                        style={{ width: `${(metric.used / metric.total_allowed) * 100}%` }}
+                                    ></div>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    ))}
+                </div>
+            )}
 
             <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"} removeWrapper isHeaderSticky>
                 <TableHeader>

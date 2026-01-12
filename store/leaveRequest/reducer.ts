@@ -10,6 +10,7 @@ import {
 
 interface LeaveRequestState {
     leaveRequests: any[];
+    leaveMetrics: any[];
     leaveRequest: any | null;
     loading: boolean;
     error: string | null;
@@ -18,6 +19,7 @@ interface LeaveRequestState {
 
 const initialLeaveRequestState: LeaveRequestState = {
     leaveRequests: [],
+    leaveMetrics: [],
     leaveRequest: null,
     loading: false,
     error: null,
@@ -52,6 +54,7 @@ const leaveRequestReducer = (state: LeaveRequestState = initialLeaveRequestState
                 ...state,
                 loading: false,
                 leaveRequests: action.payload.data,
+                leaveMetrics: action.payload.metrics || [],
             };
 
         case GET_LEAVE_REQUEST_SUCCESS:
