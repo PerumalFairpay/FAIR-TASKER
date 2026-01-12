@@ -20,7 +20,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
@@ -418,7 +418,13 @@ export default function AttendancePage() {
                                     Clock Out
                                 </Button>
                             ) : (
-                                <Button disabled variant="faded" color="success" startContent={<Clock size={20} />}>
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold"
+                                    variant="flat"
+                                    color="success"
+                                    startContent={<CheckCircle size={20} />}
+                                    disableAnimation
+                                >
                                     Done for Today
                                 </Button>
                             )}
