@@ -56,8 +56,7 @@ export default function FeedPage() {
 
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center gap-6 mb-16 max-w-2xl">
-                    <Tag label="Blog" iconName="InfoCircle" />
-
+                  
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
