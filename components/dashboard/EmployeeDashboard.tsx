@@ -127,7 +127,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[40px] group">
                         {/* Background Image */}
                         <img
-                            src={data.profile.profile_picture}
+                            src={data.profile.profile_picture?.replace("host.docker.internal", "localhost")}
                             alt={data.profile.name}
                             className="absolute inset-0 w-full h-full object-cover"
                         />
