@@ -734,12 +734,17 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         </CardBody>
 
                                         <CardFooter className="px-3 pb-2 pt-0">
-                                            <div className="flex items-center gap-2">
-                                                <Avatar
-                                                    src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
-                                                    name={blog.author?.name || "Admin"}
-                                                    className="w-5 h-5 text-[9px]"
-                                                />
+                                            <div className="flex items-center justify-between w-full">
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar
+                                                        src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                                        name={blog.author?.name || "Admin"}
+                                                        className="w-5 h-5 text-[9px]"
+                                                    />
+                                                    <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px]">
+                                                        {blog.author?.name || "Admin"}
+                                                    </span>
+                                                </div>
                                                 <span className="text-[10px] font-medium text-slate-400">
                                                     {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
                                                         month: 'short',
