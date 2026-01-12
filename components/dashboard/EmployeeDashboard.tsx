@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
 import Link from "next/link";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Progress } from "@heroui/progress";
@@ -101,6 +102,14 @@ interface DashboardData {
 // --- Component ---
 
 export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
+    const [currentDate, setCurrentDate] = useState<Date | null>(null);
+
+    useEffect(() => {
+        setCurrentDate(new Date());
+        const timer = setInterval(() => setCurrentDate(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     if (!data) return null;
 
     return (
@@ -115,7 +124,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         {data.greeting.message}
                     </p>
                 </div>
-                {/* Optional: Add Date picker or filter buttons here if needed later */}
+
+                <div className="text-right hidden sm:block">
+                    <div className="text-2xl font-bold text-slate-800 tracking-tight">
+                        {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                    </div>
+                    <div className="text-sm font-medium text-slate-500">
+                        {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                    </div>
+                </div>
             </div>
 
             {/* Main Bento Grid */}
