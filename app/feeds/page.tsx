@@ -51,8 +51,8 @@ export default function FeedPage() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] pt-24 pb-20 px-6 font-sans">
-            <div className="max-w-4xl mx-auto flex flex-col items-center">
+        <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] p-4 sm:p-6 lg:p-8 font-sans">
+            <div className="max-w-7xl mx-auto flex flex-col items-center">
 
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center gap-6 mb-16 max-w-2xl">
@@ -77,8 +77,8 @@ export default function FeedPage() {
 
                 {/* Content Section */}
                 {getBlogsLoading && (!blogs || blogs.length === 0) ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                        {[1, 2, 3, 4].map((i) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                        {[1, 2, 3, 4, 5, 6].map((i) => (
                             <Card key={i} className="w-full p-2 bg-white dark:bg-[#1a1a1a] shadow-sm border border-transparent" radius="lg" style={{ borderRadius: "24px" }}>
                                 <Skeleton className="rounded-[16px]">
                                     <div className="h-56 rounded-[16px] bg-default-300"></div>
@@ -104,7 +104,7 @@ export default function FeedPage() {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full"
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
                     >
                         {blogs && blogs.map((blog: any) => (
                             <motion.div key={blog.id} variants={itemVariants}>
