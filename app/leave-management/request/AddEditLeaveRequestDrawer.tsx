@@ -20,6 +20,7 @@ import { getEmployeesRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
 import { getUserRequest } from "@/store/auth/action";
 import { Badge } from "@heroui/badge";
+import { Chip } from "@heroui/chip";
 import { Upload } from "lucide-react";
 
 interface AddEditLeaveRequestDrawerProps {
@@ -42,6 +43,7 @@ export default function AddEditLeaveRequestDrawer({
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { leaveTypes } = useSelector((state: RootState) => state.LeaveType);
+    const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
     const { user } = useSelector((state: RootState) => state.Auth);
 
     const [formData, setFormData] = useState({
@@ -204,11 +206,26 @@ export default function AddEditLeaveRequestDrawer({
                                 variant="bordered"
                                 isRequired
                             >
-                                {(leaveTypes || []).map((lt: any) => (
-                                    <SelectItem key={lt.id} textValue={lt.name}>
-                                        {lt.name} ({lt.code})
-                                    </SelectItem>
-                                ))}
+                                {(leaveTypes || []).map((lt: any) => {
+                                    const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
+                                    return (
+                                        <SelectItem key={lt.id} textValue={lt.name}>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span>{lt.name} ({lt.code})</span>
+                                                {metric && (
+                                                    <Chip
+                                                        size="sm"
+                                                        variant="flat"
+                                                        className="h-5 px-1 min-h-5 text-tiny"
+                                                        color={metric.available > 0 ? "success" : "danger"}
+                                                    >
+                                                        {metric.available} Left
+                                                    </Chip>
+                                                )}
+                                            </div>
+                                        </SelectItem>
+                                    );
+                                })}
                             </Select>
 
                             <Select
