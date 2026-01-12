@@ -76,7 +76,7 @@ export default function AddEditLeaveTypeDrawer({
         onSubmit(formData);
     };
 
-    const leaveTypesList = ["Paid", "Unpaid", "Sick", "Casual", "Maternity", "Paternity"];
+    const leaveTypesList = ["Paid", "Unpaid"];
     const statuses = ["Active", "Inactive"];
 
     return (
