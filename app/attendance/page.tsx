@@ -392,15 +392,6 @@ export default function AttendancePage() {
                         )}
                     </div>
 
-                    <div className="text-right hidden xl:block border-l pl-4 ml-2 border-divider">
-                        <div className="text-xl font-bold">
-                            {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
-                        </div>
-                        <div className="text-small text-default-500">
-                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
-                        </div>
-                    </div>
-
                     {!isAdmin && (
                         <>
                             {!isTodayClockIn ? (
@@ -433,6 +424,15 @@ export default function AttendancePage() {
                             )}
                         </>
                     )}
+
+                    <div className="text-right hidden xl:block border-l pl-4 ml-2 border-divider">
+                        <div className="text-xl font-bold">
+                            {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                        </div>
+                        <div className="text-small text-default-500">
+                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                        </div>
+                    </div>
                 </div>
             </div>
 
