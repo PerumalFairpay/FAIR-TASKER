@@ -34,6 +34,8 @@ import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
 import { PermissionGuard } from "@/components/PermissionGuard";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
@@ -47,6 +49,7 @@ export default function EmployeeListPage() {
     const [deleteId, setDeleteId] = React.useState<string | null>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedEmployee, setSelectedEmployee] = React.useState<null | any>(null);
+    const [previewData, setPreviewData] = React.useState<{ url: string; type: string; name: string } | null>(null);
 
     useEffect(() => {
         dispatch(getEmployeesRequest());
@@ -123,6 +126,7 @@ export default function EmployeeListPage() {
                     <TableColumn>DESIGNATION</TableColumn>
                     <TableColumn>WORK MODE</TableColumn>
                     <TableColumn>CONTACT</TableColumn>
+                    <TableColumn>DOCUMENT</TableColumn>
                     <TableColumn>ROLE</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
@@ -154,6 +158,36 @@ export default function EmployeeListPage() {
                                 <div className="flex flex-col">
                                     <p className="text-bold text-sm capitalize">{item.mobile || "N/A"}</p>
                                 </div>
+                            </TableCell>
+                            <TableCell>
+                                {item.document_proof ? (
+                                    <div
+                                        className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
+                                        onClick={() => {
+                                            const extension = item.document_proof.split('.').pop()?.toLowerCase();
+                                            let type = item.file_type;
+                                            if (!type) {
+                                                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
+                                                    type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                                                } else if (extension === 'pdf') {
+                                                    type = 'application/pdf';
+                                                }
+                                            }
+                                            setPreviewData({
+                                                url: item.document_proof,
+                                                type: type,
+                                                name: item.document_name || "Employee Document",
+                                            });
+                                        }}
+                                    >
+                                        <FileTypeIcon
+                                            fileType={item.file_type}
+                                            fileName={item.document_proof}
+                                        />
+                                    </div>
+                                ) : (
+                                    <span className="text-default-300 text-sm">-</span>
+                                )}
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col">
@@ -213,6 +247,16 @@ export default function EmployeeListPage() {
                     )}
                 </ModalContent>
             </Modal>
+
+            {previewData && (
+                <FilePreviewModal
+                    isOpen={Boolean(previewData)}
+                    onClose={() => setPreviewData(null)}
+                    fileUrl={previewData.url}
+                    fileType={previewData.type}
+                    fileName={previewData.name}
+                />
+            )}
         </div>
     );
 }
