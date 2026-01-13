@@ -199,6 +199,16 @@ export default function AddEditLeaveRequestDrawer({
                     const lopType = leaveTypes?.find((lt: any) => lt.name.toLowerCase().includes("loss of pay") || lt.code === "LOP");
                     if (lopType) {
                         newData.leave_type_id = lopType.id;
+                        if (newData.leave_duration_type === "Single") {
+                            newData.leave_duration_type = "Multiple";
+                            // Expand the date range to include the triggering adjacent holidays
+                            if (prevHoliday) {
+                                newData.start_date = prevHoliday.date;
+                            }
+                            if (nextHoliday) {
+                                newData.end_date = nextHoliday.date;
+                            }
+                        }
                         let extraDays = 0;
                         const holidayDetails: string[] = [];
 
@@ -361,6 +371,8 @@ export default function AddEditLeaveRequestDrawer({
                                         isDateUnavailable={isDateUnavailable}
                                         minValue={today(getLocalTimeZone())}
                                         allowsNonContiguousRanges
+                                        isInvalid={!!lopWarning}
+                                        errorMessage={lopWarning ? "Sandwich Rule Applied: Holidays are included in your leave." : undefined}
                                     />
                                 ) : (
                                     <DatePicker
