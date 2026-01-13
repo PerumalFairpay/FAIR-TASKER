@@ -21,12 +21,13 @@ import {
 } from "@heroui/table";
 import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
-import { PlusIcon, PencilIcon, TrashIcon, Eye } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import AddEditExpenseDrawer from "./AddEditExpenseDrawer";
 import DeleteExpenseModal from "./DeleteExpenseModal";
 import { PageHeader } from "@/components/PageHeader";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 export default function ExpenseListPage() {
     const dispatch = useDispatch();
@@ -113,6 +114,7 @@ export default function ExpenseListPage() {
                     <TableColumn>PURPOSE</TableColumn>
                     <TableColumn>AMOUNT</TableColumn>
                     <TableColumn>MODE</TableColumn>
+                    <TableColumn align="center">ATTACHMENT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody items={expenses || []} emptyContent={"No expenses found"} isLoading={loading}>
@@ -134,19 +136,25 @@ export default function ExpenseListPage() {
                                 </Chip>
                             </TableCell>
                             <TableCell>
-                                <div className="relative flex items-center justify-center gap-2">
-                                    {item.attachment && (
+                                <div className="flex justify-center">
+                                    {item.attachment ? (
                                         <span
-                                            className="text-lg text-primary cursor-pointer active:opacity-50"
+                                            className="text-lg cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity"
                                             onClick={() => setPreviewData({
                                                 url: item.attachment,
                                                 type: item.file_type,
                                                 name: item.purpose ? `Proof - ${item.purpose}` : "Expense Proof"
                                             })}
                                         >
-                                            <Eye size={18} />
+                                            <FileTypeIcon fileType={item.file_type} />
                                         </span>
+                                    ) : (
+                                        <span className="text-default-300">-</span>
                                     )}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                <div className="relative flex items-center justify-center gap-2">
                                     <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
                                         <PencilIcon size={18} />
                                     </span>

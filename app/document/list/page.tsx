@@ -20,32 +20,13 @@ import {
     TableRow,
     TableCell,
 } from "@heroui/table";
-import { PlusIcon, PencilIcon, TrashIcon, FileIcon, DownloadIcon, FileTextIcon, ImageIcon, TableIcon } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, DownloadIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { useDisclosure } from "@heroui/modal";
 import AddEditDocumentDrawer from "./AddEditDocumentDrawer";
 import DeleteDocumentModal from "./DeleteDocumentModal";
 import { PageHeader } from "@/components/PageHeader";
-
-const getFileIcon = (fileType: string | null, fileName: string) => {
-    const type = fileType?.toLowerCase() || "";
-    const name = fileName?.toLowerCase() || "";
-
-    if (type.includes("pdf") || name.endsWith(".pdf")) {
-        return <FileTextIcon size={18} className="text-red-500" />;
-    }
-    else if (type.includes("image") || name.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-        return <ImageIcon size={18} className="text-purple-500" />;
-    }
-    else if (type.includes("sheet") || type.includes("excel") || name.match(/\.(xls|xlsx|csv)$/)) {
-        return <TableIcon size={18} className="text-green-500" />;
-    }
-    else if (type.includes("word") || type.includes("document") || name.match(/\.(doc|docx)$/)) {
-        return <FileTextIcon size={18} className="text-blue-500" />;
-    }
-
-    return <FileIcon size={18} className="text-default-400" />;
-};
+import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 export default function DocumentListPage() {
     const dispatch = useDispatch();
@@ -137,7 +118,7 @@ export default function DocumentListPage() {
                             <TableRow key={doc.id}>
                                 <TableCell>
                                     <div className="flex items-center gap-2">
-                                        {getFileIcon(doc.file_type, doc.name)}
+                                        <FileTypeIcon fileType={doc.file_type} fileName={doc.name} />
                                         <span className="font-medium">{doc.name}</span>
                                     </div>
                                 </TableCell>
