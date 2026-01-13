@@ -12,7 +12,7 @@ import { Alert } from "@heroui/alert";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
-import { DatePicker } from "@heroui/date-picker";
+import { DatePicker, DateRangePicker } from "@heroui/date-picker";
 import { parseDate, getLocalTimeZone, today, DateValue } from "@internationalized/date";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
@@ -118,10 +118,19 @@ export default function AddEditLeaveRequestDrawer({
     };
 
     const handleSelectChange = (name: string, value: any) => {
-        const newData = { ...formData, [name]: value };
+        let newData = { ...formData };
 
-        // Auto calculate days if dates change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type") {
+        if (name === "date_range") {
+            if (value) {
+                newData.start_date = value.start.toString();
+                newData.end_date = value.end.toString();
+            }
+        } else {
+            newData = { ...newData, [name]: value };
+        }
+
+        // Auto calculate days if dates or type change
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range") {
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
                 newData.total_days = 1;
@@ -246,22 +255,30 @@ export default function AddEditLeaveRequestDrawer({
                             </Select>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <DatePicker
-                                    label={formData.leave_duration_type === "Multiple" ? "Start Date" : "Date"}
-                                    value={formData.start_date ? parseDate(formData.start_date) : null}
-                                    onChange={(date) => handleSelectChange("start_date", date?.toString())}
-                                    variant="bordered"
-                                    isRequired
-                                    isDateUnavailable={isDateUnavailable}
-                                />
-                                {formData.leave_duration_type === "Multiple" && (
+                                {formData.leave_duration_type === "Multiple" ? (
+                                    <DateRangePicker
+                                        label="Date Range"
+                                        value={{
+                                            start: parseDate(formData.start_date),
+                                            end: parseDate(formData.end_date),
+                                        }}
+                                        onChange={(value) => handleSelectChange("date_range", value)}
+                                        variant="bordered"
+                                        isRequired
+                                        className="col-span-2"
+                                        isDateUnavailable={isDateUnavailable}
+                                        minValue={today(getLocalTimeZone())}
+                                    />
+                                ) : (
                                     <DatePicker
-                                        label="End Date"
-                                        value={formData.end_date ? parseDate(formData.end_date) : null}
-                                        onChange={(date) => handleSelectChange("end_date", date?.toString())}
+                                        label="Date"
+                                        value={formData.start_date ? parseDate(formData.start_date) : null}
+                                        onChange={(date) => handleSelectChange("start_date", date?.toString())}
                                         variant="bordered"
                                         isRequired
                                         isDateUnavailable={isDateUnavailable}
+                                        className="col-span-2"
+                                        minValue={today(getLocalTimeZone())}
                                     />
                                 )}
                             </div>
