@@ -485,15 +485,22 @@ export default function AddEditEmployeeDrawer({
                                 }>
                                     <div className="space-y-6 pt-4">
                                         <div className="grid grid-cols-1 gap-4">
-                                            <div className="flex flex-col gap-2">
+                                            <div className="flex flex-col gap-2 items-center">
                                                 <label className="text-small font-medium text-foreground">Profile Picture</label>
-                                                <FileUpload
-                                                    files={profileFiles}
-                                                    setFiles={setProfileFiles}
-                                                    name="profile_picture"
-                                                    labelIdle='Drag & Drop your picture or <span class="filepond--label-action">Browse</span>'
-                                                    acceptedFileTypes={['image/*']}
-                                                />
+                                                <div className="w-32 h-32">
+                                                    <FileUpload
+                                                        files={profileFiles}
+                                                        setFiles={setProfileFiles}
+                                                        name="profile_picture"
+                                                        labelIdle='<span class="filepond--label-action">Upload</span>'
+                                                        acceptedFileTypes={['image/*']}
+                                                        stylePanelLayout="compact circle"
+                                                        styleLoadIndicatorPosition="center bottom"
+                                                        styleProgressIndicatorPosition="right bottom"
+                                                        styleButtonRemoveItemPosition="left bottom"
+                                                        styleButtonProcessItemPosition="right bottom"
+                                                    />
+                                                </div>
                                             </div>
                                             <div className="flex flex-col gap-2">
                                                 <label className="text-small font-medium text-foreground">Document Proof</label>

@@ -25,6 +25,7 @@ interface FileUploadProps {
     allowMultiple?: boolean;
     maxFiles?: number;
     name?: string;
+    [key: string]: any;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -34,7 +35,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
     acceptedFileTypes,
     allowMultiple = false,
     maxFiles = 1,
-    name = 'file'
+    name = 'file',
+    ...props
 }) => {
     return (
         <FilePond
@@ -46,6 +48,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             labelIdle={labelIdle}
             acceptedFileTypes={acceptedFileTypes}
             credits={false}
+            {...props}
         />
     );
 };
