@@ -138,7 +138,14 @@ export default function DocumentListPage() {
                                 <TableCell>
                                     <div className="flex items-center justify-center gap-2">
                                         {doc.file_path && (
-                                            <Button size="sm" isIconOnly variant="light" as="a" href={doc.file_path} target="_blank">
+                                            <Button
+                                                size="sm"
+                                                isIconOnly
+                                                variant="light"
+                                                as="a"
+                                                href={`${doc.file_path}?filename=${encodeURIComponent(doc.name)}`}
+                                                target="_blank"
+                                            >
                                                 <DownloadIcon size={16} />
                                             </Button>
                                         )}
