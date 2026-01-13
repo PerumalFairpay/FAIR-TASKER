@@ -152,6 +152,58 @@ export default function AddEditLeaveRequestDrawer({
                     console.error("Error calculating days:", e);
                 }
             }
+
+            // Check if start or end date is adjacent to a holiday
+            try {
+                const start = parseDate(newData.start_date);
+                const end = parseDate(newData.end_date);
+
+                const d1 = new Date(start.year, start.month - 1, start.day);
+                const d2 = new Date(end.year, end.month - 1, end.day);
+
+                const prevDay = new Date(d1);
+                prevDay.setDate(d1.getDate() - 1);
+
+                const nextDay = new Date(d2);
+                nextDay.setDate(d2.getDate() + 1);
+
+                const formatDate = (d: Date) => {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+
+                const prevDateStr = formatDate(prevDay);
+                const nextDateStr = formatDate(nextDay);
+
+                const isPrevDayHoliday = holidays.some((h: any) => h.date === prevDateStr && h.status === "Active");
+                const isNextDayHoliday = holidays.some((h: any) => h.date === nextDateStr && h.status === "Active");
+
+                let isInteriorHoliday = false;
+                if (newData.leave_duration_type === "Multiple") {
+                    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
+                        const dateStr = formatDate(d);
+                        if (holidays.some((h: any) => h.date === dateStr && h.status === "Active")) {
+                            isInteriorHoliday = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPrevDayHoliday || isNextDayHoliday || isInteriorHoliday) {
+                    const lopType = leaveTypes?.find((lt: any) => lt.name.toLowerCase().includes("loss of pay") || lt.code === "LOP");
+                    if (lopType) {
+                        newData.leave_type_id = lopType.id;
+                        let extraDays = 0;
+                        if (isPrevDayHoliday) extraDays += 1;
+                        if (isNextDayHoliday) extraDays += 1;
+                        newData.total_days += extraDays;
+                    }
+                }
+            } catch (e) {
+                // Ignore date parsing errors
+            }
         }
 
         setFormData(newData);
