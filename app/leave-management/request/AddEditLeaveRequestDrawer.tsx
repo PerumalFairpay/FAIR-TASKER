@@ -13,11 +13,12 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
-import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
+import { parseDate, getLocalTimeZone, today, DateValue } from "@internationalized/date";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
+import { getHolidaysRequest } from "@/store/holiday/action";
 import { getUserRequest } from "@/store/auth/action";
 import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
@@ -46,6 +47,7 @@ export default function AddEditLeaveRequestDrawer({
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { leaveTypes } = useSelector((state: RootState) => state.LeaveType);
     const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
+    const { holidays } = useSelector((state: RootState) => state.Holiday);
     const { user } = useSelector((state: RootState) => state.Auth);
 
     const [formData, setFormData] = useState({
@@ -64,6 +66,7 @@ export default function AddEditLeaveRequestDrawer({
         if (isOpen) {
             dispatch(getEmployeesRequest());
             dispatch(getLeaveTypesRequest());
+            dispatch(getHolidaysRequest());
             if (!user) {
                 dispatch(getUserRequest());
             }
@@ -159,6 +162,12 @@ export default function AddEditLeaveRequestDrawer({
     const durationTypes = ["Single", "Multiple", "Half Day"];
     const sessions = ["First Half", "Second Half"];
 
+    const isDateUnavailable = (date: DateValue) => {
+        return holidays.some(
+            (holiday: any) => holiday.date === date.toString() && holiday.status === "Active"
+        );
+    };
+
     return (
         <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
             <DrawerContent>
@@ -243,6 +252,7 @@ export default function AddEditLeaveRequestDrawer({
                                     onChange={(date) => handleSelectChange("start_date", date?.toString())}
                                     variant="bordered"
                                     isRequired
+                                    isDateUnavailable={isDateUnavailable}
                                 />
                                 {formData.leave_duration_type === "Multiple" && (
                                     <DatePicker
@@ -251,6 +261,7 @@ export default function AddEditLeaveRequestDrawer({
                                         onChange={(date) => handleSelectChange("end_date", date?.toString())}
                                         variant="bordered"
                                         isRequired
+                                        isDateUnavailable={isDateUnavailable}
                                     />
                                 )}
                             </div>
@@ -301,7 +312,7 @@ export default function AddEditLeaveRequestDrawer({
                                     labelIdle='Drag & Drop your file or <span class="filepond--label-action">Browse</span>'
                                     acceptedFileTypes={['image/png', 'image/jpeg', 'image/webp', 'application/pdf']}
                                 />
-                                 
+
                             </div>
                         </DrawerBody>
                         <DrawerFooter>
