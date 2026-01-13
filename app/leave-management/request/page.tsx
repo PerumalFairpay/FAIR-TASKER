@@ -40,6 +40,8 @@ import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
 
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesRequest } from "@/store/employee/action";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
 
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
@@ -52,6 +54,7 @@ export default function LeaveRequestPage() {
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
+    const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [employeeFilter, setEmployeeFilter] = useState<string>("");
@@ -296,20 +299,33 @@ export default function LeaveRequestPage() {
                                 </span>
                             </TableCell>
                             <TableCell>
-                                {item.attachment && (
-                                    <Tooltip content="View Attachment">
-                                        <Button
-                                            isIconOnly
-                                            size="sm"
-                                            variant="light"
-                                            as="a"
-                                            href={item.attachment}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <Paperclip size={18} className="text-primary" />
-                                        </Button>
-                                    </Tooltip>
+                                {item.attachment ? (
+                                    <div
+                                        className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
+                                        onClick={() => {
+                                            const extension = item.attachment.split('.').pop()?.toLowerCase();
+                                            let type = item.file_type;
+                                            if (!type) {
+                                                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
+                                                    type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                                                } else if (extension === 'pdf') {
+                                                    type = 'application/pdf';
+                                                }
+                                            }
+                                            setPreviewData({
+                                                url: item.attachment,
+                                                type: type,
+                                                name: "Leave Attachment",
+                                            });
+                                        }}
+                                    >
+                                        <FileTypeIcon
+                                            fileType={item.file_type}
+                                            fileName={item.attachment}
+                                        />
+                                    </div>
+                                ) : (
+                                    <span className="text-default-300 text-sm">-</span>
                                 )}
                             </TableCell>
                             <TableCell>
@@ -426,6 +442,16 @@ export default function LeaveRequestPage() {
                 onConfirm={handleRejectConfirm}
                 loading={loading}
             />
+
+            {previewData && (
+                <FilePreviewModal
+                    isOpen={Boolean(previewData)}
+                    onClose={() => setPreviewData(null)}
+                    fileUrl={previewData.url}
+                    fileType={previewData.type}
+                    fileName={previewData.name}
+                />
+            )}
         </div>
     );
 }

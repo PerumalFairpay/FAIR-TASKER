@@ -23,6 +23,8 @@ import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
 import { Upload } from "lucide-react";
 
+import FileUpload from "@/components/common/FileUpload";
+
 interface AddEditLeaveRequestDrawerProps {
     isOpen: boolean;
     onOpenChange: (isOpen: boolean) => void;
@@ -56,7 +58,7 @@ export default function AddEditLeaveRequestDrawer({
         total_days: 1,
         reason: "",
     });
-    const [attachment, setAttachment] = useState<File | null>(null);
+    const [files, setFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -91,6 +93,7 @@ export default function AddEditLeaveRequestDrawer({
                 total_days: selectedRequest.total_days || 1,
                 reason: selectedRequest.reason || "",
             });
+            setFiles([]); // Reset files on edit open, as we don't pre-fill existing files in FilePond usually
         } else {
             setFormData({
                 employee_id: "",
@@ -102,7 +105,7 @@ export default function AddEditLeaveRequestDrawer({
                 total_days: 1,
                 reason: "",
             });
-            setAttachment(null);
+            setFiles([]);
         }
     }, [mode, selectedRequest, isOpen]);
 
@@ -140,12 +143,6 @@ export default function AddEditLeaveRequestDrawer({
         setFormData(newData);
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setAttachment(e.target.files[0]);
-        }
-    };
-
     const handleSubmit = () => {
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
@@ -153,8 +150,8 @@ export default function AddEditLeaveRequestDrawer({
                 data.append(key, value.toString());
             }
         });
-        if (attachment) {
-            data.append("attachment", attachment);
+        if (files.length > 0) {
+            data.append("attachment", files[0].file);
         }
         onSubmit(data);
     };
@@ -296,19 +293,15 @@ export default function AddEditLeaveRequestDrawer({
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-medium text-default-700">Attachment (Optional)</label>
-                                <div className="relative group">
-                                    <input
-                                        type="file"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    />
-                                    <div className="border-2 border-dashed border-default-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-colors bg-default-50">
-                                        <Upload className="text-default-400 group-hover:text-primary" size={24} />
-                                        <span className="text-sm text-default-500">
-                                            {attachment ? attachment.name : "Click or drag to upload"}
-                                        </span>
-                                    </div>
-                                </div>
+                                <FileUpload
+                                    files={files}
+                                    setFiles={setFiles}
+                                    name="attachment"
+                                    allowMultiple={false}
+                                    labelIdle='Drag & Drop your file or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['image/png', 'image/jpeg', 'image/webp', 'application/pdf']}
+                                />
+                                 
                             </div>
                         </DrawerBody>
                         <DrawerFooter>
