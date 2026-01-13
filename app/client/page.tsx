@@ -24,6 +24,7 @@ import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon, User2, Mail, Phone, MapPin } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { Avatar } from "@heroui/avatar";
+import { User } from "@heroui/user";
 import AddEditClientDrawer from "./AddEditClientDrawer";
 import DeleteClientModal from "./DeleteClientModal";
 
@@ -96,7 +97,7 @@ export default function ClientListPage() {
                 </Button>
             </div>
 
-            <Table aria-label="Clients table">
+            <Table aria-label="Clients table" removeWrapper isHeaderSticky>
                 <TableHeader>
                     <TableColumn>COMPANY</TableColumn>
                     <TableColumn>CONTACT PERSON</TableColumn>
@@ -108,18 +109,13 @@ export default function ClientListPage() {
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>
-                                <div className="flex items-center gap-3">
-                                    <Avatar
-                                        src={item.logo}
-                                        name={item.company_name}
-                                        radius="lg"
-                                        className="w-10 h-10 border border-divider"
-                                    />
-                                    <div className="flex flex-col">
-                                        <p className="text-bold text-sm">{item.company_name}</p>
-                                        <p className="text-tiny text-default-400 capitalize">{item.description || "No description"}</p>
-                                    </div>
-                                </div>
+                                <User
+                                    avatarProps={{ radius: "lg", src: item.logo, name: item.company_name }}
+                                    description={item.description || "No description"}
+                                    name={item.company_name}
+                                >
+                                    {item.description || "No description"}
+                                </User>
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col">

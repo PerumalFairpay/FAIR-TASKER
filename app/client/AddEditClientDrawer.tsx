@@ -9,6 +9,7 @@ import {
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import FileUpload from "@/components/common/FileUpload";
 
 interface AddEditClientDrawerProps {
     isOpen: boolean;
@@ -28,27 +29,22 @@ export default function AddEditClientDrawer({
     onSubmit,
 }: AddEditClientDrawerProps) {
     const [formData, setFormData] = useState<any>({});
-    const [logo, setLogo] = useState<File | null>(null);
+    const [files, setFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedClient) {
             setFormData({ ...selectedClient });
+            setFiles([]); // Reset files, as we don't pre-populate existing files in FilePond usually for this flow
         } else if (isOpen && mode === "create") {
             setFormData({
                 status: "Active"
             });
-            setLogo(null);
+            setFiles([]);
         }
     }, [isOpen, mode, selectedClient]);
 
     const handleChange = (name: string, value: string) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setLogo(e.target.files[0]);
-        }
     };
 
     const handleSubmit = () => {
@@ -70,8 +66,9 @@ export default function AddEditClientDrawer({
             }
         });
 
-        if (logo) {
-            data.append("logo", logo);
+        // Append the first file if it exists, as logo
+        if (files.length > 0) {
+            data.append("logo", files[0].file);
         }
 
         onSubmit(data);
@@ -169,19 +166,15 @@ export default function AddEditClientDrawer({
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-small font-medium text-foreground">Company Logo</label>
-                                <div className="border-2 border-dashed border-default-200 rounded-xl p-4 hover:border-primary transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <div className="flex flex-col items-center justify-center gap-1">
-                                        <p className="text-tiny text-default-500">
-                                            {logo ? logo.name : "Click to upload logo"}
-                                        </p>
-                                    </div>
-                                </div>
+                                <FileUpload
+                                    files={files}
+                                    setFiles={setFiles}
+                                    name="logo"
+                                    allowMultiple={false}
+                                    labelIdle='Drag & Drop your logo or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['image/png', 'image/jpeg', 'image/webp']}
+                                />
+                                 
                             </div>
                         </DrawerBody>
                         <DrawerFooter>
