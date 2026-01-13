@@ -125,8 +125,13 @@ export default function AddEditLeaveRequestDrawer({
 
         if (name === "date_range") {
             if (value) {
-                newData.start_date = value.start.toString();
-                newData.end_date = value.end.toString();
+                if (value.start.toString() === value.end.toString()) {
+                    newData.start_date = "";
+                    newData.end_date = "";
+                } else {
+                    newData.start_date = value.start.toString();
+                    newData.end_date = value.end.toString();
+                }
             }
         } else {
             newData = { ...newData, [name]: value };
@@ -360,10 +365,10 @@ export default function AddEditLeaveRequestDrawer({
                                 {formData.leave_duration_type === "Multiple" ? (
                                     <DateRangePicker
                                         label="Date Range"
-                                        value={{
+                                        value={formData.start_date && formData.end_date ? {
                                             start: parseDate(formData.start_date),
                                             end: parseDate(formData.end_date),
-                                        }}
+                                        } : null}
                                         onChange={(value) => handleSelectChange("date_range", value)}
                                         variant="bordered"
                                         isRequired
