@@ -15,6 +15,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate, today, getLocalTimeZone } from "@internationalized/date";
+import FileUpload from "@/components/common/FileUpload";
 
 // Helper to build hierarchy for dropdown
 const buildDropdownOptions = (categories: any[]) => {
@@ -82,7 +83,7 @@ export default function AddEditAssetDrawer({
     const categoryOptions = useMemo(() => buildDropdownOptions(assetCategories || []), [assetCategories]);
 
     const [formData, setFormData] = useState<any>({});
-    const [files, setFiles] = useState<FileList | null>(null);
+    const [files, setFiles] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -100,18 +101,12 @@ export default function AddEditAssetDrawer({
                 status: "Available",
                 purchase_cost: 0,
             });
-            setFiles(null);
+            setFiles([]);
         }
     }, [isOpen, mode, selectedAsset]);
 
     const handleChange = (name: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setFiles(e.target.files);
-        }
     };
 
     const handleSubmit = () => {
@@ -130,10 +125,10 @@ export default function AddEditAssetDrawer({
             }
         });
 
-        if (files) {
-            for (let i = 0; i < files.length; i++) {
-                data.append("images", files[i]);
-            }
+        if (files.length > 0) {
+            files.forEach((fileItem) => {
+                data.append("images", fileItem.file);
+            });
         }
 
         onSubmit(data);
@@ -304,21 +299,15 @@ export default function AddEditAssetDrawer({
 
                             <div className="flex flex-col gap-2">
                                 <label className="text-small font-medium text-foreground">Asset Images</label>
-                                <div className="border-2 border-dashed border-default-200 rounded-xl p-8 hover:border-primary transition-colors cursor-pointer relative">
-                                    <input
-                                        type="file"
-                                        multiple
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                    />
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <p className="text-sm text-default-600">
-                                            {files ? `${files.length} files selected` : "Click or drag images to upload"}
-                                        </p>
-                                        <p className="text-tiny text-default-400">Supports PNG, JPG (Multiple files allowed)</p>
-                                    </div>
-                                </div>
+                                <FileUpload
+                                    files={files}
+                                    setFiles={setFiles}
+                                    name="images"
+                                    allowMultiple={true}
+                                    labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
+                                    acceptedFileTypes={['image/jpeg', 'image/png', 'image/webp', 'application/pdf']}
+                                />
+                                <p className="text-tiny text-default-400">Supports PNG, JPG, PDF (Multiple files allowed)</p>
                             </div>
                         </DrawerBody>
                         <DrawerFooter className="px-6 py-4 border-t border-divider">

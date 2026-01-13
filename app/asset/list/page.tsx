@@ -26,8 +26,8 @@ import { PlusIcon, PencilIcon, TrashIcon, Eye } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import AddEditAssetDrawer from "./AddEditAssetDrawer";
 import DeleteAssetModal from "./DeleteAssetModal";
-// import AddEditAssetDrawer from "./AddEditAssetDrawer";
-// import DeleteAssetModal from "./DeleteAssetModal";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
 
 export default function AssetListPage() {
     const dispatch = useDispatch();
@@ -39,6 +39,7 @@ export default function AssetListPage() {
 
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedAsset, setSelectedAsset] = useState<any>(null);
+    const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
     useEffect(() => {
         dispatch(getAssetsRequest());
@@ -113,6 +114,7 @@ export default function AssetListPage() {
                     <TableColumn>PURCHASE DATE</TableColumn>
                     <TableColumn>COST</TableColumn>
                     <TableColumn>STATUS</TableColumn>
+                    <TableColumn>ATTACHMENT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody items={assets || []} emptyContent={"No assets found"} isLoading={loading}>
@@ -141,12 +143,32 @@ export default function AssetListPage() {
                                 </Chip>
                             </TableCell>
                             <TableCell>
+                                {item.images && item.images.length > 0 ? (
+                                    <div
+                                        className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
+                                        onClick={() => {
+                                            const url = item.images[0];
+                                            const extension = url.split('.').pop()?.toLowerCase();
+                                            let type = item.file_type;
+                                            // Fallback for missing file_type
+                                            if (!type && ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension || '')) {
+                                                type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                                            }
+                                            setPreviewData({
+                                                url: url,
+                                                type: type,
+                                                name: item.asset_name ? `Asset - ${item.asset_name}` : "Asset Image"
+                                            });
+                                        }}
+                                    >
+                                        <FileTypeIcon fileType={item.file_type} fileName={item.images[0]} />
+                                    </div>
+                                ) : (
+                                    <span className="text-default-300 text-sm">No File</span>
+                                )}
+                            </TableCell>
+                            <TableCell>
                                 <div className="relative flex items-center justify-center gap-2">
-                                    {item.images && item.images.length > 0 && (
-                                        <a href={item.images[0]} target="_blank" rel="noreferrer" className="text-lg text-primary cursor-pointer active:opacity-50">
-                                            <Eye size={18} />
-                                        </a>
-                                    )}
                                     <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
                                         <PencilIcon size={18} />
                                     </span>
@@ -176,6 +198,16 @@ export default function AssetListPage() {
                 onConfirm={handleDeleteConfirm}
                 loading={loading}
             />
+
+            {previewData && (
+                <FilePreviewModal
+                    isOpen={!!previewData}
+                    onClose={() => setPreviewData(null)}
+                    fileUrl={previewData.url}
+                    fileType={previewData.type}
+                    fileName={previewData.name}
+                />
+            )}
         </div>
     );
 }
