@@ -275,6 +275,9 @@ export default function AttendancePage() {
     const absentDays = metrics?.absent || 0;
     const leaveDays = metrics?.leave || 0;
 
+    // Filter columns based on role
+    const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
+
     return (
         <div className="p-6">
             {/* Header Section */}
@@ -493,7 +496,7 @@ export default function AttendancePage() {
 
                     {/* Data Table */}
                     <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
-                        <TableHeader columns={columns}>
+                        <TableHeader columns={displayColumns}>
                             {(column: any) => (
                                 <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
                                     {column.name}
