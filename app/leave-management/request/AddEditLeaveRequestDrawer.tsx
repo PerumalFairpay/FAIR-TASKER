@@ -141,31 +141,15 @@ export default function AddEditLeaveRequestDrawer({
                 try {
                     const start = parseDate(newData.start_date);
                     const end = parseDate(newData.end_date);
-
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    let count = 0;
-                    // Iterate through each day in the range
-                    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
-                        const year = d.getFullYear();
-                        const month = String(d.getMonth() + 1).padStart(2, '0');
-                        const day = String(d.getDate()).padStart(2, '0');
-                        const dateStr = `${year}-${month}-${day}`;
-
-                        // Check if the current day is a holiday
-                        const isHoliday = holidays.some(
-                            (h: any) => h.date === dateStr && h.status === "Active"
-                        );
-
-                        if (!isHoliday) {
-                            count++;
-                        }
-                    }
-                    newData.total_days = count;
+                    // Count every day in the range regardless of holidays
+                    const diffTime = d2.getTime() - d1.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    newData.total_days = diffDays > 0 ? diffDays : 0;
                 } catch (e) {
-                    // Keep existing total_days if calculation fails
-                    console.error("Error calculating days:", e)
+                    console.error("Error calculating days:", e);
                 }
             }
         }
