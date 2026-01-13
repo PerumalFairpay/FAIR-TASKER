@@ -26,6 +26,7 @@ import { Chip } from "@heroui/chip";
 import AddEditExpenseDrawer from "./AddEditExpenseDrawer";
 import DeleteExpenseModal from "./DeleteExpenseModal";
 import { PageHeader } from "@/components/PageHeader";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
 
 export default function ExpenseListPage() {
     const dispatch = useDispatch();
@@ -37,6 +38,7 @@ export default function ExpenseListPage() {
 
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedExpense, setSelectedExpense] = useState<any>(null);
+    const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
     useEffect(() => {
         dispatch(getExpensesRequest());
@@ -134,9 +136,16 @@ export default function ExpenseListPage() {
                             <TableCell>
                                 <div className="relative flex items-center justify-center gap-2">
                                     {item.attachment && (
-                                        <a href={item.attachment} target="_blank" rel="noreferrer" className="text-lg text-primary cursor-pointer active:opacity-50">
+                                        <span
+                                            className="text-lg text-primary cursor-pointer active:opacity-50"
+                                            onClick={() => setPreviewData({
+                                                url: item.attachment,
+                                                type: item.file_type,
+                                                name: item.purpose ? `Proof - ${item.purpose}` : "Expense Proof"
+                                            })}
+                                        >
                                             <Eye size={18} />
-                                        </a>
+                                        </span>
                                     )}
                                     <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
                                         <PencilIcon size={18} />
@@ -166,6 +175,16 @@ export default function ExpenseListPage() {
                 onConfirm={handleDeleteConfirm}
                 loading={loading}
             />
+
+            {previewData && (
+                <FilePreviewModal
+                    isOpen={Boolean(previewData)}
+                    onClose={() => setPreviewData(null)}
+                    fileUrl={previewData.url}
+                    fileType={previewData.type}
+                    fileName={previewData.name}
+                />
+            )}
         </div>
     );
 }
