@@ -61,6 +61,7 @@ export default function AddEditLeaveRequestDrawer({
         reason: "",
     });
     const [files, setFiles] = useState<any[]>([]);
+    const [lopWarning, setLopWarning] = useState<{ title: string; holidays: string[] } | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -97,6 +98,7 @@ export default function AddEditLeaveRequestDrawer({
                 reason: selectedRequest.reason || "",
             });
             setFiles([]); // Reset files on edit open, as we don't pre-fill existing files in FilePond usually
+            setLopWarning(null);
         } else {
             setFormData({
                 employee_id: "",
@@ -109,6 +111,7 @@ export default function AddEditLeaveRequestDrawer({
                 reason: "",
             });
             setFiles([]);
+            setLopWarning(null);
         }
     }, [mode, selectedRequest, isOpen]);
 
@@ -131,6 +134,7 @@ export default function AddEditLeaveRequestDrawer({
 
         // Auto calculate days if dates or type change
         if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range") {
+            setLopWarning(null);
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
                 newData.total_days = 1;
@@ -177,28 +181,47 @@ export default function AddEditLeaveRequestDrawer({
                 const prevDateStr = formatDate(prevDay);
                 const nextDateStr = formatDate(nextDay);
 
-                const isPrevDayHoliday = holidays.some((h: any) => h.date === prevDateStr && h.status === "Active");
-                const isNextDayHoliday = holidays.some((h: any) => h.date === nextDateStr && h.status === "Active");
+                const prevHoliday = holidays.find((h: any) => h.date === prevDateStr && h.status === "Active");
+                const nextHoliday = holidays.find((h: any) => h.date === nextDateStr && h.status === "Active");
 
-                let isInteriorHoliday = false;
+                const interiorHolidays: any[] = [];
                 if (newData.leave_duration_type === "Multiple") {
                     for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
                         const dateStr = formatDate(d);
-                        if (holidays.some((h: any) => h.date === dateStr && h.status === "Active")) {
-                            isInteriorHoliday = true;
-                            break;
+                        const holiday = holidays.find((h: any) => h.date === dateStr && h.status === "Active");
+                        if (holiday) {
+                            interiorHolidays.push(holiday);
                         }
                     }
                 }
 
-                if (isPrevDayHoliday || isNextDayHoliday || isInteriorHoliday) {
+                if (prevHoliday || nextHoliday || interiorHolidays.length > 0) {
                     const lopType = leaveTypes?.find((lt: any) => lt.name.toLowerCase().includes("loss of pay") || lt.code === "LOP");
                     if (lopType) {
                         newData.leave_type_id = lopType.id;
                         let extraDays = 0;
-                        if (isPrevDayHoliday) extraDays += 1;
-                        if (isNextDayHoliday) extraDays += 1;
+                        const holidayDetails: string[] = [];
+
+                        if (prevHoliday) {
+                            extraDays += 1;
+                            holidayDetails.push(`${prevHoliday.name} (${prevHoliday.date})`);
+                        }
+
+                        interiorHolidays.forEach((h) => {
+                            holidayDetails.push(`${h.name} (${h.date})`);
+                        });
+
+                        if (nextHoliday) {
+                            extraDays += 1;
+                            holidayDetails.push(`${nextHoliday.name} (${nextHoliday.date})`);
+                        }
+
                         newData.total_days += extraDays;
+                        const uniqueHolidays = Array.from(new Set(holidayDetails));
+                        setLopWarning({
+                            title: "Sandwich Rule Applied (Loss of Pay)",
+                            holidays: uniqueHolidays
+                        });
                     }
                 }
             } catch (e) {
@@ -248,6 +271,20 @@ export default function AddEditLeaveRequestDrawer({
                                     </div>
                                 </Alert>
                             )}
+                            {lopWarning && (
+                                <Alert color="warning" title={lopWarning.title}>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm">
+                                            The following holidays are included in your leave duration:
+                                        </span>
+                                        <ul className="list-disc list-inside text-sm ml-2">
+                                            {lopWarning.holidays.map((h, i) => (
+                                                <li key={i}>{h}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </Alert>
+                            )}
                             <Select
                                 label="Employee"
                                 placeholder="Select employee"
@@ -274,6 +311,7 @@ export default function AddEditLeaveRequestDrawer({
                                 onSelectionChange={(keys) => handleSelectChange("leave_type_id", Array.from(keys)[0])}
                                 variant="bordered"
                                 isRequired
+                                isDisabled={!!lopWarning}
                             >
                                 {(leaveTypes || []).map((lt: any) => {
                                     const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
