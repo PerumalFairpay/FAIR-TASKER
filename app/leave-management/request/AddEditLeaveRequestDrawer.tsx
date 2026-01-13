@@ -373,6 +373,9 @@ export default function AddEditLeaveRequestDrawer({
                                         allowsNonContiguousRanges
                                         isInvalid={!!lopWarning}
                                         errorMessage={lopWarning ? "Sandwich Rule Applied: Holidays are included in your leave." : undefined}
+                                        calendarProps={{
+                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
+                                        }}
                                     />
                                 ) : (
                                     <DatePicker
@@ -384,6 +387,9 @@ export default function AddEditLeaveRequestDrawer({
                                         isDateUnavailable={isDateUnavailable}
                                         className="col-span-2"
                                         minValue={today(getLocalTimeZone())}
+                                        calendarProps={{
+                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
+                                        }}
                                     />
                                 )}
                             </div>
