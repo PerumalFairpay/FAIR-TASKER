@@ -1,0 +1,272 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
+import { Button } from "@heroui/button";
+import { Input, Textarea } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@/store/rootReducer";
+import { createTaskRequest, updateTaskRequest, deleteTaskRequest } from "@/store/task/action";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
+import { Avatar } from "@heroui/avatar";
+import { Chip } from "@heroui/chip";
+import { X, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+
+interface AddEditTaskDrawerProps {
+    isOpen: boolean;
+    onClose: () => void;
+    task?: any;
+    selectedDate?: string;
+}
+
+const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskDrawerProps) => {
+    const dispatch = useDispatch();
+    const { projects } = useSelector((state: AppState) => state.Project);
+    const { employees } = useSelector((state: AppState) => state.Employee);
+
+    const initialFormData = {
+        project_id: "",
+        task_name: "",
+        description: "",
+        start_date: selectedDate || new Date().toISOString().split("T")[0],
+        end_date: selectedDate || new Date().toISOString().split("T")[0],
+        start_time: "09:00",
+        end_time: "18:00",
+        priority: "Medium",
+        assigned_to: [] as string[],
+        tags: [] as string[],
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        if (isOpen) {
+            if (task) {
+                setFormData({
+                    project_id: task.project_id || "",
+                    task_name: task.task_name || "",
+                    description: task.description || "",
+                    start_date: task.start_date || "",
+                    end_date: task.end_date || "",
+                    start_time: task.start_time || "09:00",
+                    end_time: task.end_time || "18:00",
+                    priority: task.priority || "Medium",
+                    assigned_to: task.assigned_to || [],
+                    tags: task.tags || [],
+                });
+            } else {
+                setFormData({
+                    ...initialFormData,
+                    start_date: selectedDate || new Date().toISOString().split("T")[0],
+                    end_date: selectedDate || new Date().toISOString().split("T")[0],
+                });
+            }
+        } else {
+            // Reset form when drawer closes
+            setFormData(initialFormData);
+        }
+    }, [task, isOpen, selectedDate]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (task) {
+            dispatch(updateTaskRequest(task.id, formData));
+        } else {
+            dispatch(createTaskRequest(formData));
+        }
+        onClose();
+    };
+
+    return (
+        <Drawer isOpen={isOpen} onClose={onClose} size="md">
+            <DrawerContent>
+                <form onSubmit={handleSubmit} className="h-full flex flex-col">
+                    <DrawerHeader className="flex flex-col gap-1">
+                        {task ? "Edit Task" : "Create New Task"}
+                    </DrawerHeader>
+                    <DrawerBody className="gap-4">
+                        <Select
+                            label="Project"
+                            placeholder="Select project"
+                            selectedKeys={formData.project_id ? [formData.project_id] : []}
+                            onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
+                            required
+                        >
+                            {projects.map((project: any) => (
+                                <SelectItem key={project.id}>
+                                    {project.name}
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+                        <Input
+                            label="Task Name"
+                            placeholder="What needs to be done?"
+                            value={formData.task_name}
+                            onChange={(e) => setFormData({ ...formData, task_name: e.target.value })}
+                            required
+                        />
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-small font-medium text-foreground">
+                                Description
+                            </label>
+                            <ReactQuill
+                                theme="snow"
+                                value={formData.description}
+                                onChange={(value) => setFormData({ ...formData, description: value })}
+                                className="rounded-xl mb-4"
+                                style={{ height: "200px", marginBottom: "50px" }}
+                            />
+                        </div>
+
+                        <style jsx global>{`
+                            .ql-toolbar.ql-snow {
+                                border-color: var(--heroui-default-200) !important;
+                                border-top-left-radius: 0.75rem;
+                                border-top-right-radius: 0.75rem;
+                            }
+                            .ql-container.ql-snow {
+                                border-color: var(--heroui-default-200) !important;
+                                border-bottom-left-radius: 0.75rem;
+                                border-bottom-right-radius: 0.75rem;
+                                min-height: 150px;
+                            }
+                            .dark .ql-editor { color: #E3E3E3; }
+                            .dark .ql-stroke { stroke: #E3E3E3 !important; }
+                            .dark .ql-fill { fill: #E3E3E3 !important; }
+                            .dark .ql-picker { color: #E3E3E3 !important; }
+                        `}</style>
+
+                        <div className="flex flex-col gap-4">
+                            <div className="flex gap-4">
+                                <DatePicker
+                                    label="Start Date"
+                                    value={formData.start_date ? parseDate(formData.start_date) : undefined}
+                                    onChange={(date) => {
+                                        const newStartStr = date ? date.toString() : "";
+                                        let newEndStr = formData.end_date;
+                                        if (newStartStr && formData.end_date && newStartStr > formData.end_date) {
+                                            newEndStr = newStartStr;
+                                        }
+                                        setFormData({ ...formData, start_date: newStartStr, end_date: newEndStr });
+                                    }}
+                                    isRequired
+                                    isDisabled={!task}
+                                    className="flex-1"
+                                />
+                                <Input
+                                    type="time"
+                                    label="Start Time"
+                                    value={formData.start_time}
+                                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                                    className="w-[150px]"
+                                />
+                            </div>
+                            <div className="flex gap-4">
+                                <DatePicker
+                                    label="End Date"
+                                    value={formData.end_date ? parseDate(formData.end_date) : undefined}
+                                    onChange={(date) => setFormData({ ...formData, end_date: date ? date.toString() : "" })}
+                                    isRequired
+                                    minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
+                                    className="flex-1"
+                                />
+                                <Input
+                                    type="time"
+                                    label="End Time"
+                                    value={formData.end_time}
+                                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                                    className="w-[150px]"
+                                />
+                            </div>
+                        </div>
+
+                        <Select
+                            label="Priority"
+                            selectedKeys={[formData.priority]}
+                            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                        >
+                            <SelectItem key="Low">Low</SelectItem>
+                            <SelectItem key="Medium">Medium</SelectItem>
+                            <SelectItem key="High">High</SelectItem>
+                            <SelectItem key="Urgent">Urgent</SelectItem>
+                        </Select>
+
+                        <Select
+                            label="Assigned To"
+                            placeholder="Select team members"
+                            selectionMode="multiple"
+                            selectedKeys={new Set(formData.assigned_to)}
+                            onSelectionChange={(keys) => setFormData({ ...formData, assigned_to: Array.from(keys) as string[] })}
+                            renderValue={(items) => (
+                                <div className="flex flex-wrap gap-1">
+                                    {items.map((item) => (
+                                        <Chip key={item.key} size="sm" variant="flat">
+                                            {item.textValue}
+                                        </Chip>
+                                    ))}
+                                </div>
+                            )}
+                        >
+                            {employees.map((employee: any) => (
+                                <SelectItem
+                                    key={employee.employee_no_id}
+                                    textValue={employee.name}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Avatar size="sm" src={employee.profile_picture} name={employee.name} />
+                                        <span>{employee.name}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+                        <Input
+                            label="Tags (Comma separated)"
+                            placeholder="e.g. backend, bug, ui"
+                            value={formData.tags.join(", ")}
+                            onChange={(e) => setFormData({
+                                ...formData,
+                                tags: e.target.value.split(",").map(t => t.trim()).filter(t => t !== "")
+                            })}
+                        />
+                    </DrawerBody>
+                    <DrawerFooter>
+                        <div className="flex w-full justify-between">
+                            {task && (
+                                <Button
+                                    color="danger"
+                                    variant="flat"
+                                    startContent={<Trash2 size={18} />}
+                                    onPress={() => {
+                                        dispatch(deleteTaskRequest(task.id));
+                                        onClose();
+                                    }}
+                                >
+                                    Delete
+                                </Button>
+                            )}
+                            <div className="flex gap-2 ml-auto">
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="primary" type="submit">
+                                    {task ? "Update Task" : "Create Task"}
+                                </Button>
+                            </div>
+                        </div>
+                    </DrawerFooter>
+                </form>
+            </DrawerContent>
+        </Drawer>
+    );
+};
+
+export default AddEditTaskDrawer;

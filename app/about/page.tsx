@@ -1,9 +1,10 @@
 import { title } from "@/components/primitives";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function AboutPage() {
   return (
-    <div>
-      <h1 className={title()}>About</h1>
+    <div className="p-6">
+      <PageHeader title="About" />
     </div>
   );
 }

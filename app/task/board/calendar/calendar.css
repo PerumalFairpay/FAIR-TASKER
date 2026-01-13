@@ -1,0 +1,216 @@
+/* FullCalendar Custom Styles */
+
+.calendar-page-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+
+
+/* Main Calendar Overrides for Split View */
+.calendar-container {
+    min-height: 0;
+    /* Allow flex shrink */
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Rest of the previous CSS remains... */
+.fc .fc-toolbar {
+    display: none;
+}
+
+/* Base Grid Styles */
+.fc-theme-standard td,
+.fc-theme-standard th {
+    border-color: #f0f0f0;
+}
+
+:root.dark .fc-theme-standard td,
+:root.dark .fc-theme-standard th {
+    border-color: #2d2e30;
+}
+
+/* Header Cells (SUN 21) */
+.fc .fc-col-header-cell {
+    background: transparent;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.fc-col-header-cell-cushion {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 12px;
+    text-decoration: none !important;
+    color: #1f1f1f;
+}
+
+:root.dark .fc-col-header-cell-cushion {
+    color: #e3e3e3;
+}
+
+.fc-day-header-weekday {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6b7280;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.fc-day-header-day {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+/* Time Slots */
+.fc .fc-timegrid-slot {
+    height: 60px;
+    /* Taller slots */
+}
+
+.fc .fc-timegrid-slot-label {
+    vertical-align: top;
+}
+
+.fc-timegrid-slot-label-cushion {
+    font-size: 11px;
+    color: #6b7280;
+    padding-top: 8px;
+    text-transform: uppercase;
+}
+
+/* Current Time Indicator */
+.fc .fc-timegrid-now-indicator-line {
+    border-color: #ea4335;
+    border-width: 2px;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+    border-color: #ea4335;
+    border-width: 6px;
+}
+
+/* Today Background Override */
+.fc .fc-day-today {
+    background-color: rgba(0, 182, 240, 0.05) !important;
+}
+
+:root.dark .fc .fc-day-today {
+    background-color: rgba(0, 182, 240, 0.1) !important;
+}
+
+/* Event Styling */
+.fc-v-event {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.fc-v-event .fc-event-main {
+    padding: 0;
+    height: 100%;
+}
+
+/* Custom Event Card */
+.custom-calendar-event {
+    height: 100%;
+    width: 100%;
+    border-left-width: 4px;
+    border-left-style: solid;
+    padding: 4px 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+}
+
+.custom-calendar-event:hover {
+    filter: brightness(0.95);
+}
+
+.event-time {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.event-title {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* Custom Header Buttons */
+.view-btn {
+    position: relative;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.view-btn:hover {
+    color: #1f1f1f;
+}
+
+.view-btn.active {
+    background-color: #dc2626;
+    /* Red color from image */
+    color: white;
+    border-radius: 6px;
+}
+
+:root.dark .view-btn.active {
+    background-color: #dc2626;
+
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .calendar-page-container {
+        flex-direction: column;
+    }
+
+
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .fc-header-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .custom-calendar-event {
+        padding: 2px 4px;
+        border-left-width: 3px;
+    }
+
+    .event-time {
+        font-size: 9px;
+    }
+
+    .event-title {
+        font-size: 10px;
+    }
+
+    .fc-day-header-day {
+        font-size: 18px;
+    }
+
+    .fc-day-header-weekday {
+        font-size: 10px;
+    }
+}
