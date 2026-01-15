@@ -14,7 +14,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight
+    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -26,6 +26,7 @@ import clsx from "clsx";
 // import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import EodReportDrawer from "./EodReportDrawer";
 import AddEditTaskDrawer from "./AddEditTaskDrawer";
+import TaskDetailModal from "./TaskDetailModal";
 
 const COLUMNS = [
     { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
@@ -43,6 +44,7 @@ const TaskBoard = () => {
 
     const [enabled, setEnabled] = useState(false);
     const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isEodDrawerOpen, setIsEodDrawerOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
@@ -193,6 +195,11 @@ const TaskBoard = () => {
         setSelectedTask(task);
         dispatch(getTaskRequest(task.id));
         setIsTaskDrawerOpen(true);
+    };
+
+    const handleViewTask = (task: any) => {
+        setSelectedTask(task);
+        setIsDetailModalOpen(true);
     };
 
     const changeDate = (days: number) => {
@@ -349,14 +356,27 @@ const TaskBoard = () => {
                                                                     <h4 className="font-semibold text-sm line-clamp-2 flex-1">
                                                                         {task.task_name}
                                                                     </h4>
-                                                                    <Chip
-                                                                        size="sm"
-                                                                        color={getPriorityColor(task.priority)}
-                                                                        variant="flat"
-                                                                        className="capitalize text-[10px] h-5"
-                                                                    >
-                                                                        {task.priority || "Medium"}
-                                                                    </Chip>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                                            <Button
+                                                                                isIconOnly
+                                                                                size="sm"
+                                                                                variant="light"
+                                                                                className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50"
+                                                                                onPress={() => handleViewTask(task)}
+                                                                            >
+                                                                                <Eye size={14} />
+                                                                            </Button>
+                                                                        </div>
+                                                                        <Chip
+                                                                            size="sm"
+                                                                            color={getPriorityColor(task.priority)}
+                                                                            variant="flat"
+                                                                            className="capitalize text-[10px] h-5"
+                                                                        >
+                                                                            {task.priority || "Medium"}
+                                                                        </Chip>
+                                                                    </div>
                                                                 </div>
 
                                                                 {task.description && (
@@ -449,6 +469,12 @@ const TaskBoard = () => {
                 onClose={() => setIsEodDrawerOpen(false)}
                 tasks={eodDrawerTasks}
                 initialReports={eodDrawerInitialReports}
+            />
+
+            <TaskDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                task={selectedTask}
             />
         </div>
     );
