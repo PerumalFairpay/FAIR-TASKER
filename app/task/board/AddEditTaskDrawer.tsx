@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
@@ -12,7 +12,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
-import { X, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
+import { X, Trash2, Calendar as CalendarIcon, Clock, Paperclip } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -25,10 +25,17 @@ interface AddEditTaskDrawerProps {
     selectedDate?: string;
 }
 
+interface Attachment {
+    file_name: string;
+    file_url: string;
+    file_type?: string;
+}
+
 const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskDrawerProps) => {
     const dispatch = useDispatch();
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const initialFormData = {
         project_id: "",
@@ -41,9 +48,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
+        attachments: [] as File[],
     };
 
     const [formData, setFormData] = useState(initialFormData);
+    const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -59,26 +68,69 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                     priority: task.priority || "Medium",
                     assigned_to: task.assigned_to || [],
                     tags: task.tags || [],
+                    attachments: [],
                 });
+                setExistingAttachments(task.attachments || []);
             } else {
                 setFormData({
                     ...initialFormData,
                     start_date: selectedDate || new Date().toISOString().split("T")[0],
                     end_date: selectedDate || new Date().toISOString().split("T")[0],
                 });
+                setExistingAttachments([]);
             }
         } else {
             // Reset form when drawer closes
             setFormData(initialFormData);
+            setExistingAttachments([]);
         }
     }, [task, isOpen, selectedDate]);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setFormData({
+                ...formData,
+                attachments: [...formData.attachments, ...Array.from(e.target.files)]
+            });
+        }
+    };
+
+    const removeAttachment = (index: number) => {
+        const newAttachments = [...formData.attachments];
+        newAttachments.splice(index, 1);
+        setFormData({ ...formData, attachments: newAttachments });
+    };
+
+    const removeExistingAttachment = (index: number) => {
+        const newExisting = [...existingAttachments];
+        newExisting.splice(index, 1);
+        setExistingAttachments(newExisting);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        const data = new FormData();
+        data.append("project_id", formData.project_id);
+        data.append("task_name", formData.task_name);
+        data.append("description", formData.description);
+        data.append("start_date", formData.start_date);
+        data.append("end_date", formData.end_date);
+        data.append("start_time", formData.start_time);
+        data.append("end_time", formData.end_time);
+        data.append("priority", formData.priority);
+        data.append("status", task?.status || "Todo"); // Maintain status if editing
+        data.append("progress", task?.progress?.toString() || "0");
+
+        formData.assigned_to.forEach(id => data.append("assigned_to[]", id));
+        formData.tags.forEach(tag => data.append("tags[]", tag));
+
+        formData.attachments.forEach(file => data.append("attachments", file));
+
         if (task) {
-            dispatch(updateTaskRequest(task.id, formData));
+            dispatch(updateTaskRequest(task.id, data));
         } else {
-            dispatch(createTaskRequest(formData));
+            dispatch(createTaskRequest(data));
         }
         onClose();
     };
@@ -237,6 +289,67 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                                 tags: e.target.value.split(",").map(t => t.trim()).filter(t => t !== "")
                             })}
                         />
+
+                        {/* Attachment Section */}
+                        <div className="flex flex-col gap-2">
+                            <label className="text-small font-medium text-foreground">
+                                Attachments
+                            </label>
+                            <input
+                                type="file"
+                                multiple
+                                ref={fileInputRef}
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="flat"
+                                    startContent={<Paperclip size={16} />}
+                                    onPress={() => fileInputRef.current?.click()}
+                                >
+                                    Add Files
+                                </Button>
+                                {/* Existing Attachments */}
+                                {existingAttachments.map((item, index) => {
+                                    let fileName = "";
+                                    let url = "";
+
+                                    if (typeof item === "string") {
+                                        url = item;
+                                        fileName = url.split("/").pop() || "Attached File";
+                                    } else {
+                                        url = item.file_url;
+                                        fileName = item.file_name;
+                                    }
+
+                                    return (
+                                        <Chip
+                                            key={`existing-${index}`}
+                                            onClose={() => removeExistingAttachment(index)}
+                                            variant="flat"
+                                            color="secondary"
+                                        >
+                                            <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline">{fileName}</a>
+                                        </Chip>
+                                    );
+                                })}
+
+                                {/* New Attachments */}
+                                {formData.attachments.map((file, index) => (
+                                    <Chip
+                                        key={`new-${index}`}
+                                        onClose={() => removeAttachment(index)}
+                                        variant="flat"
+                                        color="primary"
+                                    >
+                                        {file.name}
+                                    </Chip>
+                                ))}
+                            </div>
+                        </div>
+
                     </DrawerBody>
                     <DrawerFooter>
                         <div className="flex w-full justify-between">

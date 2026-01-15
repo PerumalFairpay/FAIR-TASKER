@@ -28,8 +28,12 @@ import {
 import api from "../api";
 
 // API Functions
-function createTaskApi(payload: any) {
-    return api.post("/tasks/", payload);
+function createTaskApi(payload: FormData) {
+    return api.post("/tasks/", payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function getTasksApi(params: any) {
@@ -40,8 +44,12 @@ function getTaskApi(id: string) {
     return api.get(`/tasks/${id}`);
 }
 
-function updateTaskApi(id: string, payload: any) {
-    return api.put(`/tasks/${id}`, payload);
+function updateTaskApi(id: string, payload: FormData) {
+    return api.put(`/tasks/${id}`, payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function deleteTaskApi(id: string) {
