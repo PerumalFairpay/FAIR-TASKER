@@ -8,7 +8,7 @@ import { getUserRequest } from "@/store/auth/action";
 import clsx from "clsx";
 import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
-import infinityAnimation from "./assets/infinity.json";
+import HRMLoading from "./assets/HRMLoading.json";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -28,7 +28,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             <div className="flex items-center justify-center h-screen bg-gray-50">
                 <div className="flex flex-col items-center">
                     <Lottie
-                        animationData={infinityAnimation}
+                        animationData={HRMLoading}
                         loop={true}
                         className="w-52 h-52"
                     />
