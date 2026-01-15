@@ -45,7 +45,8 @@ export default function ProfilePage() {
 
     const [profilePic, setProfilePic] = useState<File | null>(null);
     const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
-    const [documentProof, setDocumentProof] = useState<File | null>(null);
+    const [documentProof, setDocumentProof] = useState<File | null>(null); // For new uploads
+    const [existingDocuments, setExistingDocuments] = useState<any[]>([]); // For legacy and new API list
 
     // State for Password Form
     const [passwordData, setPasswordData] = useState({
@@ -77,6 +78,18 @@ export default function ProfilePage() {
                 designation: profile.designation || user?.role || ""
             });
             setProfilePicPreview(profile.profile_picture || null);
+            if (profile.documents && profile.documents.length > 0) {
+                setExistingDocuments(profile.documents);
+            } else if (profile.document_proof) {
+                // Fallback / legacy support if needed, though API is cleaned
+                setExistingDocuments([{
+                    document_name: "Document",
+                    document_proof: profile.document_proof,
+                    file_type: "application/pdf" // default assumption fallback
+                }]);
+            } else {
+                setExistingDocuments([]);
+            }
         } else if (user) {
             setFormData(prev => ({
                 ...prev,
@@ -281,21 +294,46 @@ export default function ProfilePage() {
                                         <CardHeader className="font-semibold px-6 pt-6 text-foreground">Documents</CardHeader>
                                         <Divider />
                                         <CardBody className="px-6 py-6">
+                                            {existingDocuments.length > 0 && (
+                                                <div className="space-y-3 mb-4">
+                                                    {existingDocuments.map((doc, index) => (
+                                                        <div key={index} className="flex items-start gap-3 p-3 rounded-medium border border-divider bg-default-50">
+                                                            <FileText size={20} className="text-primary mt-0.5" />
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate" title={doc.document_name}>{doc.document_name || "Document"}</p>
+                                                                <div className="flex items-center gap-2 mt-1">
+                                                                    <span className="text-tiny text-default-400 uppercase">{doc.file_type ? doc.file_type.split('/')[1] || 'FILE' : 'FILE'}</span>
+                                                                    <span className="w-1 h-1 rounded-full bg-default-300"></span>
+                                                                    <a
+                                                                        href={doc.document_proof}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-tiny text-primary font-medium hover:underline"
+                                                                    >
+                                                                        View
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
                                             {documentProof ? (
-                                                <div className="flex items-start gap-3 p-3 rounded-medium border border-divider bg-default-50">
+                                                <div className="flex items-start gap-3 p-3 rounded-medium border border-primary-200 bg-primary-50">
                                                     <FileText size={20} className="text-primary mt-0.5" />
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-sm font-medium truncate">{documentProof.name}</p>
+                                                        <p className="text-sm font-medium truncate">New: {documentProof.name}</p>
                                                         <div className="flex items-center gap-2 mt-1">
                                                             <span className="text-tiny text-default-400">{(documentProof.size / 1024).toFixed(1)} KB</span>
                                                             <span className="w-1 h-1 rounded-full bg-default-300"></span>
-                                                            <span className="text-tiny text-success font-medium">Uploaded</span>
+                                                            <span className="text-tiny text-warning font-medium">Pending Save</span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            ) : (
+                                            ) : existingDocuments.length === 0 ? (
                                                 <div className="text-sm text-default-500 italic text-center p-4">No documents uploaded yet.</div>
-                                            )}
+                                            ) : null}
                                         </CardBody>
                                     </Card>
                                 </div>

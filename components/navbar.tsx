@@ -456,6 +456,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 )}
               </div>
             )}
+            <ThemeSwitch />
 
             <div className={clsx(
               "flex items-center gap-1",
