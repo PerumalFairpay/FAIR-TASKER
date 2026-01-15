@@ -122,7 +122,9 @@ export default function ProfilePage() {
                 docInputRef.current.value = "";
             }
         }
+    }, [profileSuccess]);
 
+    useEffect(() => {
         if (profileSuccess || profileError || passwordSuccess || passwordError) {
             const timer = setTimeout(() => {
                 dispatch(resetProfileMessages());
