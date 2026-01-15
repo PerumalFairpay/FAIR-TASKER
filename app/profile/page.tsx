@@ -76,7 +76,7 @@ export default function ProfilePage() {
                 department: profile.department || "",
                 designation: profile.designation || user?.role || ""
             });
-            setProfilePicPreview(profile.profile_picture_url || null);
+            setProfilePicPreview(profile.profile_picture || null);
         } else if (user) {
             setFormData(prev => ({
                 ...prev,
@@ -85,6 +85,7 @@ export default function ProfilePage() {
                 email: user.email || "",
                 designation: user.role || ""
             }));
+            setProfilePicPreview(user.profile_picture || null);
         }
     }, [profile, user]);
 
@@ -106,6 +107,7 @@ export default function ProfilePage() {
             const file = e.target.files[0];
             if (type === "profile") {
                 setProfilePic(file);
+                // Create a local URL for preview
                 setProfilePicPreview(URL.createObjectURL(file));
             } else {
                 setDocumentProof(file);
@@ -152,9 +154,10 @@ export default function ProfilePage() {
                                     <Skeleton className="rounded-full w-24 h-24 md:w-32 md:h-32" />
                                 ) : (
                                     <Avatar
-                                        src={profilePicPreview || ""}
+                                        src={profilePicPreview || user?.profile_picture || ""}
+                                        name={(formData.first_name || "").charAt(0).toUpperCase()}
                                         className="w-24 h-24 md:w-32 md:h-32 text-2xl"
-                                        isBordered 
+                                        isBordered
                                         radius="full"
                                         showFallback
                                     />
