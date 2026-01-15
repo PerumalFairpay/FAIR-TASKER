@@ -1,7 +1,8 @@
 import {
     GET_PROFILE_REQUEST, GET_PROFILE_SUCCESS, GET_PROFILE_FAILURE,
     UPDATE_PROFILE_REQUEST, UPDATE_PROFILE_SUCCESS, UPDATE_PROFILE_FAILURE,
-    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILURE
+    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILURE,
+    RESET_PROFILE_MESSAGES
 } from "./actionType";
 
 const initialState = {
@@ -77,6 +78,14 @@ const profileReducer = (state = initialState, action: any) => {
                 ...state,
                 passwordLoading: false,
                 passwordError: action.payload,
+            };
+        case RESET_PROFILE_MESSAGES:
+            return {
+                ...state,
+                profileSuccess: null,
+                profileError: null,
+                passwordSuccess: null,
+                passwordError: null,
             };
         default:
             return state;

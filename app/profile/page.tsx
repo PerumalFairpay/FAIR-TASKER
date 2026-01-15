@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
-import { getProfile, updateProfile, changePassword } from "@/store/profile/action";
+import { getProfile, updateProfile, changePassword, resetProfileMessages } from "@/store/profile/action";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
@@ -122,7 +122,14 @@ export default function ProfilePage() {
                 docInputRef.current.value = "";
             }
         }
-    }, [profileSuccess]);
+
+        if (profileSuccess || profileError || passwordSuccess || passwordError) {
+            const timer = setTimeout(() => {
+                dispatch(resetProfileMessages());
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [profileSuccess, profileError, passwordSuccess, passwordError, dispatch]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;

@@ -1,7 +1,8 @@
 import {
     GET_PROFILE_REQUEST, GET_PROFILE_SUCCESS, GET_PROFILE_FAILURE,
     UPDATE_PROFILE_REQUEST, UPDATE_PROFILE_SUCCESS, UPDATE_PROFILE_FAILURE,
-    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILURE
+    CHANGE_PASSWORD_REQUEST, CHANGE_PASSWORD_SUCCESS, CHANGE_PASSWORD_FAILURE,
+    RESET_PROFILE_MESSAGES
 } from "./actionType";
 
 // Get Profile
@@ -49,4 +50,8 @@ export const changePasswordSuccess = (message: string) => ({
 export const changePasswordFailure = (error: string) => ({
     type: CHANGE_PASSWORD_FAILURE,
     payload: error,
+});
+
+export const resetProfileMessages = () => ({
+    type: RESET_PROFILE_MESSAGES,
 });
