@@ -29,7 +29,7 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { User } from "@heroui/user";
-import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
@@ -45,11 +45,13 @@ export default function EmployeeListPage() {
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
+    const { isOpen: isDocsOpen, onOpen: onDocsOpen, onOpenChange: onDocsOpenChange } = useDisclosure();
 
     const [deleteId, setDeleteId] = React.useState<string | null>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
     const [selectedEmployee, setSelectedEmployee] = React.useState<null | any>(null);
     const [previewData, setPreviewData] = React.useState<{ url: string; type: string; name: string } | null>(null);
+    const [viewDocs, setViewDocs] = React.useState<{ docs: any[], title: string } | null>(null);
 
     useEffect(() => {
         dispatch(getEmployeesRequest());
@@ -109,6 +111,24 @@ export default function EmployeeListPage() {
         }
     };
 
+    const handleViewDocs = (item: any) => {
+        let docs = [];
+        if (item.documents && item.documents.length > 0) {
+            docs = item.documents;
+        } else if (item.document_proof) {
+            docs = [{
+                document_name: item.document_name || "Document",
+                document_proof: item.document_proof,
+                file_type: item.file_type
+            }];
+        }
+
+        if (docs.length > 0) {
+            setViewDocs({ docs, title: item.name });
+            onDocsOpen();
+        }
+    };
+
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
@@ -160,30 +180,17 @@ export default function EmployeeListPage() {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                {item.document_proof ? (
+
+
+                                {(item.documents && item.documents.length > 0) || item.document_proof ? (
                                     <div
-                                        className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
-                                        onClick={() => {
-                                            const extension = item.document_proof.split('.').pop()?.toLowerCase();
-                                            let type = item.file_type;
-                                            if (!type) {
-                                                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
-                                                    type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
-                                                } else if (extension === 'pdf') {
-                                                    type = 'application/pdf';
-                                                }
-                                            }
-                                            setPreviewData({
-                                                url: item.document_proof,
-                                                type: type,
-                                                name: item.document_name || "Employee Document",
-                                            });
-                                        }}
+                                        className="flex items-center gap-2 cursor-pointer text-primary hover:opacity-80 transition-opacity w-fit"
+                                        onClick={() => handleViewDocs(item)}
                                     >
-                                        <FileTypeIcon
-                                            fileType={item.file_type}
-                                            fileName={item.document_proof}
-                                        />
+                                        <FolderOpen size={18} />
+                                        <span className="text-small font-medium hover:underline">
+                                            {item.documents?.length || 1} Document{(item.documents?.length || 1) > 1 ? 's' : ''}
+                                        </span>
                                     </div>
                                 ) : (
                                     <span className="text-default-300 text-sm">-</span>
@@ -241,6 +248,56 @@ export default function EmployeeListPage() {
                                 </Button>
                                 <Button color="danger" onPress={confirmDelete} isLoading={loading}>
                                     Delete
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            <Modal isOpen={isDocsOpen} onOpenChange={onDocsOpenChange} size="2xl">
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                {viewDocs?.title ? `${viewDocs.title}'s Documents` : "Documents"}
+                            </ModalHeader>
+                            <ModalBody>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {viewDocs?.docs?.map((doc: any, index: number) => (
+                                        <div key={index} className="border border-default-200 rounded-lg p-3 flex items-center justify-between hover:bg-default-50 transition-colors">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} />
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-small font-medium truncate" title={doc.document_name}>
+                                                        {doc.document_name || `Document ${index + 1}`}
+                                                    </span>
+                                                    <span className="text-tiny text-default-400 capitalize">
+                                                        {doc.file_type ? doc.file_type.split('/')[1] : 'Unknown'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <Button isIconOnly size="sm" variant="light" onPress={() => setPreviewData({
+                                                    url: doc.document_proof,
+                                                    type: doc.file_type || 'application/pdf',
+                                                    name: doc.document_name || `Document ${index + 1}`,
+                                                })}>
+                                                    <Eye size={18} className="text-default-500" />
+                                                </Button>
+                                                <a href={doc.document_proof} download target="_blank" rel="noopener noreferrer">
+                                                    <Button isIconOnly size="sm" variant="light">
+                                                        <Download size={18} className="text-default-500" />
+                                                    </Button>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="primary" variant="flat" onPress={onClose}>
+                                    Close
                                 </Button>
                             </ModalFooter>
                         </>

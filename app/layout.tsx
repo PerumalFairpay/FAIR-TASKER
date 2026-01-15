@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import NextTopLoader from "nextjs-toploader";
 import { Metadata, Viewport } from "next";
 import { Link } from "@heroui/link";
 import clsx from "clsx";
@@ -41,6 +42,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
+        <NextTopLoader />
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
           <ClientLayout>
             {children}

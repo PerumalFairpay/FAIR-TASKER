@@ -14,7 +14,7 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Tabs, Tab } from "@heroui/tabs";
-import { User, Briefcase, PhoneCall, Files, Eye, EyeOff } from "lucide-react";
+import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
@@ -44,7 +44,9 @@ export default function AddEditEmployeeDrawer({
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
-    const [documentFiles, setDocumentFiles] = useState<any[]>([]);
+    const [documentList, setDocumentList] = useState<{ id: number; name: string; files: any[] }[]>([
+        { id: Date.now(), name: "", files: [] }
+    ]);
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
@@ -119,7 +121,7 @@ export default function AddEditEmployeeDrawer({
         } else if (isOpen && mode === "create") {
             setFormData({ status: "Active", work_mode: "Office" });
             setProfileFiles([]);
-            setDocumentFiles([]);
+            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
             setSelectedTab("personal");
         }
     }, [isOpen, mode, selectedEmployee, departments, rootDepartments]);
@@ -142,7 +144,7 @@ export default function AddEditEmployeeDrawer({
 
     const handleSubmit = () => {
         const data = new FormData();
-        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof"];
+        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof", "document_name", "documents"];
 
         Object.keys(formData).forEach((key) => {
             if (formData[key] !== null && formData[key] !== undefined && !excludedKeys.includes(key)) {
@@ -153,11 +155,34 @@ export default function AddEditEmployeeDrawer({
         if (profileFiles.length > 0) {
             data.append("profile_picture", profileFiles[0].file);
         }
-        if (documentFiles.length > 0) {
-            data.append("document_proof", documentFiles[0].file);
+
+        if (documentList.length > 0) {
+            documentList.forEach((doc) => {
+                if (doc.files && doc.files.length > 0) {
+                    // If name is empty, use filename or default? Backend handles it if we pass something.
+                    // But backend index matching relies on array length.
+                    // IMPORTANT: We must append 'document_names' for every 'document_proofs' we append to keep indices aligned!
+                    data.append("document_names", doc.name || doc.files[0].file.name);
+                    data.append("document_proofs", doc.files[0].file);
+                }
+            });
         }
 
         onSubmit(data);
+    };
+
+    const addDocumentRow = () => {
+        setDocumentList([...documentList, { id: Date.now(), name: "", files: [] }]);
+    };
+
+    const removeDocumentRow = (id: number) => {
+        setDocumentList(documentList.filter(doc => doc.id !== id));
+    };
+
+    const updateDocumentRow = (id: number, field: "name" | "files", value: any) => {
+        setDocumentList(documentList.map(doc =>
+            doc.id === id ? { ...doc, [field]: value } : doc
+        ));
     };
 
     return (
@@ -502,24 +527,58 @@ export default function AddEditEmployeeDrawer({
                                                     />
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col gap-2">
-                                                <label className="text-small font-medium text-foreground">Document Proof</label>
-                                                <FileUpload
-                                                    files={documentFiles}
-                                                    setFiles={setDocumentFiles}
-                                                    name="document_proof"
-                                                    labelIdle='Drag & Drop your document or <span class="filepond--label-action">Browse</span>'
-                                                    acceptedFileTypes={['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']}
-                                                />
+
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex justify-between items-center">
+                                                    <label className="text-small font-medium text-foreground">Documents</label>
+                                                    <Button
+                                                        color="primary"
+                                                        variant="flat"
+                                                        size="sm"
+                                                        startContent={<Plus size={16} />}
+                                                        onPress={addDocumentRow}
+                                                    >
+                                                        Add Document
+                                                    </Button>
+                                                </div>
+
+                                                {documentList.map((doc, index) => (
+                                                    <div key={doc.id} className="border border-default-200 p-3 rounded-lg relative">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="font-semibold text-tiny text-default-500">Document {index + 1}</span>
+                                                            {(documentList.length > 1 || mode === "create") && (
+                                                                <Button isIconOnly color="danger" variant="light" size="sm" onPress={() => removeDocumentRow(doc.id)}>
+                                                                    <Trash2 size={16} />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <div className="flex flex-col gap-2">
+                                                                <FileUpload
+                                                                    files={doc.files}
+                                                                    setFiles={(files: any) => updateDocumentRow(doc.id, "files", files)}
+                                                                    name={`document_proof_${doc.id}`}
+                                                                    labelIdle='Proof of Document'
+                                                                    acceptedFileTypes={['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']}
+                                                                />
+                                                            </div>
+                                                            <Input
+                                                                label="Document Name"
+                                                                placeholder="e.g., Passport, ID Card"
+                                                                labelPlacement="outside"
+                                                                variant="bordered"
+                                                                value={doc.name}
+                                                                onChange={(e) => updateDocumentRow(doc.id, "name", e.target.value)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                {documentList.length === 0 && (
+                                                    <div className="text-center p-4 border border-dashed border-default-200 rounded-lg text-default-400">
+                                                        No documents added.
+                                                    </div>
+                                                )}
                                             </div>
-                                            <Input
-                                                label="Document Name"
-                                                placeholder="e.g., Passport, ID Card"
-                                                labelPlacement="outside"
-                                                variant="bordered"
-                                                value={formData.document_name || ""}
-                                                onChange={(e) => handleChange("document_name", e.target.value)}
-                                            />
                                         </div>
                                     </div>
                                 </Tab>
