@@ -10,6 +10,8 @@ import { getBlogsRequest } from "@/store/blog/action";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import { Spinner } from "@heroui/spinner";
+import Lottie from "lottie-react";
+import HRMLoading from "@/app/assets/HRMLoading.json";
 
 export default function Dashboard() {
     const dispatch = useDispatch();
@@ -28,8 +30,10 @@ export default function Dashboard() {
             </div> */}
 
             {loading ? (
-                <div className="flex h-[50vh] items-center justify-center">
-                    <Spinner size="lg" label="Loading dashboard..." />
+                <div className="flex h-[80vh] items-center justify-center">
+                    <div className="w-64 h-64">
+                        <Lottie animationData={HRMLoading} loop={true} />
+                    </div>
                 </div>
             ) : error ? (
                 <div className="flex h-[50vh] items-center justify-center text-danger">
