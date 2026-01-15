@@ -12,9 +12,10 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
-import { X, Trash2, Calendar as CalendarIcon, Clock, Paperclip } from "lucide-react";
+import { X, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
+import FileUpload from "@/components/common/FileUpload";
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -48,11 +49,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
-        attachments: [] as File[],
     };
 
     const [formData, setFormData] = useState(initialFormData);
     const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
+    const [newAttachments, setNewAttachments] = useState<any[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -68,9 +69,9 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                     priority: task.priority || "Medium",
                     assigned_to: task.assigned_to || [],
                     tags: task.tags || [],
-                    attachments: [],
                 });
                 setExistingAttachments(task.attachments || []);
+                setNewAttachments([]);
             } else {
                 setFormData({
                     ...initialFormData,
@@ -78,28 +79,15 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                     end_date: selectedDate || new Date().toISOString().split("T")[0],
                 });
                 setExistingAttachments([]);
+                setNewAttachments([]);
             }
         } else {
             // Reset form when drawer closes
             setFormData(initialFormData);
             setExistingAttachments([]);
+            setNewAttachments([]);
         }
     }, [task, isOpen, selectedDate]);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setFormData({
-                ...formData,
-                attachments: [...formData.attachments, ...Array.from(e.target.files)]
-            });
-        }
-    };
-
-    const removeAttachment = (index: number) => {
-        const newAttachments = [...formData.attachments];
-        newAttachments.splice(index, 1);
-        setFormData({ ...formData, attachments: newAttachments });
-    };
 
     const removeExistingAttachment = (index: number) => {
         const newExisting = [...existingAttachments];
@@ -125,7 +113,10 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         formData.assigned_to.forEach(id => data.append("assigned_to[]", id));
         formData.tags.forEach(tag => data.append("tags[]", tag));
 
-        formData.attachments.forEach(file => data.append("attachments", file));
+        // Append new files from FilePond
+        newAttachments.forEach(fileItem => {
+            data.append("attachments", fileItem.file);
+        });
 
         if (task) {
             dispatch(updateTaskRequest(task.id, data));
@@ -295,22 +286,17 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                             <label className="text-small font-medium text-foreground">
                                 Attachments
                             </label>
-                            <input
-                                type="file"
-                                multiple
-                                ref={fileInputRef}
-                                className="hidden"
-                                onChange={handleFileChange}
+
+                            <FileUpload
+                                files={newAttachments}
+                                setFiles={setNewAttachments}
+                                allowMultiple={true}
+                                maxFiles={5}
+                                name="attachments"
+                                labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
                             />
+
                             <div className="flex flex-wrap gap-2">
-                                <Button
-                                    size="sm"
-                                    variant="flat"
-                                    startContent={<Paperclip size={16} />}
-                                    onPress={() => fileInputRef.current?.click()}
-                                >
-                                    Add Files
-                                </Button>
                                 {/* Existing Attachments */}
                                 {existingAttachments.map((item, index) => {
                                     let fileName = "";
@@ -335,18 +321,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                                         </Chip>
                                     );
                                 })}
-
-                                {/* New Attachments */}
-                                {formData.attachments.map((file, index) => (
-                                    <Chip
-                                        key={`new-${index}`}
-                                        onClose={() => removeAttachment(index)}
-                                        variant="flat"
-                                        color="primary"
-                                    >
-                                        {file.name}
-                                    </Chip>
-                                ))}
                             </div>
                         </div>
 
