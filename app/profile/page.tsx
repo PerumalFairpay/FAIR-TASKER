@@ -28,7 +28,7 @@ import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
-    const { profile, loading, profileSuccess, profileError, passwordSuccess, passwordError } = useSelector((state: AppState) => state.Profile);
+    const { profile, loading, profileLoading, passwordLoading, profileSuccess, profileError, passwordSuccess, passwordError } = useSelector((state: AppState) => state.Profile);
     const { user } = useSelector((state: AppState) => state.Auth);
 
     // State for Profile Form
@@ -525,7 +525,7 @@ export default function ProfilePage() {
                                                 color="primary"
                                                 variant="solid"
                                                 onPress={() => handleProfileSubmit()}
-                                                isLoading={loading}
+                                                isLoading={profileLoading}
                                                 className="px-8 font-semibold shadow-lg shadow-primary/30"
                                             >
                                                 Save Changes
@@ -670,7 +670,7 @@ export default function ProfilePage() {
                                                         type="submit"
                                                         color="primary"
                                                         variant="shadow"
-                                                        isLoading={loading}
+                                                        isLoading={passwordLoading}
                                                         className="font-semibold px-8"
                                                     >
                                                         Update Password

@@ -6,7 +6,9 @@ import {
 
 const initialState = {
     profile: null,
-    loading: false,
+    loading: false, // General loading or initial fetch
+    profileLoading: false,
+    passwordLoading: false,
     error: null,
     profileSuccess: null,
     profileError: null,
@@ -25,14 +27,14 @@ const profileReducer = (state = initialState, action: any) => {
         case UPDATE_PROFILE_REQUEST:
             return {
                 ...state,
-                loading: true,
+                profileLoading: true,
                 profileSuccess: null,
                 profileError: null,
             };
         case CHANGE_PASSWORD_REQUEST:
             return {
                 ...state,
-                loading: true,
+                passwordLoading: true,
                 passwordSuccess: null,
                 passwordError: null,
             };
@@ -46,7 +48,7 @@ const profileReducer = (state = initialState, action: any) => {
         case UPDATE_PROFILE_SUCCESS:
             return {
                 ...state,
-                loading: false,
+                profileLoading: false,
                 profile: action.payload.data,
                 profileSuccess: action.payload.message || "Profile updated successfully",
                 profileError: null,
@@ -54,7 +56,7 @@ const profileReducer = (state = initialState, action: any) => {
         case CHANGE_PASSWORD_SUCCESS:
             return {
                 ...state,
-                loading: false,
+                passwordLoading: false,
                 passwordSuccess: action.payload,
                 passwordError: null,
             };
@@ -67,13 +69,13 @@ const profileReducer = (state = initialState, action: any) => {
         case UPDATE_PROFILE_FAILURE:
             return {
                 ...state,
-                loading: false,
+                profileLoading: false,
                 profileError: action.payload,
             };
         case CHANGE_PASSWORD_FAILURE:
             return {
                 ...state,
-                loading: false,
+                passwordLoading: false,
                 passwordError: action.payload,
             };
         default:
