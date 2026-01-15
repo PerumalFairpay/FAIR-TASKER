@@ -28,7 +28,7 @@ import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
-    const { profile, loading, successMessage, error } = useSelector((state: AppState) => state.Profile);
+    const { profile, loading, profileSuccess, profileError, passwordSuccess, passwordError } = useSelector((state: AppState) => state.Profile);
     const { user } = useSelector((state: AppState) => state.Auth);
 
     // State for Profile Form
@@ -114,6 +114,15 @@ export default function ProfilePage() {
             setProfilePicPreview(user.profile_picture || null);
         }
     }, [profile, user]);
+
+    useEffect(() => {
+        if (profileSuccess) {
+            setDocumentProof(null);
+            if (docInputRef.current) {
+                docInputRef.current.value = "";
+            }
+        }
+    }, [profileSuccess]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -405,11 +414,11 @@ export default function ProfilePage() {
                                             </div>
                                         </CardHeader>
                                         <CardBody className="p-8">
-                                            {successMessage && (
+                                            {(profileSuccess || profileError) && (
                                                 <Alert
-                                                    color="success"
-                                                    title="Profile Updated"
-                                                    description="Your changes have been successfully saved."
+                                                    color={profileError ? "danger" : "success"}
+                                                    title={profileError ? "Error" : "Profile Updated"}
+                                                    description={profileError || profileSuccess}
                                                     className="mb-6"
                                                     variant="flat"
                                                 />
@@ -577,11 +586,11 @@ export default function ProfilePage() {
                                             </p>
                                         </CardHeader>
                                         <CardBody className="p-8 space-y-6">
-                                            {(successMessage || error) && (
+                                            {(passwordSuccess || passwordError) && (
                                                 <Alert
-                                                    color={error ? "danger" : "success"}
-                                                    title={error ? "Error" : "Success"}
-                                                    description={error || successMessage}
+                                                    color={passwordError ? "danger" : "success"}
+                                                    title={passwordError ? "Error" : "Success"}
+                                                    description={passwordError || passwordSuccess}
                                                     variant="flat"
                                                 />
                                             )}

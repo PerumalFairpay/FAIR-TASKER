@@ -8,19 +8,33 @@ const initialState = {
     profile: null,
     loading: false,
     error: null,
-    successMessage: null,
+    profileSuccess: null,
+    profileError: null,
+    passwordSuccess: null,
+    passwordError: null,
 };
 
 const profileReducer = (state = initialState, action: any) => {
     switch (action.type) {
         case GET_PROFILE_REQUEST:
-        case UPDATE_PROFILE_REQUEST:
-        case CHANGE_PASSWORD_REQUEST:
             return {
                 ...state,
                 loading: true,
                 error: null,
-                successMessage: null,
+            };
+        case UPDATE_PROFILE_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                profileSuccess: null,
+                profileError: null,
+            };
+        case CHANGE_PASSWORD_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                passwordSuccess: null,
+                passwordError: null,
             };
         case GET_PROFILE_SUCCESS:
             return {
@@ -33,25 +47,34 @@ const profileReducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 loading: false,
-                profile: action.payload.data, // Update profile with new data
-                successMessage: action.payload.message || "Profile updated successfully",
-                error: null,
+                profile: action.payload.data,
+                profileSuccess: action.payload.message || "Profile updated successfully",
+                profileError: null,
             };
         case CHANGE_PASSWORD_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                successMessage: action.payload,
-                error: null,
+                passwordSuccess: action.payload,
+                passwordError: null,
             };
         case GET_PROFILE_FAILURE:
-        case UPDATE_PROFILE_FAILURE:
-        case CHANGE_PASSWORD_FAILURE:
             return {
                 ...state,
                 loading: false,
                 error: action.payload,
-                successMessage: null,
+            };
+        case UPDATE_PROFILE_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                profileError: action.payload,
+            };
+        case CHANGE_PASSWORD_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                passwordError: action.payload,
             };
         default:
             return state;
