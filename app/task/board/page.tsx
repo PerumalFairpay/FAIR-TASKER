@@ -358,7 +358,7 @@ const TaskBoard = () => {
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                                                                            {task.status !== "Moved" && filterDate <= todayStr && (
+                                                                            {column.id !== "Moved" && task.status !== "Moved" && filterDate <= todayStr && (
                                                                                 <Button
                                                                                     isIconOnly
                                                                                     size="sm"
