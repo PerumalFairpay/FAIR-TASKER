@@ -358,15 +358,17 @@ const TaskBoard = () => {
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                                                                            <Button
-                                                                                isIconOnly
-                                                                                size="sm"
-                                                                                variant="light"
-                                                                                className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                                onPress={() => handleEditTask(task)}
-                                                                            >
-                                                                                <Pencil size={14} />
-                                                                            </Button>
+                                                                            {task.status !== "Moved" && filterDate <= todayStr && (
+                                                                                <Button
+                                                                                    isIconOnly
+                                                                                    size="sm"
+                                                                                    variant="light"
+                                                                                    className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                    onPress={() => handleEditTask(task)}
+                                                                                >
+                                                                                    <Pencil size={14} />
+                                                                                </Button>
+                                                                            )}
                                                                         </div>
                                                                         <Chip
                                                                             size="sm"

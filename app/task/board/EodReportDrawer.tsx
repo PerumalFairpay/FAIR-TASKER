@@ -88,7 +88,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                                     <h4 className="font-semibold text-sm">{task.task_name}</h4>
                                                     <div
                                                         className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
-                                                        dangerouslySetInnerHTML={{ __html: task.description || "" }}
+                                                        dangerouslySetInnerHTML={{ __html: (task.description || "").replace(/&nbsp;/g, " ") }}
                                                     />
                                                 </div>
                                                 <div className="flex flex-col items-end gap-2">
@@ -106,9 +106,13 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                                             }
                                                         }}
                                                     >
-                                                        <SelectItem key="Todo">To Do</SelectItem>
-                                                        <SelectItem key="In Progress">In Progress</SelectItem>
-                                                        <SelectItem key="Completed">Completed</SelectItem>
+                                                        {[
+                                                            { key: "Todo", label: "To Do" },
+                                                            { key: "In Progress", label: "In Progress" },
+                                                            ...(!report.move_to_tomorrow ? [{ key: "Completed", label: "Completed" }] : [])
+                                                        ].map((item) => (
+                                                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                                                        ))}
                                                     </Select>
                                                     {report.status !== "Completed" && (
                                                         <div className="flex items-center gap-2">
