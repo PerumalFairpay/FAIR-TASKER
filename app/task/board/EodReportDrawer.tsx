@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { Button } from "@heroui/button";
-import { Textarea, Input } from "@heroui/input";
+import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
 import { Progress } from "@heroui/progress";
@@ -11,6 +11,11 @@ import { useDispatch } from "react-redux";
 import { submitEodReportRequest } from "@/store/task/action";
 import { Card, CardBody } from "@heroui/card";
 import { AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import FileUpload from "@/components/common/FileUpload";
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 interface EodReportDrawerProps {
     isOpen: boolean;
@@ -45,9 +50,30 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
         }));
     };
 
+    const handleFilePondUpdate = (taskId: string, fileItems: any[]) => {
+        setReports(prev => ({
+            ...prev,
+            [taskId]: {
+                ...(prev[taskId] || {
+                    task_id: taskId,
+                    status: "In Progress",
+                    progress: 0,
+                    eod_summary: "",
+                    move_to_tomorrow: false,
+                }),
+                files: fileItems
+            }
+        }));
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const reportArray = Object.values(reports);
+        // Extract native File objects from FilePond items for submission
+        const reportArray = Object.values(reports).map((report: any) => ({
+            ...report,
+            files: report.files ? report.files.map((f: any) => f.file) : []
+        }));
+
         if (reportArray.length > 0) {
             dispatch(submitEodReportRequest({ reports: reportArray }));
             onClose();
@@ -147,13 +173,50 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                                 />
                                             </div>
 
-                                            <Textarea
-                                                label="Work Summary"
-                                                placeholder="What did you achieve today?"
-                                                size="sm"
-                                                value={report.eod_summary}
-                                                onChange={(e) => handleUpdateReport(task.id, "eod_summary", e.target.value)}
-                                            />
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-small font-medium text-foreground">
+                                                    Work Summary
+                                                </label>
+                                                <ReactQuill
+                                                    theme="snow"
+                                                    value={report.eod_summary}
+                                                    onChange={(value) => handleUpdateReport(task.id, "eod_summary", value)}
+                                                    className="rounded-xl mb-4"
+                                                    style={{ height: "150px", marginBottom: "50px" }}
+                                                />
+                                            </div>
+
+                                            <style jsx global>{`
+                                                .ql-toolbar.ql-snow {
+                                                    border-color: var(--heroui-default-200) !important;
+                                                    border-top-left-radius: 0.75rem;
+                                                    border-top-right-radius: 0.75rem;
+                                                }
+                                                .ql-container.ql-snow {
+                                                    border-color: var(--heroui-default-200) !important;
+                                                    border-bottom-left-radius: 0.75rem;
+                                                    border-bottom-right-radius: 0.75rem;
+                                                    min-height: 100px;
+                                                }
+                                                .dark .ql-editor { color: #E3E3E3; }
+                                                .dark .ql-stroke { stroke: #E3E3E3 !important; }
+                                                .dark .ql-fill { fill: #E3E3E3 !important; }
+                                                .dark .ql-picker { color: #E3E3E3 !important; }
+                                            `}</style>
+
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-small font-medium text-foreground">
+                                                    Attachments
+                                                </label>
+                                                <FileUpload
+                                                    files={report.files || []}
+                                                    setFiles={(fileItems) => handleFilePondUpdate(task.id, fileItems)}
+                                                    allowMultiple={true}
+                                                    maxFiles={5}
+                                                    name={`attachments_${task.id}`}
+                                                    labelIdle='Drag & Drop files or <span class="filepond--label-action">Browse</span>'
+                                                />
+                                            </div>
                                         </CardBody>
                                     </Card>
                                 );

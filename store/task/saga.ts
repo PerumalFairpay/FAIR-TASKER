@@ -57,7 +57,11 @@ function deleteTaskApi(id: string) {
 }
 
 function submitEodReportApi(payload: any) {
-    return api.post("/tasks/eod-report", payload);
+    return api.post("/tasks/eod-report", payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function getEodReportsApi(params: any) {
@@ -143,7 +147,25 @@ function* onDeleteTask({ payload }: any): SagaIterator {
 
 function* onSubmitEodReport({ payload }: any): SagaIterator {
     try {
-        const response = yield call(submitEodReportApi, payload);
+        const formData = new FormData();
+        const { reports } = payload;
+
+        const cleanReports = reports.map((r: any) => {
+            const { files, ...rest } = r;
+            return rest;
+        });
+
+        formData.append("reports", JSON.stringify(cleanReports));
+
+        reports.forEach((report: any) => {
+            if (report.files && report.files.length > 0) {
+                report.files.forEach((file: File) => {
+                    formData.append(`attachments_${report.task_id}`, file);
+                });
+            }
+        });
+
+        const response = yield call(submitEodReportApi, formData);
         if (response.data.success) {
             yield put(submitEodReportSuccess(response.data.data));
             // Refresh tasks after EOD report
