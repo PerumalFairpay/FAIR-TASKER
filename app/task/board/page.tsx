@@ -14,7 +14,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye
+    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -341,7 +341,7 @@ const TaskBoard = () => {
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
-                                                        onClick={() => handleEditTask(task)}
+                                                        onClick={() => handleViewTask(task)}
                                                     >
                                                         <Card
                                                             shadow="sm"
@@ -357,15 +357,15 @@ const TaskBoard = () => {
                                                                         {task.task_name}
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
-                                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                                        <div onClick={(e) => e.stopPropagation()} className="flex items-center">
                                                                             <Button
                                                                                 isIconOnly
                                                                                 size="sm"
                                                                                 variant="light"
-                                                                                className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50"
-                                                                                onPress={() => handleViewTask(task)}
+                                                                                className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                onPress={() => handleEditTask(task)}
                                                                             >
-                                                                                <Eye size={14} />
+                                                                                <Pencil size={14} />
                                                                             </Button>
                                                                         </div>
                                                                         <Chip
