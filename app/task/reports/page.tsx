@@ -28,10 +28,13 @@ import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
+import ShowMoreText from "react-show-more-text";
+import parse from "html-react-parser";
+import EodReportDetailDrawer from "./EodReportDetailDrawer";
 
 const EODReportsPage = () => {
     const dispatch = useDispatch();
-    const { eodReports, loading } = useSelector((state: AppState) => state.Task);
+    const { eodReports, getEodReportsLoading: loading } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { projects } = useSelector((state: AppState) => state.Project);
     const { user } = useSelector((state: AppState) => state.Auth);
@@ -41,6 +44,14 @@ const EODReportsPage = () => {
     const [filterProject, setFilterProject] = useState<string>("");
     const [filterPriority, setFilterPriority] = useState<string>("");
     const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
+    const [selectedReport, setSelectedReport] = useState<any | null>(null);
+
+    const handleRowAction = (key: React.Key) => {
+        const report = eodReports.find((item: any) => `${item.task_id}-${item.timestamp}` === key);
+        if (report) {
+            setSelectedReport(report);
+        }
+    };
 
     useEffect(() => {
         dispatch(getProjectsRequest());
@@ -222,6 +233,11 @@ const EODReportsPage = () => {
                 aria-label="EOD Reports Table"
                 removeWrapper
                 isHeaderSticky
+                selectionMode="single"
+                onRowAction={handleRowAction}
+                classNames={{
+                    tr: "cursor-pointer active:scale-100"
+                }}
             >
                 <TableHeader>
                     <TableColumn>DATE</TableColumn>
@@ -284,12 +300,24 @@ const EODReportsPage = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <div
-                                    className="text-sm text-default-600 max-w-[300px] prose prose-sm prose-p:my-0 prose-p:leading-relaxed break-words overflow-wrap-anywhere"
-                                    dangerouslySetInnerHTML={{
-                                        __html: item.summary || '<span class="italic text-default-400">No summary provided</span>'
-                                    }}
-                                />
+                                <div className="text-sm text-default-600 max-w-[300px] prose prose-sm prose-p:my-0 prose-p:leading-relaxed break-words overflow-wrap-anywhere">
+                                    {item.summary ? (
+                                        <ShowMoreText
+                                            lines={3}
+                                            more="Read more"
+                                            less="Read less"
+                                            className="content-css"
+                                            anchorClass="text-primary cursor-pointer hover:underline text-xs font-semibold block mt-1"
+                                            expanded={false}
+                                            width={300}
+                                            truncatedEndingComponent={"... "}
+                                        >
+                                            {parse(item.summary)}
+                                        </ShowMoreText>
+                                    ) : (
+                                        <span className="italic text-default-400">No summary provided</span>
+                                    )}
+                                </div>
                             </TableCell>
                             <TableCell>
                                 {item.attachments && item.attachments.length > 0 ? (
@@ -329,6 +357,12 @@ const EODReportsPage = () => {
                     fileName={previewFile.name}
                 />
             )}
+
+            <EodReportDetailDrawer
+                isOpen={Boolean(selectedReport)}
+                onClose={() => setSelectedReport(null)}
+                report={selectedReport}
+            />
         </div>
     );
 };
