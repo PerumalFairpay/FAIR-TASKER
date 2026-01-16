@@ -88,7 +88,17 @@ export default function AddEditEmployeeDrawer({
     }, [isOpen, dispatch]);
 
     useEffect(() => {
-        if (isOpen && mode === "edit" && selectedEmployee) {
+        if (!isOpen) {
+            setFormData({});
+            setProfileFiles([]);
+            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
+            setSelectedTab("personal");
+            setIsVisible(false);
+            setIsConfirmVisible(false);
+            return;
+        }
+
+        if (mode === "edit" && selectedEmployee) {
             const allDepts = departments || [];
             const currentDeptName = selectedEmployee.department;
 
@@ -118,7 +128,7 @@ export default function AddEditEmployeeDrawer({
 
             setFormData({ ...selectedEmployee });
             setSelectedTab("personal");
-        } else if (isOpen && mode === "create") {
+        } else if (mode === "create") {
             setFormData({ status: "Active", work_mode: "Office" });
             setProfileFiles([]);
             setDocumentList([{ id: Date.now(), name: "", files: [] }]);
