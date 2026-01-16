@@ -37,7 +37,7 @@ const COLUMNS = [
 
 const TaskBoard = () => {
     const dispatch = useDispatch();
-    const { tasks, task: currentTask, loading } = useSelector((state: AppState) => state.Task);
+    const { tasks, currentTask, getTasksLoading } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { user } = useSelector((state: AppState) => state.Auth);
     const router = useRouter();

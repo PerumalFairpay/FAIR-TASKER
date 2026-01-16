@@ -36,7 +36,16 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
     const dispatch = useDispatch();
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const {
+        createTaskLoading, createTaskSuccess,
+        updateTaskLoading, updateTaskSuccess,
+        deleteTaskLoading, deleteTaskSuccess
+    } = useSelector((state: AppState) => state.Task);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const isEditMode = !!task;
+    const loading = isEditMode ? (updateTaskLoading || deleteTaskLoading) : createTaskLoading;
+    const success = isEditMode ? (updateTaskSuccess || deleteTaskSuccess) : createTaskSuccess;
 
     const initialFormData = {
         project_id: "",
@@ -54,9 +63,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
     const [formData, setFormData] = useState(initialFormData);
     const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
     const [newAttachments, setNewAttachments] = useState<any[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
+            setIsSubmitting(false);
             if (task) {
                 setFormData({
                     project_id: task.project_id || "",
@@ -86,8 +97,16 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
             setFormData(initialFormData);
             setExistingAttachments([]);
             setNewAttachments([]);
+            setIsSubmitting(false);
         }
     }, [task, isOpen, selectedDate]);
+
+    useEffect(() => {
+        if (isSubmitting && !loading && success) {
+            onClose();
+            setIsSubmitting(false);
+        }
+    }, [loading, success, isSubmitting, onClose]);
 
     const removeExistingAttachment = (index: number) => {
         const newExisting = [...existingAttachments];
@@ -97,6 +116,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const data = new FormData();
         data.append("project_id", formData.project_id);
@@ -123,7 +143,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         } else {
             dispatch(createTaskRequest(data));
         }
-        onClose();
     };
 
     return (
@@ -331,20 +350,22 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                                 <Button
                                     color="danger"
                                     variant="flat"
-                                    startContent={<Trash2 size={18} />}
+                                    startContent={!loading && <Trash2 size={18} />}
+                                    isLoading={loading && isSubmitting}
+                                    isDisabled={loading}
                                     onPress={() => {
+                                        setIsSubmitting(true);
                                         dispatch(deleteTaskRequest(task.id));
-                                        onClose();
                                     }}
                                 >
                                     Delete
                                 </Button>
                             )}
                             <div className="flex gap-2 ml-auto">
-                                <Button variant="light" onPress={onClose}>
+                                <Button variant="light" onPress={onClose} isDisabled={loading}>
                                     Cancel
                                 </Button>
-                                <Button color="primary" type="submit">
+                                <Button color="primary" type="submit" isLoading={loading && isSubmitting} isDisabled={loading}>
                                     {task ? "Update Task" : "Create Task"}
                                 </Button>
                             </div>
