@@ -29,10 +29,11 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { User } from "@heroui/user";
-import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, LockIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
+import UserPermissionsModal from "./UserPermissionsModal";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
@@ -46,6 +47,7 @@ export default function EmployeeListPage() {
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
     const { isOpen: isDocsOpen, onOpen: onDocsOpen, onOpenChange: onDocsOpenChange } = useDisclosure();
+    const { isOpen: isPermOpen, onOpen: onPermOpen, onOpenChange: onPermOpenChange } = useDisclosure();
 
     const [deleteId, setDeleteId] = React.useState<string | null>(null);
     const [mode, setMode] = React.useState<"create" | "edit">("create");
@@ -127,6 +129,11 @@ export default function EmployeeListPage() {
             setViewDocs({ docs, title: item.name });
             onDocsOpen();
         }
+    };
+
+    const handlePermissions = (employee: any) => {
+        setSelectedEmployee(employee);
+        onPermOpen();
     };
 
     return (
@@ -218,6 +225,11 @@ export default function EmployeeListPage() {
                                             <TrashIcon size={16} />
                                         </span>
                                     </PermissionGuard>
+                                    <PermissionGuard permission="permission:manage">
+                                        <span className="text-lg text-warning cursor-pointer active:opacity-50" onClick={() => handlePermissions(item)}>
+                                            <LockIcon size={16} />
+                                        </span>
+                                    </PermissionGuard>
                                 </div>
                             </TableCell>
                         </TableRow>
@@ -304,6 +316,12 @@ export default function EmployeeListPage() {
                     )}
                 </ModalContent>
             </Modal>
+
+            <UserPermissionsModal
+                isOpen={isPermOpen}
+                onClose={onPermOpenChange}
+                employee={selectedEmployee}
+            />
 
             {previewData && (
                 <FilePreviewModal

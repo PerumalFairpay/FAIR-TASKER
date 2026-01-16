@@ -4,6 +4,8 @@ import {
     GET_EMPLOYEE_REQUEST, GET_EMPLOYEE_SUCCESS, GET_EMPLOYEE_FAILURE,
     UPDATE_EMPLOYEE_REQUEST, UPDATE_EMPLOYEE_SUCCESS, UPDATE_EMPLOYEE_FAILURE,
     DELETE_EMPLOYEE_REQUEST, DELETE_EMPLOYEE_SUCCESS, DELETE_EMPLOYEE_FAILURE,
+    UPDATE_USER_PERMISSIONS_REQUEST, UPDATE_USER_PERMISSIONS_SUCCESS, UPDATE_USER_PERMISSIONS_FAILURE,
+    GET_USER_PERMISSIONS_REQUEST, GET_USER_PERMISSIONS_SUCCESS, GET_USER_PERMISSIONS_FAILURE,
     CLEAR_EMPLOYEE_DETAILS
 } from "./actionType";
 
@@ -73,6 +75,34 @@ export const deleteEmployeeSuccess = (response: any) => ({
 });
 export const deleteEmployeeFailure = (error: any) => ({
     type: DELETE_EMPLOYEE_FAILURE,
+    payload: error,
+});
+
+// Update User Permissions
+export const updateUserPermissionsRequest = (id: string, permissions: string[]) => ({
+    type: UPDATE_USER_PERMISSIONS_REQUEST,
+    payload: { id, permissions },
+});
+export const updateUserPermissionsSuccess = (response: any) => ({
+    type: UPDATE_USER_PERMISSIONS_SUCCESS,
+    payload: response,
+});
+export const updateUserPermissionsFailure = (error: any) => ({
+    type: UPDATE_USER_PERMISSIONS_FAILURE,
+    payload: error,
+});
+
+// Get User Permissions
+export const getUserPermissionsRequest = (id: string) => ({
+    type: GET_USER_PERMISSIONS_REQUEST,
+    payload: id,
+});
+export const getUserPermissionsSuccess = (response: any) => ({
+    type: GET_USER_PERMISSIONS_SUCCESS,
+    payload: response,
+});
+export const getUserPermissionsFailure = (error: any) => ({
+    type: GET_USER_PERMISSIONS_FAILURE,
     payload: error,
 });
 

@@ -4,12 +4,15 @@ import {
     GET_EMPLOYEE_REQUEST, GET_EMPLOYEE_SUCCESS, GET_EMPLOYEE_FAILURE,
     UPDATE_EMPLOYEE_REQUEST, UPDATE_EMPLOYEE_SUCCESS, UPDATE_EMPLOYEE_FAILURE,
     DELETE_EMPLOYEE_REQUEST, DELETE_EMPLOYEE_SUCCESS, DELETE_EMPLOYEE_FAILURE,
+    UPDATE_USER_PERMISSIONS_REQUEST, UPDATE_USER_PERMISSIONS_SUCCESS, UPDATE_USER_PERMISSIONS_FAILURE,
+    GET_USER_PERMISSIONS_REQUEST, GET_USER_PERMISSIONS_SUCCESS, GET_USER_PERMISSIONS_FAILURE,
     CLEAR_EMPLOYEE_DETAILS
 } from "./actionType";
 
 interface EmployeeState {
     employees: any[];
     employee: any | null;
+    userPermissions: string[];
     loading: boolean;
     error: string | null;
     success: string | null;
@@ -18,6 +21,7 @@ interface EmployeeState {
 const initialEmployeeState: EmployeeState = {
     employees: [],
     employee: null,
+    userPermissions: [],
     loading: false,
     error: null,
     success: null,
@@ -129,6 +133,48 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 employees: state.employees.filter(emp => emp.id !== action.payload.id),
             };
         case DELETE_EMPLOYEE_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
+        // Update User Permissions
+        case UPDATE_USER_PERMISSIONS_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                success: null,
+            };
+        case UPDATE_USER_PERMISSIONS_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                success: action.payload.message || "Permissions updated successfully",
+            };
+        case UPDATE_USER_PERMISSIONS_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
+        // Get User Permissions
+        case GET_USER_PERMISSIONS_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+                userPermissions: [], // clear previous
+            };
+        case GET_USER_PERMISSIONS_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                userPermissions: action.payload.data.permissions,
+            };
+        case GET_USER_PERMISSIONS_FAILURE:
             return {
                 ...state,
                 loading: false,
