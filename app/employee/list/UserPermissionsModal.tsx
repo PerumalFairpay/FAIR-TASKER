@@ -42,9 +42,9 @@ export default function UserPermissionsModal({
     const [selected, setSelected] = React.useState<string[]>([]);
 
     useEffect(() => {
-        if (isOpen && employee?.employee_no_id) { // Use employee_no_id as per employee model (which is the mapped user 'employee_id')
+        if (isOpen && employee?.id) {
             dispatch(getPermissionsRequest());
-            dispatch(getUserPermissionsRequest(employee.employee_no_id));
+            dispatch(getUserPermissionsRequest(employee.id));
         }
     }, [isOpen, employee, dispatch]);
 
@@ -55,9 +55,9 @@ export default function UserPermissionsModal({
     }, [userPermissions]);
 
     const handleSave = () => {
-        if (employee?.employee_no_id) {
+        if (employee?.id) {
             // We only send the permissions that are explicitly selected for the user
-            dispatch(updateUserPermissionsRequest(employee.employee_no_id, selected));
+            dispatch(updateUserPermissionsRequest(employee.id, selected));
             onClose();
         }
     };
