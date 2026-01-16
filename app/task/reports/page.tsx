@@ -16,7 +16,7 @@ import {
 import { Chip } from "@heroui/chip";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Input } from "@heroui/input";
-import { Search, Calendar, FileText, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { Search, Calendar, FileText, CheckCircle2, Clock, AlertCircle, Eye, Download } from "lucide-react";
 import { Spinner } from "@heroui/spinner";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
@@ -26,6 +26,8 @@ import { Button } from "@heroui/button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesRequest } from "@/store/employee/action";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 const EODReportsPage = () => {
     const dispatch = useDispatch();
@@ -38,6 +40,7 @@ const EODReportsPage = () => {
     const [filterEmployee, setFilterEmployee] = useState<string>("");
     const [filterProject, setFilterProject] = useState<string>("");
     const [filterPriority, setFilterPriority] = useState<string>("");
+    const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
 
     useEffect(() => {
         dispatch(getProjectsRequest());
@@ -228,6 +231,7 @@ const EODReportsPage = () => {
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn>PROGRESS</TableColumn>
                     <TableColumn>SUMMARY</TableColumn>
+                    <TableColumn>ATTACHMENTS</TableColumn>
                 </TableHeader>
                 <TableBody
                     emptyContent={loading ? <Spinner /> : "No EOD reports found."}
@@ -280,14 +284,51 @@ const EODReportsPage = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <div className="text-sm text-default-600 max-w-[300px]">
-                                    {item.summary || <span className="italic text-default-400">No summary provided</span>}
-                                </div>
+                                <div
+                                    className="text-sm text-default-600 max-w-[300px] prose prose-sm prose-p:my-0 prose-p:leading-relaxed break-words overflow-wrap-anywhere"
+                                    dangerouslySetInnerHTML={{
+                                        __html: item.summary || '<span class="italic text-default-400">No summary provided</span>'
+                                    }}
+                                />
+                            </TableCell>
+                            <TableCell>
+                                {item.attachments && item.attachments.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {item.attachments.map((att: any, idx: number) => (
+                                            <div
+                                                key={idx}
+                                                className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity"
+                                                onClick={() => setPreviewFile({
+                                                    url: att.file_url,
+                                                    type: att.file_type,
+                                                    name: att.file_name,
+                                                })}
+                                            >
+                                                <FileTypeIcon
+                                                    fileType={att.file_type}
+                                                    fileName={att.file_name}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span className="text-default-300 text-sm">-</span>
+                                )}
                             </TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
+
+            {previewFile && (
+                <FilePreviewModal
+                    isOpen={Boolean(previewFile)}
+                    onClose={() => setPreviewFile(null)}
+                    fileUrl={previewFile.url}
+                    fileType={previewFile.type}
+                    fileName={previewFile.name}
+                />
+            )}
         </div>
     );
 };
