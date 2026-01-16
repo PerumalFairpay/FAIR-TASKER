@@ -12,7 +12,7 @@ import {
 interface EmployeeState {
     employees: any[];
     employee: any | null;
-    userPermissions: string[];
+    userPermissions: { role_permissions: string[], direct_permissions: string[] };
     loading: boolean;
     error: string | null;
     success: string | null;
@@ -21,7 +21,7 @@ interface EmployeeState {
 const initialEmployeeState: EmployeeState = {
     employees: [],
     employee: null,
-    userPermissions: [],
+    userPermissions: { role_permissions: [], direct_permissions: [] },
     loading: false,
     error: null,
     success: null,
@@ -166,13 +166,16 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 ...state,
                 loading: true,
                 error: null,
-                userPermissions: [], // clear previous
+                userPermissions: { role_permissions: [], direct_permissions: [] }, // clear previous
             };
         case GET_USER_PERMISSIONS_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                userPermissions: action.payload.data.permissions,
+                userPermissions: {
+                    role_permissions: action.payload.data.role_permissions,
+                    direct_permissions: action.payload.data.direct_permissions
+                },
             };
         case GET_USER_PERMISSIONS_FAILURE:
             return {

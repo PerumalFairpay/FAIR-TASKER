@@ -49,8 +49,8 @@ export default function UserPermissionsModal({
     }, [isOpen, employee, dispatch]);
 
     useEffect(() => {
-        if (userPermissions) {
-            setSelected(userPermissions);
+        if (userPermissions?.direct_permissions) {
+            setSelected(userPermissions.direct_permissions);
         }
     }, [userPermissions]);
 
@@ -91,25 +91,34 @@ export default function UserPermissionsModal({
                                             <div key={module} className="border p-4 rounded-lg">
                                                 <h3 className="text-lg font-semibold mb-2 text-primary">{module}</h3>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                    {perms.map((p) => (
-                                                        <Switch
-                                                            key={p.slug}
-                                                            size="sm"
-                                                            isSelected={selected.includes(p.slug)}
-                                                            onValueChange={(isSelected) => {
-                                                                if (isSelected) {
-                                                                    setSelected([...selected, p.slug]);
-                                                                } else {
-                                                                    setSelected(selected.filter((s) => s !== p.slug));
-                                                                }
-                                                            }}
-                                                        >
-                                                            <div className="flex flex-col">
-                                                                <span className="text-small">{p.name}</span>
-                                                                <span className="text-tiny text-default-400">{p.description}</span>
+                                                    {perms.map((p) => {
+                                                        const isRolePermission = userPermissions?.role_permissions?.includes(p.id);
+                                                        const isDirectPermission = selected.includes(p.id);
+
+                                                        return (
+                                                            <div key={p.id} className="flex items-center justify-between p-2 border rounded-small">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-small">{p.name}</span>
+                                                                    <span className="text-tiny text-default-400">{p.description}</span>
+                                                                </div>
+                                                                {isRolePermission ? (
+                                                                    <Chip size="sm" color="success" variant="flat">Role Access</Chip>
+                                                                ) : (
+                                                                    <Switch
+                                                                        size="sm"
+                                                                        isSelected={isDirectPermission}
+                                                                        onValueChange={(isSelected) => {
+                                                                            if (isSelected) {
+                                                                                setSelected([...selected, p.id]);
+                                                                            } else {
+                                                                                setSelected(selected.filter((s) => s !== p.id));
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                )}
                                                             </div>
-                                                        </Switch>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         ))}
