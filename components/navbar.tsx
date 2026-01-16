@@ -415,6 +415,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         </p>
                       ) : ""}
                       avatarProps={{
+                        src: user.profile_picture,
                         name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
                       }}
                       classNames={{
@@ -434,6 +435,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         </p>
                       ) : ""}
                       avatarProps={{
+                        src: user.profile_picture,
                         name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
                       }}
                       classNames={{
@@ -455,7 +457,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   </Button>
                 )}
               </div>
-            )} 
+            )}
 
             <div className={clsx(
               "flex items-center gap-1",
