@@ -106,19 +106,7 @@ export default function AddEditEmployeeDrawer({
             const currentDeptName = fetchedEmployee.department;
 
             // Set Documents
-            if (fetchedEmployee.documents && fetchedEmployee.documents.length > 0) {
-                const mappedDocs = fetchedEmployee.documents.map((doc: any, index: number) => ({
-                    id: Date.now() + index,
-                    name: doc.document_name,
-                    files: doc.document_proof ? [{
-                        source: doc.document_proof,
-                        options: { type: 'local' }
-                    }] : []
-                }));
-                setDocumentList(mappedDocs);
-            } else {
-                setDocumentList([{ id: Date.now(), name: "", files: [] }]);
-            }
+            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
 
@@ -183,10 +171,7 @@ export default function AddEditEmployeeDrawer({
 
         if (documentList.length > 0) {
             documentList.forEach((doc) => {
-                if (doc.files && doc.files.length > 0) {
-                    // If name is empty, use filename or default? Backend handles it if we pass something.
-                    // But backend index matching relies on array length.
-                    // IMPORTANT: We must append 'document_names' for every 'document_proofs' we append to keep indices aligned!
+                if (doc.files && doc.files.length > 0) { 
                     data.append("document_names", doc.name || doc.files[0].file.name);
                     data.append("document_proofs", doc.files[0].file);
                 }
