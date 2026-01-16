@@ -106,7 +106,9 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                         </h4>
                                         <div
                                             className="text-sm text-default-600 prose prose-sm max-w-none"
-                                            dangerouslySetInnerHTML={{ __html: task.description || "<p>No description provided.</p>" }}
+                                            dangerouslySetInnerHTML={{
+                                                __html: (task.description || "<p>No description provided.</p>").replace(/&nbsp;/g, " ")
+                                            }}
                                         />
                                     </div>
 
