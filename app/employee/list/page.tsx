@@ -33,7 +33,7 @@ import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, LockIcon
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
-import UserPermissionsModal from "./UserPermissionsModal";
+import UserPermissionsDrawer from "./UserPermissionsDrawer";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
@@ -317,7 +317,7 @@ export default function EmployeeListPage() {
                 </ModalContent>
             </Modal>
 
-            <UserPermissionsModal
+            <UserPermissionsDrawer
                 isOpen={isPermOpen}
                 onClose={onPermOpenChange}
                 employee={selectedEmployee}
