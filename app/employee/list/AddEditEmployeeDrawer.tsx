@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getRolesRequest } from "@/store/role/action";
 import { getDepartmentsRequest } from "@/store/department/action";
+import { getEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
 import {
     Drawer,
     DrawerContent,
@@ -41,6 +42,7 @@ export default function AddEditEmployeeDrawer({
     const dispatch = useDispatch();
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
+    const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
@@ -84,23 +86,39 @@ export default function AddEditEmployeeDrawer({
         if (isOpen) {
             dispatch(getRolesRequest());
             dispatch(getDepartmentsRequest());
-        }
-    }, [isOpen, dispatch]);
-
-    useEffect(() => {
-        if (!isOpen) {
+            if (mode === "edit" && selectedEmployee?.id) {
+                dispatch(getEmployeeRequest(selectedEmployee.id));
+            }
+        } else {
             setFormData({});
             setProfileFiles([]);
             setDocumentList([{ id: Date.now(), name: "", files: [] }]);
             setSelectedTab("personal");
             setIsVisible(false);
             setIsConfirmVisible(false);
-            return;
+            dispatch(clearEmployeeDetails());
         }
+    }, [isOpen, dispatch, mode, selectedEmployee]);
 
-        if (mode === "edit" && selectedEmployee) {
+    useEffect(() => {
+        if (isOpen && mode === "edit" && fetchedEmployee) {
             const allDepts = departments || [];
-            const currentDeptName = selectedEmployee.department;
+            const currentDeptName = fetchedEmployee.department;
+
+            // Set Documents
+            if (fetchedEmployee.documents && fetchedEmployee.documents.length > 0) {
+                const mappedDocs = fetchedEmployee.documents.map((doc: any, index: number) => ({
+                    id: Date.now() + index,
+                    name: doc.document_name,
+                    files: doc.document_proof ? [{
+                        source: doc.document_proof,
+                        options: { type: 'local' }
+                    }] : []
+                }));
+                setDocumentList(mappedDocs);
+            } else {
+                setDocumentList([{ id: Date.now(), name: "", files: [] }]);
+            }
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
 
@@ -117,24 +135,21 @@ export default function AddEditEmployeeDrawer({
                 const root = findRoot(currentDeptName);
                 if (root && root.name !== currentDeptName) {
                     setFormData({
-                        ...selectedEmployee,
+                        ...fetchedEmployee,
                         department: root.name,
                         designation: currentDeptName
                     });
-                    setSelectedTab("personal");
                     return;
                 }
             }
 
-            setFormData({ ...selectedEmployee });
-            setSelectedTab("personal");
-        } else if (mode === "create") {
-            setFormData({ status: "Active", work_mode: "Office" });
-            setProfileFiles([]);
-            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
-            setSelectedTab("personal");
+            setFormData({ ...fetchedEmployee });
+        } else if (isOpen && mode === "create") {
+            if (Object.keys(formData).length === 0) {
+                setFormData({ status: "Active", work_mode: "Office" });
+            }
         }
-    }, [isOpen, mode, selectedEmployee, departments, rootDepartments]);
+    }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
 
     useEffect(() => {
         if (mode === "create" && formData.first_name && formData.last_name) {
