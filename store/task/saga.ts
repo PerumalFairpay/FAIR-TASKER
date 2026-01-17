@@ -148,22 +148,30 @@ function* onDeleteTask({ payload }: any): SagaIterator {
 function* onSubmitEodReport({ payload }: any): SagaIterator {
     try {
         const formData = new FormData();
-        const { reports } = payload;
+        // Payload is now expected to be a single report object, not { reports: [...] }
+        // If payload is still { reports: [...] } but user submits one, take the first.
+        // Or better, assume payload is the report object itself or contains it.
+        // Based on user prompt "i only submit the one eod report", let's assume payload IS the single report data 
+        // OR payload has 'reports' array of 1. Let's start by destructuring safely.
 
-        const cleanReports = reports.map((r: any) => {
-            const { files, ...rest } = r;
-            return rest;
-        });
+        let reportData = payload;
+        if (payload.reports && Array.isArray(payload.reports)) {
+            reportData = payload.reports[0];
+        }
 
-        formData.append("reports", JSON.stringify(cleanReports));
+        if (!reportData) throw new Error("No report data found");
 
-        reports.forEach((report: any) => {
-            if (report.files && report.files.length > 0) {
-                report.files.forEach((file: File) => {
-                    formData.append(`attachments_${report.task_id}`, file);
-                });
-            }
-        });
+        formData.append("task_id", reportData.task_id);
+        formData.append("status", reportData.status);
+        formData.append("progress", String(reportData.progress));
+        if (reportData.eod_summary) formData.append("eod_summary", reportData.eod_summary);
+        formData.append("move_to_tomorrow", String(!!reportData.move_to_tomorrow));
+
+        if (reportData.files && reportData.files.length > 0) {
+            reportData.files.forEach((file: File) => {
+                formData.append("attachments", file);
+            });
+        }
 
         const response = yield call(submitEodReportApi, formData);
         if (response.data.success) {
