@@ -29,7 +29,7 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { User } from "@heroui/user";
-import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, LockIcon } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, ShieldCheck } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
@@ -226,8 +226,8 @@ export default function EmployeeListPage() {
                                         </span>
                                     </PermissionGuard>
                                     <PermissionGuard permission="permission:manage">
-                                        <span className="text-lg text-warning cursor-pointer active:opacity-50" onClick={() => handlePermissions(item)}>
-                                            <LockIcon size={16} />
+                                        <span className="text-lg text-secondary cursor-pointer active:opacity-50" onClick={() => handlePermissions(item)}>
+                                            <ShieldCheck size={16} />
                                         </span>
                                     </PermissionGuard>
                                 </div>

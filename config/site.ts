@@ -61,7 +61,7 @@ export const siteConfig: SiteConfig = {
         {
           label: "Permission",
           href: "/employee/permission",
-          icon: "Key",
+          icon: "ShieldCheck",
           allowedRoles: ["admin"],
         },
       ],

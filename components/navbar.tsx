@@ -40,7 +40,8 @@ import {
   Clock,
   Key,
   Rss,
-  Milestone
+  Milestone,
+  ShieldCheck
 } from "lucide-react";
 
 
@@ -81,7 +82,8 @@ const iconMap: Record<string, any> = {
   Clock,
   Key,
   Rss,
-  Milestone
+  Milestone,
+  ShieldCheck
 };
 
 
