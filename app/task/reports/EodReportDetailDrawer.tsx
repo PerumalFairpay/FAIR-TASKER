@@ -122,46 +122,62 @@ const EodReportDetailDrawer = ({ isOpen, onClose, report }: EodReportDetailDrawe
                                     ) : (
                                         <div className="flex flex-col px-6 py-6 gap-8">
 
-                                            {/* Task & User Context Section */}
-                                            <section>
-                                                <div className="bg-default-50 border border-divider rounded-2xl p-5 shadow-sm">
-                                                    <div className="flex items-center gap-4 mb-5">
+                                            {/* Task & User Context Section - Minimal */}
+                                            <section className="space-y-6">
+                                                <div className="flex items-start justify-between gap-4">
+                                                    <div className="flex items-center gap-4 min-w-0">
                                                         <Avatar
                                                             src={displayReport.profile_picture}
                                                             name={displayReport.employee_name}
-                                                            className="w-14 h-14 rounded-xl border-2 border-background shadow-md"
-                                                            radius="sm"
-                                                            isBordered
-                                                            color="primary"
+                                                            className="w-12 h-12 flex-shrink-0"
+                                                            radius="lg"
+                                                            size="md"
                                                         />
-                                                        <div className="flex flex-col min-w-0 flex-1">
-                                                            <div className="flex items-center gap-2 mb-0.5">
-                                                                <span className="text-[10px] font-black uppercase text-primary tracking-widest bg-primary/5 px-2 py-0.5 rounded">Owner</span>
-                                                                <span className="text-xs font-bold text-default-500 truncate">{displayReport.employee_name}</span>
-                                                            </div>
-                                                            <h3 className="font-bold text-base text-foreground truncate break-all leading-tight">
+                                                        <div className="flex flex-col min-w-0">
+                                                            <h3 className="text-base font-bold text-foreground leading-tight truncate">
                                                                 {currentTask?.task_name || displayReport.task_name}
                                                             </h3>
-                                                            <div className="flex items-center gap-2 mt-2">
-                                                                <span className="text-[10px] font-bold text-default-400 flex items-center gap-1">
-                                                                    <Briefcase size={10} className="text-secondary" /> {displayReport.project_name}
-                                                                </span>
+                                                            <div className="flex items-center gap-1.5 mt-1 text-xs text-default-400 font-medium">
+                                                                <span className="text-primary/80 font-semibold">{displayReport.employee_name}</span>
+                                                                <span className="text-default-300">/</span>
+                                                                <span className="truncate">{displayReport.project_name}</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="space-y-2 pt-2 border-t border-divider/50">
-                                                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                                                            <span className="text-default-400">Total Completion</span>
-                                                            <span className="text-primary font-mono text-xs">{(currentTask?.progress || displayReport.progress)}%</span>
-                                                        </div>
-                                                        <Progress
-                                                            value={currentTask?.progress || displayReport.progress}
-                                                            color={(currentTask?.progress || displayReport.progress) === 100 ? "success" : "primary"}
-                                                            className="h-2"
-                                                            radius="full"
+                                                </div>
+
+                                                {/* Task Description */}
+                                                {(currentTask?.description || displayReport.task_details?.description) && (
+                                                    <div className="bg-default-50/50 p-4 rounded-2xl border border-divider/50 shadow-sm">
+                                                        <h4 className="text-[10px] font-black text-default-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                            <FileText size={12} className="text-primary/60" />
+                                                            Brief Description
+                                                        </h4>
+                                                        <div
+                                                            className="text-xs text-default-600 prose prose-sm max-w-none break-words leading-relaxed"
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: (currentTask?.description || displayReport.task_details?.description || "").replace(/&nbsp;/g, " ")
+                                                            }}
                                                         />
                                                     </div>
+                                                )}
+
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center px-0.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <CheckCircle2 size={12} className="text-primary/60" />
+                                                            <span className="text-[10px] font-bold text-default-400 uppercase tracking-widest">Progress</span>
+                                                        </div>
+                                                        <span className="text-xs font-bold font-mono text-primary">{(currentTask?.progress || displayReport.progress)}%</span>
+                                                    </div>
+                                                    <Progress
+                                                        value={currentTask?.progress || displayReport.progress}
+                                                        color={(currentTask?.progress || displayReport.progress) === 100 ? "success" : "primary"}
+                                                        className="h-1"
+                                                        radius="full"
+                                                        size="sm"
+                                                    />
                                                 </div>
                                             </section>
 
@@ -223,7 +239,7 @@ const EodReportDetailDrawer = ({ isOpen, onClose, report }: EodReportDetailDrawe
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
-                                                                            <div className="flex flex-col items-end gap-1.5">
+                                                                            <div className="flex flex-col items-end gap-2 w-20">
                                                                                 <Chip
                                                                                     size="sm"
                                                                                     variant="flat"
@@ -232,14 +248,26 @@ const EodReportDetailDrawer = ({ isOpen, onClose, report }: EodReportDetailDrawe
                                                                                 >
                                                                                     {item.status}
                                                                                 </Chip>
-                                                                                <span className="text-[10px] font-bold text-default-400">{item.progress}% Prog.</span>
+                                                                                <div className="w-full space-y-1">
+                                                                                    <div className="flex justify-between items-baseline">
+                                                                                        <span className="text-[8px] font-black text-default-300 uppercase">Prog.</span>
+                                                                                        <span className="text-[10px] font-bold text-default-500 font-mono">{item.progress}%</span>
+                                                                                    </div>
+                                                                                    <Progress
+                                                                                        value={item.progress}
+                                                                                        color={item.progress === 100 ? "success" : "primary"}
+                                                                                        className="h-1"
+                                                                                        radius="full"
+                                                                                        size="sm"
+                                                                                    />
+                                                                                </div>
                                                                             </div>
                                                                         </header>
 
                                                                         <Divider className="mb-4 opacity-50" />
 
                                                                         <div className="text-sm text-foreground/80 leading-relaxed font-medium mb-5">
-                                                                            <div className="prose prose-sm max-w-none prose-p:my-1 prose-strong:text-foreground prose-strong:font-black">
+                                                                            <div className="prose prose-sm max-w-none prose-p:my-1 prose-strong:text-foreground prose-strong:font-black break-all overflow-hidden">
                                                                                 {item.summary ? parse(item.summary) : <span className="text-xs italic text-default-300">No summary.</span>}
                                                                             </div>
                                                                         </div>
