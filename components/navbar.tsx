@@ -94,6 +94,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  useEffect(() => {
+    siteConfig.navItems.forEach((item: any) => {
+      if (item.children?.some((child: any) => child.href === pathname)) {
+        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
+      }
+    });
+  }, [pathname]);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
