@@ -117,6 +117,12 @@ export const siteConfig: SiteConfig = {
           allowedRoles: ["admin", "employee"],
         },
         {
+          label: "Roadmap Board",
+          href: "/task/roadmap-board",
+          icon: "KanbanSquare",
+          allowedRoles: ["admin", "employee"],
+        },
+        {
           label: "EOD Reports",
           href: "/task/reports",
           icon: "FileText",

@@ -24,6 +24,7 @@ interface AddEditTaskDrawerProps {
     onClose: () => void;
     task?: any;
     selectedDate?: string;
+    allowedStatuses?: string[];
 }
 
 interface Attachment {
@@ -32,7 +33,7 @@ interface Attachment {
     file_type?: string;
 }
 
-const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskDrawerProps) => {
+const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuses }: AddEditTaskDrawerProps) => {
     const dispatch = useDispatch();
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
@@ -58,6 +59,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
+        status: "Todo" // Default status
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -80,6 +82,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                     priority: task.priority || "Medium",
                     assigned_to: task.assigned_to || [],
                     tags: task.tags || [],
+                    status: task.status || "Todo"
                 });
                 setExistingAttachments(task.attachments || []);
                 setNewAttachments([]);
@@ -88,6 +91,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                     ...initialFormData,
                     start_date: selectedDate || new Date().toISOString().split("T")[0],
                     end_date: selectedDate || new Date().toISOString().split("T")[0],
+                    status: allowedStatuses?.[0] || "Todo"
                 });
                 setExistingAttachments([]);
                 setNewAttachments([]);
@@ -99,7 +103,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
             setNewAttachments([]);
             setIsSubmitting(false);
         }
-    }, [task, isOpen, selectedDate]);
+    }, [task, isOpen, selectedDate, allowedStatuses]);
 
     useEffect(() => {
         if (isSubmitting && !loading && success) {
@@ -127,7 +131,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
         data.append("start_time", formData.start_time);
         data.append("end_time", formData.end_time);
         data.append("priority", formData.priority);
-        data.append("status", task?.status || "Todo"); // Maintain status if editing
+        data.append("status", formData.status);
         data.append("progress", task?.progress?.toString() || "0");
 
         formData.assigned_to.forEach(id => data.append("assigned_to[]", id));
@@ -166,6 +170,22 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate }: AddEditTaskD
                                 </SelectItem>
                             ))}
                         </Select>
+
+                        {allowedStatuses && (
+                            <Select
+                                label="Status"
+                                placeholder="Select status"
+                                selectedKeys={formData.status ? [formData.status] : []}
+                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                required
+                            >
+                                {allowedStatuses.map((status) => (
+                                    <SelectItem key={status}>
+                                        {status}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
 
                         <Input
                             label="Task Name"
