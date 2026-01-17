@@ -300,7 +300,10 @@ const EODReportsPage = () => {
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <div className="text-xs text-default-600 max-w-[250px] prose prose-sm prose-p:my-0 prose-p:leading-relaxed break-words overflow-hidden">
+                                <div
+                                    className="text-xs text-default-600 max-w-[250px] prose prose-sm prose-p:my-0 prose-p:leading-relaxed break-words overflow-hidden"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     {item.summary ? (
                                         <ShowMoreText
                                             lines={2}
@@ -326,11 +329,14 @@ const EODReportsPage = () => {
                                             <div
                                                 key={idx}
                                                 className="cursor-pointer active:opacity-50 hover:bg-default-100 p-1 rounded-md transition-all border border-divider/50"
-                                                onClick={() => setPreviewFile({
-                                                    url: att.file_url,
-                                                    type: att.file_type,
-                                                    name: att.file_name,
-                                                })}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setPreviewFile({
+                                                        url: att.file_url,
+                                                        type: att.file_type,
+                                                        name: att.file_name,
+                                                    });
+                                                }}
                                             >
                                                 <FileTypeIcon
                                                     fileType={att.file_type}
