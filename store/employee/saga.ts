@@ -5,14 +5,18 @@ import {
     GET_EMPLOYEES_REQUEST,
     GET_EMPLOYEE_REQUEST,
     UPDATE_EMPLOYEE_REQUEST,
-    DELETE_EMPLOYEE_REQUEST
+    DELETE_EMPLOYEE_REQUEST,
+    UPDATE_USER_PERMISSIONS_REQUEST,
+    GET_USER_PERMISSIONS_REQUEST
 } from "./actionType";
 import {
     createEmployeeSuccess, createEmployeeFailure,
     getEmployeesSuccess, getEmployeesFailure,
     getEmployeeSuccess, getEmployeeFailure,
     updateEmployeeSuccess, updateEmployeeFailure,
-    deleteEmployeeSuccess, deleteEmployeeFailure
+    deleteEmployeeSuccess, deleteEmployeeFailure,
+    updateUserPermissionsSuccess, updateUserPermissionsFailure,
+    getUserPermissionsSuccess, getUserPermissionsFailure
 } from "./action";
 import api from "../api";
 
@@ -43,6 +47,14 @@ function updateEmployeeApi(id: string, payload: FormData) {
 
 function deleteEmployeeApi(id: string) {
     return api.delete(`/employees/delete/${id}`);
+}
+
+function updateUserPermissionsApi(id: string, permissions: string[]) {
+    return api.put(`/employees/${id}/permissions`, { permissions });
+}
+
+function getUserPermissionsApi(id: string) {
+    return api.get(`/employees/${id}/permissions`);
 }
 
 // Sagas
@@ -93,10 +105,31 @@ function* onDeleteEmployee({ payload }: any): SagaIterator {
     }
 }
 
+function* onUpdateUserPermissions({ payload }: any): SagaIterator {
+    try {
+        const { id, permissions } = payload;
+        const response = yield call(updateUserPermissionsApi, id, permissions);
+        yield put(updateUserPermissionsSuccess(response.data));
+    } catch (error: any) {
+        yield put(updateUserPermissionsFailure(error.response?.data?.message || "Failed to update permissions"));
+    }
+}
+
+function* onGetUserPermissions({ payload }: any): SagaIterator {
+    try {
+        const response = yield call(getUserPermissionsApi, payload);
+        yield put(getUserPermissionsSuccess(response.data));
+    } catch (error: any) {
+        yield put(getUserPermissionsFailure(error.response?.data?.message || "Failed to fetch permissions"));
+    }
+}
+
 export default function* employeeSaga(): SagaIterator {
     yield takeEvery(CREATE_EMPLOYEE_REQUEST, onCreateEmployee);
     yield takeEvery(GET_EMPLOYEES_REQUEST, onGetEmployees);
     yield takeEvery(GET_EMPLOYEE_REQUEST, onGetEmployee);
     yield takeEvery(UPDATE_EMPLOYEE_REQUEST, onUpdateEmployee);
     yield takeEvery(DELETE_EMPLOYEE_REQUEST, onDeleteEmployee);
+    yield takeEvery(UPDATE_USER_PERMISSIONS_REQUEST, onUpdateUserPermissions);
+    yield takeEvery(GET_USER_PERMISSIONS_REQUEST, onGetUserPermissions);
 }

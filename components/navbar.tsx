@@ -39,7 +39,9 @@ import {
   KanbanSquare,
   Clock,
   Key,
-  Rss
+  Rss,
+  Milestone,
+  ShieldCheck
 } from "lucide-react";
 
 
@@ -79,7 +81,9 @@ const iconMap: Record<string, any> = {
   KanbanSquare,
   Clock,
   Key,
-  Rss
+  Rss,
+  Milestone,
+  ShieldCheck
 };
 
 
@@ -92,6 +96,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  useEffect(() => {
+    siteConfig.navItems.forEach((item: any) => {
+      if (item.children?.some((child: any) => child.href === pathname)) {
+        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
+      }
+    });
+  }, [pathname]);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
@@ -192,7 +204,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="flex items-center justify-center p-2 border-b border-divider h-16">
             <NextLink
               className="flex justify-start items-center gap-2"
-              href="/"
+              href="/dashboard"
             >
               <Image
                 src={FairPayLogo}
@@ -415,6 +427,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         </p>
                       ) : ""}
                       avatarProps={{
+                        src: user.profile_picture,
                         name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
                       }}
                       classNames={{
@@ -434,6 +447,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         </p>
                       ) : ""}
                       avatarProps={{
+                        src: user.profile_picture,
                         name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
                       }}
                       classNames={{
@@ -456,7 +470,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 )}
               </div>
             )}
-            <ThemeSwitch />
 
             <div className={clsx(
               "flex items-center gap-1",

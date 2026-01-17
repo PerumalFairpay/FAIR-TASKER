@@ -61,7 +61,7 @@ export const siteConfig: SiteConfig = {
         {
           label: "Permission",
           href: "/employee/permission",
-          icon: "Key",
+          icon: "ShieldCheck",
           allowedRoles: ["admin"],
         },
       ],
@@ -121,6 +121,13 @@ export const siteConfig: SiteConfig = {
           href: "/task/reports",
           icon: "FileText",
           allowedRoles: ["admin", "employee"],
+        },
+        {
+          label: "Milestone",
+          href: "/task/roadmap-board",
+          icon: "Milestone",
+          allowedRoles: ["admin", "employee"],
+          permission: "nav:milestone",
         },
       ],
     },

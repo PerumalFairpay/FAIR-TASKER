@@ -15,7 +15,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
-import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText, CheckCircle2, AlertCircle, Timer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText, CheckCircle2, AlertCircle, Timer, Eye, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
     Drawer,
@@ -30,6 +30,8 @@ import { PageHeader } from "@/components/PageHeader";
 // import GoogleMeetIcon from "../../../../assets/google_meet.svg"; // Removed
 // import ZoomIcon from "../../../../assets/zoom.svg"; // Removed
 import "./calendar.css";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
+import FileTypeIcon from "@/components/common/FileTypeIcon";
 
 // Color palettes similar to the image
 const EVENT_COLORS = [
@@ -57,6 +59,7 @@ export default function CalendarPage() {
     const calendarRef = useRef<any>(null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
     const [currentView, setCurrentView] = useState("dayGridMonth"); // Default to month view for tasks
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -91,7 +94,7 @@ export default function CalendarPage() {
 
 
 
-    const { tasks, loading: getTasksLoading } = useSelector(
+    const { tasks, getTasksLoading } = useSelector(
         (state: AppState) => state.Task
     );
     const { employees } = useSelector((state: AppState) => state.Employee);
@@ -538,11 +541,12 @@ export default function CalendarPage() {
                                                 <h3 className="text-sm font-semibold text-default-700">Description</h3>
                                                 <div
                                                     className="text-sm text-default-600 leading-relaxed font-normal p-4 rounded-xl bg-default-50/50 border border-default-100 prose prose-sm dark:prose-invert max-w-none"
-                                                    dangerouslySetInnerHTML={{ __html: selectedTask.description }}
+                                                    dangerouslySetInnerHTML={{ __html: selectedTask.description.replace(/&nbsp;/g, " ") }}
                                                 />
                                             </div>
                                         )}
 
+                                        {/* Attachments Section */}
                                         {/* Attachments Section */}
                                         {selectedTask.attachments && selectedTask.attachments.length > 0 && (
                                             <div className="flex flex-col gap-3">
@@ -550,20 +554,57 @@ export default function CalendarPage() {
                                                     Attachments <Chip size="sm" variant="flat">{selectedTask.attachments.length}</Chip>
                                                 </h3>
                                                 <div className="grid grid-cols-1 gap-2">
-                                                    {selectedTask.attachments.map((att: any, idx: number) => (
-                                                        <div key={idx} className="group flex items-center justify-between p-3 rounded-xl bg-default-50 hover:bg-default-100 border border-default-100 transition-all cursor-pointer">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                                                                    <FileText size={16} />
+                                                    {selectedTask.attachments.map((att: string | any, index: number) => {
+                                                        let url = "";
+                                                        let fileName = "";
+                                                        let fileType = "";
+
+                                                        if (typeof att === 'string') {
+                                                            url = att;
+                                                            fileName = url.split("/").pop() || `Attachment ${index + 1}`;
+                                                        } else {
+                                                            url = att.file_url;
+                                                            fileName = att.file_name;
+                                                            fileType = att.file_type;
+                                                        }
+
+                                                        return (
+                                                            <div key={index} className="border border-default-200 rounded-lg p-3 flex items-center justify-between hover:bg-default-50 transition-colors">
+                                                                <div className="flex items-center gap-3 overflow-hidden">
+                                                                    <FileTypeIcon fileType={fileType} fileName={fileName} />
+                                                                    <div className="flex flex-col min-w-0">
+                                                                        <span className="text-small font-medium truncate" title={fileName}>
+                                                                            {fileName}
+                                                                        </span>
+                                                                        {fileType && (
+                                                                            <span className="text-tiny text-default-400 capitalize">
+                                                                                {fileType.split('/')[1] || fileType}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-                                                                <div className="flex flex-col overflow-hidden">
-                                                                    <span className="text-xs font-medium truncate">{att.name || `Attachment ${idx + 1}`}</span>
-                                                                    <span className="text-[10px] text-default-400">{att.size || "Unknown size"}</span>
+                                                                <div className="flex gap-1">
+                                                                    <Button
+                                                                        isIconOnly
+                                                                        size="sm"
+                                                                        variant="light"
+                                                                        onPress={() => setPreviewFile({
+                                                                            url: url,
+                                                                            type: fileType,
+                                                                            name: fileName,
+                                                                        })}
+                                                                    >
+                                                                        <Eye size={18} className="text-default-500" />
+                                                                    </Button>
+                                                                    <a href={url} download target="_blank" rel="noopener noreferrer">
+                                                                        <Button isIconOnly size="sm" variant="light">
+                                                                            <Download size={18} className="text-default-500" />
+                                                                        </Button>
+                                                                    </a>
                                                                 </div>
                                                             </div>
-                                                            <ExternalLink size={14} className="text-default-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}
@@ -586,6 +627,16 @@ export default function CalendarPage() {
                     )}
                 </DrawerContent>
             </Drawer>
+
+            {previewFile && (
+                <FilePreviewModal
+                    isOpen={Boolean(previewFile)}
+                    onClose={() => setPreviewFile(null)}
+                    fileUrl={previewFile.url}
+                    fileType={previewFile.type}
+                    fileName={previewFile.name}
+                />
+            )}
         </div>
     );
 }

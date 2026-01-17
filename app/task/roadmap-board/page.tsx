@@ -9,12 +9,10 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import {
-    Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil
+    Plus, Clock, ChevronLeft, ChevronRight, FileText, Calendar as CalendarIcon, Pencil, Paperclip
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -23,21 +21,18 @@ import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task
 import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesRequest } from "@/store/employee/action";
 import clsx from "clsx";
-// import AddEditTaskDrawer from "./AddEditTaskDrawer";
-import EodReportDrawer from "./EodReportDrawer";
-import AddEditTaskDrawer from "./AddEditTaskDrawer";
-import TaskDetailModal from "./TaskDetailModal";
+import AddEditTaskDrawer from "../board/AddEditTaskDrawer";
+import TaskDetailModal from "../board/TaskDetailModal";
 
 const COLUMNS = [
-    { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
-    { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
-    { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
-    { id: "Moved", title: "Moved to Tomorrow", color: "bg-warning-50", textColor: "text-warning-600" },
+    { id: "Milestone", title: "Milestone", color: "bg-default-100", textColor: "text-default-600" },
+    { id: "Backlog", title: "Backlog", color: "bg-primary-50", textColor: "text-primary-600" },
+    { id: "Roadmap", title: "Roadmap", color: "bg-success-50", textColor: "text-success-600" },
 ];
 
-const TaskBoard = () => {
+const RoadmapBoard = () => {
     const dispatch = useDispatch();
-    const { tasks, currentTask, getTasksLoading } = useSelector((state: AppState) => state.Task);
+    const { tasks, currentTask } = useSelector((state: AppState) => state.Task);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { user } = useSelector((state: AppState) => state.Auth);
     const router = useRouter();
@@ -45,10 +40,7 @@ const TaskBoard = () => {
     const [enabled, setEnabled] = useState(false);
     const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [isEodDrawerOpen, setIsEodDrawerOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
-    const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
-    const [eodDrawerInitialReports, setEodDrawerInitialReports] = useState<Record<string, any>>({});
 
     const today = new Date();
     const year = today.getFullYear();
@@ -63,7 +55,6 @@ const TaskBoard = () => {
     const isAdmin = user?.role?.toLowerCase() === "admin";
 
     useEffect(() => {
-        // If not admin and user not loaded yet, skip
         if (!isAdmin && !user) return;
 
         dispatch(getTasksRequest({
@@ -75,103 +66,22 @@ const TaskBoard = () => {
         setEnabled(true);
     }, [dispatch, filterDate, filterEmployee, user]);
 
-    const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
-        setEodDrawerTasks([task]);
-
-        let initialReport: any = {
-            task_id: task.id,
-            eod_summary: "",
-            progress: task.progress || 0,
-            status: task.status,
-            move_to_tomorrow: false
-        };
-
-        if (targetStatus === "Moved") {
-            // If moved to rollover column, we assume it's "In Progress" but moving to tomorrow
-            initialReport.status = "In Progress";
-            initialReport.move_to_tomorrow = true;
-        } else if (targetStatus === "Completed") {
-            initialReport.status = "Completed";
-            initialReport.progress = 100;
-            initialReport.move_to_tomorrow = false;
-        }
-
-        setEodDrawerInitialReports({
-            [task.id]: initialReport
-        });
-        setIsEodDrawerOpen(true);
-    };
-
-
-
     const onDragEnd = (result: DropResult) => {
         const { destination, source, draggableId } = result;
 
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
-        if (destination.droppableId === "Moved" || destination.droppableId === "Completed") {
-            const task = tasks.find((t: any) => t.id === draggableId);
-            if (task) {
-                handleOpenEodForSingleTask(task, destination.droppableId);
-            }
-            return;
-        }
-
-        // Update status in backend
         dispatch(updateTaskRequest(draggableId, { status: destination.droppableId }));
     };
 
     if (!enabled) return null;
 
     const getTasksByStatus = (status: string) => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, "0");
-        const day = String(today.getDate()).padStart(2, "0");
-        const todayStr = `${year}-${month}-${day}`;
-
-        // Use filterDate if present, otherwise default to today logic
-        const comparisonDate = filterDate || todayStr;
-
         return tasks.filter((task: any) => {
-            const isRolloverForView = task.last_rollover_date === comparisonDate;
-
-            // 1. Handle "Moved" column
-            if (status === "Moved") {
-                // Task appears here if it has status="Moved" OR is a rollover task for this date
-                return task.status === "Moved" || isRolloverForView;
-            }
-
-            // 2. Handle other columns
-            // If it IS a rollover task for this date, it should ONLY appear in Moved, not here.
-            if (isRolloverForView) return false;
-
-            // 3. Normal Status Matching
             if (task.status !== status) return false;
-
-            // If explicit date filter is set, rely on backend or just simple match
-            if (filterDate) {
-                // Backend handles the date filtering mostly, but if we want to be safe:
-                // return true (backend filtered) or specific logic.
-                // Current logic was: hide future tasks (> today) and hide past moved/completed tasks (< today).
-
-                // If viewing past/future date explicitly, we show everything returned by backend for that date
-                return true;
-            }
-
-            // Default "Today" View Logic
-            // Hide future tasks (tasks scheduled for tomorrow onwards)
-            if (task.start_date && task.start_date > todayStr) {
-                return false;
-            }
-
-            // Hide past 'Moved' or 'Completed' tasks (keep board fresh for today)
-            // Note: We don't hide "Move" if it's the current rollover, but that's handled above.
-            if ((status === "Moved" || status === "Completed") && task.start_date && task.start_date < todayStr) {
-                return false;
-            }
-
+            // Additional filtering (e.g. date) can be kept or removed depending on requirement.
+            // Keeping it consistent with data being fetched which is for `filterDate`.
             return true;
         });
     };
@@ -191,7 +101,7 @@ const TaskBoard = () => {
     };
 
     const handleEditTask = (task: any) => {
-        if (task.status === "Completed" || filterDate > todayStr) return;
+        // Allow editing for any status here
         setSelectedTask(task);
         dispatch(getTaskRequest(task.id));
         setIsTaskDrawerOpen(true);
@@ -216,8 +126,8 @@ const TaskBoard = () => {
         <div className="h-full flex flex-col gap-6 p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <PageHeader
-                    title="Task Management"
-                    description="Manage your daily tasks and project progress"
+                    title="Milestone & Backlog"
+                    description="Manage milestones, backlog items, and roadmap"
                 />
 
                 <div className="flex gap-2 items-center">
@@ -275,23 +185,6 @@ const TaskBoard = () => {
                     )}
 
                     <Button
-                        variant="flat"
-                        color="secondary"
-                        startContent={<FileText size={18} />}
-                        onPress={() => window.location.href = "/task/reports"}
-                    >
-                        View Reports
-                    </Button>
-                    <Button
-                        variant="flat"
-                        color="warning"
-                        startContent={<CalendarIcon size={18} />}
-                        onPress={() => router.push("/task/board/calendar")}
-                    >
-                        Calendar View
-                    </Button>
-
-                    <Button
                         color="primary"
                         startContent={<Plus size={18} />}
                         variant="shadow"
@@ -319,9 +212,6 @@ const TaskBoard = () => {
                                         {getTasksByStatus(column.id).length}
                                     </Chip>
                                 </div>
-                                {/* <Button isIconOnly size="sm" variant="light" className="text-default-400">
-                                    <MoreVertical size={16} />
-                                </Button> */}
                             </div>
 
                             <Droppable droppableId={column.id}>
@@ -335,7 +225,7 @@ const TaskBoard = () => {
                                         )}
                                     >
                                         {getTasksByStatus(column.id).map((task: any, index: number) => (
-                                            <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={task.status === "Completed" || filterDate > todayStr}>
+                                            <Draggable key={task.id} draggableId={task.id} index={index}>
                                                 {(provided, snapshot) => (
                                                     <div
                                                         ref={provided.innerRef}
@@ -346,8 +236,7 @@ const TaskBoard = () => {
                                                         <Card
                                                             shadow="sm"
                                                             className={clsx(
-                                                                "border-none hover:shadow-md transition-all duration-300 group",
-                                                                task.status === "Completed" ? "cursor-default" : "cursor-pointer",
+                                                                "border-none hover:shadow-md transition-all duration-300 group cursor-pointer",
                                                                 snapshot.isDragging ? "shadow-xl ring-2 ring-primary scale-105" : ""
                                                             )}
                                                         >
@@ -358,17 +247,15 @@ const TaskBoard = () => {
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                                                                            {column.id !== "Moved" && task.status !== "Moved" && filterDate <= todayStr && (
-                                                                                <Button
-                                                                                    isIconOnly
-                                                                                    size="sm"
-                                                                                    variant="light"
-                                                                                    className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                                    onPress={() => handleEditTask(task)}
-                                                                                >
-                                                                                    <Pencil size={14} />
-                                                                                </Button>
-                                                                            )}
+                                                                            <Button
+                                                                                isIconOnly
+                                                                                size="sm"
+                                                                                variant="light"
+                                                                                className="h-6 w-6 min-w-4 text-default-400 hover:text-primary z-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                onPress={() => handleEditTask(task)}
+                                                                            >
+                                                                                <Pencil size={14} />
+                                                                            </Button>
                                                                         </div>
                                                                         <Chip
                                                                             size="sm"
@@ -464,13 +351,7 @@ const TaskBoard = () => {
                 onClose={() => setIsTaskDrawerOpen(false)}
                 task={currentTask && currentTask.id === selectedTask?.id ? currentTask : selectedTask}
                 selectedDate={filterDate}
-            />
-
-            <EodReportDrawer
-                isOpen={isEodDrawerOpen}
-                onClose={() => setIsEodDrawerOpen(false)}
-                tasks={eodDrawerTasks}
-                initialReports={eodDrawerInitialReports}
+                allowedStatuses={["Milestone", "Backlog", "Roadmap"]}
             />
 
             <TaskDetailModal
@@ -482,4 +363,4 @@ const TaskBoard = () => {
     );
 };
 
-export default TaskBoard;
+export default RoadmapBoard;

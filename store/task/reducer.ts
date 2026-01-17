@@ -1,106 +1,244 @@
-import * as actionTypes from "./actionType";
+import {
+    CREATE_TASK_REQUEST, CREATE_TASK_SUCCESS, CREATE_TASK_FAILURE,
+    GET_TASKS_REQUEST, GET_TASKS_SUCCESS, GET_TASKS_FAILURE,
+    GET_TASK_REQUEST, GET_TASK_SUCCESS, GET_TASK_FAILURE,
+    UPDATE_TASK_REQUEST, UPDATE_TASK_SUCCESS, UPDATE_TASK_FAILURE,
+    DELETE_TASK_REQUEST, DELETE_TASK_SUCCESS, DELETE_TASK_FAILURE,
+    SUBMIT_EOD_REPORT_REQUEST, SUBMIT_EOD_REPORT_SUCCESS, SUBMIT_EOD_REPORT_FAILURE,
+    GET_EOD_REPORTS_REQUEST, GET_EOD_REPORTS_SUCCESS, GET_EOD_REPORTS_FAILURE
+} from "./actionType";
 
 interface TaskState {
     tasks: any[];
-    task: any | null;
+    currentTask: any | null;
     eodReports: any[];
-    loading: boolean;
-    error: string | null;
-    success: boolean;
+
+    createTaskLoading: boolean;
+    createTaskSuccess: boolean;
+    createTaskError: string | null;
+
+    getTasksLoading: boolean;
+    getTasksSuccess: boolean;
+    getTasksError: string | null;
+
+    getTaskLoading: boolean;
+    getTaskSuccess: boolean;
+    getTaskError: string | null;
+
+    updateTaskLoading: boolean;
+    updateTaskSuccess: boolean;
+    updateTaskError: string | null;
+
+    deleteTaskLoading: boolean;
+    deleteTaskSuccess: boolean;
+    deleteTaskError: string | null;
+
+    submitEodReportLoading: boolean;
+    submitEodReportSuccess: boolean;
+    submitEodReportError: string | null;
+
+    getEodReportsLoading: boolean;
+    getEodReportsSuccess: boolean;
+    getEodReportsError: string | null;
 }
 
 const initialState: TaskState = {
     tasks: [],
-    task: null,
+    currentTask: null,
     eodReports: [],
-    loading: false,
-    error: null,
-    success: false,
+
+    createTaskLoading: false,
+    createTaskSuccess: false,
+    createTaskError: null,
+
+    getTasksLoading: false,
+    getTasksSuccess: false,
+    getTasksError: null,
+
+    getTaskLoading: false,
+    getTaskSuccess: false,
+    getTaskError: null,
+
+    updateTaskLoading: false,
+    updateTaskSuccess: false,
+    updateTaskError: null,
+
+    deleteTaskLoading: false,
+    deleteTaskSuccess: false,
+    deleteTaskError: null,
+
+    submitEodReportLoading: false,
+    submitEodReportSuccess: false,
+    submitEodReportError: null,
+
+    getEodReportsLoading: false,
+    getEodReportsSuccess: false,
+    getEodReportsError: null,
 };
 
 const taskReducer = (state = initialState, action: any) => {
     switch (action.type) {
-        case actionTypes.CREATE_TASK_REQUEST:
-        case actionTypes.GET_TASKS_REQUEST:
-        case actionTypes.GET_TASK_REQUEST:
-        case actionTypes.UPDATE_TASK_REQUEST:
-        case actionTypes.DELETE_TASK_REQUEST:
-        case actionTypes.SUBMIT_EOD_REPORT_REQUEST:
-        case actionTypes.GET_EOD_REPORTS_REQUEST:
+        // --- Create Task ---
+        case CREATE_TASK_REQUEST:
             return {
                 ...state,
-                loading: true,
-                error: null,
-                success: false,
+                createTaskLoading: true,
+                createTaskSuccess: false,
+                createTaskError: null,
             };
-
-        case actionTypes.CREATE_TASK_SUCCESS:
+        case CREATE_TASK_SUCCESS:
             return {
                 ...state,
-                loading: false,
+                createTaskLoading: false,
+                createTaskSuccess: true,
                 tasks: [action.payload, ...state.tasks],
-                success: true,
             };
-
-        case actionTypes.GET_TASKS_SUCCESS:
+        case CREATE_TASK_FAILURE:
             return {
                 ...state,
-                loading: false,
+                createTaskLoading: false,
+                createTaskError: action.payload,
+                createTaskSuccess: false,
+            };
+
+        // --- Get Tasks ---
+        case GET_TASKS_REQUEST:
+            return {
+                ...state,
+                getTasksLoading: true,
+                getTasksSuccess: false,
+                getTasksError: null,
+            };
+        case GET_TASKS_SUCCESS:
+            return {
+                ...state,
+                getTasksLoading: false,
+                getTasksSuccess: true,
                 tasks: action.payload,
             };
-
-        case actionTypes.GET_TASK_SUCCESS:
+        case GET_TASKS_FAILURE:
             return {
                 ...state,
-                loading: false,
-                task: action.payload,
+                getTasksLoading: false,
+                getTasksError: action.payload,
+                getTasksSuccess: false,
             };
 
-        case actionTypes.UPDATE_TASK_SUCCESS:
+        // --- Get Single Task ---
+        case GET_TASK_REQUEST:
             return {
                 ...state,
-                loading: false,
+                getTaskLoading: true,
+                getTaskSuccess: false,
+                getTaskError: null,
+            };
+        case GET_TASK_SUCCESS:
+            return {
+                ...state,
+                getTaskLoading: false,
+                getTaskSuccess: true,
+                currentTask: action.payload,
+            };
+        case GET_TASK_FAILURE:
+            return {
+                ...state,
+                getTaskLoading: false,
+                getTaskError: action.payload,
+                getTaskSuccess: false,
+            };
+
+        // --- Update Task ---
+        case UPDATE_TASK_REQUEST:
+            return {
+                ...state,
+                updateTaskLoading: true,
+                updateTaskSuccess: false,
+                updateTaskError: null,
+            };
+        case UPDATE_TASK_SUCCESS:
+            return {
+                ...state,
+                updateTaskLoading: false,
+                updateTaskSuccess: true,
                 tasks: state.tasks.map((task) =>
                     task.id === action.payload.id ? action.payload : task
                 ),
-                task: action.payload,
-                success: true,
+                currentTask: action.payload,
             };
-
-        case actionTypes.DELETE_TASK_SUCCESS:
+        case UPDATE_TASK_FAILURE:
             return {
                 ...state,
-                loading: false,
+                updateTaskLoading: false,
+                updateTaskError: action.payload,
+                updateTaskSuccess: false,
+            };
+
+        // --- Delete Task ---
+        case DELETE_TASK_REQUEST:
+            return {
+                ...state,
+                deleteTaskLoading: true,
+                deleteTaskSuccess: false,
+                deleteTaskError: null,
+            };
+        case DELETE_TASK_SUCCESS:
+            return {
+                ...state,
+                deleteTaskLoading: false,
+                deleteTaskSuccess: true,
                 tasks: state.tasks.filter((task) => task.id !== action.payload),
-                success: true,
             };
-
-        case actionTypes.SUBMIT_EOD_REPORT_SUCCESS:
+        case DELETE_TASK_FAILURE:
             return {
                 ...state,
-                loading: false,
-                success: true,
+                deleteTaskLoading: false,
+                deleteTaskError: action.payload,
+                deleteTaskSuccess: false,
             };
 
-        case actionTypes.GET_EOD_REPORTS_SUCCESS:
+        // --- Submit EOD Report ---
+        case SUBMIT_EOD_REPORT_REQUEST:
             return {
                 ...state,
-                loading: false,
+                submitEodReportLoading: true,
+                submitEodReportSuccess: false,
+                submitEodReportError: null,
+            };
+        case SUBMIT_EOD_REPORT_SUCCESS:
+            return {
+                ...state,
+                submitEodReportLoading: false,
+                submitEodReportSuccess: true,
+            };
+        case SUBMIT_EOD_REPORT_FAILURE:
+            return {
+                ...state,
+                submitEodReportLoading: false,
+                submitEodReportError: action.payload,
+                submitEodReportSuccess: false,
+            };
+
+        // --- Get EOD Reports ---
+        case GET_EOD_REPORTS_REQUEST:
+            return {
+                ...state,
+                getEodReportsLoading: true,
+                getEodReportsSuccess: false,
+                getEodReportsError: null,
+            };
+        case GET_EOD_REPORTS_SUCCESS:
+            return {
+                ...state,
+                getEodReportsLoading: false,
+                getEodReportsSuccess: true,
                 eodReports: action.payload,
             };
-
-        case actionTypes.CREATE_TASK_FAILURE:
-        case actionTypes.GET_TASKS_FAILURE:
-        case actionTypes.GET_TASK_FAILURE:
-        case actionTypes.UPDATE_TASK_FAILURE:
-        case actionTypes.DELETE_TASK_FAILURE:
-        case actionTypes.SUBMIT_EOD_REPORT_FAILURE:
-        case actionTypes.GET_EOD_REPORTS_FAILURE:
+        case GET_EOD_REPORTS_FAILURE:
             return {
                 ...state,
-                loading: false,
-                error: action.payload,
-                success: false,
+                getEodReportsLoading: false,
+                getEodReportsError: action.payload,
+                getEodReportsSuccess: false,
             };
 
         default:

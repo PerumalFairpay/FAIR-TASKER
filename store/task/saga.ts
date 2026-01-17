@@ -28,8 +28,12 @@ import {
 import api from "../api";
 
 // API Functions
-function createTaskApi(payload: any) {
-    return api.post("/tasks/", payload);
+function createTaskApi(payload: FormData) {
+    return api.post("/tasks/", payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function getTasksApi(params: any) {
@@ -40,8 +44,12 @@ function getTaskApi(id: string) {
     return api.get(`/tasks/${id}`);
 }
 
-function updateTaskApi(id: string, payload: any) {
-    return api.put(`/tasks/${id}`, payload);
+function updateTaskApi(id: string, payload: FormData) {
+    return api.put(`/tasks/${id}`, payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function deleteTaskApi(id: string) {
@@ -49,7 +57,11 @@ function deleteTaskApi(id: string) {
 }
 
 function submitEodReportApi(payload: any) {
-    return api.post("/tasks/eod-report", payload);
+    return api.post("/tasks/eod-report", payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+    });
 }
 
 function getEodReportsApi(params: any) {
@@ -135,7 +147,33 @@ function* onDeleteTask({ payload }: any): SagaIterator {
 
 function* onSubmitEodReport({ payload }: any): SagaIterator {
     try {
-        const response = yield call(submitEodReportApi, payload);
+        const formData = new FormData();
+        // Payload is now expected to be a single report object, not { reports: [...] }
+        // If payload is still { reports: [...] } but user submits one, take the first.
+        // Or better, assume payload is the report object itself or contains it.
+        // Based on user prompt "i only submit the one eod report", let's assume payload IS the single report data 
+        // OR payload has 'reports' array of 1. Let's start by destructuring safely.
+
+        let reportData = payload;
+        if (payload.reports && Array.isArray(payload.reports)) {
+            reportData = payload.reports[0];
+        }
+
+        if (!reportData) throw new Error("No report data found");
+
+        formData.append("task_id", reportData.task_id);
+        formData.append("status", reportData.status);
+        formData.append("progress", String(reportData.progress));
+        if (reportData.eod_summary) formData.append("eod_summary", reportData.eod_summary);
+        formData.append("move_to_tomorrow", String(!!reportData.move_to_tomorrow));
+
+        if (reportData.files && reportData.files.length > 0) {
+            reportData.files.forEach((file: File) => {
+                formData.append("attachments", file);
+            });
+        }
+
+        const response = yield call(submitEodReportApi, formData);
         if (response.data.success) {
             yield put(submitEodReportSuccess(response.data.data));
             // Refresh tasks after EOD report

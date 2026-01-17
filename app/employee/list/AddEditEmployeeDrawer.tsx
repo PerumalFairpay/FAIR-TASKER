@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getRolesRequest } from "@/store/role/action";
 import { getDepartmentsRequest } from "@/store/department/action";
+import { getEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
 import {
     Drawer,
     DrawerContent,
@@ -41,6 +42,7 @@ export default function AddEditEmployeeDrawer({
     const dispatch = useDispatch();
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
+    const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
@@ -84,13 +86,27 @@ export default function AddEditEmployeeDrawer({
         if (isOpen) {
             dispatch(getRolesRequest());
             dispatch(getDepartmentsRequest());
+            if (mode === "edit" && selectedEmployee?.id) {
+                dispatch(getEmployeeRequest(selectedEmployee.id));
+            }
+        } else {
+            setFormData({});
+            setProfileFiles([]);
+            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
+            setSelectedTab("personal");
+            setIsVisible(false);
+            setIsConfirmVisible(false);
+            dispatch(clearEmployeeDetails());
         }
-    }, [isOpen, dispatch]);
+    }, [isOpen, dispatch, mode, selectedEmployee]);
 
     useEffect(() => {
-        if (isOpen && mode === "edit" && selectedEmployee) {
+        if (isOpen && mode === "edit" && fetchedEmployee) {
             const allDepts = departments || [];
-            const currentDeptName = selectedEmployee.department;
+            const currentDeptName = fetchedEmployee.department;
+
+            // Set Documents
+            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
 
@@ -107,24 +123,21 @@ export default function AddEditEmployeeDrawer({
                 const root = findRoot(currentDeptName);
                 if (root && root.name !== currentDeptName) {
                     setFormData({
-                        ...selectedEmployee,
+                        ...fetchedEmployee,
                         department: root.name,
                         designation: currentDeptName
                     });
-                    setSelectedTab("personal");
                     return;
                 }
             }
 
-            setFormData({ ...selectedEmployee });
-            setSelectedTab("personal");
+            setFormData({ ...fetchedEmployee });
         } else if (isOpen && mode === "create") {
-            setFormData({ status: "Active", work_mode: "Office" });
-            setProfileFiles([]);
-            setDocumentList([{ id: Date.now(), name: "", files: [] }]);
-            setSelectedTab("personal");
+            if (Object.keys(formData).length === 0) {
+                setFormData({ status: "Active", work_mode: "Office" });
+            }
         }
-    }, [isOpen, mode, selectedEmployee, departments, rootDepartments]);
+    }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
 
     useEffect(() => {
         if (mode === "create" && formData.first_name && formData.last_name) {
@@ -158,10 +171,7 @@ export default function AddEditEmployeeDrawer({
 
         if (documentList.length > 0) {
             documentList.forEach((doc) => {
-                if (doc.files && doc.files.length > 0) {
-                    // If name is empty, use filename or default? Backend handles it if we pass something.
-                    // But backend index matching relies on array length.
-                    // IMPORTANT: We must append 'document_names' for every 'document_proofs' we append to keep indices aligned!
+                if (doc.files && doc.files.length > 0) { 
                     data.append("document_names", doc.name || doc.files[0].file.name);
                     data.append("document_proofs", doc.files[0].file);
                 }
