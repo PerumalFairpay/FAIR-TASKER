@@ -202,7 +202,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="flex items-center justify-center p-2 border-b border-divider h-16">
             <NextLink
               className="flex justify-start items-center gap-2"
-              href="/"
+              href="/dashboard"
             >
               <Image
                 src={FairPayLogo}
