@@ -39,7 +39,8 @@ import {
   KanbanSquare,
   Clock,
   Key,
-  Rss
+  Rss,
+  Milestone
 } from "lucide-react";
 
 
@@ -79,7 +80,8 @@ const iconMap: Record<string, any> = {
   KanbanSquare,
   Clock,
   Key,
-  Rss
+  Rss,
+  Milestone
 };
 
 
