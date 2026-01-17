@@ -121,6 +121,7 @@ export const siteConfig: SiteConfig = {
           href: "/task/roadmap-board",
           icon: "KanbanSquare",
           allowedRoles: ["admin", "employee"],
+          permission: "nav:milestone",
         },
         {
           label: "EOD Reports",
