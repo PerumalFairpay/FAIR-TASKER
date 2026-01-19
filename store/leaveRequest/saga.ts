@@ -25,7 +25,7 @@ function createLeaveRequestApi(payload: FormData) {
     });
 }
 
-function getLeaveRequestsApi(payload?: { employee_id?: string; status?: string } | string) {
+function getLeaveRequestsApi(payload?: { id?: string; status?: string } | string) {
     let url = "/leave-requests/all";
     const params = new URLSearchParams();
 
