@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@heroui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -96,6 +97,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
     siteConfig.navItems.forEach((item: any) => {
@@ -125,6 +127,10 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   };
 
   const handleLogout = () => {
+    onOpen();
+  };
+
+  const confirmLogout = () => {
     dispatch(logoutRequest());
   };
 
@@ -491,6 +497,31 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
         </div>
       </div>
+
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Confirm Logout</ModalHeader>
+              <ModalBody>
+                <p>Are you sure you want to log out?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="danger" onPress={() => {
+                  confirmLogout();
+                  onClose();
+                }}>
+                  Logout
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 };
