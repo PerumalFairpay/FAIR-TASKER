@@ -226,14 +226,14 @@ export default function BlogPage() {
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex gap-1">
+                                                    <div className="flex gap-1 z-20">
                                                         <Tooltip content="Edit">
                                                             <Button
                                                                 isIconOnly
                                                                 size="sm"
                                                                 variant="light"
-                                                                className="text-default-500 hover:text-secondary"
-                                                                onPress={() => handleEdit(blog)}
+                                                                className="text-default-500 hover:text-secondary relative z-20"
+                                                                onClick={() => handleEdit(blog)}
                                                             >
                                                                 <EditIcon size={18} />
                                                             </Button>
@@ -243,7 +243,7 @@ export default function BlogPage() {
                                                                 isIconOnly
                                                                 size="sm"
                                                                 variant="light"
-                                                                className="text-default-500 hover:text-danger"
+                                                                className="text-default-500 hover:text-danger relative z-20"
                                                                 onPress={() => handleDelete(blog)}
                                                             >
                                                                 <Trash2 size={18} />

@@ -108,6 +108,9 @@ const CreateBlogModal: React.FC<CreateBlogModalProps> = ({ isOpen, onClose, blog
     return (
         <Drawer
             isOpen={isOpen}
+            onOpenChange={(open) => {
+                if (!open) onClose();
+            }}
             onClose={onClose}
             size="4xl"
             placement="right"
