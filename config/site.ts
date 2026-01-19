@@ -41,6 +41,18 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin"],
       children: [
         {
+          label: "Onboarding",
+          href: "/employee/onboarding",
+          icon: "UserPlus",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "Offboarding",
+          href: "/employee/offboarding",
+          icon: "UserMinus",
+          allowedRoles: ["admin"],
+        },
+        {
           label: "Employee List",
           href: "/employee/list",
           icon: "Contact",
