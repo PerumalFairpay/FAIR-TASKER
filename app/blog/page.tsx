@@ -203,7 +203,7 @@ export default function BlogPage() {
                                                         </h2>
                                                     </div>
                                                     <p className="text-[#52525B] dark:text-gray-400 text-sm leading-relaxed line-clamp-2 min-h-[40px]">
-                                                        {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 150) + "..." || "No description"}
+                                                        {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').slice(0, 150) + "..." || "No description"}
                                                     </p>
                                                 </CardBody>
                                             </div>

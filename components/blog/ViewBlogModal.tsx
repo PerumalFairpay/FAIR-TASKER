@@ -86,7 +86,7 @@ const ViewBlogModal: React.FC<ViewBlogModalProps> = ({ isOpen, onClose, blogId }
 
                                     {/* Content */}
                                     <div className={`${styles.content} dark:prose-invert max-w-none`}>
-                                        <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+                                        <div dangerouslySetInnerHTML={{ __html: blog.content?.replace(/&nbsp;/g, ' ') }} />
                                     </div>
 
                                     {/* Tags */}
