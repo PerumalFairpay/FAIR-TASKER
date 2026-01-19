@@ -175,7 +175,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             <Select
                                 label="Status"
                                 placeholder="Select status"
-                                selectedKeys={formData.status ? [formData.status] : []}
+                                selectedKeys={
+                                    formData.status && allowedStatuses.includes(formData.status)
+                                        ? [formData.status]
+                                        : []
+                                }
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 required
                             >
