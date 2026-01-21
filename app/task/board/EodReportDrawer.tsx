@@ -6,7 +6,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
-import { Progress } from "@heroui/progress";
+import { Slider } from "@heroui/slider";
 import { useDispatch } from "react-redux";
 import { submitEodReportRequest } from "@/store/task/action";
 import { Card, CardBody } from "@heroui/card";
@@ -133,23 +133,22 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                             </div>
 
                                             <div className="space-y-2">
-                                                <div className="flex justify-between text-xs font-medium">
-                                                    <span>Today's Progress</span>
-                                                    <span className="text-primary">{report.progress}%</span>
+                                                <div className="space-y-2">
+                                                    <Slider
+                                                        label="Today's Progress"
+                                                        size="md"
+                                                        step={5}
+                                                        minValue={0}
+                                                        maxValue={100}
+                                                        showSteps={true}
+                                                        color={report.status === "Completed" ? "success" : (report.progress < 30 ? "danger" : report.progress < 70 ? "warning" : "success")}
+                                                        value={report.progress}
+                                                        isDisabled={report.status === "Completed"}
+                                                        onChange={(value) => handleUpdateReport(task.id, "progress", typeof value === 'number' ? value : value[0])}
+                                                        className="max-w-md w-full"
+                                                        getValue={(v) => `${v}%`}
+                                                    />
                                                 </div>
-                                                <Progress
-                                                    size="sm"
-                                                    color={report.status === "Completed" ? "success" : "primary"}
-                                                    value={report.progress}
-                                                />
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="100"
-                                                    value={report.progress}
-                                                    onChange={(e) => handleUpdateReport(task.id, "progress", parseInt(e.target.value))}
-                                                    className="w-full h-1 bg-default-200 rounded-lg appearance-none cursor-pointer accent-primary"
-                                                />
                                             </div>
 
                                             <div className="flex flex-col gap-2">
