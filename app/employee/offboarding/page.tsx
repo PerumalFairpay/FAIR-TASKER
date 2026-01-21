@@ -111,79 +111,27 @@ export default function OffboardingPage() {
             // Get existing checklist from employee data
             const existingTasks = selectedEmployee.offboarding_checklist || [];
 
-            // Generate asset return tasks
-            const assetTasks = assignedAssets.map((asset: any) => ({
-                name: `Return Asset: ${asset.asset_name} (Serial: ${asset.serial_no})`,
-                status: "Pending",
-                completed_at: null,
-                asset_id: asset.id,
-                is_asset_task: true
-            }));
+            // Filter out any legacy asset tasks
+            const validTasks = existingTasks.filter((task: any) => !task.is_asset_task);
 
-            // Helper to check if a task matches an asset
-            const isTaskForAsset = (task: any, assetId: string, taskName: string) => {
-                if (task.asset_id === assetId) return true;
-                if (task.name === taskName) return true;
-                return false;
-            };
-
-            // 1. Identify existing tasks that are NOT asset tasks or match current assets
-            const validExistingTasks = existingTasks.filter((task: any) => {
-                // If it's explicitly an asset task, keep it only if the asset is still assigned
-                // BUT: If the asset is gone (unassigned), this task should naturally disappear or be marked completed?
-                // For now, let's keep logic simple: if asset exists, show task.
-                if (task.is_asset_task && task.asset_id) {
-                    return assignedAssets.some((a: any) => a.id === task.asset_id);
-                }
-                // If it looks like an asset task (by name) but has no ID, check if it matches a current asset
-                const matchingAsset = assetTasks.find((at: any) => at.name === task.name);
-                if (matchingAsset) return true;
-
-                // Keep all other tasks
-                return true;
-            });
-
-            // IF existing checklist (from DB) is empty, assume we need to populate defaults
-            let initialTasks = [...validExistingTasks];
-            if (existingTasks.length === 0) {
-                // ... defaults logic
+            if (validTasks.length === 0) {
                 const defaultTasks = DEFAULT_OFFBOARDING_TASKS.map(taskName => ({
                     name: taskName,
                     status: "Pending",
                     completed_at: null
                 }));
-                initialTasks = [...defaultTasks];
+                setOffboardingTasks(defaultTasks);
+            } else {
+                setOffboardingTasks(validTasks);
             }
 
-            // 2. Merge assets into the valid existing tasks
-            const mergedTasks = [...initialTasks];
-
-            assetTasks.forEach((assetTask: any) => {
-                const existingMatchIndex = mergedTasks.findIndex((t: any) =>
-                    isTaskForAsset(t, assetTask.asset_id, assetTask.name)
-                );
-
-                if (existingMatchIndex !== -1) {
-                    // Update
-                    mergedTasks[existingMatchIndex] = {
-                        ...mergedTasks[existingMatchIndex],
-                        asset_id: assetTask.asset_id,
-                        is_asset_task: true
-                    };
-                } else {
-                    // Add new
-                    mergedTasks.push(assetTask);
-                }
-            });
-
-            setOffboardingTasks(mergedTasks);
             setExitDetails({
                 resignation_date: selectedEmployee.resignation_date || "",
                 last_working_day: selectedEmployee.last_working_day || "",
                 exit_interview_notes: selectedEmployee.exit_interview_notes || ""
             });
         }
-    }, [selectedEmployee, assignedAssets]);
+    }, [selectedEmployee]);
 
     const handleOpenDrawer = (employee: any) => {
         setSelectedEmployee(employee);
@@ -228,15 +176,6 @@ export default function OffboardingPage() {
             setNewTaskName("");
             setShowNewTaskInput(false);
         } else if (action === 'delete') {
-            const taskToDelete = offboardingTasks[payload];
-            if (taskToDelete?.is_asset_task) {
-                addToast({
-                    title: "Cannot Delete",
-                    description: "Asset return tasks cannot be deleted. Please return the asset first.",
-                    color: "warning"
-                });
-                return;
-            }
             setOffboardingTasks(offboardingTasks.filter((_, i) => i !== payload));
         } else if (action === 'toggle') {
             setOffboardingTasks(offboardingTasks.map((t, i) =>
@@ -547,37 +486,24 @@ export default function OffboardingPage() {
                                                     offboardingTasks.map((task, index) => (
                                                         <div
                                                             key={index}
-                                                            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-default-50 transition-colors ${task.is_asset_task
-                                                                ? "border-warning-300 bg-warning-50/50"
-                                                                : "border-default-200"
-                                                                }`}
+                                                            className="flex items-center justify-between p-3 border border-default-200 rounded-lg hover:bg-default-50 transition-colors"
                                                         >
                                                             <div className="flex items-center gap-3 flex-1">
-                                                                {task.is_asset_task && (
-                                                                    <Package size={18} className="text-warning-600 flex-shrink-0" />
-                                                                )}
                                                                 <Checkbox
                                                                     isSelected={task.status === "Completed"}
                                                                     onValueChange={() => handleTaskAction('toggle', index)}
-                                                                    color={task.is_asset_task ? "warning" : "primary"}
                                                                 />
                                                                 <span className={task.status === "Completed" ? "text-default-400 line-through" : "text-default-700"}>
                                                                     {task.name}
                                                                 </span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                {task.is_asset_task && (
-                                                                    <Chip size="sm" color="warning" variant="flat">
-                                                                        Asset
-                                                                    </Chip>
-                                                                )}
                                                                 <Button
                                                                     isIconOnly
                                                                     size="sm"
                                                                     color="danger"
                                                                     variant="light"
                                                                     onPress={() => handleTaskAction('delete', index)}
-                                                                    isDisabled={task.is_asset_task}
                                                                 >
                                                                     <Trash2 size={18} className="text-danger" />
                                                                 </Button>
