@@ -476,11 +476,11 @@ export default function AddEditEmployeeDrawer({
                                                 selectedKeys={formData.status ? [formData.status] : []}
                                                 onChange={(e) => handleChange("status", e.target.value)}
                                             >
-                                                <SelectItem key="Active" textValue="Active">Active</SelectItem>
-                                                <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
                                                 <SelectItem key="Onboarding" textValue="Onboarding">Onboarding</SelectItem>
                                                 <SelectItem key="Probation" textValue="Probation">Probation</SelectItem>
+                                                <SelectItem key="Active" textValue="Active">Active</SelectItem>
                                                 <SelectItem key="Offboarding" textValue="Offboarding">Offboarding</SelectItem>
+                                                <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
                                                 <SelectItem key="Terminated" textValue="Terminated">Terminated</SelectItem>
                                             </Select>
                                             <I18nProvider locale="en-GB">
