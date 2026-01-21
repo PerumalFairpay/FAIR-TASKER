@@ -154,12 +154,14 @@ const TaskBoard = () => {
 
             // If explicit date filter is set, rely on backend or just simple match
             if (filterDate) {
-                // Backend handles the date filtering mostly, but if we want to be safe:
-                // return true (backend filtered) or specific logic.
-                // Current logic was: hide future tasks (> today) and hide past moved/completed tasks (< today).
+                // Ensure we only display tasks relevant to this date (Start <= Filter <= End)
+                // This prevents tasks created for "Today" (e.g. via drawer default) from appearing when viewing Future/Past dates
+                const start = task.start_date;
+                const end = task.end_date || task.start_date;
 
-                // If viewing past/future date explicitly, we show everything returned by backend for that date
-                return true;
+                if (!start) return false;
+
+                return filterDate >= start && filterDate <= end;
             }
 
             // Default "Today" View Logic
