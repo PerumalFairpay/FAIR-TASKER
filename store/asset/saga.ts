@@ -60,10 +60,10 @@ function getAssetsByEmployeeApi(employeeId: string) {
 // Sagas
 function* onCreateAsset({ payload }: any): SagaIterator {
     try {
-        const response = yield call(createAssetApi, payload);
+        const response = yield call(createAssetApi, payload); 
         yield put(createAssetSuccess(response.data));
-    } catch (error: any) {
-        yield put(createAssetFailure(error.response?.data?.detail || "Failed to create asset"));
+    } catch (error: any) { 
+        yield put(createAssetFailure(error || "Failed to create asset1"));
     }
 }
 

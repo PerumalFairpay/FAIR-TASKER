@@ -81,11 +81,12 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
                 createAssetError: null,
             };
         case CREATE_ASSET_SUCCESS:
+            console.log(action.payload.message, "action.payload.message");
             return {
                 ...state,
                 createAssetLoading: false,
                 createAssetSuccess: action.payload.message || "Asset created successfully",
-                assets: [...state.assets, action.payload.data],
+                assets: [action.payload.data, ...state.assets],
             };
         case CREATE_ASSET_FAILURE:
             return {
