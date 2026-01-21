@@ -40,6 +40,17 @@ export default function OffboardingPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isCompletingOffboarding, setIsCompletingOffboarding] = useState(false);
 
+    const DEFAULT_OFFBOARDING_TASKS = [
+        "Revoke System Access",
+        "Exit Interview",
+        "ID Card Return",
+        "Full & Final Settlement",
+        "Collect Laptop",
+        "Collect Monitor",
+        "Collect Headset",
+        "Collect Keyboard & Mouse"
+    ];
+
     const offboardingEmployees = useMemo(() => {
         return (employees || []).filter((emp: any) => emp.status === "Offboarding");
     }, [employees]);
@@ -117,10 +128,21 @@ export default function OffboardingPage() {
                 return true;
             });
 
+            // IF existing checklist (from DB) is empty, assume we need to populate defaults
+            // We only add defaults if there are absolutely no tasks saved yet
+            let initialTasks = [...validExistingTasks];
+            if (existingTasks.length === 0) {
+                const defaultTasks = DEFAULT_OFFBOARDING_TASKS.map(taskName => ({
+                    name: taskName,
+                    status: "Pending",
+                    completed_at: null
+                }));
+                initialTasks = [...defaultTasks];
+            }
 
-            // 2. Merge assets into the valid existing tasks
+            // 2. Merge assets into the valid existing tasks (or defaults)
             // We want to preserve the status of existing tasks that match our assets
-            const mergedTasks = [...validExistingTasks];
+            const mergedTasks = [...initialTasks];
 
             assetTasks.forEach((assetTask: any) => {
                 const existingMatchIndex = mergedTasks.findIndex((t: any) =>

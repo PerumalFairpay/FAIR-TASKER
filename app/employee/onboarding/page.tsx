@@ -24,6 +24,18 @@ export default function OnboardingPage() {
     const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
     const [onboardingTasks, setOnboardingTasks] = useState<any[]>([]);
     const [showNewTaskInput, setShowNewTaskInput] = useState(false);
+
+    const DEFAULT_ONBOARDING_TASKS = [
+        "Document Verification",
+        "IT Induction",
+        "Email Creation",
+        "Badge Creation",
+        // "Stationary Allocation",
+        "Laptop Allocation",
+        "Monitor Allocation",
+        "Headset Allocation",
+        "Keyboard & Mouse Allocation"
+    ];
     const [newTaskName, setNewTaskName] = useState("");
     const [isCompleting, setIsCompleting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -65,7 +77,19 @@ export default function OnboardingPage() {
 
     useEffect(() => {
         if (selectedEmployee) {
-            setOnboardingTasks(selectedEmployee.onboarding_checklist || []);
+            const existingTasks = selectedEmployee.onboarding_checklist || [];
+
+            if (existingTasks.length === 0) {
+                // Populate default tasks if checklist is empty
+                const defaultTasks = DEFAULT_ONBOARDING_TASKS.map(taskName => ({
+                    name: taskName,
+                    status: "Pending",
+                    completed_at: null
+                }));
+                setOnboardingTasks(defaultTasks);
+            } else {
+                setOnboardingTasks(existingTasks);
+            }
         }
     }, [selectedEmployee]);
 
