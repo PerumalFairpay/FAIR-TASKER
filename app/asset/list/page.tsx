@@ -28,10 +28,23 @@ import AddEditAssetDrawer from "./AddEditAssetDrawer";
 import DeleteAssetModal from "./DeleteAssetModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
+import { addToast } from "@heroui/toast";
 
 export default function AssetListPage() {
     const dispatch = useDispatch();
-    const { assets, loading, success } = useSelector((state: RootState) => state.Asset);
+    const {
+        assets,
+        getAssetsLoading,
+        createAssetLoading,
+        updateAssetLoading,
+        deleteAssetLoading,
+        createAssetSuccess,
+        updateAssetSuccess,
+        deleteAssetSuccess,
+        createAssetError,
+        updateAssetError,
+        deleteAssetError
+    } = useSelector((state: RootState) => state.Asset);
     const { assetCategories } = useSelector((state: RootState) => state.AssetCategory);
 
     const { isOpen: isAddEditOpen, onOpen: onAddEditOpen, onOpenChange: onAddEditOpenChange, onClose: onAddEditClose } = useDisclosure();
@@ -47,12 +60,29 @@ export default function AssetListPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (success) {
+        const successMessage = createAssetSuccess || updateAssetSuccess || deleteAssetSuccess;
+        const errorMessage = createAssetError || updateAssetError || deleteAssetError;
+
+        if (successMessage) {
+            addToast({
+                title: "Success",
+                description: successMessage,
+                color: "success"
+            });
             onAddEditClose();
             onDeleteClose();
             dispatch(clearAssetDetails());
         }
-    }, [success, onAddEditClose, onDeleteClose, dispatch]);
+
+        if (errorMessage) {
+            addToast({
+                title: "Error",
+                description: typeof errorMessage === 'string' ? errorMessage : "Something went wrong",
+                color: "danger"
+            });
+            dispatch(clearAssetDetails());
+        }
+    }, [createAssetSuccess, updateAssetSuccess, deleteAssetSuccess, createAssetError, updateAssetError, deleteAssetError, onAddEditClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -117,7 +147,7 @@ export default function AssetListPage() {
                     <TableColumn>ATTACHMENT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={assets || []} emptyContent={"No assets found"} isLoading={loading}>
+                <TableBody items={assets || []} emptyContent={"No assets found"} isLoading={getAssetsLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell className="font-medium">{item.asset_name}</TableCell>
@@ -187,7 +217,7 @@ export default function AssetListPage() {
                 onOpenChange={onAddEditOpenChange}
                 mode={mode}
                 selectedAsset={selectedAsset}
-                loading={loading}
+                loading={createAssetLoading || updateAssetLoading}
                 assetCategories={assetCategories}
                 onSubmit={handleAddEditSubmit}
             />
@@ -196,7 +226,7 @@ export default function AssetListPage() {
                 isOpen={isDeleteOpen}
                 onOpenChange={onDeleteOpenChange}
                 onConfirm={handleDeleteConfirm}
-                loading={loading}
+                loading={deleteAssetLoading}
             />
 
             {previewData && (
