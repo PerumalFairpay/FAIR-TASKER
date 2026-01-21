@@ -6,6 +6,7 @@ import {
     DELETE_EMPLOYEE_REQUEST, DELETE_EMPLOYEE_SUCCESS, DELETE_EMPLOYEE_FAILURE,
     UPDATE_USER_PERMISSIONS_REQUEST, UPDATE_USER_PERMISSIONS_SUCCESS, UPDATE_USER_PERMISSIONS_FAILURE,
     GET_USER_PERMISSIONS_REQUEST, GET_USER_PERMISSIONS_SUCCESS, GET_USER_PERMISSIONS_FAILURE,
+    GET_EMPLOYEES_SUMMARY_REQUEST, GET_EMPLOYEES_SUMMARY_SUCCESS, GET_EMPLOYEES_SUMMARY_FAILURE,
     CLEAR_EMPLOYEE_DETAILS
 } from "./actionType";
 
@@ -22,6 +23,10 @@ interface EmployeeState {
     loading: boolean;
     error: string | null;
     success: string | null;
+
+    // Summary Specific
+    summaryLoading: boolean;
+    summaryError: string | null;
 }
 
 const initialEmployeeState: EmployeeState = {
@@ -37,6 +42,9 @@ const initialEmployeeState: EmployeeState = {
     loading: false,
     error: null,
     success: null,
+
+    summaryLoading: false,
+    summaryError: null,
 };
 
 const employeeReducer = (state: EmployeeState = initialEmployeeState, action: any): EmployeeState => {
@@ -195,6 +203,26 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 ...state,
                 loading: false,
                 error: action.payload,
+            };
+
+        // Get Employees Summary
+        case GET_EMPLOYEES_SUMMARY_REQUEST:
+            return {
+                ...state,
+                summaryLoading: true,
+                summaryError: null,
+            };
+        case GET_EMPLOYEES_SUMMARY_SUCCESS:
+            return {
+                ...state,
+                summaryLoading: false,
+                employees: action.payload.data,
+            };
+        case GET_EMPLOYEES_SUMMARY_FAILURE:
+            return {
+                ...state,
+                summaryLoading: false,
+                summaryError: action.payload,
             };
 
         case CLEAR_EMPLOYEE_DETAILS:
