@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
     getProjectsRequest,
+    getProjectRequest,
     createProjectRequest,
     updateProjectRequest,
     deleteProjectRequest,
@@ -31,7 +32,7 @@ import DeleteProjectModal from "./DeleteProjectModal";
 
 export default function ProjectListPage() {
     const dispatch = useDispatch();
-    const { projects, loading, success } = useSelector((state: RootState) => state.Project);
+    const { projects, project, loading, success } = useSelector((state: RootState) => state.Project);
     const { clients } = useSelector((state: RootState) => state.Client);
 
     const { isOpen: isAddEditOpen, onOpen: onAddEditOpen, onOpenChange: onAddEditOpenChange, onClose: onAddEditClose } = useDisclosure();
@@ -58,7 +59,6 @@ export default function ProjectListPage() {
             onAddEditClose();
             onDeleteClose();
             dispatch(clearProjectDetails());
-            // Refresh list
         }
     }, [success, onAddEditClose, onDeleteClose, dispatch]);
 
@@ -71,6 +71,7 @@ export default function ProjectListPage() {
     const handleEdit = (project: any) => {
         setMode("edit");
         setSelectedProject(project);
+        dispatch(getProjectRequest(project.id));
         onAddEditOpen();
     };
 
@@ -268,7 +269,7 @@ export default function ProjectListPage() {
                 isOpen={isAddEditOpen}
                 onOpenChange={onAddEditOpenChange}
                 mode={mode}
-                selectedProject={selectedProject}
+                selectedProject={mode === 'edit' && project && selectedProject && project.id === selectedProject.id ? project : selectedProject}
                 loading={loading}
                 onSubmit={handleAddEditSubmit}
             />

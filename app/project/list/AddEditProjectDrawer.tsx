@@ -228,7 +228,7 @@ export default function AddEditProjectDrawer({
                                 }}
                             >
                                 {employees
-                                    .filter((emp: any) => !formData.team_leader_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id))
+                                    .filter((emp: any) => (!formData.team_leader_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id)) || formData.project_manager_ids.includes(emp.id))
                                     .map((emp: any) => (
                                         <SelectItem key={emp.id} textValue={emp.name}>
                                             <div className="flex gap-2 items-center">
@@ -267,7 +267,7 @@ export default function AddEditProjectDrawer({
                                 }}
                             >
                                 {employees
-                                    .filter((emp: any) => !formData.project_manager_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id))
+                                    .filter((emp: any) => (!formData.project_manager_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id)) || formData.team_leader_ids.includes(emp.id))
                                     .map((emp: any) => (
                                         <SelectItem key={emp.id} textValue={emp.name}>
                                             <div className="flex gap-2 items-center">
@@ -306,7 +306,7 @@ export default function AddEditProjectDrawer({
                                 }}
                             >
                                 {employees
-                                    .filter((emp: any) => !formData.project_manager_ids.includes(emp.id) && !formData.team_leader_ids.includes(emp.id))
+                                    .filter((emp: any) => (!formData.project_manager_ids.includes(emp.id) && !formData.team_leader_ids.includes(emp.id)) || formData.team_member_ids.includes(emp.id))
                                     .map((emp: any) => (
                                         <SelectItem key={emp.id} textValue={emp.name}>
                                             <div className="flex gap-2 items-center">
