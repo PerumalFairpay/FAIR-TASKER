@@ -10,7 +10,7 @@ import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { Input } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
-import { Plus, Trash2, X, CheckSquare, PencilIcon, ArrowRight } from "lucide-react";
+import { Plus, Trash2, X, CheckSquare, Settings, ArrowRight } from "lucide-react";
 import { Progress } from "@heroui/progress";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
@@ -116,10 +116,7 @@ export default function OnboardingPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Employee Onboarding" />
-                <Chip color="primary" variant="flat" size="lg">
-                    {onboardingEmployees.length} Employee{onboardingEmployees.length !== 1 ? 's' : ''} in Onboarding
-                </Chip>
+                <PageHeader title="Employee Onboarding" /> 
             </div>
 
             <Table aria-label="Onboarding employees table" removeWrapper isHeaderSticky>
@@ -147,24 +144,29 @@ export default function OnboardingPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col gap-1 min-w-[120px]">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-tiny text-default-500">PROGRESS</span>
+                                            <span className="text-tiny font-semibold text-primary">{progress}%</span>
+                                        </div>
                                         <Progress
                                             value={progress}
                                             color={progress === 100 ? "success" : "primary"}
                                             size="sm"
-                                            className="max-w-md"
                                         />
-                                        <span className="text-tiny font-semibold text-primary min-w-[45px]">{progress}%</span>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="relative flex items-center justify-center gap-2">
-                                        <span
-                                            className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                                            onClick={() => handleOpenDrawer(employee)}
+                                        <Button
+                                            size="sm"
+                                            variant="light"
+                                            color="primary"
+                                            startContent={<Settings size={16} />}
+                                            onPress={() => handleOpenDrawer(employee)}
                                         >
-                                            <PencilIcon size={16} />
-                                        </span>
+                                            Manage
+                                        </Button>
                                     </div>
                                 </TableCell>
                             </TableRow>

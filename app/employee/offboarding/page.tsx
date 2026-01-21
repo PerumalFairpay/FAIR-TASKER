@@ -11,7 +11,7 @@ import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { Input, Textarea } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
-import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, PencilIcon } from "lucide-react";
+import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, Settings } from "lucide-react";
 import { Progress } from "@heroui/progress";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -202,10 +202,7 @@ export default function OffboardingPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Employee Offboarding" />
-                <Chip color="warning" variant="flat" size="lg">
-                    {offboardingEmployees.length} Employee{offboardingEmployees.length !== 1 ? 's' : ''} in Offboarding
-                </Chip>
+                <PageHeader title="Employee Offboarding" /> 
             </div>
 
             <Table aria-label="Offboarding employees table" removeWrapper isHeaderSticky>
@@ -254,24 +251,29 @@ export default function OffboardingPage() {
                                     )}
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex flex-col gap-1 min-w-[120px]">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-tiny text-default-500">PROGRESS</span>
+                                            <span className="text-tiny font-semibold text-warning">{progress}%</span>
+                                        </div>
                                         <Progress
                                             value={progress}
                                             color={progress === 100 ? "success" : "warning"}
                                             size="sm"
-                                            className="max-w-md"
                                         />
-                                        <span className="text-tiny font-semibold text-warning min-w-[45px]">{progress}%</span>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="relative flex items-center justify-center gap-2">
-                                        <span
-                                            className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                                            onClick={() => handleOpenDrawer(employee)}
+                                        <Button
+                                            size="sm"
+                                            variant="light"
+                                            color="primary"
+                                            startContent={<Settings size={16} />}
+                                            onPress={() => handleOpenDrawer(employee)}
                                         >
-                                            <PencilIcon size={16} />
-                                        </span>
+                                            Manage
+                                        </Button>
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -444,8 +446,8 @@ export default function OffboardingPage() {
                                                         <div
                                                             key={index}
                                                             className={`flex items-center justify-between p-4 border rounded-lg hover:bg-default-50 transition-colors ${task.is_asset_task
-                                                                    ? "border-warning-300 bg-warning-50/50"
-                                                                    : "border-default-200"
+                                                                ? "border-warning-300 bg-warning-50/50"
+                                                                : "border-default-200"
                                                                 }`}
                                                         >
                                                             <div className="flex items-center gap-3 flex-1">
