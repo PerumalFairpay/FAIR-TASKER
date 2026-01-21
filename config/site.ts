@@ -47,6 +47,18 @@ export const siteConfig: SiteConfig = {
           allowedRoles: ["admin"],
         },
         {
+          label: "Onboarding",
+          href: "/employee/onboarding",
+          icon: "UserPlus",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "Offboarding",
+          href: "/employee/offboarding",
+          icon: "UserMinus",
+          allowedRoles: ["admin"],
+        },
+        {
           label: "Department",
           href: "/employee/department",
           icon: "Briefcase",

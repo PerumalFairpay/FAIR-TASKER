@@ -1,0 +1,325 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { PageHeader } from "@/components/PageHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { getEmployeesRequest, updateEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
+import { RootState } from "@/store/store";
+import { Button } from "@heroui/button";
+import { Chip } from "@heroui/chip";
+import { addToast } from "@heroui/toast";
+import { Input } from "@heroui/input";
+import { Checkbox } from "@heroui/checkbox";
+import { Plus, Trash2, X, CheckSquare, PencilIcon, ArrowRight } from "lucide-react";
+import { Progress } from "@heroui/progress";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
+import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
+import { User } from "@heroui/user";
+
+export default function OnboardingPage() {
+    const dispatch = useDispatch();
+    const { employees, loading, success, error } = useSelector((state: RootState) => state.Employee);
+
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+    const [onboardingTasks, setOnboardingTasks] = useState<any[]>([]);
+    const [showNewTaskInput, setShowNewTaskInput] = useState(false);
+    const [newTaskName, setNewTaskName] = useState("");
+
+    const onboardingEmployees = (employees || []).filter((emp: any) => emp.status === "Onboarding");
+
+    useEffect(() => {
+        dispatch(getEmployeesRequest());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (success) {
+            addToast({
+                title: "Success",
+                description: success,
+                color: "success"
+            });
+            dispatch(clearEmployeeDetails());
+            dispatch(getEmployeesRequest());
+            setIsDrawerOpen(false);
+        }
+        if (error) {
+            addToast({
+                title: "Error",
+                description: typeof error === 'string' ? error : "Something went wrong",
+                color: "danger"
+            });
+            dispatch(clearEmployeeDetails());
+        }
+    }, [success, error, dispatch]);
+
+    useEffect(() => {
+        if (selectedEmployee) {
+            setOnboardingTasks(selectedEmployee.onboarding_checklist || []);
+        }
+    }, [selectedEmployee]);
+
+    const handleOpenDrawer = (employee: any) => {
+        setSelectedEmployee(employee);
+        setIsDrawerOpen(true);
+    };
+
+    const handleCloseDrawer = () => {
+        setIsDrawerOpen(false);
+        setSelectedEmployee(null);
+        setOnboardingTasks([]);
+        setShowNewTaskInput(false);
+        setNewTaskName("");
+    };
+
+    const handleTaskAction = (action: 'add' | 'delete' | 'toggle', payload?: any) => {
+        if (action === 'add' && newTaskName) {
+            setOnboardingTasks([...onboardingTasks, { name: newTaskName, status: "Pending", completed_at: null }]);
+            setNewTaskName("");
+            setShowNewTaskInput(false);
+        } else if (action === 'delete') {
+            setOnboardingTasks(onboardingTasks.filter((_, i) => i !== payload));
+        } else if (action === 'toggle') {
+            setOnboardingTasks(onboardingTasks.map((t, i) =>
+                i === payload
+                    ? { ...t, status: t.status === "Completed" ? "Pending" : "Completed", completed_at: t.status === "Pending" ? new Date().toISOString() : null }
+                    : t
+            ));
+        }
+    };
+
+    const handleSaveProgress = () => {
+        if (!selectedEmployee) return;
+
+        const formData = new FormData();
+        formData.append("onboarding_checklist", JSON.stringify(onboardingTasks));
+
+        dispatch(updateEmployeeRequest(selectedEmployee.id, formData));
+    };
+
+    const handleCompleteOnboarding = () => {
+        if (!selectedEmployee) return;
+
+        const formData = new FormData();
+        formData.append("status", "Probation");
+        formData.append("onboarding_checklist", JSON.stringify(onboardingTasks));
+
+        dispatch(updateEmployeeRequest(selectedEmployee.id, formData));
+    };
+
+    const calculateProgress = (tasks: any[]) => {
+        if (!tasks || tasks.length === 0) return 0;
+        const completed = tasks.filter(t => t.status === "Completed").length;
+        return Math.round((completed / tasks.length) * 100);
+    };
+
+    return (
+        <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+                <PageHeader title="Employee Onboarding" />
+                <Chip color="primary" variant="flat" size="lg">
+                    {onboardingEmployees.length} Employee{onboardingEmployees.length !== 1 ? 's' : ''} in Onboarding
+                </Chip>
+            </div>
+
+            <Table aria-label="Onboarding employees table" removeWrapper isHeaderSticky>
+                <TableHeader>
+                    <TableColumn>EMPLOYEE</TableColumn>
+                    <TableColumn>DEPARTMENT</TableColumn>
+                    <TableColumn>PROGRESS</TableColumn>
+                    <TableColumn align="center">ACTIONS</TableColumn>
+                </TableHeader>
+                <TableBody items={onboardingEmployees} emptyContent="No employees in onboarding phase" isLoading={loading}>
+                    {(employee: any) => {
+                        const progress = calculateProgress(employee.onboarding_checklist || []);
+                        return (
+                            <TableRow key={employee.id}>
+                                <TableCell>
+                                    <User
+                                        avatarProps={{ radius: "lg", src: employee.profile_picture }}
+                                        description={employee.designation || "N/A"}
+                                        name={employee.name}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <p className="text-bold text-sm capitalize">{employee.department || "N/A"}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Progress
+                                            value={progress}
+                                            color={progress === 100 ? "success" : "primary"}
+                                            size="sm"
+                                            className="max-w-md"
+                                        />
+                                        <span className="text-tiny font-semibold text-primary min-w-[45px]">{progress}%</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="relative flex items-center justify-center gap-2">
+                                        <span
+                                            className="text-lg text-default-400 cursor-pointer active:opacity-50"
+                                            onClick={() => handleOpenDrawer(employee)}
+                                        >
+                                            <PencilIcon size={16} />
+                                        </span>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    }}
+                </TableBody>
+            </Table>
+
+            <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} size="lg">
+                <DrawerContent>
+                    {(onClose) => (
+                        <>
+                            <DrawerHeader className="flex flex-col gap-1 border-b border-default-200">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h2 className="text-xl font-semibold">{selectedEmployee?.name}</h2>
+                                        <p className="text-small text-default-500">
+                                            {selectedEmployee?.designation} • {selectedEmployee?.department}
+                                        </p>
+                                    </div>
+                                    <Chip
+                                        color="primary"
+                                        variant="flat"
+                                        size="lg"
+                                    >
+                                        {calculateProgress(onboardingTasks)}% Complete
+                                    </Chip>
+                                </div>
+                            </DrawerHeader>
+                            <DrawerBody className="pt-6">
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-center bg-primary-50 p-4 rounded-lg">
+                                        <div>
+                                            <h3 className="font-semibold text-primary">Onboarding Checklist</h3>
+                                            <p className="text-small text-default-500 mt-1">
+                                                {onboardingTasks.filter(t => t.status === "Completed").length} of {onboardingTasks.length} tasks completed
+                                            </p>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            color="primary"
+                                            onPress={() => setShowNewTaskInput(true)}
+                                            startContent={<Plus size={16} />}
+                                        >
+                                            Add Task
+                                        </Button>
+                                    </div>
+
+                                    {showNewTaskInput && (
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Enter task name..."
+                                                value={newTaskName}
+                                                onChange={(e) => setNewTaskName(e.target.value)}
+                                                size="sm"
+                                                autoFocus
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') handleTaskAction('add');
+                                                }}
+                                            />
+                                            <Button
+                                                size="sm"
+                                                isIconOnly
+                                                color="success"
+                                                onPress={() => handleTaskAction('add')}
+                                            >
+                                                <CheckSquare size={16} />
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                isIconOnly
+                                                color="danger"
+                                                variant="light"
+                                                onPress={() => {
+                                                    setShowNewTaskInput(false);
+                                                    setNewTaskName("");
+                                                }}
+                                            >
+                                                <X size={16} />
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-col gap-2">
+                                        {onboardingTasks.length === 0 ? (
+                                            <div className="text-center text-default-400 py-12 border border-dashed border-default-200 rounded-lg">
+                                                <CheckSquare size={48} className="mx-auto mb-3 opacity-50" />
+                                                <p>No onboarding tasks yet.</p>
+                                                <p className="text-tiny mt-1">Click "Add Task" to get started.</p>
+                                            </div>
+                                        ) : (
+                                            onboardingTasks.map((task, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center justify-between p-4 border border-default-200 rounded-lg hover:bg-default-50 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <Checkbox
+                                                            isSelected={task.status === "Completed"}
+                                                            onValueChange={() => handleTaskAction('toggle', index)}
+                                                            lineThrough
+                                                        >
+                                                            <span className={task.status === "Completed" ? "text-default-400" : "font-medium"}>
+                                                                {task.name}
+                                                            </span>
+                                                        </Checkbox>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        {task.status === "Completed" && task.completed_at && (
+                                                            <Chip size="sm" color="success" variant="flat">
+                                                                {new Date(task.completed_at).toLocaleDateString()}
+                                                            </Chip>
+                                                        )}
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            color="danger"
+                                                            variant="light"
+                                                            onPress={() => handleTaskAction('delete', index)}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </DrawerBody>
+                            <DrawerFooter className="border-t border-default-200">
+                                <Button color="default" variant="light" onPress={handleCloseDrawer}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    variant="flat"
+                                    onPress={handleSaveProgress}
+                                    isLoading={loading}
+                                >
+                                    Save Progress
+                                </Button>
+                                <Button
+                                    color="success"
+                                    endContent={<ArrowRight size={16} />}
+                                    onPress={handleCompleteOnboarding}
+                                    isLoading={loading}
+                                    isDisabled={calculateProgress(onboardingTasks) < 100}
+                                >
+                                    Complete Onboarding
+                                </Button>
+                            </DrawerFooter>
+                        </>
+                    )}
+                </DrawerContent>
+            </Drawer>
+        </div>
+    );
+}

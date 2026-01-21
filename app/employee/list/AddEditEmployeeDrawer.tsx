@@ -43,6 +43,7 @@ export default function AddEditEmployeeDrawer({
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
     const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
+    const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
@@ -141,6 +142,8 @@ export default function AddEditEmployeeDrawer({
         }
     }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
 
+
+
     useEffect(() => {
         if (mode === "create" && formData.first_name && formData.last_name) {
             if (!formData.name) {
@@ -193,7 +196,7 @@ export default function AddEditEmployeeDrawer({
 
     const handleSubmit = () => {
         const data = new FormData();
-        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof", "document_name", "documents"];
+        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof", "document_name", "documents", "onboarding_checklist", "offboarding_checklist"];
 
         Object.keys(formData).forEach((key) => {
             if (formData[key] !== null && formData[key] !== undefined && !excludedKeys.includes(key)) {
@@ -475,6 +478,9 @@ export default function AddEditEmployeeDrawer({
                                             >
                                                 <SelectItem key="Active" textValue="Active">Active</SelectItem>
                                                 <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
+                                                <SelectItem key="Onboarding" textValue="Onboarding">Onboarding</SelectItem>
+                                                <SelectItem key="Probation" textValue="Probation">Probation</SelectItem>
+                                                <SelectItem key="Offboarding" textValue="Offboarding">Offboarding</SelectItem>
                                                 <SelectItem key="Terminated" textValue="Terminated">Terminated</SelectItem>
                                             </Select>
                                             <I18nProvider locale="en-GB">
