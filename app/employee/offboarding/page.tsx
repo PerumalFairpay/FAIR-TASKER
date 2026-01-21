@@ -4,14 +4,15 @@ import React, { useEffect, useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest, updateEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
-import { getAssetsByEmployeeRequest, clearAssetDetails } from "@/store/asset/action";
+import { getAssetsByEmployeeRequest, clearAssetDetails, assignAssetRequest } from "@/store/asset/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { Input, Textarea } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
-import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, Settings, Settings2 } from "lucide-react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, Settings, Settings2, RefreshCcw } from "lucide-react";
 import { Progress } from "@heroui/progress";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -39,6 +40,9 @@ export default function OffboardingPage() {
     const [isCompleting, setIsCompleting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isCompletingOffboarding, setIsCompletingOffboarding] = useState(false);
+    const [returningAssetId, setReturningAssetId] = useState<string | null>(null);
+    const [assetToReturn, setAssetToReturn] = useState<any>(null);
+    const { isOpen: isReturnModalOpen, onOpen: onReturnModalOpen, onOpenChange: onReturnModalOpenChange } = useDisclosure();
 
     const DEFAULT_OFFBOARDING_TASKS = [
         "Revoke System Access",
@@ -92,6 +96,16 @@ export default function OffboardingPage() {
         }
     }, [success, error, dispatch]);
 
+    // Add explicit reloading of assets when assignment changes occur
+    useEffect(() => {
+        if (selectedEmployee?.id && returningAssetId === null) {
+            // Checks if we just finished returning an asset (returningAssetId set to null)
+            // But actually, the reducer handles the list update optimistically/via response
+            // So we might not need to manually refetch if the reducer logic is correct
+            // Let's rely on Redux state updates for now.
+        }
+    }, [returningAssetId, selectedEmployee]);
+
     useEffect(() => {
         if (selectedEmployee) {
             // Get existing checklist from employee data
@@ -116,6 +130,8 @@ export default function OffboardingPage() {
             // 1. Identify existing tasks that are NOT asset tasks or match current assets
             const validExistingTasks = existingTasks.filter((task: any) => {
                 // If it's explicitly an asset task, keep it only if the asset is still assigned
+                // BUT: If the asset is gone (unassigned), this task should naturally disappear or be marked completed?
+                // For now, let's keep logic simple: if asset exists, show task.
                 if (task.is_asset_task && task.asset_id) {
                     return assignedAssets.some((a: any) => a.id === task.asset_id);
                 }
@@ -123,14 +139,14 @@ export default function OffboardingPage() {
                 const matchingAsset = assetTasks.find((at: any) => at.name === task.name);
                 if (matchingAsset) return true;
 
-                // Keep all other tasks (manual tasks, or asset tasks that don't match our specific pattern)
+                // Keep all other tasks
                 return true;
             });
 
             // IF existing checklist (from DB) is empty, assume we need to populate defaults
-            // We only add defaults if there are absolutely no tasks saved yet
             let initialTasks = [...validExistingTasks];
             if (existingTasks.length === 0) {
+                // ... defaults logic
                 const defaultTasks = DEFAULT_OFFBOARDING_TASKS.map(taskName => ({
                     name: taskName,
                     status: "Pending",
@@ -139,8 +155,7 @@ export default function OffboardingPage() {
                 initialTasks = [...defaultTasks];
             }
 
-            // 2. Merge assets into the valid existing tasks (or defaults)
-            // We want to preserve the status of existing tasks that match our assets
+            // 2. Merge assets into the valid existing tasks
             const mergedTasks = [...initialTasks];
 
             assetTasks.forEach((assetTask: any) => {
@@ -149,14 +164,14 @@ export default function OffboardingPage() {
                 );
 
                 if (existingMatchIndex !== -1) {
-                    // Update the existing task with asset metadata if missing, but keep status
+                    // Update
                     mergedTasks[existingMatchIndex] = {
                         ...mergedTasks[existingMatchIndex],
                         asset_id: assetTask.asset_id,
                         is_asset_task: true
                     };
                 } else {
-                    // Add new asset task
+                    // Add new
                     mergedTasks.push(assetTask);
                 }
             });
@@ -188,6 +203,23 @@ export default function OffboardingPage() {
             exit_interview_notes: ""
         });
         dispatch(clearAssetDetails());
+    };
+
+    const handleReturnClick = (asset: any) => {
+        setAssetToReturn(asset);
+        onReturnModalOpen();
+    };
+
+    const confirmReturnAsset = () => {
+        if (!assetToReturn) return;
+
+        setReturningAssetId(assetToReturn.id);
+        dispatch(assignAssetRequest(assetToReturn.id, null));
+
+        onReturnModalOpenChange(); // Close modal
+        setAssetToReturn(null);
+
+        setTimeout(() => setReturningAssetId(null), 1000);
     };
 
     const handleTaskAction = (action: 'add' | 'delete' | 'toggle', payload?: any) => {
@@ -409,7 +441,19 @@ export default function OffboardingPage() {
                                                                 <p className="font-medium text-danger-700">{asset.asset_name}</p>
                                                                 <p className="text-tiny text-danger-500">Serial: {asset.serial_no} • {asset.category?.name}</p>
                                                             </div>
-                                                            <Chip size="sm" color="danger" variant="flat">Pending Return</Chip>
+                                                            <div className="flex items-center gap-3">
+                                                                <Chip size="sm" color="danger" variant="flat">Pending Return</Chip>
+                                                                <Button
+                                                                    size="sm"
+                                                                    color="primary"
+                                                                    variant="flat"
+                                                                    startContent={<RefreshCcw size={14} />}
+                                                                    onPress={() => handleReturnClick(asset)}
+                                                                    isLoading={returningAssetId === asset.id}
+                                                                >
+                                                                    Return
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -569,6 +613,32 @@ export default function OffboardingPage() {
                     )}
                 </DrawerContent>
             </Drawer>
+
+            <Modal isOpen={isReturnModalOpen} onOpenChange={onReturnModalOpenChange}>
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Confirm Return</ModalHeader>
+                            <ModalBody>
+                                <p>
+                                    Are you sure you want to return the asset <strong>{assetToReturn?.asset_name}</strong>?
+                                </p>
+                                <p className="text-sm text-default-500">
+                                    This will unassign the asset from the employee and make it available for other assignments.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color="danger" variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="primary" onPress={confirmReturnAsset}>
+                                    Confirm Return
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </div>
     );
 }

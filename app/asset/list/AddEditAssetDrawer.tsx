@@ -277,7 +277,13 @@ export default function AddEditAssetDrawer({
                                     placeholder="Select Employee"
                                     labelPlacement="outside"
                                     selectedKeys={formData.assigned_to ? [formData.assigned_to] : []}
-                                    onChange={(e) => handleChange("assigned_to", e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        handleChange("assigned_to", value);
+                                        if (value) {
+                                            handleChange("status", "Assigned");
+                                        }
+                                    }}
                                     variant="bordered"
                                 >
                                     {(employees || []).map((emp: any) => (
@@ -306,7 +312,7 @@ export default function AddEditAssetDrawer({
                                     allowMultiple={true}
                                     labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
                                     acceptedFileTypes={['image/jpeg', 'image/png', 'image/webp', 'application/pdf']}
-                                /> 
+                                />
                             </div>
                         </DrawerBody>
                         <DrawerFooter className="px-6 py-4 border-t border-divider">

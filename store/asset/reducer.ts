@@ -85,6 +85,15 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
             };
 
         case ASSIGN_ASSET_SUCCESS:
+            let updatedEmployeeAssets = state.employeeAssets.map(asset =>
+                asset.id === action.payload.id ? action.payload : asset
+            );
+
+            // If the asset is now unassigned (assigned_to is null), remove it from the employee's list
+            if (!action.payload.assigned_to) {
+                updatedEmployeeAssets = updatedEmployeeAssets.filter(asset => asset.id !== action.payload.id);
+            }
+
             return {
                 ...state,
                 loading: false,
@@ -92,6 +101,7 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
                 assets: state.assets.map(asset =>
                     asset.id === action.payload.id ? action.payload : asset
                 ),
+                employeeAssets: updatedEmployeeAssets,
                 asset: action.payload,
             };
 
