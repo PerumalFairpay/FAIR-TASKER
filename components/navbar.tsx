@@ -9,11 +9,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTheme } from "next-themes";
+import { useIsSSR } from "@react-aria/ssr";
 
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
+
 import {
-  ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon
+  ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon, SunFilledIcon, MoonFilledIcon
 } from "@/components/icons";
 import {
   LayoutDashboard,
@@ -102,6 +104,12 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { theme, setTheme } = useTheme();
+  const isSSR = useIsSSR();
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   useEffect(() => {
     siteConfig.navItems.forEach((item: any) => {
@@ -485,6 +493,20 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               "flex items-center gap-1",
               isExpanded ? "justify-between" : "justify-center"
             )}>
+              {isExpanded && (
+                <Button
+                  isIconOnly
+                  className="bg-default-100"
+                  variant="flat"
+                  onPress={toggleTheme}
+                >
+                  {!isSSR && theme === "light" ? (
+                    <MoonFilledIcon size={22} />
+                  ) : (
+                    <SunFilledIcon size={22} />
+                  )}
+                </Button>
+              )}
               <Button
                 isIconOnly
                 className={clsx(
