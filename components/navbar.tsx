@@ -432,8 +432,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="p-1 border-t border-divider">
             {user && (
               <div className={clsx(
-                "flex items-center mb-2 overflow-hidden transition-all duration-300",
-                isExpanded ? "justify-between px-2" : "justify-center"
+                "flex items-center my-2 overflow-hidden transition-all duration-300",
+                isExpanded ? "justify-between px-2" : "justify-self-end"
               )}>
                 {user?.role?.toLowerCase() === "admin" ? (
                   <div className="flex-1 min-w-0 cursor-default">
