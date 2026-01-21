@@ -310,7 +310,7 @@ export default function OnboardingPage() {
                                                             onValueChange={() => handleTaskAction('toggle', index)}
                                                             color="primary"
                                                         />
-                                                        <span className={task.status === "Completed" ? "text-default-400 line-through" : "text-default-700"}>
+                                                        <span className={task.status === "Completed" ? "text-default-400" : "text-default-700"}>
                                                             {task.name}
                                                         </span>
                                                     </div>

@@ -493,7 +493,7 @@ export default function OffboardingPage() {
                                                                     isSelected={task.status === "Completed"}
                                                                     onValueChange={() => handleTaskAction('toggle', index)}
                                                                 />
-                                                                <span className={task.status === "Completed" ? "text-default-400 line-through" : "text-default-700"}>
+                                                                <span className={task.status === "Completed" ? "text-default-400" : "text-default-700"}>
                                                                     {task.name}
                                                                 </span>
                                                             </div>
