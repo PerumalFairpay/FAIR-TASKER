@@ -11,6 +11,12 @@ import {
 
 interface EmployeeState {
     employees: any[];
+    meta: {
+        current_page: number;
+        total_pages: number;
+        total_items: number;
+        limit: number;
+    };
     employee: any | null;
     userPermissions: { role_permissions: string[], direct_permissions: string[] };
     loading: boolean;
@@ -20,6 +26,12 @@ interface EmployeeState {
 
 const initialEmployeeState: EmployeeState = {
     employees: [],
+    meta: {
+        current_page: 1,
+        total_pages: 1,
+        total_items: 0,
+        limit: 10
+    },
     employee: null,
     userPermissions: { role_permissions: [], direct_permissions: [] },
     loading: false,
@@ -63,6 +75,7 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 ...state,
                 loading: false,
                 employees: action.payload.data,
+                meta: action.payload.meta || state.meta,
             };
         case GET_EMPLOYEES_FAILURE:
             return {

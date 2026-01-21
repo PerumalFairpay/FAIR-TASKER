@@ -37,10 +37,12 @@ import UserPermissionsDrawer from "./UserPermissionsDrawer";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
+import TablePagination from "@/components/common/TablePagination";
+import { useState } from "react";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
-    const { employees, loading, success, error } = useSelector(
+    const { employees, loading, success, error, meta } = useSelector(
         (state: RootState) => state.Employee
     );
 
@@ -49,15 +51,18 @@ export default function EmployeeListPage() {
     const { isOpen: isDocsOpen, onOpen: onDocsOpen, onOpenChange: onDocsOpenChange } = useDisclosure();
     const { isOpen: isPermOpen, onOpen: onPermOpen, onOpenChange: onPermOpenChange } = useDisclosure();
 
-    const [deleteId, setDeleteId] = React.useState<string | null>(null);
-    const [mode, setMode] = React.useState<"create" | "edit">("create");
-    const [selectedEmployee, setSelectedEmployee] = React.useState<null | any>(null);
-    const [previewData, setPreviewData] = React.useState<{ url: string; type: string; name: string } | null>(null);
-    const [viewDocs, setViewDocs] = React.useState<{ docs: any[], title: string } | null>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [mode, setMode] = useState<"create" | "edit">("create");
+    const [selectedEmployee, setSelectedEmployee] = useState<null | any>(null);
+    const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
+    const [viewDocs, setViewDocs] = useState<{ docs: any[], title: string } | null>(null);
+
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
 
     useEffect(() => {
-        dispatch(getEmployeesRequest());
-    }, [dispatch]);
+        dispatch(getEmployeesRequest(page, limit));
+    }, [dispatch, page, limit]);
 
     useEffect(() => {
         if (success) {
@@ -69,6 +74,7 @@ export default function EmployeeListPage() {
             onClose();
             onDeleteClose();
             dispatch(clearEmployeeDetails());
+            dispatch(getEmployeesRequest(page, limit));
         }
         if (error) {
             addToast({
@@ -147,7 +153,22 @@ export default function EmployeeListPage() {
                 </PermissionGuard>
             </div>
 
-            <Table aria-label="Employee table" removeWrapper isHeaderSticky>
+            <Table
+                aria-label="Employee table"
+                removeWrapper
+                isHeaderSticky
+                bottomContent={
+                    meta && (
+                        <TablePagination
+                            page={page}
+                            total={meta.total_pages}
+                            onChange={(p) => setPage(p)}
+                            limit={limit}
+                            onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                        />
+                    )
+                }
+            >
                 <TableHeader>
                     <TableColumn>NAME</TableColumn>
                     <TableColumn>DESIGNATION</TableColumn>
