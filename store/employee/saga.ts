@@ -29,8 +29,12 @@ function createEmployeeApi(payload: FormData) {
     });
 }
 
-function getEmployeesApi(page: number, limit: number) {
-    return api.get(`/employees/all?page=${page}&limit=${limit}`);
+function getEmployeesApi(params: any) {
+    const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v != null && v !== "")
+    );
+    const query = new URLSearchParams(cleanParams as any).toString();
+    return api.get(`/employees/all?${query}`);
 }
 
 function getEmployeeApi(id: string) {
@@ -69,8 +73,7 @@ function* onCreateEmployee({ payload }: any): SagaIterator {
 
 function* onGetEmployees({ payload }: any): SagaIterator {
     try {
-        const { page, limit } = payload;
-        const response = yield call(getEmployeesApi, page, limit);
+        const response = yield call(getEmployeesApi, payload);
         yield put(getEmployeesSuccess(response.data));
     } catch (error: any) {
         yield put(getEmployeesFailure(error.response?.data?.message || "Failed to fetch employees"));

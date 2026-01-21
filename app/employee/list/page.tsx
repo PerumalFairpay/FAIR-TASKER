@@ -29,7 +29,7 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { User } from "@heroui/user";
-import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, ShieldCheck } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, ShieldCheck, Filter } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
@@ -38,7 +38,11 @@ import { PermissionGuard } from "@/components/PermissionGuard";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import TablePagination from "@/components/common/TablePagination";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { Input } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
+import { SearchIcon } from "lucide-react";
+import { debounce } from "lodash";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
@@ -59,10 +63,54 @@ export default function EmployeeListPage() {
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [workModeFilter, setWorkModeFilter] = useState("all");
+
+    // Debounce search to avoid too many API calls
+    const debouncedSearch = useCallback(
+        debounce((value) => {
+            dispatch(getEmployeesRequest(1, limit, {
+                search: value,
+                status: statusFilter !== "all" ? statusFilter : undefined,
+                role: roleFilter !== "all" ? roleFilter : undefined,
+                work_mode: workModeFilter !== "all" ? workModeFilter : undefined
+            }));
+            setPage(1); // Reset to page 1 on search
+        }, 500),
+        [limit, statusFilter, roleFilter, workModeFilter, dispatch]
+    );
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value);
+        debouncedSearch(value);
+    };
+
+    const handleFilterChange = (key: string, value: string) => {
+        const newFilters = {
+            search,
+            status: key === "status" ? (value !== "all" ? value : undefined) : (statusFilter !== "all" ? statusFilter : undefined),
+            role: key === "role" ? (value !== "all" ? value : undefined) : (roleFilter !== "all" ? roleFilter : undefined),
+            work_mode: key === "work_mode" ? (value !== "all" ? value : undefined) : (workModeFilter !== "all" ? workModeFilter : undefined)
+        };
+
+        if (key === "status") setStatusFilter(value);
+        if (key === "role") setRoleFilter(value);
+        if (key === "work_mode") setWorkModeFilter(value);
+
+        setPage(1);
+        dispatch(getEmployeesRequest(1, limit, newFilters));
+    };
 
     useEffect(() => {
-        dispatch(getEmployeesRequest(page, limit));
-    }, [dispatch, page, limit]);
+        dispatch(getEmployeesRequest(page, limit, {
+            search,
+            status: statusFilter !== "all" ? statusFilter : undefined,
+            role: roleFilter !== "all" ? roleFilter : undefined,
+            work_mode: workModeFilter !== "all" ? workModeFilter : undefined
+        }));
+    }, [dispatch, page, limit]); // Keep dependencies minimal to avoid loops
 
     useEffect(() => {
         if (success) {
@@ -144,13 +192,96 @@ export default function EmployeeListPage() {
 
     return (
         <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Employees" />
-                <PermissionGuard permission="employee:create">
-                    <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
-                        Add New Employee
-                    </Button>
-                </PermissionGuard>
+            <div className="flex flex-col gap-4 mb-6">
+                <div className="flex justify-between items-center">
+                    <PageHeader title="Employees" />
+                    <PermissionGuard permission="employee:create">
+                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                            Add New Employee
+                        </Button>
+                    </PermissionGuard>
+                </div>
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <Input
+                        classNames={{
+                            base: "w-full md:w-[25%]",
+                            mainWrapper: "h-full",
+                            input: "text-small",
+                            inputWrapper: "h-10 font-normal text-default-500 bg-default-100 data-[hover=true]:bg-default-200 group-data-[focus=true]:bg-default-100",
+                        }}
+                        placeholder="Search employees..."
+                        size="sm"
+                        startContent={<SearchIcon size={18} />}
+                        value={search}
+                        onValueChange={handleSearchChange}
+                    />
+                    <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                        <Select
+                            label="Status"
+                            placeholder="Filter by status"
+                            labelPlacement="outside"
+                            size="sm"
+                            className="w-[150px]"
+                            classNames={{
+                                trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                value: "text-small",
+                            }}
+                            selectedKeys={[statusFilter]}
+                            onChange={(e) => handleFilterChange("status", e.target.value)}
+                            radius="lg"
+                            startContent={<Filter size={14} className="text-default-500" />}
+                        >
+                            <SelectItem key="all" textValue="All Status">All Status</SelectItem>
+                            <SelectItem key="Active" textValue="Active">Active</SelectItem>
+                            <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
+                            <SelectItem key="Onboarding" textValue="Onboarding">Onboarding</SelectItem>
+                            <SelectItem key="Offboarding" textValue="Offboarding">Offboarding</SelectItem>
+                            <SelectItem key="Probation" textValue="Probation">Probation</SelectItem>
+                            <SelectItem key="Terminated" textValue="Terminated">Terminated</SelectItem>
+                        </Select>
+                        <Select
+                            label="Role"
+                            placeholder="Filter by role"
+                            labelPlacement="outside"
+                            size="sm"
+                            className="w-[150px]"
+                            classNames={{
+                                trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                value: "text-small",
+                            }}
+                            selectedKeys={[roleFilter]}
+                            onChange={(e) => handleFilterChange("role", e.target.value)}
+                            radius="lg"
+                            startContent={<ShieldCheck size={14} className="text-default-500" />}
+                        >
+                            <SelectItem key="all" textValue="All Roles">All Roles</SelectItem>
+                            <SelectItem key="employee" textValue="Employee">Employee</SelectItem>
+                            <SelectItem key="manager" textValue="Manager">Manager</SelectItem>
+                            <SelectItem key="hr" textValue="HR">HR</SelectItem>
+                            <SelectItem key="admin" textValue="Admin">Admin</SelectItem>
+                        </Select>
+                        <Select
+                            label="Work Mode"
+                            placeholder="Filter by mode"
+                            labelPlacement="outside"
+                            size="sm"
+                            className="w-[150px]"
+                            classNames={{
+                                trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                value: "text-small",
+                            }}
+                            selectedKeys={[workModeFilter]}
+                            onChange={(e) => handleFilterChange("work_mode", e.target.value)}
+                            radius="lg"
+                            startContent={<FolderOpen size={14} className="text-default-500" />}
+                        >
+                            <SelectItem key="all" textValue="All Modes">All Modes</SelectItem>
+                            <SelectItem key="Office" textValue="Office">Office</SelectItem>
+                            <SelectItem key="Remote" textValue="Remote">Remote</SelectItem>
+                            <SelectItem key="Hybrid" textValue="Hybrid">Hybrid</SelectItem>
+                        </Select>
+                    </div>
+                </div>
             </div>
 
             <Table
@@ -158,7 +289,7 @@ export default function EmployeeListPage() {
                 removeWrapper
                 isHeaderSticky
                 bottomContent={
-                    meta && (
+                    meta && meta.total_items > 10 && (
                         <TablePagination
                             page={page}
                             total={meta.total_pages}
@@ -217,7 +348,7 @@ export default function EmployeeListPage() {
                                     >
                                         <FolderOpen size={18} />
                                         <span className="text-small font-medium hover:underline">
-                                            {item.documents?.length || 1} Document{(item.documents?.length || 1) > 1 ? 's' : ''}
+                                            {item.documents?.length || 1}
                                         </span>
                                     </div>
                                 ) : (

@@ -25,9 +25,9 @@ export const createEmployeeFailure = (error: any) => ({
 
 // Get All Employees
 // Get All Employees
-export const getEmployeesRequest = (page: number = 1, limit: number = 10) => ({
+export const getEmployeesRequest = (page: number = 1, limit: number = 10, query: any = {}) => ({
     type: GET_EMPLOYEES_REQUEST,
-    payload: { page, limit }
+    payload: { page, limit, ...query }
 });
 export const getEmployeesSuccess = (response: any) => ({
     type: GET_EMPLOYEES_SUCCESS,
