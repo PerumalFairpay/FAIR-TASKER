@@ -25,6 +25,9 @@ export default function OnboardingPage() {
     const [onboardingTasks, setOnboardingTasks] = useState<any[]>([]);
     const [showNewTaskInput, setShowNewTaskInput] = useState(false);
     const [newTaskName, setNewTaskName] = useState("");
+    const [isCompleting, setIsCompleting] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
 
     const onboardingEmployees = (employees || []).filter((emp: any) => emp.status === "Onboarding");
 
@@ -41,7 +44,12 @@ export default function OnboardingPage() {
             });
             dispatch(clearEmployeeDetails());
             dispatch(getEmployeesRequest());
-            setIsDrawerOpen(false);
+            if (isCompleting) {
+                setIsDrawerOpen(false);
+                setIsCompleting(false);
+            }
+            setIsSaving(false);
+            setIsCompletingOnboarding(false);
         }
         if (error) {
             addToast({
@@ -50,6 +58,8 @@ export default function OnboardingPage() {
                 color: "danger"
             });
             dispatch(clearEmployeeDetails());
+            setIsSaving(false);
+            setIsCompletingOnboarding(false);
         }
     }, [success, error, dispatch]);
 
@@ -91,6 +101,7 @@ export default function OnboardingPage() {
     const handleSaveProgress = () => {
         if (!selectedEmployee) return;
 
+        setIsSaving(true);
         const formData = new FormData();
         formData.append("onboarding_checklist", JSON.stringify(onboardingTasks));
 
@@ -100,6 +111,8 @@ export default function OnboardingPage() {
     const handleCompleteOnboarding = () => {
         if (!selectedEmployee) return;
 
+        setIsCompleting(true);
+        setIsCompletingOnboarding(true);
         const formData = new FormData();
         formData.append("status", "Probation");
         formData.append("onboarding_checklist", JSON.stringify(onboardingTasks));
@@ -297,7 +310,7 @@ export default function OnboardingPage() {
                                     color="primary"
                                     variant="flat"
                                     onPress={handleSaveProgress}
-                                    isLoading={loading}
+                                    isLoading={isSaving}
                                 >
                                     Save Progress
                                 </Button>
@@ -305,7 +318,7 @@ export default function OnboardingPage() {
                                     color="success"
                                     endContent={<ArrowRight size={16} />}
                                     onPress={handleCompleteOnboarding}
-                                    isLoading={loading}
+                                    isLoading={isCompletingOnboarding}
                                     isDisabled={calculateProgress(onboardingTasks) < 100}
                                 >
                                     Complete Onboarding

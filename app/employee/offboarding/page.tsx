@@ -36,6 +36,9 @@ export default function OffboardingPage() {
         last_working_day: "",
         exit_interview_notes: ""
     });
+    const [isCompleting, setIsCompleting] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isCompletingOffboarding, setIsCompletingOffboarding] = useState(false);
 
     const offboardingEmployees = useMemo(() => {
         return (employees || []).filter((emp: any) => emp.status === "Offboarding");
@@ -60,7 +63,12 @@ export default function OffboardingPage() {
             });
             dispatch(clearEmployeeDetails());
             dispatch(getEmployeesRequest());
-            setIsDrawerOpen(false);
+            if (isCompleting) {
+                setIsDrawerOpen(false);
+                setIsCompleting(false);
+            }
+            setIsSaving(false);
+            setIsCompletingOffboarding(false);
         }
         if (error) {
             addToast({
@@ -69,6 +77,8 @@ export default function OffboardingPage() {
                 color: "danger"
             });
             dispatch(clearEmployeeDetails());
+            setIsSaving(false);
+            setIsCompletingOffboarding(false);
         }
     }, [success, error, dispatch]);
 
@@ -164,6 +174,7 @@ export default function OffboardingPage() {
     const handleSaveProgress = () => {
         if (!selectedEmployee) return;
 
+        setIsSaving(true);
         const formData = new FormData();
         formData.append("offboarding_checklist", JSON.stringify(offboardingTasks));
         formData.append("resignation_date", exitDetails.resignation_date);
@@ -176,6 +187,8 @@ export default function OffboardingPage() {
     const handleCompleteOffboarding = () => {
         if (!selectedEmployee) return;
 
+        setIsCompleting(true);
+        setIsCompletingOffboarding(true);
         const formData = new FormData();
         formData.append("status", "Inactive");
         formData.append("offboarding_checklist", JSON.stringify(offboardingTasks));
@@ -497,7 +510,7 @@ export default function OffboardingPage() {
                                     color="primary"
                                     variant="flat"
                                     onPress={handleSaveProgress}
-                                    isLoading={loading}
+                                    isLoading={isSaving}
                                 >
                                     Save Progress
                                 </Button>
@@ -505,7 +518,7 @@ export default function OffboardingPage() {
                                     color="danger"
                                     endContent={<LogOut size={16} />}
                                     onPress={handleCompleteOffboarding}
-                                    isLoading={loading}
+                                    isLoading={isCompletingOffboarding}
                                     isDisabled={!isReadyToComplete()}
                                 >
                                     Complete Offboarding
