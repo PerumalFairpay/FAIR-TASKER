@@ -137,7 +137,7 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...fetchedEmployee });
         } else if (isOpen && mode === "create") {
             if (Object.keys(formData).length === 0) {
-                setFormData({ status: "Onboarding", work_mode: "Office" });
+                setFormData({ status: "Onboarding" });
             }
         }
     }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
