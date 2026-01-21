@@ -118,28 +118,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                                     />
                                                 </div>
                                                 <div className="flex flex-col items-end gap-2">
-                                                    <Select
-                                                        label="Status"
-                                                        size="sm"
-                                                        className="w-40"
-                                                        selectedKeys={[report.status]}
-                                                        onChange={(e) => {
-                                                            const newStatus = e.target.value;
-                                                            handleUpdateReport(task.id, "status", newStatus);
-                                                            if (newStatus === "Completed") {
-                                                                handleUpdateReport(task.id, "move_to_tomorrow", false);
-                                                                handleUpdateReport(task.id, "progress", 100);
-                                                            }
-                                                        }}
-                                                    >
-                                                        {[
-                                                            { key: "Todo", label: "To Do" },
-                                                            { key: "In Progress", label: "In Progress" },
-                                                            ...(!report.move_to_tomorrow ? [{ key: "Completed", label: "Completed" }] : [])
-                                                        ].map((item) => (
-                                                            <SelectItem key={item.key}>{item.label}</SelectItem>
-                                                        ))}
-                                                    </Select>
+
                                                     {report.status !== "Completed" && (
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
