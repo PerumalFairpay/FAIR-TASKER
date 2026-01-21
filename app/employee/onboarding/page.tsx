@@ -41,10 +41,10 @@ export default function OnboardingPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isCompletingOnboarding, setIsCompletingOnboarding] = useState(false);
 
-    const onboardingEmployees = (employees || []).filter((emp: any) => emp.status === "Onboarding");
+    const onboardingEmployees = employees || [];
 
     useEffect(() => {
-        dispatch(getEmployeesRequest(1, 1000, {}));
+        dispatch(getEmployeesRequest(1, 1000, { status: "Onboarding" }));
     }, [dispatch]);
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export default function OnboardingPage() {
                 color: "success"
             });
             dispatch(clearEmployeeDetails());
-            dispatch(getEmployeesRequest(1, 1000, {}));
+            dispatch(getEmployeesRequest(1, 1000, { status: "Onboarding" }));
             if (isCompleting) {
                 setIsDrawerOpen(false);
                 setIsCompleting(false);

@@ -61,7 +61,7 @@ export default function OffboardingPage() {
     }, [assets, selectedEmployee]);
 
     useEffect(() => {
-        dispatch(getEmployeesRequest(1, 1000, {}));
+        dispatch(getEmployeesRequest(1, 1000, { status: "Offboarding" }));
         dispatch(getAssetsRequest());
     }, [dispatch]);
 
@@ -73,7 +73,7 @@ export default function OffboardingPage() {
                 color: "success"
             });
             dispatch(clearEmployeeDetails());
-            dispatch(getEmployeesRequest(1, 1000, {}));
+            dispatch(getEmployeesRequest(1, 1000, { status: "Offboarding" }));
             if (isCompleting) {
                 setIsDrawerOpen(false);
                 setIsCompleting(false);
