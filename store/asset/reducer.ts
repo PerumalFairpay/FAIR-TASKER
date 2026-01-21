@@ -121,6 +121,7 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
                 error: null,
                 success: null,
                 asset: null,
+                employeeAssets: [],
             };
 
         default:

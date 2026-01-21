@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest, updateEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
-import { getAssetsRequest } from "@/store/asset/action";
+import { getAssetsByEmployeeRequest, clearAssetDetails } from "@/store/asset/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
@@ -24,7 +24,7 @@ import { Tabs, Tab } from "@heroui/tabs";
 export default function OffboardingPage() {
     const dispatch = useDispatch();
     const { employees, loading, success, error } = useSelector((state: RootState) => state.Employee);
-    const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
+    const { employeeAssets } = useSelector((state: RootState) => state.Asset || { employeeAssets: [] });
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -57,12 +57,11 @@ export default function OffboardingPage() {
 
     const assignedAssets = useMemo(() => {
         if (!selectedEmployee?.id) return [];
-        return assets.filter((asset: any) => asset.assigned_to === selectedEmployee.id);
-    }, [assets, selectedEmployee]);
+        return employeeAssets || [];
+    }, [employeeAssets, selectedEmployee]);
 
     useEffect(() => {
         dispatch(getEmployeesRequest(1, 1000, { status: "Offboarding" }));
-        dispatch(getAssetsRequest());
     }, [dispatch]);
 
     useEffect(() => {
@@ -174,6 +173,7 @@ export default function OffboardingPage() {
     const handleOpenDrawer = (employee: any) => {
         setSelectedEmployee(employee);
         setIsDrawerOpen(true);
+        dispatch(getAssetsByEmployeeRequest(employee.id));
     };
 
     const handleCloseDrawer = () => {
@@ -187,6 +187,7 @@ export default function OffboardingPage() {
             last_working_day: "",
             exit_interview_notes: ""
         });
+        dispatch(clearAssetDetails());
     };
 
     const handleTaskAction = (action: 'add' | 'delete' | 'toggle', payload?: any) => {
@@ -265,14 +266,12 @@ export default function OffboardingPage() {
                 <TableHeader>
                     <TableColumn>EMPLOYEE</TableColumn>
                     <TableColumn>LAST WORKING DAY</TableColumn>
-                    <TableColumn>ASSETS PENDING</TableColumn>
                     <TableColumn>PROGRESS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
                 <TableBody items={offboardingEmployees} emptyContent="No employees in offboarding phase" isLoading={loading}>
                     {(employee: any) => {
                         const progress = calculateProgress(employee.offboarding_checklist || []);
-                        const employeeAssets = assets.filter((asset: any) => asset.assigned_to === employee.id);
 
                         return (
                             <TableRow key={employee.id}>
@@ -293,17 +292,6 @@ export default function OffboardingPage() {
                                         </div>
                                     ) : (
                                         <span className="text-default-400">Not set</span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    {employeeAssets.length > 0 ? (
-                                        <Chip size="sm" color="danger" variant="flat">
-                                            {employeeAssets.length} Asset{employeeAssets.length !== 1 ? 's' : ''}
-                                        </Chip>
-                                    ) : (
-                                        <Chip size="sm" color="success" variant="flat">
-                                            All Returned
-                                        </Chip>
                                     )}
                                 </TableCell>
                                 <TableCell>
