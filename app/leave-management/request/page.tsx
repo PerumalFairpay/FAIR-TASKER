@@ -59,9 +59,7 @@ export default function LeaveRequestPage() {
     const [statusFilter, setStatusFilter] = useState<string>("All");
     const [employeeFilter, setEmployeeFilter] = useState<string>("");
 
-    useEffect(() => {
-        dispatch(getEmployeesSummaryRequest());
-    }, [dispatch]);
+
 
     useEffect(() => {
         const filters: any = { status: statusFilter };
@@ -142,6 +140,11 @@ export default function LeaveRequestPage() {
                             size="sm"
                             selectedKeys={employeeFilter ? [employeeFilter] : []}
                             onChange={(e) => setEmployeeFilter(e.target.value)}
+                            onOpenChange={(isOpen) => {
+                                if (isOpen && (!employees || employees.length === 0)) {
+                                    dispatch(getEmployeesSummaryRequest());
+                                }
+                            }}
                         >
                             {(employees || []).map((emp: any) => (
                                 <SelectItem key={emp.id} textValue={emp.name}>

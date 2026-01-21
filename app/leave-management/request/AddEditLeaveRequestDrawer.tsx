@@ -65,14 +65,20 @@ export default function AddEditLeaveRequestDrawer({
 
     useEffect(() => {
         if (isOpen) {
-            dispatch(getEmployeesSummaryRequest());
-            dispatch(getLeaveTypesRequest());
-            dispatch(getHolidaysRequest());
+            if (!employees || employees.length === 0) {
+                dispatch(getEmployeesSummaryRequest());
+            }
+            if (!leaveTypes || leaveTypes.length === 0) {
+                dispatch(getLeaveTypesRequest());
+            }
+            if (!holidays || holidays.length === 0) {
+                dispatch(getHolidaysRequest());
+            }
             if (!user) {
                 dispatch(getUserRequest());
             }
         }
-    }, [isOpen, dispatch, user]);
+    }, [isOpen, dispatch, user, employees, leaveTypes, holidays]);
 
     useEffect(() => {
         if (isOpen && user?.role === "employee" && employees?.length > 0) {
