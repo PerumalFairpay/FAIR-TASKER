@@ -116,7 +116,7 @@ export default function OnboardingPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Employee Onboarding" /> 
+                <PageHeader title="Employee Onboarding" />
             </div>
 
             <Table aria-label="Onboarding employees table" removeWrapper isHeaderSticky>
@@ -198,20 +198,16 @@ export default function OnboardingPage() {
                             </DrawerHeader>
                             <DrawerBody className="pt-6">
                                 <div className="space-y-6">
-                                    <div className="flex justify-between items-center bg-primary-50 p-4 rounded-lg">
-                                        <div>
-                                            <h3 className="font-semibold text-primary">Onboarding Checklist</h3>
-                                            <p className="text-small text-default-500 mt-1">
-                                                {onboardingTasks.filter(t => t.status === "Completed").length} of {onboardingTasks.length} tasks completed
-                                            </p>
-                                        </div>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-semibold">Checklist</h3>
                                         <Button
                                             size="sm"
                                             color="primary"
+                                            variant="flat"
                                             onPress={() => setShowNewTaskInput(true)}
                                             startContent={<Plus size={16} />}
                                         >
-                                            Add Task
+                                            Add Step
                                         </Button>
                                     </div>
 
@@ -267,29 +263,21 @@ export default function OnboardingPage() {
                                                         <Checkbox
                                                             isSelected={task.status === "Completed"}
                                                             onValueChange={() => handleTaskAction('toggle', index)}
-                                                            lineThrough
-                                                        >
-                                                            <span className={task.status === "Completed" ? "text-default-400" : "font-medium"}>
-                                                                {task.name}
-                                                            </span>
-                                                        </Checkbox>
+                                                            color="primary"
+                                                        />
+                                                        <span className={task.status === "Completed" ? "text-default-400 line-through" : "text-default-700"}>
+                                                            {task.name}
+                                                        </span>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {task.status === "Completed" && task.completed_at && (
-                                                            <Chip size="sm" color="success" variant="flat">
-                                                                {new Date(task.completed_at).toLocaleDateString()}
-                                                            </Chip>
-                                                        )}
-                                                        <Button
-                                                            isIconOnly
-                                                            size="sm"
-                                                            color="danger"
-                                                            variant="light"
-                                                            onPress={() => handleTaskAction('delete', index)}
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </Button>
-                                                    </div>
+                                                    <Button
+                                                        isIconOnly
+                                                        size="sm"
+                                                        color="danger"
+                                                        variant="light"
+                                                        onPress={() => handleTaskAction('delete', index)}
+                                                    >
+                                                        <Trash2 size={18} className="text-danger" />
+                                                    </Button>
                                                 </div>
                                             ))
                                         )}
