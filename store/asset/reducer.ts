@@ -4,11 +4,14 @@ import {
     GET_ASSET_REQUEST, GET_ASSET_SUCCESS, GET_ASSET_FAILURE,
     UPDATE_ASSET_REQUEST, UPDATE_ASSET_SUCCESS, UPDATE_ASSET_FAILURE,
     DELETE_ASSET_REQUEST, DELETE_ASSET_SUCCESS, DELETE_ASSET_FAILURE,
+    ASSIGN_ASSET_REQUEST, ASSIGN_ASSET_SUCCESS, ASSIGN_ASSET_FAILURE,
+    GET_ASSETS_BY_EMPLOYEE_REQUEST, GET_ASSETS_BY_EMPLOYEE_SUCCESS, GET_ASSETS_BY_EMPLOYEE_FAILURE,
     CLEAR_ASSET_DETAILS
 } from "./actionType";
 
 interface AssetState {
     assets: any[];
+    employeeAssets: any[];
     asset: any | null;
     loading: boolean;
     error: string | null;
@@ -17,6 +20,7 @@ interface AssetState {
 
 const initialAssetState: AssetState = {
     assets: [],
+    employeeAssets: [],
     asset: null,
     loading: false,
     error: null,
@@ -30,6 +34,8 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
         case GET_ASSET_REQUEST:
         case UPDATE_ASSET_REQUEST:
         case DELETE_ASSET_REQUEST:
+        case ASSIGN_ASSET_REQUEST:
+        case GET_ASSETS_BY_EMPLOYEE_REQUEST:
             return {
                 ...state,
                 loading: true,
@@ -78,11 +84,31 @@ const assetReducer = (state: AssetState = initialAssetState, action: any): Asset
                 assets: state.assets.filter(asset => asset.id !== action.payload.id),
             };
 
+        case ASSIGN_ASSET_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                success: action.payload.assigned_to ? "Asset assigned successfully" : "Asset unassigned successfully",
+                assets: state.assets.map(asset =>
+                    asset.id === action.payload.id ? action.payload : asset
+                ),
+                asset: action.payload,
+            };
+
+        case GET_ASSETS_BY_EMPLOYEE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                employeeAssets: action.payload,
+            };
+
         case CREATE_ASSET_FAILURE:
         case GET_ASSETS_FAILURE:
         case GET_ASSET_FAILURE:
         case UPDATE_ASSET_FAILURE:
         case DELETE_ASSET_FAILURE:
+        case ASSIGN_ASSET_FAILURE:
+        case GET_ASSETS_BY_EMPLOYEE_FAILURE:
             return {
                 ...state,
                 loading: false,
