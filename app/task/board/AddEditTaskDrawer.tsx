@@ -48,13 +48,23 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const loading = isEditMode ? (updateTaskLoading || deleteTaskLoading) : createTaskLoading;
     const success = isEditMode ? (updateTaskSuccess || deleteTaskSuccess) : createTaskSuccess;
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${year}-${month}-${day}`;
+
+    const hours = String(today.getHours()).padStart(2, "0");
+    const minutes = String(today.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+
     const initialFormData = {
         project_id: "",
         task_name: "",
         description: "",
-        start_date: selectedDate || new Date().toISOString().split("T")[0],
-        end_date: selectedDate || new Date().toISOString().split("T")[0],
-        start_time: "09:00",
+        start_date: todayStr,
+        end_date: todayStr,
+        start_time: currentTime,
         end_time: "18:00",
         priority: "Medium",
         assigned_to: [] as string[],
@@ -89,8 +99,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             } else {
                 setFormData({
                     ...initialFormData,
-                    start_date: selectedDate || new Date().toISOString().split("T")[0],
-                    end_date: selectedDate || new Date().toISOString().split("T")[0],
+                    start_date: todayStr,
+                    end_date: todayStr,
                     status: allowedStatuses?.[0] || "Todo"
                 });
                 setExistingAttachments([]);
@@ -253,6 +263,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     value={formData.start_time}
                                     onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                                     className="w-[150px]"
+                                    isDisabled
                                 />
                             </div>
                             <div className="flex gap-4">
