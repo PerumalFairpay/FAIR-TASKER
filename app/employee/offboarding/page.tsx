@@ -11,7 +11,7 @@ import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { Input, Textarea } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
-import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, Settings } from "lucide-react";
+import { LogOut, Plus, Trash2, X, CheckSquare, Calendar, FileText, Package, Settings, Settings2 } from "lucide-react";
 import { Progress } from "@heroui/progress";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -269,7 +269,7 @@ export default function OffboardingPage() {
                                             size="sm"
                                             variant="light"
                                             color="primary"
-                                            startContent={<Settings size={16} />}
+                                            startContent={<Settings2 size={16} />}
                                             onPress={() => handleOpenDrawer(employee)}
                                         >
                                             Manage

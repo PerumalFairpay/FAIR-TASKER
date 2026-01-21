@@ -10,7 +10,7 @@ import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { Input } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
-import { Plus, Trash2, X, CheckSquare, Settings, ArrowRight } from "lucide-react";
+import { Plus, Trash2, X, CheckSquare, Settings, ArrowRight, Settings2 } from "lucide-react";
 import { Progress } from "@heroui/progress";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
@@ -162,7 +162,7 @@ export default function OnboardingPage() {
                                             size="sm"
                                             variant="light"
                                             color="primary"
-                                            startContent={<Settings size={16} />}
+                                            startContent={<Settings2 size={16} />}
                                             onPress={() => handleOpenDrawer(employee)}
                                         >
                                             Manage
