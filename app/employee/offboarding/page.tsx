@@ -202,7 +202,7 @@ export default function OffboardingPage() {
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Employee Offboarding" /> 
+                <PageHeader title="Employee Offboarding" />
             </div>
 
             <Table aria-label="Offboarding employees table" removeWrapper isHeaderSticky>
@@ -294,13 +294,6 @@ export default function OffboardingPage() {
                                             {selectedEmployee?.designation} • {selectedEmployee?.department}
                                         </p>
                                     </div>
-                                    <Chip
-                                        color="warning"
-                                        variant="flat"
-                                        size="lg"
-                                    >
-                                        {calculateProgress(offboardingTasks)}% Complete
-                                    </Chip>
                                 </div>
                             </DrawerHeader>
                             <DrawerBody className="pt-6">
@@ -382,20 +375,31 @@ export default function OffboardingPage() {
                                         </div>
                                     }>
                                         <div className="space-y-4 pt-4">
-                                            <div className="flex justify-between items-center bg-primary-50 p-4 rounded-lg">
-                                                <div>
-                                                    <h3 className="font-semibold text-primary">Offboarding Checklist</h3>
-                                                    <p className="text-small text-default-500 mt-1">
-                                                        {offboardingTasks.filter(t => t.status === "Completed").length} of {offboardingTasks.length} tasks completed
-                                                    </p>
+                                            <div className="flex flex-col gap-2 mb-4">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-sm font-medium text-default-700">Progress</span>
+                                                    <span className="text-sm font-semibold text-warning">{calculateProgress(offboardingTasks)}%</span>
                                                 </div>
+                                                <Progress
+                                                    value={calculateProgress(offboardingTasks)}
+                                                    color={calculateProgress(offboardingTasks) === 100 ? "success" : "warning"}
+                                                    size="md"
+                                                />
+                                                <p className="text-tiny text-default-500">
+                                                    {offboardingTasks.filter(t => t.status === "Completed").length} of {offboardingTasks.length} tasks completed
+                                                </p>
+                                            </div>
+
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h3 className="text-lg font-semibold">Checklist</h3>
                                                 <Button
                                                     size="sm"
                                                     color="primary"
+                                                    variant="flat"
                                                     onPress={() => setShowNewTaskInput(true)}
                                                     startContent={<Plus size={16} />}
                                                 >
-                                                    Add Task
+                                                    Add Step
                                                 </Button>
                                             </div>
 
@@ -439,13 +443,13 @@ export default function OffboardingPage() {
                                                     <div className="text-center text-default-400 py-12 border border-dashed border-default-200 rounded-lg">
                                                         <CheckSquare size={48} className="mx-auto mb-3 opacity-50" />
                                                         <p>No offboarding tasks yet.</p>
-                                                        <p className="text-tiny mt-1">Click "Add Task" to get started.</p>
+                                                        <p className="text-tiny mt-1">Click "Add Step" to get started.</p>
                                                     </div>
                                                 ) : (
                                                     offboardingTasks.map((task, index) => (
                                                         <div
                                                             key={index}
-                                                            className={`flex items-center justify-between p-4 border rounded-lg hover:bg-default-50 transition-colors ${task.is_asset_task
+                                                            className={`flex items-center justify-between p-3 border rounded-lg hover:bg-default-50 transition-colors ${task.is_asset_task
                                                                 ? "border-warning-300 bg-warning-50/50"
                                                                 : "border-default-200"
                                                                 }`}
@@ -457,22 +461,16 @@ export default function OffboardingPage() {
                                                                 <Checkbox
                                                                     isSelected={task.status === "Completed"}
                                                                     onValueChange={() => handleTaskAction('toggle', index)}
-                                                                    lineThrough
-                                                                >
-                                                                    <span className={task.status === "Completed" ? "text-default-400" : "font-medium"}>
-                                                                        {task.name}
-                                                                    </span>
-                                                                </Checkbox>
+                                                                    color={task.is_asset_task ? "warning" : "primary"}
+                                                                />
+                                                                <span className={task.status === "Completed" ? "text-default-400 line-through" : "text-default-700"}>
+                                                                    {task.name}
+                                                                </span>
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {task.is_asset_task && (
                                                                     <Chip size="sm" color="warning" variant="flat">
                                                                         Asset
-                                                                    </Chip>
-                                                                )}
-                                                                {task.status === "Completed" && task.completed_at && (
-                                                                    <Chip size="sm" color="success" variant="flat">
-                                                                        {new Date(task.completed_at).toLocaleDateString()}
                                                                     </Chip>
                                                                 )}
                                                                 <Button
@@ -483,7 +481,7 @@ export default function OffboardingPage() {
                                                                     onPress={() => handleTaskAction('delete', index)}
                                                                     isDisabled={task.is_asset_task}
                                                                 >
-                                                                    <Trash2 size={16} />
+                                                                    <Trash2 size={18} className="text-danger" />
                                                                 </Button>
                                                             </div>
                                                         </div>
@@ -495,9 +493,6 @@ export default function OffboardingPage() {
                                 </Tabs>
                             </DrawerBody>
                             <DrawerFooter className="border-t border-default-200">
-                                <Button color="default" variant="light" onPress={handleCloseDrawer}>
-                                    Cancel
-                                </Button>
                                 <Button
                                     color="primary"
                                     variant="flat"

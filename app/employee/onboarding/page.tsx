@@ -187,17 +187,25 @@ export default function OnboardingPage() {
                                             {selectedEmployee?.designation} • {selectedEmployee?.department}
                                         </p>
                                     </div>
-                                    <Chip
-                                        color="primary"
-                                        variant="flat"
-                                        size="lg"
-                                    >
-                                        {calculateProgress(onboardingTasks)}% Complete
-                                    </Chip>
                                 </div>
                             </DrawerHeader>
                             <DrawerBody className="pt-6">
                                 <div className="space-y-6">
+                                    <div className="flex flex-col gap-2 mb-4">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-default-700">Progress</span>
+                                            <span className="text-sm font-semibold text-primary">{calculateProgress(onboardingTasks)}%</span>
+                                        </div>
+                                        <Progress
+                                            value={calculateProgress(onboardingTasks)}
+                                            color={calculateProgress(onboardingTasks) === 100 ? "success" : "primary"}
+                                            size="md"
+                                        />
+                                        <p className="text-tiny text-default-500">
+                                            {onboardingTasks.filter(t => t.status === "Completed").length} of {onboardingTasks.length} tasks completed
+                                        </p>
+                                    </div>
+
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="text-lg font-semibold">Checklist</h3>
                                         <Button
@@ -251,13 +259,13 @@ export default function OnboardingPage() {
                                             <div className="text-center text-default-400 py-12 border border-dashed border-default-200 rounded-lg">
                                                 <CheckSquare size={48} className="mx-auto mb-3 opacity-50" />
                                                 <p>No onboarding tasks yet.</p>
-                                                <p className="text-tiny mt-1">Click "Add Task" to get started.</p>
+                                                <p className="text-tiny mt-1">Click "Add Step" to get started.</p>
                                             </div>
                                         ) : (
                                             onboardingTasks.map((task, index) => (
                                                 <div
                                                     key={index}
-                                                    className="flex items-center justify-between p-4 border border-default-200 rounded-lg hover:bg-default-50 transition-colors"
+                                                    className="flex items-center justify-between p-3 border border-default-200 rounded-lg hover:bg-default-50 transition-colors"
                                                 >
                                                     <div className="flex items-center gap-3 flex-1">
                                                         <Checkbox
@@ -285,9 +293,6 @@ export default function OnboardingPage() {
                                 </div>
                             </DrawerBody>
                             <DrawerFooter className="border-t border-default-200">
-                                <Button color="default" variant="light" onPress={handleCloseDrawer}>
-                                    Cancel
-                                </Button>
                                 <Button
                                     color="primary"
                                     variant="flat"
