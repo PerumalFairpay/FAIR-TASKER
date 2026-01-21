@@ -10,7 +10,7 @@ import {
 } from "./actionType";
 
 // Create Asset
-export const createAssetRequest = (payload: any) => ({
+export const createAssetRequest = (payload: FormData) => ({
     type: CREATE_ASSET_REQUEST,
     payload,
 });
@@ -18,9 +18,9 @@ export const createAssetSuccess = (response: any) => ({
     type: CREATE_ASSET_SUCCESS,
     payload: response,
 });
-export const createAssetFailure = (response: any) => ({
+export const createAssetFailure = (error: any) => ({
     type: CREATE_ASSET_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Get All Assets
@@ -31,9 +31,9 @@ export const getAssetsSuccess = (response: any) => ({
     type: GET_ASSETS_SUCCESS,
     payload: response,
 });
-export const getAssetsFailure = (response: any) => ({
+export const getAssetsFailure = (error: any) => ({
     type: GET_ASSETS_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Get Single Asset
@@ -45,13 +45,13 @@ export const getAssetSuccess = (response: any) => ({
     type: GET_ASSET_SUCCESS,
     payload: response,
 });
-export const getAssetFailure = (response: any) => ({
+export const getAssetFailure = (error: any) => ({
     type: GET_ASSET_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Update Asset
-export const updateAssetRequest = (id: string, payload: any) => ({
+export const updateAssetRequest = (id: string, payload: FormData) => ({
     type: UPDATE_ASSET_REQUEST,
     payload: { id, payload },
 });
@@ -59,9 +59,9 @@ export const updateAssetSuccess = (response: any) => ({
     type: UPDATE_ASSET_SUCCESS,
     payload: response,
 });
-export const updateAssetFailure = (response: any) => ({
+export const updateAssetFailure = (error: any) => ({
     type: UPDATE_ASSET_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Delete Asset
@@ -73,9 +73,9 @@ export const deleteAssetSuccess = (response: any) => ({
     type: DELETE_ASSET_SUCCESS,
     payload: response,
 });
-export const deleteAssetFailure = (response: any) => ({
+export const deleteAssetFailure = (error: any) => ({
     type: DELETE_ASSET_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Assign/Unassign Asset
@@ -87,9 +87,9 @@ export const assignAssetSuccess = (response: any) => ({
     type: ASSIGN_ASSET_SUCCESS,
     payload: response,
 });
-export const assignAssetFailure = (response: any) => ({
+export const assignAssetFailure = (error: any) => ({
     type: ASSIGN_ASSET_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 // Get Assets by Employee
@@ -101,9 +101,9 @@ export const getAssetsByEmployeeSuccess = (response: any) => ({
     type: GET_ASSETS_BY_EMPLOYEE_SUCCESS,
     payload: response,
 });
-export const getAssetsByEmployeeFailure = (response: any) => ({
+export const getAssetsByEmployeeFailure = (error: any) => ({
     type: GET_ASSETS_BY_EMPLOYEE_FAILURE,
-    payload: response,
+    payload: error,
 });
 
 export const clearAssetDetails = () => ({
