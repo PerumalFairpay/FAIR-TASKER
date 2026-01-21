@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer"; // Adapted import
 import { getTasksRequest } from "@/store/task/action"; // Adapted action
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -105,8 +105,10 @@ export default function CalendarPage() {
     const isAdmin = user?.role?.toLowerCase() === "admin";
 
     useEffect(() => {
-        dispatch(getEmployeesRequest());
-    }, [dispatch]);
+        if (!employees || employees.length === 0) {
+            dispatch(getEmployeesSummaryRequest());
+        }
+    }, [dispatch, employees]);
 
     useEffect(() => {
         // If not admin and user not loaded yet, skip

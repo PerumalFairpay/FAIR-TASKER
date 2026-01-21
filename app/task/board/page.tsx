@@ -21,7 +21,7 @@ import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
 // import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import EodReportDrawer from "./EodReportDrawer";
@@ -71,9 +71,11 @@ const TaskBoard = () => {
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
         dispatch(getProjectsRequest());
-        dispatch(getEmployeesRequest());
+        if (!employees || employees.length === 0) {
+            dispatch(getEmployeesSummaryRequest());
+        }
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee, user]);
+    }, [dispatch, filterDate, filterEmployee, user, employees]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);

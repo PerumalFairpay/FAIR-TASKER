@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getAssetCategoriesRequest } from "@/store/assetCategory/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import {
     Drawer,
     DrawerContent,
@@ -88,9 +88,11 @@ export default function AddEditAssetDrawer({
     useEffect(() => {
         if (isOpen) {
             dispatch(getAssetCategoriesRequest());
-            dispatch(getEmployeesRequest());
+            if (!employees || employees.length === 0) {
+                dispatch(getEmployeesSummaryRequest());
+            }
         }
-    }, [isOpen, dispatch]);
+    }, [isOpen, dispatch, employees]);
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedAsset) {
@@ -285,10 +287,32 @@ export default function AddEditAssetDrawer({
                                         }
                                     }}
                                     variant="bordered"
+                                    onOpenChange={(isOpen) => {
+                                        if (isOpen && (!employees || employees.length === 0)) {
+                                            dispatch(getEmployeesSummaryRequest());
+                                        }
+                                    }}
                                 >
                                     {(employees || []).map((emp: any) => (
                                         <SelectItem key={emp.id} textValue={emp.name}>
-                                            {emp.name} ({emp.employee_no_id})
+                                            <div className="flex gap-2 items-center">
+                                                {emp.profile_picture ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={emp.profile_picture}
+                                                        alt={emp.name}
+                                                        className="w-6 h-6 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-default-200 flex items-center justify-center text-xs font-semibold text-default-500">
+                                                        {emp.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    <span className="text-small">{emp.name}</span>
+                                                    <span className="text-tiny text-default-400">{emp.email}</span>
+                                                </div>
+                                            </div>
                                         </SelectItem>
                                     ))}
                                 </Select>
