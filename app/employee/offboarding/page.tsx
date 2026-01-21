@@ -96,28 +96,49 @@ export default function OffboardingPage() {
                 is_asset_task: true
             }));
 
-            // Filter out existing asset tasks that are no longer assigned
-            const currentAssetIds = assignedAssets.map((a: any) => a.id);
-            const nonAssetTasks = existingTasks.filter((task: any) =>
-                !task.is_asset_task || currentAssetIds.includes(task.asset_id)
-            );
+            // Helper to check if a task matches an asset
+            const isTaskForAsset = (task: any, assetId: string, taskName: string) => {
+                if (task.asset_id === assetId) return true;
+                if (task.name === taskName) return true;
+                return false;
+            };
 
-            // Check which asset tasks already exist
-            const existingAssetIds = existingTasks
-                .filter((task: any) => task.is_asset_task)
-                .map((task: any) => task.asset_id);
+            // 1. Identify existing tasks that are NOT asset tasks or match current assets
+            const validExistingTasks = existingTasks.filter((task: any) => {
+                // If it's explicitly an asset task, keep it only if the asset is still assigned
+                if (task.is_asset_task && task.asset_id) {
+                    return assignedAssets.some((a: any) => a.id === task.asset_id);
+                }
+                // If it looks like an asset task (by name) but has no ID, check if it matches a current asset
+                const matchingAsset = assetTasks.find((at: any) => at.name === task.name);
+                if (matchingAsset) return true;
 
-            const newAssetTasks = assetTasks.filter((task: any) =>
-                !existingAssetIds.includes(task.asset_id)
-            );
+                // Keep all other tasks (manual tasks, or asset tasks that don't match our specific pattern)
+                return true;
+            });
 
-            // Merge: asset tasks first, then other tasks
-            const mergedTasks = [...assetTasks.filter((task: any) =>
-                existingAssetIds.includes(task.asset_id)
-            ).map((newTask: any) => {
-                const existing = existingTasks.find((t: any) => t.asset_id === newTask.asset_id);
-                return existing || newTask;
-            }), ...newAssetTasks, ...nonAssetTasks];
+
+            // 2. Merge assets into the valid existing tasks
+            // We want to preserve the status of existing tasks that match our assets
+            const mergedTasks = [...validExistingTasks];
+
+            assetTasks.forEach((assetTask: any) => {
+                const existingMatchIndex = mergedTasks.findIndex((t: any) =>
+                    isTaskForAsset(t, assetTask.asset_id, assetTask.name)
+                );
+
+                if (existingMatchIndex !== -1) {
+                    // Update the existing task with asset metadata if missing, but keep status
+                    mergedTasks[existingMatchIndex] = {
+                        ...mergedTasks[existingMatchIndex],
+                        asset_id: assetTask.asset_id,
+                        is_asset_task: true
+                    };
+                } else {
+                    // Add new asset task
+                    mergedTasks.push(assetTask);
+                }
+            });
 
             setOffboardingTasks(mergedTasks);
             setExitDetails({
@@ -310,7 +331,17 @@ export default function OffboardingPage() {
                                 </div>
                             </DrawerHeader>
                             <DrawerBody className="pt-6">
-                                <Tabs aria-label="Offboarding sections" color="warning">
+                                <Tabs
+                                    aria-label="Offboarding sections"
+                                    color="warning"
+                                    classNames={{
+                                        base: "w-full",
+                                        tabList: "bg-default-100 p-1 rounded-xl w-full flex justify-between",
+                                        cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
+                                        tab: "h-10",
+                                        tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
+                                    }}
+                                >
                                     <Tab key="exit-details" title={
                                         <div className="flex items-center gap-2">
                                             <FileText size={16} />
@@ -505,7 +536,7 @@ export default function OffboardingPage() {
                                     </Tab>
                                 </Tabs>
                             </DrawerBody>
-                            <DrawerFooter className="border-t border-default-200">
+                            <DrawerFooter className="border-t border-default-200 justify-between">
                                 <Button
                                     color="primary"
                                     variant="flat"

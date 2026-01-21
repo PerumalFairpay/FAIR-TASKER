@@ -305,7 +305,7 @@ export default function OnboardingPage() {
                                     </div>
                                 </div>
                             </DrawerBody>
-                            <DrawerFooter className="border-t border-default-200">
+                            <DrawerFooter className="border-t border-default-200 justify-between">
                                 <Button
                                     color="primary"
                                     variant="flat"
