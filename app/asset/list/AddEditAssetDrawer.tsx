@@ -306,8 +306,7 @@ export default function AddEditAssetDrawer({
                                     allowMultiple={true}
                                     labelIdle='Drag & Drop images or <span class="filepond--label-action">Browse</span>'
                                     acceptedFileTypes={['image/jpeg', 'image/png', 'image/webp', 'application/pdf']}
-                                />
-                                <p className="text-tiny text-default-400">Supports PNG, JPG, PDF (Multiple files allowed)</p>
+                                /> 
                             </div>
                         </DrawerBody>
                         <DrawerFooter className="px-6 py-4 border-t border-divider">
