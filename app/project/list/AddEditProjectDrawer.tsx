@@ -13,8 +13,9 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FileUpload from "@/components/common/FileUpload";
 
 interface AddEditProjectDrawerProps {
@@ -34,6 +35,7 @@ export default function AddEditProjectDrawer({
     loading,
     onSubmit,
 }: AddEditProjectDrawerProps) {
+    const dispatch = useDispatch();
     const { clients } = useSelector((state: RootState) => state.Client);
     const { employees } = useSelector((state: RootState) => state.Employee);
 
@@ -219,12 +221,36 @@ export default function AddEditProjectDrawer({
                                 selectedKeys={new Set(formData.project_manager_ids)}
                                 onSelectionChange={(keys) => handleMultiSelectChange("project_manager_ids", keys as Set<React.Key>)}
                                 variant="bordered"
+                                onOpenChange={(isOpen) => {
+                                    if (isOpen && (!employees || employees.length === 0)) {
+                                        dispatch(getEmployeesSummaryRequest());
+                                    }
+                                }}
                             >
-                                {employees.map((emp: any) => (
-                                    <SelectItem key={emp.id}>
-                                        {emp.name}
-                                    </SelectItem>
-                                ))}
+                                {employees
+                                    .filter((emp: any) => !formData.team_leader_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id))
+                                    .map((emp: any) => (
+                                        <SelectItem key={emp.id} textValue={emp.name}>
+                                            <div className="flex gap-2 items-center">
+                                                {emp.profile_picture ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={emp.profile_picture}
+                                                        alt={emp.name}
+                                                        className="w-6 h-6 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-default-200 flex items-center justify-center text-xs font-semibold text-default-500">
+                                                        {emp.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    <span className="text-small">{emp.name}</span>
+                                                    <span className="text-tiny text-default-400">{emp.email}</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
                             </Select>
 
                             <Select
@@ -234,12 +260,36 @@ export default function AddEditProjectDrawer({
                                 selectedKeys={new Set(formData.team_leader_ids)}
                                 onSelectionChange={(keys) => handleMultiSelectChange("team_leader_ids", keys as Set<React.Key>)}
                                 variant="bordered"
+                                onOpenChange={(isOpen) => {
+                                    if (isOpen && (!employees || employees.length === 0)) {
+                                        dispatch(getEmployeesSummaryRequest());
+                                    }
+                                }}
                             >
-                                {employees.map((emp: any) => (
-                                    <SelectItem key={emp.id}>
-                                        {emp.name}
-                                    </SelectItem>
-                                ))}
+                                {employees
+                                    .filter((emp: any) => !formData.project_manager_ids.includes(emp.id) && !formData.team_member_ids.includes(emp.id))
+                                    .map((emp: any) => (
+                                        <SelectItem key={emp.id} textValue={emp.name}>
+                                            <div className="flex gap-2 items-center">
+                                                {emp.profile_picture ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={emp.profile_picture}
+                                                        alt={emp.name}
+                                                        className="w-6 h-6 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-default-200 flex items-center justify-center text-xs font-semibold text-default-500">
+                                                        {emp.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    <span className="text-small">{emp.name}</span>
+                                                    <span className="text-tiny text-default-400">{emp.email}</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
                             </Select>
 
                             <Select
@@ -249,12 +299,36 @@ export default function AddEditProjectDrawer({
                                 selectedKeys={new Set(formData.team_member_ids)}
                                 onSelectionChange={(keys) => handleMultiSelectChange("team_member_ids", keys as Set<React.Key>)}
                                 variant="bordered"
+                                onOpenChange={(isOpen) => {
+                                    if (isOpen && (!employees || employees.length === 0)) {
+                                        dispatch(getEmployeesSummaryRequest());
+                                    }
+                                }}
                             >
-                                {employees.map((emp: any) => (
-                                    <SelectItem key={emp.id}>
-                                        {emp.name}
-                                    </SelectItem>
-                                ))}
+                                {employees
+                                    .filter((emp: any) => !formData.project_manager_ids.includes(emp.id) && !formData.team_leader_ids.includes(emp.id))
+                                    .map((emp: any) => (
+                                        <SelectItem key={emp.id} textValue={emp.name}>
+                                            <div className="flex gap-2 items-center">
+                                                {emp.profile_picture ? (
+                                                    // eslint-disable-next-line @next/next/no-img-element
+                                                    <img
+                                                        src={emp.profile_picture}
+                                                        alt={emp.name}
+                                                        className="w-6 h-6 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-default-200 flex items-center justify-center text-xs font-semibold text-default-500">
+                                                        {emp.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col">
+                                                    <span className="text-small">{emp.name}</span>
+                                                    <span className="text-tiny text-default-400">{emp.email}</span>
+                                                </div>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
                             </Select>
 
                             <div className="flex gap-4">

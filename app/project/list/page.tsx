@@ -12,7 +12,7 @@ import {
     clearProjectDetails,
 } from "@/store/project/action";
 import { getClientsRequest } from "@/store/client/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import {
     Table,
     TableHeader,
@@ -40,11 +40,18 @@ export default function ProjectListPage() {
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedProject, setSelectedProject] = useState<any>(null);
 
+    const { employees } = useSelector((state: RootState) => state.Employee);
+
     useEffect(() => {
         dispatch(getProjectsRequest());
         dispatch(getClientsRequest());
-        dispatch(getEmployeesRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (isAddEditOpen && (!employees || employees.length === 0)) {
+            dispatch(getEmployeesSummaryRequest());
+        }
+    }, [isAddEditOpen, employees, dispatch]);
 
     useEffect(() => {
         if (success) {
