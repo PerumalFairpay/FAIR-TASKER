@@ -39,17 +39,44 @@ const FileUpload: React.FC<FileUploadProps> = ({
     ...props
 }) => {
     return (
-        <FilePond
-            files={files}
-            onupdatefiles={setFiles}
-            allowMultiple={allowMultiple}
-            maxFiles={maxFiles}
-            name={name}
-            labelIdle={labelIdle}
-            acceptedFileTypes={acceptedFileTypes}
-            credits={false}
-            {...props}
-        />
+        <>
+            <style jsx global>{`
+                .dark .filepond--root {
+                    --filepond-text-color: #E3E3E3;
+                    --filepond-label-text-color: #A1A1AA;
+                    --filepond-panel-root-background-color: #27272A;
+                    --filepond-panel-background-color: #27272A;
+                    --filepond-item-panel-background-color: #3F3F46;
+                }
+                .dark .filepond--drop-label {
+                    color: #A1A1AA;
+                    background-color: #27272A;
+                    border-radius: 0.5rem;
+                }
+                .dark .filepond--label-action {
+                    text-decoration-color: #A1A1AA;
+                }
+                .dark .filepond--drip {
+                    background-color: #3F3F46;
+                    opacity: 0.5;
+                }
+                .dark .filepond--panel-root {
+                    background-color: #27272A;
+                    border: 1px solid #3F3F46;
+                }
+            `}</style>
+            <FilePond
+                files={files}
+                onupdatefiles={setFiles}
+                allowMultiple={allowMultiple}
+                maxFiles={maxFiles}
+                name={name}
+                labelIdle={labelIdle}
+                acceptedFileTypes={acceptedFileTypes}
+                credits={false}
+                {...props}
+            />
+        </>
     );
 };
 

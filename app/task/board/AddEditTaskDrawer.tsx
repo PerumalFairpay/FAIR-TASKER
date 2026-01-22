@@ -79,9 +79,13 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeletePopoverOpen, setIsDeletePopoverOpen] = useState(false);
 
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
     useEffect(() => {
         if (isOpen) {
             setIsSubmitting(false);
+            setErrors({});
+            // ... existing setFormData logic ...
             if (task) {
                 setFormData({
                     project_id: task.project_id || "",
@@ -114,6 +118,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             setExistingAttachments([]);
             setNewAttachments([]);
             setIsSubmitting(false);
+            setErrors({});
         }
     }, [task, isOpen, selectedDate, allowedStatuses]);
 
@@ -130,8 +135,36 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
         setExistingAttachments(newExisting);
     };
 
+    const validateForm = () => {
+        const newErrors: { [key: string]: string } = {};
+
+        if (!formData.project_id) {
+            newErrors.project_id = "Project is required";
+        }
+
+        if (!formData.task_name.trim()) {
+            newErrors.task_name = "Task name is required";
+        }
+
+        if (!formData.description || formData.description === "<p><br></p>") {
+            newErrors.description = "Description is required";
+        }
+
+        if (formData.assigned_to.length === 0) {
+            newErrors.assigned_to = "At least one assignee is required";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
         setIsSubmitting(true);
 
         const data = new FormData();
@@ -179,8 +212,12 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             label="Project"
                             placeholder="Select project"
                             selectedKeys={formData.project_id ? [formData.project_id] : []}
-                            onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
-                            required
+                            onChange={(e) => {
+                                setFormData({ ...formData, project_id: e.target.value });
+                                if (e.target.value) setErrors((prev) => ({ ...prev, project_id: "" }));
+                            }}
+                            isInvalid={!!errors.project_id}
+                            errorMessage={errors.project_id}
                         >
                             {projects.map((project: any) => (
                                 <SelectItem key={project.id}>
@@ -213,21 +250,36 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             label="Task Name"
                             placeholder="What needs to be done?"
                             value={formData.task_name}
-                            onChange={(e) => setFormData({ ...formData, task_name: e.target.value })}
-                            required
+                            onChange={(e) => {
+                                setFormData({ ...formData, task_name: e.target.value });
+                                if (e.target.value.trim()) setErrors((prev) => ({ ...prev, task_name: "" }));
+                            }}
+                            isInvalid={!!errors.task_name}
+                            errorMessage={errors.task_name}
                         />
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-small font-medium text-foreground">
+                            <label className={`text-small font-medium ${errors.description ? "text-danger" : "text-foreground"}`}>
                                 Description
                             </label>
                             <ReactQuill
                                 theme="snow"
                                 value={formData.description}
-                                onChange={(value) => setFormData({ ...formData, description: value })}
+                                onChange={(value) => {
+                                    setFormData({ ...formData, description: value });
+                                    if (value && value !== "<p><br></p>") setErrors((prev) => ({ ...prev, description: "" }));
+                                }}
                                 className="rounded-xl mb-4"
-                                style={{ height: "200px", marginBottom: "50px" }}
+                                style={{
+                                    height: "200px",
+                                    marginBottom: "50px",
+                                    border: errors.description ? "1px solid var(--heroui-danger)" : undefined,
+                                    borderRadius: "0.75rem"
+                                }}
                             />
+                            {errors.description && (
+                                <div className="text-tiny text-danger -mt-8">{errors.description}</div>
+                            )}
                         </div>
 
                         <style jsx global>{`
@@ -309,7 +361,13 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             placeholder="Select team members"
                             selectionMode="multiple"
                             selectedKeys={new Set(formData.assigned_to)}
-                            onSelectionChange={(keys) => setFormData({ ...formData, assigned_to: Array.from(keys) as string[] })}
+                            onSelectionChange={(keys) => {
+                                const newKeys = Array.from(keys) as string[];
+                                setFormData({ ...formData, assigned_to: newKeys });
+                                if (newKeys.length > 0) setErrors((prev) => ({ ...prev, assigned_to: "" }));
+                            }}
+                            isInvalid={!!errors.assigned_to}
+                            errorMessage={errors.assigned_to}
                             renderValue={(items) => (
                                 <div className="flex flex-wrap gap-1">
                                     {items.map((item) => (
