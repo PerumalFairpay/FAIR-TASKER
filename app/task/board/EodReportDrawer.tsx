@@ -109,27 +109,12 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                 return (
                                     <Card key={task.id} shadow="sm" className="border-divider border-1">
                                         <CardBody className="gap-4">
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex-1">
-                                                    <h4 className="font-semibold text-sm">{task.task_name}</h4>
-                                                    <div
-                                                        className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
-                                                        dangerouslySetInnerHTML={{ __html: (task.description || "").replace(/&nbsp;/g, " ") }}
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col items-end gap-2">
-
-                                                    {report.status !== "Completed" && (
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
-                                                            <Switch
-                                                                size="sm"
-                                                                isSelected={report.move_to_tomorrow}
-                                                                onValueChange={(val) => handleUpdateReport(task.id, "move_to_tomorrow", val)}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
+                                            <div>
+                                                <h4 className="font-semibold text-sm">{task.task_name}</h4>
+                                                <div
+                                                    className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
+                                                    dangerouslySetInnerHTML={{ __html: (task.description || "").replace(/&nbsp;/g, " ") }}
+                                                />
                                             </div>
 
                                             <div className="space-y-2">
@@ -215,7 +200,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                     </DrawerFooter>
                 </form>
             </DrawerContent>
-        </Drawer>
+        </Drawer >
     );
 };
 
