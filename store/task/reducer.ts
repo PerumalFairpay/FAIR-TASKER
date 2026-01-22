@@ -219,10 +219,17 @@ const taskReducer = (state = initialState, action: any) => {
         submitEodReportError: null,
       };
     case SUBMIT_EOD_REPORT_SUCCESS:
+      const updatedTasks = action.payload; // Array of updated tasks
+      const updatedTasksMap = updatedTasks.reduce(
+        (acc: any, task: any) => ({ ...acc, [task.id]: task }),
+        {},
+      );
+
       return {
         ...state,
         submitEodReportLoading: false,
         submitEodReportSuccess: true,
+        tasks: state.tasks.map((task) => updatedTasksMap[task.id] || task),
       };
     case SUBMIT_EOD_REPORT_FAILURE:
       return {
