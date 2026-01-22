@@ -12,9 +12,11 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
+import { Tooltip } from "@heroui/tooltip";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil
+    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil,
+    ChevronsUp, ChevronsDown, AlertCircle, Circle
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -28,12 +30,7 @@ import EodReportDrawer from "./EodReportDrawer";
 import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import TaskDetailModal from "./TaskDetailModal";
 
-const COLUMNS = [
-    { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
-    { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
-    { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
-    { id: "Moved", title: "Moved to Tomorrow", color: "bg-warning-50", textColor: "text-warning-600" },
-];
+
 
 const TaskBoard = () => {
     const dispatch = useDispatch();
@@ -59,6 +56,40 @@ const TaskBoard = () => {
     // Filters
     const [filterDate, setFilterDate] = useState(todayStr);
     const [filterEmployee, setFilterEmployee] = useState("");
+
+    // Calculate dynamic label for Moved column
+    const nextDayLabel = React.useMemo(() => {
+        const currentStr = filterDate || todayStr;
+        if (currentStr === todayStr) {
+            return "Moved to Tomorrow";
+        }
+
+        try {
+            const current = parseDate(currentStr);
+            const next = current.add({ days: 1 });
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `Moved to ${months[next.month - 1]} ${next.day}`;
+        } catch (e) {
+            return "Moved to Tomorrow";
+        }
+    }, [filterDate, todayStr]);
+
+    const columns = React.useMemo(() => {
+        const hasOverdueTasks = tasks.some((t: any) => t.is_overdue);
+
+        const cols = [
+            { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
+            { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
+            { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
+            { id: "Moved", title: nextDayLabel, color: "bg-warning-50", textColor: "text-warning-600" },
+        ];
+
+        if (hasOverdueTasks) {
+            cols.unshift({ id: "Overdue", title: "Overdue", color: "bg-danger-50", textColor: "text-danger-600" });
+        }
+
+        return cols;
+    }, [nextDayLabel, tasks]);
 
     const isAdmin = user?.role?.toLowerCase() === "admin";
 
@@ -112,11 +143,24 @@ const TaskBoard = () => {
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
+        // Prevent moving tasks INTO Overdue column manually
+        if (destination.droppableId === "Overdue") return;
+
         if (destination.droppableId === "Moved" || destination.droppableId === "Completed") {
             const task = tasks.find((t: any) => t.id === draggableId);
             if (task) {
                 handleOpenEodForSingleTask(task, destination.droppableId);
             }
+            return;
+        }
+
+        // Handle moving FROM Overdue -> Auto reschedule to Today (Filter Date)
+        if (source.droppableId === "Overdue" && destination.droppableId !== "Overdue") {
+            dispatch(updateTaskRequest(draggableId, {
+                status: destination.droppableId,
+                end_date: filterDate, // Reschedule to current view date
+                is_overdue_moved: true // Flag as moved from overdue
+            }));
             return;
         }
 
@@ -139,7 +183,18 @@ const TaskBoard = () => {
         return tasks.filter((task: any) => {
             const isRolloverForView = task.last_rollover_date === comparisonDate;
 
-            // 1. Handle "Moved" column
+            // Filter out unwanted statuses
+            if (["Milestone", "Backlog", "Roadmap"].includes(task.status)) return false;
+
+            // 1. Handle "Overdue" column
+            if (status === "Overdue") {
+                return task.is_overdue;
+            }
+
+            // Exclude overdue tasks from other columns to avoid duplicates
+            if (task.is_overdue) return false;
+
+            // 2. Handle "Moved" column
             if (status === "Moved") {
                 // Task appears here if it has status="Moved" OR is a rollover task for this date
                 return task.status === "Moved" || isRolloverForView;
@@ -182,10 +237,34 @@ const TaskBoard = () => {
 
     const getPriorityColor = (priority: string) => {
         switch (priority?.toLowerCase()) {
+            case "urgent": return "danger";
             case "high": return "danger";
             case "medium": return "warning";
             case "low": return "success";
             default: return "default";
+        }
+    };
+
+    const getPriorityIcon = (priority: string) => {
+        const color = getPriorityColor(priority);
+        const colorMap: Record<string, string> = {
+            danger: "text-danger",
+            warning: "text-warning",
+            success: "text-success",
+            default: "text-default-400"
+        };
+
+        switch (priority?.toLowerCase()) {
+            case "urgent":
+                return <AlertCircle size={16} className={colorMap[color]} />;
+            case "high":
+                return <ChevronsUp size={16} className={colorMap[color]} />;
+            case "medium":
+                return <ChevronsUp size={16} className={colorMap[color]} />;
+            case "low":
+                return <ChevronsDown size={16} className={colorMap[color]} />;
+            default:
+                return <Circle size={16} className={colorMap[color]} />;
         }
     };
 
@@ -308,7 +387,7 @@ const TaskBoard = () => {
 
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="flex gap-6 overflow-x-auto pb-4 min-h-[calc(100vh-250px)]">
-                    {COLUMNS.map((column) => (
+                    {columns.map((column) => (
                         <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
                             <div className={clsx(
                                 "flex items-center justify-between p-3 rounded-xl border border-divider shadow-sm",
@@ -319,16 +398,16 @@ const TaskBoard = () => {
                                     <h3 className={clsx("font-semibold text-sm uppercase tracking-wider", column.textColor)}>
                                         {column.title}
                                     </h3>
-                                    <Chip size="sm" variant="flat" className={column.textColor}>
-                                        {getTasksByStatus(column.id).length}
-                                    </Chip>
                                 </div>
+                                <Chip size="sm" variant="flat" className={column.textColor}>
+                                    {getTasksByStatus(column.id).length}
+                                </Chip>
                                 {/* <Button isIconOnly size="sm" variant="light" className="text-default-400">
                                     <MoreVertical size={16} />
                                 </Button> */}
                             </div>
 
-                            <Droppable droppableId={column.id}>
+                            <Droppable droppableId={column.id} isDropDisabled={column.id === "Overdue"}>
                                 {(provided, snapshot) => (
                                     <div
                                         {...provided.droppableProps}
@@ -361,8 +440,9 @@ const TaskBoard = () => {
                                                                         {task.task_name}
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
+
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                                                                            {column.id !== "Moved" && task.status !== "Moved" && filterDate <= todayStr && (
+                                                                            {column.id !== "Moved" && column.id !== "Overdue" && column.id !== "Completed" && task.status !== "Moved" && filterDate <= todayStr && (
                                                                                 <Button
                                                                                     isIconOnly
                                                                                     size="sm"
@@ -374,14 +454,11 @@ const TaskBoard = () => {
                                                                                 </Button>
                                                                             )}
                                                                         </div>
-                                                                        <Chip
-                                                                            size="sm"
-                                                                            color={getPriorityColor(task.priority)}
-                                                                            variant="flat"
-                                                                            className="capitalize text-[10px] h-5"
-                                                                        >
-                                                                            {task.priority || "Medium"}
-                                                                        </Chip>
+                                                                        <Tooltip content={task.priority || "Medium"} size="sm">
+                                                                            <div className="flex items-center justify-center">
+                                                                                {getPriorityIcon(task.priority)}
+                                                                            </div>
+                                                                        </Tooltip>
                                                                     </div>
                                                                 </div>
 
@@ -416,6 +493,14 @@ const TaskBoard = () => {
                                                                                 {task.attachments?.length || 0}
                                                                             </span>
                                                                         </div>
+
+                                                                        {task.is_overdue_moved && (
+                                                                            <Tooltip content="Moved from Overdue" color="danger">
+                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
+                                                                                    <Clock size={14} />
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )}
                                                                     </div>
 
                                                                     <AvatarGroup
@@ -459,9 +544,10 @@ const TaskBoard = () => {
                                 )}
                             </Droppable>
                         </div>
-                    ))}
-                </div>
-            </DragDropContext>
+                    ))
+                    }
+                </div >
+            </DragDropContext >
 
             <AddEditTaskDrawer
                 isOpen={isTaskDrawerOpen}
@@ -482,7 +568,7 @@ const TaskBoard = () => {
                 onClose={() => setIsDetailModalOpen(false)}
                 task={selectedTask}
             />
-        </div>
+        </div >
     );
 };
 

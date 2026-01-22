@@ -1,106 +1,133 @@
-import * as actionTypes from "./actionType";
+import {
+  CREATE_TASK_REQUEST,
+  CREATE_TASK_SUCCESS,
+  CREATE_TASK_FAILURE,
+  GET_TASKS_REQUEST,
+  GET_TASKS_SUCCESS,
+  GET_TASKS_FAILURE,
+  GET_TASK_REQUEST,
+  GET_TASK_SUCCESS,
+  GET_TASK_FAILURE,
+  UPDATE_TASK_REQUEST,
+  UPDATE_TASK_SUCCESS,
+  UPDATE_TASK_FAILURE,
+  DELETE_TASK_REQUEST,
+  DELETE_TASK_SUCCESS,
+  DELETE_TASK_FAILURE,
+  SUBMIT_EOD_REPORT_REQUEST,
+  SUBMIT_EOD_REPORT_SUCCESS,
+  SUBMIT_EOD_REPORT_FAILURE,
+  GET_EOD_REPORTS_REQUEST,
+  GET_EOD_REPORTS_SUCCESS,
+  GET_EOD_REPORTS_FAILURE,
+  CLEAR_TASK_DETAILS,
+} from "./actionType";
 
 export const createTaskRequest = (payload: any) => ({
-    type: actionTypes.CREATE_TASK_REQUEST,
-    payload,
+  type: CREATE_TASK_REQUEST,
+  payload,
 });
 
 export const createTaskSuccess = (payload: any) => ({
-    type: actionTypes.CREATE_TASK_SUCCESS,
-    payload,
+  type: CREATE_TASK_SUCCESS,
+  payload,
 });
 
 export const createTaskFailure = (error: string) => ({
-    type: actionTypes.CREATE_TASK_FAILURE,
-    payload: error,
+  type: CREATE_TASK_FAILURE,
+  payload: error,
 });
 
 export const getTasksRequest = (params?: any) => ({
-    type: actionTypes.GET_TASKS_REQUEST,
-    payload: params,
+  type: GET_TASKS_REQUEST,
+  payload: params,
 });
 
 export const getTasksSuccess = (payload: any) => ({
-    type: actionTypes.GET_TASKS_SUCCESS,
-    payload,
+  type: GET_TASKS_SUCCESS,
+  payload,
 });
 
 export const getTasksFailure = (error: string) => ({
-    type: actionTypes.GET_TASKS_FAILURE,
-    payload: error,
+  type: GET_TASKS_FAILURE,
+  payload: error,
 });
 
 export const getTaskRequest = (id: string) => ({
-    type: actionTypes.GET_TASK_REQUEST,
-    payload: id,
+  type: GET_TASK_REQUEST,
+  payload: id,
 });
 
 export const getTaskSuccess = (payload: any) => ({
-    type: actionTypes.GET_TASK_SUCCESS,
-    payload,
+  type: GET_TASK_SUCCESS,
+  payload,
 });
 
 export const getTaskFailure = (error: string) => ({
-    type: actionTypes.GET_TASK_FAILURE,
-    payload: error,
+  type: GET_TASK_FAILURE,
+  payload: error,
 });
 
 export const updateTaskRequest = (id: string, payload: any) => ({
-    type: actionTypes.UPDATE_TASK_REQUEST,
-    payload: { id, payload },
+  type: UPDATE_TASK_REQUEST,
+  payload: { id, payload },
 });
 
 export const updateTaskSuccess = (payload: any) => ({
-    type: actionTypes.UPDATE_TASK_SUCCESS,
-    payload,
+  type: UPDATE_TASK_SUCCESS,
+  payload,
 });
 
 export const updateTaskFailure = (error: string) => ({
-    type: actionTypes.UPDATE_TASK_FAILURE,
-    payload: error,
+  type: UPDATE_TASK_FAILURE,
+  payload: error,
 });
 
 export const deleteTaskRequest = (id: string) => ({
-    type: actionTypes.DELETE_TASK_REQUEST,
-    payload: id,
+  type: DELETE_TASK_REQUEST,
+  payload: id,
 });
 
 export const deleteTaskSuccess = (id: string) => ({
-    type: actionTypes.DELETE_TASK_SUCCESS,
-    payload: id,
+  type: DELETE_TASK_SUCCESS,
+  payload: id,
 });
 
 export const deleteTaskFailure = (error: string) => ({
-    type: actionTypes.DELETE_TASK_FAILURE,
-    payload: error,
+  type: DELETE_TASK_FAILURE,
+  payload: error,
 });
 
 export const submitEodReportRequest = (payload: any) => ({
-    type: actionTypes.SUBMIT_EOD_REPORT_REQUEST,
-    payload,
+  type: SUBMIT_EOD_REPORT_REQUEST,
+  payload,
 });
 
 export const submitEodReportSuccess = (payload: any) => ({
-    type: actionTypes.SUBMIT_EOD_REPORT_SUCCESS,
-    payload,
+  type: SUBMIT_EOD_REPORT_SUCCESS,
+  payload,
 });
 
 export const submitEodReportFailure = (error: string) => ({
-    type: actionTypes.SUBMIT_EOD_REPORT_FAILURE,
-    payload: error,
+  type: SUBMIT_EOD_REPORT_FAILURE,
+  payload: error,
 });
 
 export const getEodReportsRequest = (params?: any) => ({
-    type: actionTypes.GET_EOD_REPORTS_REQUEST,
-    payload: params,
+  type: GET_EOD_REPORTS_REQUEST,
+  payload: params,
 });
 
 export const getEodReportsSuccess = (payload: any) => ({
-    type: actionTypes.GET_EOD_REPORTS_SUCCESS,
-    payload,
+  type: GET_EOD_REPORTS_SUCCESS,
+  payload,
 });
 
 export const getEodReportsFailure = (error: string) => ({
-    type: actionTypes.GET_EOD_REPORTS_FAILURE,
-    payload: error,
+  type: GET_EOD_REPORTS_FAILURE,
+  payload: error,
+});
+
+export const clearTaskDetails = () => ({
+  type: CLEAR_TASK_DETAILS,
 });

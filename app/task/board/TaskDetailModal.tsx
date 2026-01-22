@@ -10,14 +10,29 @@ import { format } from "date-fns";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@/store/rootReducer";
+import { getTaskRequest } from "@/store/task/action";
+import { useEffect } from "react";
+
 interface TaskDetailModalProps {
     isOpen: boolean;
     onClose: () => void;
     task: any;
 }
 
-const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task }) => {
+const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task: initialTask }) => {
+    const dispatch = useDispatch();
+    const { currentTask } = useSelector((state: AppState) => state.Task);
     const [previewFile, setPreviewFile] = React.useState<{ url: string; type: string; name: string } | null>(null);
+
+    useEffect(() => {
+        if (isOpen && initialTask?.id) {
+            dispatch(getTaskRequest(initialTask.id));
+        }
+    }, [isOpen, initialTask, dispatch]);
+
+    const task = (currentTask && currentTask.id === initialTask?.id) ? currentTask : initialTask;
 
     if (!task) return null;
 
@@ -78,20 +93,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             <ModalContent>
                 {(onClose: () => void) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 pr-10">
+                        <ModalHeader className="flex flex-row justify-between items-center gap-4 pr-10">
                             <div className="flex items-center gap-3">
                                 <span className="text-xl font-bold">{task.task_name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <Chip size="sm" color={getPriorityColor(task.priority)} variant="flat">
                                     {task.priority}
                                 </Chip>
-                            </div>
-                            <div className="flex items-center gap-2 text-small text-default-500 font-normal">
-                                <span className="flex items-center gap-1">
-                                    <div className={`w-2 h-2 rounded-full bg-${getStatusColor(task.status)}`} />
+                                <Chip size="sm" color={getStatusColor(task.status) as any} variant="flat" className="capitalize">
                                     {task.status}
-                                </span>
-                                <span>•</span>
-                                <span>Project ID: {task.project_id}</span>
+                                </Chip>
                             </div>
                         </ModalHeader>
                         <ModalBody className="pb-6">
@@ -118,7 +130,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             <Paperclip size={16} /> Attachments
                                         </h4>
                                         {task.attachments && task.attachments.length > 0 ? (
-                                            <div className="grid grid-cols-1 gap-2">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                                 {task.attachments.map((att: string | any, index: number) => {
                                                     let url = "";
                                                     let fileName = "";
@@ -127,46 +139,60 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                                     if (typeof att === 'string') {
                                                         url = att;
                                                         fileName = url.split("/").pop() || `Attachment ${index + 1}`;
-                                                        // Try to guess extension if possible, else unknown
+                                                        // Simple extension check if type missing
+                                                        if (url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                                                            fileType = "image/jpeg";
+                                                        }
                                                     } else {
                                                         url = att.file_url;
                                                         fileName = att.file_name;
                                                         fileType = att.file_type;
                                                     }
 
+                                                    const isImage = fileType?.startsWith("image/") || url.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+
                                                     return (
-                                                        <div key={index} className="border border-default-200 rounded-lg p-3 flex items-center justify-between hover:bg-default-50 transition-colors">
-                                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                                <FileTypeIcon fileType={fileType} fileName={fileName} />
-                                                                <div className="flex flex-col min-w-0">
-                                                                    <span className="text-small font-medium truncate" title={fileName}>
-                                                                        {fileName}
-                                                                    </span>
-                                                                    {fileType && (
-                                                                        <span className="text-tiny text-default-400 capitalize">
-                                                                            {fileType.split('/')[1] || fileType}
+                                                        <div key={index} className="group relative border border-default-200 rounded-xl overflow-hidden bg-background hover:shadow-md transition-all">
+                                                            <div
+                                                                className="aspect-square w-full bg-default-100 flex items-center justify-center cursor-pointer overflow-hidden relative"
+                                                                onClick={() => setPreviewFile({ url, type: fileType, name: fileName })}
+                                                            >
+                                                                {isImage ? (
+                                                                    <img
+                                                                        src={url}
+                                                                        alt={fileName}
+                                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center gap-2 text-default-500">
+                                                                        <FileTypeIcon fileType={fileType} fileName={fileName} className="w-8 h-8" />
+                                                                        <span className="text-xs px-2 text-center line-clamp-2 break-all max-w-full">
+                                                                            {fileName}
                                                                         </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-1">
-                                                                <Button
-                                                                    isIconOnly
-                                                                    size="sm"
-                                                                    variant="light"
-                                                                    onPress={() => setPreviewFile({
-                                                                        url: url,
-                                                                        type: fileType,
-                                                                        name: fileName,
-                                                                    })}
-                                                                >
-                                                                    <Eye size={18} className="text-default-500" />
-                                                                </Button>
-                                                                <a href={url} download target="_blank" rel="noopener noreferrer">
-                                                                    <Button isIconOnly size="sm" variant="light">
-                                                                        <Download size={18} className="text-default-500" />
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Hover Overlay */}
+                                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                                                                    <Button
+                                                                        isIconOnly
+                                                                        size="sm"
+                                                                        variant="flat"
+                                                                        className="bg-white/90 text-default-900"
+                                                                        onPress={() => setPreviewFile({
+                                                                            url: url,
+                                                                            type: fileType,
+                                                                            name: fileName,
+                                                                        })}
+                                                                    >
+                                                                        <Eye size={16} />
                                                                     </Button>
-                                                                </a>
+                                                                    <a href={url} download target="_blank" rel="noopener noreferrer">
+                                                                        <Button isIconOnly size="sm" variant="flat" className="bg-white/90 text-default-900">
+                                                                            <Download size={16} />
+                                                                        </Button>
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     );
@@ -177,12 +203,82 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                         )}
                                     </div>
 
-                                    {/* Sub-tasks / Checklist (Placeholder if structure existed, but going by payload) */}
-                                    {/* ... */}
+                                    <Divider />
+
+                                    {/* EOD History / Work Log */}
+                                    {task.eod_history && task.eod_history.length > 0 && (
+                                        <div>
+                                            <h4 className="text-sm font-semibold text-default-700 mb-4 flex items-center gap-2">
+                                                <Clock size={16} /> Work History
+                                            </h4>
+                                            <div className="flex flex-col gap-0 border-l-2 border-default-200 ml-2">
+                                                {task.eod_history.map((log: any, index: number) => (
+                                                    <div key={index} className="relative pl-6 pb-6 last:pb-0">
+                                                        {/* Timeline Dot */}
+                                                        <div className="absolute -left-[5px] top-0 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background" />
+
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                <span className="text-xs font-semibold text-default-600">
+                                                                    {log.timestamp ? format(new Date(log.timestamp), "MMM dd, hh:mm a") : log.date}
+                                                                </span>
+                                                                <Chip size="sm" variant="flat" color={getStatusColor(log.status) as any} className="h-5 text-[10px]">
+                                                                    {log.status}
+                                                                </Chip>
+                                                                {log.progress != null && (
+                                                                    <span className="text-xs text-secondary font-medium">
+                                                                        {log.progress}% Completed
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {log.summary && log.summary !== "<p></p>" && (
+                                                                <div className="bg-default-50 p-3 rounded-lg text-sm text-default-600">
+                                                                    <div dangerouslySetInnerHTML={{ __html: log.summary }} />
+                                                                </div>
+                                                            )}
+
+                                                            {/* History Attachments */}
+                                                            {log.attachments && log.attachments.length > 0 && (
+                                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                                    {log.attachments.map((att: any, i: number) => {
+                                                                        const fName = typeof att === 'string' ? att.split('/').pop() : (att.file_name || "File");
+                                                                        const fUrl = typeof att === 'string' ? att : att.file_url;
+                                                                        return (
+                                                                            <a key={i} href={fUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline bg-primary-50 px-2 py-1 rounded">
+                                                                                <Paperclip size={12} />
+                                                                                {fName}
+                                                                            </a>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Right Column: Meta Info */}
                                 <div className="flex flex-col gap-5 border-l border-divider pl-6 md:pl-6">
+
+                                    {/* Progress Bar Display */}
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider">Progress</h4>
+                                            <span className="text-sm font-bold text-primary">{task.progress || 0}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-default-100 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-primary transition-all duration-500 ease-out"
+                                                style={{ width: `${Math.min(100, Math.max(0, task.progress || 0))}%` }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <Divider />
 
                                     {/* Dates */}
                                     <div className="flex flex-col gap-3">
@@ -192,7 +288,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-medium">Start Date</span>
                                                 <span className="text-xs text-default-500">
-                                                    {task.start_date ? format(new Date(task.start_date), "MMM dd, yyyy") : "N/A"}
+                                                    {task.start_date ? format(new Date(task.start_date), "MMM dd, yyyy") : "N/A"} {task.start_time || ""}
                                                 </span>
                                             </div>
                                         </div>
@@ -201,16 +297,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-medium">End Date</span>
                                                 <span className="text-xs text-default-500">
-                                                    {task.end_date ? format(new Date(task.end_date), "MMM dd, yyyy") : "N/A"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-3">
-                                            <Clock size={18} className="text-default-400 mt-0.5" />
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-medium">Time</span>
-                                                <span className="text-xs text-default-500">
-                                                    {task.start_time} - {task.end_time}
+                                                    {task.end_date ? format(new Date(task.end_date), "MMM dd, yyyy") : "N/A"} {task.end_time || ""}
                                                 </span>
                                             </div>
                                         </div>
@@ -275,16 +362,18 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                 )}
             </ModalContent>
 
-            {previewFile && (
-                <FilePreviewModal
-                    isOpen={Boolean(previewFile)}
-                    onClose={() => setPreviewFile(null)}
-                    fileUrl={previewFile.url}
-                    fileType={previewFile.type}
-                    fileName={previewFile.name}
-                />
-            )}
-        </Modal>
+            {
+                previewFile && (
+                    <FilePreviewModal
+                        isOpen={Boolean(previewFile)}
+                        onClose={() => setPreviewFile(null)}
+                        fileUrl={previewFile.url}
+                        fileType={previewFile.type}
+                        fileName={previewFile.name}
+                    />
+                )
+            }
+        </Modal >
     );
 };
 
