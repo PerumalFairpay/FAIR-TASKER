@@ -85,8 +85,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     useEffect(() => {
         if (isOpen) {
             setIsSubmitting(false);
-            setErrors({});
-            // ... existing setFormData logic ...
+            setErrors({}); 
             if (task) {
                 setFormData({
                     project_id: task.project_id || "",
