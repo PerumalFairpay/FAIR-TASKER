@@ -47,8 +47,9 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const isEditMode = !!task;
-    const loading = isEditMode ? (updateTaskLoading || deleteTaskLoading) : createTaskLoading;
-    const success = isEditMode ? (updateTaskSuccess || deleteTaskSuccess) : createTaskSuccess;
+
+    // Derived loading state for disabling inputs generally
+    const anyLoading = createTaskLoading || updateTaskLoading || deleteTaskLoading;
 
     const today = new Date();
     const year = today.getFullYear();
@@ -71,15 +72,12 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
         priority: "Medium",
         assigned_to: [] as string[],
         tags: [] as string[],
-        status: "Todo" // Default status
+        status: "Todo"
     };
 
     const [formData, setFormData] = useState(initialFormData);
     const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
     const [newAttachments, setNewAttachments] = useState<any[]>([]);
-
-    // REDUX STATE REFACTOR: Removed isSubmitting state
-    // We now rely on loading/success flags from Redux which are cleared on open/close
 
     const [isDeletePopoverOpen, setIsDeletePopoverOpen] = useState(false);
 
@@ -87,7 +85,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
 
     useEffect(() => {
         if (isOpen) {
-            dispatch(clearTaskDetails()); // Clear previous success/error states immediately
+            dispatch(clearTaskDetails());
             setErrors({});
             if (task) {
                 setFormData({
@@ -117,8 +115,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                 setNewAttachments([]);
             }
         } else {
-            // Reset form when drawer closes
-            dispatch(clearTaskDetails()); // Also clear on close to be safe
+            dispatch(clearTaskDetails());
             setFormData(initialFormData);
             setExistingAttachments([]);
             setNewAttachments([]);
@@ -127,12 +124,15 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     }, [task, isOpen, selectedDate, allowedStatuses, user, dispatch]);
 
     useEffect(() => {
-        // Simple check: if not loading and success is true, we are done.
-        // Since we clear state on open, success starts as false.
-        if (!loading && success) {
+        // Close if any success flag is raised and its corresponding loading is finished
+        if (
+            (createTaskSuccess && !createTaskLoading) ||
+            (updateTaskSuccess && !updateTaskLoading) ||
+            (deleteTaskSuccess && !deleteTaskLoading)
+        ) {
             onClose();
         }
-    }, [loading, success, onClose]);
+    }, [createTaskSuccess, createTaskLoading, updateTaskSuccess, updateTaskLoading, deleteTaskSuccess, deleteTaskLoading, onClose]);
 
     const removeExistingAttachment = (index: number) => {
         const newExisting = [...existingAttachments];
@@ -170,8 +170,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             return;
         }
 
-        // No setIsSubmitting(true) here anymore
-
         const data = new FormData();
         data.append("project_id", formData.project_id);
         data.append("task_name", formData.task_name);
@@ -187,7 +185,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
         formData.assigned_to.forEach(id => data.append("assigned_to[]", id));
         formData.tags.forEach(tag => data.append("tags[]", tag));
 
-        // Append new files from FilePond
         newAttachments.forEach(fileItem => {
             data.append("attachments", fileItem.file);
         });
@@ -200,7 +197,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     };
 
     const handleDeleteTask = () => {
-        // No setIsSubmitting(true)
         setIsDeletePopoverOpen(false);
         dispatch(deleteTaskRequest(task.id));
     };
@@ -223,6 +219,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             }}
                             isInvalid={!!errors.project_id}
                             errorMessage={errors.project_id}
+                            isDisabled={anyLoading}
                         >
                             {projects.map((project: any) => (
                                 <SelectItem key={project.id}>
@@ -242,6 +239,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                 }
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 required
+                                isDisabled={anyLoading}
                             >
                                 {allowedStatuses.map((status) => (
                                     <SelectItem key={status}>
@@ -261,6 +259,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             }}
                             isInvalid={!!errors.task_name}
                             errorMessage={errors.task_name}
+                            isDisabled={anyLoading}
                         />
 
                         <div className="flex flex-col gap-2">
@@ -281,6 +280,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     border: errors.description ? "1px solid var(--heroui-danger)" : undefined,
                                     borderRadius: "0.75rem"
                                 }}
+                                readOnly={anyLoading}
                             />
                             {errors.description && (
                                 <div className="text-tiny text-danger -mt-8">{errors.description}</div>
@@ -319,7 +319,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                         setFormData({ ...formData, start_date: newStartStr, end_date: newEndStr });
                                     }}
                                     isRequired
-                                    isDisabled={!task}
+                                    isDisabled={!task || anyLoading}
                                     className="flex-1"
                                 />
                                 <Input
@@ -328,7 +328,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     value={formData.start_time}
                                     onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                                     className="w-[150px]"
-                                    isDisabled
+                                    isDisabled={anyLoading} // Always disabled in some cases, but logicwise should follow
                                 />
                             </div>
                             <div className="flex gap-4">
@@ -339,6 +339,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     isRequired
                                     minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
                                     className="flex-1"
+                                    isDisabled={anyLoading}
                                 />
                                 <Input
                                     type="time"
@@ -346,6 +347,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     value={formData.end_time}
                                     onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
                                     className="w-[150px]"
+                                    isDisabled={anyLoading}
                                 />
                             </div>
                         </div>
@@ -354,6 +356,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             label="Priority"
                             selectedKeys={[formData.priority]}
                             onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                            isDisabled={anyLoading}
                         >
                             <SelectItem key="Low">Low</SelectItem>
                             <SelectItem key="Medium">Medium</SelectItem>
@@ -373,6 +376,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             }}
                             isInvalid={!!errors.assigned_to}
                             errorMessage={errors.assigned_to}
+                            isDisabled={anyLoading}
                             renderValue={(items) => (
                                 <div className="flex flex-wrap gap-1">
                                     {items.map((item) => (
@@ -404,6 +408,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                 ...formData,
                                 tags: e.target.value.split(",").map(t => t.trim()).filter(t => t !== "")
                             })}
+                            isDisabled={anyLoading}
                         />
 
                         {/* Attachment Section */}
@@ -490,9 +495,9 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                         <Button
                                             color="danger"
                                             variant="flat"
-                                            startContent={!loading && <Trash2 size={18} />}
-                                            isLoading={loading}
-                                            isDisabled={loading}
+                                            startContent={!deleteTaskLoading && <Trash2 size={18} />}
+                                            isLoading={deleteTaskLoading}
+                                            isDisabled={anyLoading}
                                         >
                                             Delete
                                         </Button>
@@ -520,6 +525,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                                     size="sm"
                                                     color="danger"
                                                     onPress={handleDeleteTask}
+                                                    isLoading={deleteTaskLoading}
+                                                    isDisabled={anyLoading}
                                                 >
                                                     Delete
                                                 </Button>
@@ -529,10 +536,15 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                 </Popover>
                             )}
                             <div className="flex gap-2 ml-auto">
-                                <Button variant="light" onPress={onClose} isDisabled={loading}>
+                                <Button variant="light" onPress={onClose} isDisabled={anyLoading}>
                                     Cancel
                                 </Button>
-                                <Button color="primary" type="submit" isLoading={loading} isDisabled={loading}>
+                                <Button
+                                    color="primary"
+                                    type="submit"
+                                    isLoading={createTaskLoading || updateTaskLoading}
+                                    isDisabled={anyLoading}
+                                >
                                     {task ? "Update Task" : "Create Task"}
                                 </Button>
                             </div>
