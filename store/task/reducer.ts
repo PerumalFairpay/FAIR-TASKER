@@ -91,7 +91,7 @@ const taskReducer = (state = initialState, action: any) => {
                 ...state,
                 createTaskLoading: false,
                 createTaskSuccess: true,
-                tasks: [action.payload, ...state.tasks],
+                tasks: [...state.tasks, action.payload],
             };
         case CREATE_TASK_FAILURE:
             return {
