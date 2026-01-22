@@ -12,6 +12,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
+import { Tooltip } from "@heroui/tooltip";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
     Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil
@@ -144,7 +145,8 @@ const TaskBoard = () => {
         if (source.droppableId === "Overdue" && destination.droppableId !== "Overdue") {
             dispatch(updateTaskRequest(draggableId, {
                 status: destination.droppableId,
-                end_date: filterDate // Reschedule to current view date
+                end_date: filterDate, // Reschedule to current view date
+                is_overdue_moved: true // Flag as moved from overdue
             }));
             return;
         }
@@ -398,6 +400,7 @@ const TaskBoard = () => {
                                                                         {task.task_name}
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
+
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
                                                                             {column.id !== "Moved" && column.id !== "Overdue" && task.status !== "Moved" && filterDate <= todayStr && (
                                                                                 <Button
@@ -453,6 +456,14 @@ const TaskBoard = () => {
                                                                                 {task.attachments?.length || 0}
                                                                             </span>
                                                                         </div>
+
+                                                                        {task.is_overdue_moved && (
+                                                                            <Tooltip content="Moved from Overdue" color="danger">
+                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
+                                                                                    <Clock size={14} />
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )}
                                                                     </div>
 
                                                                     <AvatarGroup
@@ -496,9 +507,10 @@ const TaskBoard = () => {
                                 )}
                             </Droppable>
                         </div>
-                    ))}
-                </div>
-            </DragDropContext>
+                    ))
+                    }
+                </div >
+            </DragDropContext >
 
             <AddEditTaskDrawer
                 isOpen={isTaskDrawerOpen}
@@ -519,7 +531,7 @@ const TaskBoard = () => {
                 onClose={() => setIsDetailModalOpen(false)}
                 task={selectedTask}
             />
-        </div>
+        </div >
     );
 };
 
