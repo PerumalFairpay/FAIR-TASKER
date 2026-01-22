@@ -38,6 +38,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const dispatch = useDispatch();
     const { projects } = useSelector((state: AppState) => state.Project);
     const { employees } = useSelector((state: AppState) => state.Employee);
+    const { user } = useSelector((state: AppState) => state.Auth);
     const {
         createTaskLoading, createTaskSuccess,
         updateTaskLoading, updateTaskSuccess,
@@ -107,7 +108,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                     ...initialFormData,
                     start_date: todayStr,
                     end_date: todayStr,
-                    status: allowedStatuses?.[0] || "Todo"
+                    status: allowedStatuses?.[0] || "Todo",
+                    assigned_to: user?.employee_id ? [user.employee_id] : []
                 });
                 setExistingAttachments([]);
                 setNewAttachments([]);
@@ -120,7 +122,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             setIsSubmitting(false);
             setErrors({});
         }
-    }, [task, isOpen, selectedDate, allowedStatuses]);
+    }, [task, isOpen, selectedDate, allowedStatuses, user]);
 
     useEffect(() => {
         if (isSubmitting && !loading && success) {
