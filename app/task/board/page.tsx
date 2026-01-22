@@ -361,10 +361,10 @@ const TaskBoard = () => {
                                     <h3 className={clsx("font-semibold text-sm uppercase tracking-wider", column.textColor)}>
                                         {column.title}
                                     </h3>
-                                    <Chip size="sm" variant="flat" className={column.textColor}>
-                                        {getTasksByStatus(column.id).length}
-                                    </Chip>
                                 </div>
+                                <Chip size="sm" variant="flat" className={column.textColor}>
+                                    {getTasksByStatus(column.id).length}
+                                </Chip>
                                 {/* <Button isIconOnly size="sm" variant="light" className="text-default-400">
                                     <MoreVertical size={16} />
                                 </Button> */}
