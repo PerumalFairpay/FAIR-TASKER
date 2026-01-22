@@ -93,18 +93,17 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
             <ModalContent>
                 {(onClose: () => void) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 pr-10">
+                        <ModalHeader className="flex flex-row justify-between items-center gap-4 pr-10">
                             <div className="flex items-center gap-3">
                                 <span className="text-xl font-bold">{task.task_name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <Chip size="sm" color={getPriorityColor(task.priority)} variant="flat">
                                     {task.priority}
                                 </Chip>
-                            </div>
-                            <div className="flex items-center gap-2 text-small text-default-500 font-normal">
-                                <span className="flex items-center gap-1">
-                                    <div className={`w-2 h-2 rounded-full bg-${getStatusColor(task.status)}`} />
+                                <Chip size="sm" color={getStatusColor(task.status) as any} variant="flat" className="capitalize">
                                     {task.status}
-                                </span>
+                                </Chip>
                             </div>
                         </ModalHeader>
                         <ModalBody className="pb-6">
@@ -131,7 +130,7 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                             <Paperclip size={16} /> Attachments
                                         </h4>
                                         {task.attachments && task.attachments.length > 0 ? (
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                                 {task.attachments.map((att: string | any, index: number) => {
                                                     let url = "";
                                                     let fileName = "";
@@ -140,45 +139,60 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                                     if (typeof att === 'string') {
                                                         url = att;
                                                         fileName = url.split("/").pop() || `Attachment ${index + 1}`;
+                                                        // Simple extension check if type missing
+                                                        if (url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+                                                            fileType = "image/jpeg";
+                                                        }
                                                     } else {
                                                         url = att.file_url;
                                                         fileName = att.file_name;
                                                         fileType = att.file_type;
                                                     }
 
+                                                    const isImage = fileType?.startsWith("image/") || url.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+
                                                     return (
-                                                        <div key={index} className="border border-default-200 rounded-lg p-3 flex items-center justify-between hover:bg-default-50 transition-colors bg-background">
-                                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                                <FileTypeIcon fileType={fileType} fileName={fileName} />
-                                                                <div className="flex flex-col min-w-0">
-                                                                    <span className="text-small font-medium truncate" title={fileName}>
-                                                                        {fileName}
-                                                                    </span>
-                                                                    {fileType && (
-                                                                        <span className="text-tiny text-default-400 capitalize">
-                                                                            {fileType.split('/')[1] || fileType}
+                                                        <div key={index} className="group relative border border-default-200 rounded-xl overflow-hidden bg-background hover:shadow-md transition-all">
+                                                            <div
+                                                                className="aspect-square w-full bg-default-100 flex items-center justify-center cursor-pointer overflow-hidden relative"
+                                                                onClick={() => setPreviewFile({ url, type: fileType, name: fileName })}
+                                                            >
+                                                                {isImage ? (
+                                                                    <img
+                                                                        src={url}
+                                                                        alt={fileName}
+                                                                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center gap-2 text-default-500">
+                                                                        <FileTypeIcon fileType={fileType} fileName={fileName} className="w-8 h-8" />
+                                                                        <span className="text-xs px-2 text-center line-clamp-2 break-all max-w-full">
+                                                                            {fileName}
                                                                         </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-1">
-                                                                <Button
-                                                                    isIconOnly
-                                                                    size="sm"
-                                                                    variant="light"
-                                                                    onPress={() => setPreviewFile({
-                                                                        url: url,
-                                                                        type: fileType,
-                                                                        name: fileName,
-                                                                    })}
-                                                                >
-                                                                    <Eye size={16} className="text-default-500" />
-                                                                </Button>
-                                                                <a href={url} download target="_blank" rel="noopener noreferrer">
-                                                                    <Button isIconOnly size="sm" variant="light">
-                                                                        <Download size={16} className="text-default-500" />
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Hover Overlay */}
+                                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                                                                    <Button
+                                                                        isIconOnly
+                                                                        size="sm"
+                                                                        variant="flat"
+                                                                        className="bg-white/90 text-default-900"
+                                                                        onPress={() => setPreviewFile({
+                                                                            url: url,
+                                                                            type: fileType,
+                                                                            name: fileName,
+                                                                        })}
+                                                                    >
+                                                                        <Eye size={16} />
                                                                     </Button>
-                                                                </a>
+                                                                    <a href={url} download target="_blank" rel="noopener noreferrer">
+                                                                        <Button isIconOnly size="sm" variant="flat" className="bg-white/90 text-default-900">
+                                                                            <Download size={16} />
+                                                                        </Button>
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     );
