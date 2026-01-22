@@ -1,28 +1,35 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserRequest } from "@/store/auth/action";
+import { getUserRequest, clearAuth } from "@/store/auth/action";
 import clsx from "clsx";
 import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
 import HRMLoading from "./assets/HRMLoading.json";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter();
     const pathname = usePathname();
     const isLoginPage = pathname === "/";
     const [isExpanded, setIsExpanded] = useState(true);
     const dispatch = useDispatch();
 
-    const { user, getUserLoading } = useSelector((state: AppState) => state.Auth);
+    const { user, getUserLoading, logoutSuccess, getUserError } = useSelector((state: AppState) => state.Auth);
 
     useEffect(() => {
         dispatch(getUserRequest());
     }, [dispatch]);
 
-    // Block rendering of authenticated pages until user is loaded
+    useEffect(() => {
+        if (!isLoginPage && (logoutSuccess)) {
+            router.push("/");
+            dispatch(clearAuth());
+        }
+    }, [logoutSuccess, getUserError, user, isLoginPage, router, dispatch]);
+ 
     if (!isLoginPage && !user) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-50">

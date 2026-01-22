@@ -22,7 +22,7 @@ import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import FileUpload from "@/components/common/FileUpload";
@@ -110,7 +110,7 @@ export default function AttendancePage() {
             }
 
             if (employees.length === 0) {
-                dispatch(getEmployeesRequest());
+                dispatch(getEmployeesSummaryRequest());
             }
         } else {
             if (viewMode === "calendar") {
@@ -366,6 +366,11 @@ export default function AttendancePage() {
                                             className="w-40"
                                             selectedKeys={filters.employee_id ? [filters.employee_id] : []}
                                             onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                            onOpenChange={(isOpen) => {
+                                                if (isOpen && (!employees || employees.length === 0)) {
+                                                    dispatch(getEmployeesSummaryRequest());
+                                                }
+                                            }}
                                         >
                                             {employees?.map((emp: any) => (
                                                 <SelectItem key={emp.employee_no_id} textValue={emp.name}>

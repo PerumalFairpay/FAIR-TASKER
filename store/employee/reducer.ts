@@ -6,25 +6,45 @@ import {
     DELETE_EMPLOYEE_REQUEST, DELETE_EMPLOYEE_SUCCESS, DELETE_EMPLOYEE_FAILURE,
     UPDATE_USER_PERMISSIONS_REQUEST, UPDATE_USER_PERMISSIONS_SUCCESS, UPDATE_USER_PERMISSIONS_FAILURE,
     GET_USER_PERMISSIONS_REQUEST, GET_USER_PERMISSIONS_SUCCESS, GET_USER_PERMISSIONS_FAILURE,
+    GET_EMPLOYEES_SUMMARY_REQUEST, GET_EMPLOYEES_SUMMARY_SUCCESS, GET_EMPLOYEES_SUMMARY_FAILURE,
     CLEAR_EMPLOYEE_DETAILS
 } from "./actionType";
 
 interface EmployeeState {
     employees: any[];
+    meta: {
+        current_page: number;
+        total_pages: number;
+        total_items: number;
+        limit: number;
+    };
     employee: any | null;
     userPermissions: { role_permissions: string[], direct_permissions: string[] };
     loading: boolean;
     error: string | null;
     success: string | null;
+
+    // Summary Specific
+    summaryLoading: boolean;
+    summaryError: string | null;
 }
 
 const initialEmployeeState: EmployeeState = {
     employees: [],
+    meta: {
+        current_page: 1,
+        total_pages: 1,
+        total_items: 0,
+        limit: 10
+    },
     employee: null,
     userPermissions: { role_permissions: [], direct_permissions: [] },
     loading: false,
     error: null,
     success: null,
+
+    summaryLoading: false,
+    summaryError: null,
 };
 
 const employeeReducer = (state: EmployeeState = initialEmployeeState, action: any): EmployeeState => {
@@ -63,6 +83,7 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 ...state,
                 loading: false,
                 employees: action.payload.data,
+                meta: action.payload.meta || state.meta,
             };
         case GET_EMPLOYEES_FAILURE:
             return {
@@ -182,6 +203,26 @@ const employeeReducer = (state: EmployeeState = initialEmployeeState, action: an
                 ...state,
                 loading: false,
                 error: action.payload,
+            };
+
+        // Get Employees Summary
+        case GET_EMPLOYEES_SUMMARY_REQUEST:
+            return {
+                ...state,
+                summaryLoading: true,
+                summaryError: null,
+            };
+        case GET_EMPLOYEES_SUMMARY_SUCCESS:
+            return {
+                ...state,
+                summaryLoading: false,
+                employees: action.payload.data,
+            };
+        case GET_EMPLOYEES_SUMMARY_FAILURE:
+            return {
+                ...state,
+                summaryLoading: false,
+                summaryError: action.payload,
             };
 
         case CLEAR_EMPLOYEE_DETAILS:

@@ -6,7 +6,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
-import { Progress } from "@heroui/progress";
+import { Slider } from "@heroui/slider";
 import { useDispatch } from "react-redux";
 import { submitEodReportRequest } from "@/store/task/action";
 import { Card, CardBody } from "@heroui/card";
@@ -109,68 +109,31 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                 return (
                                     <Card key={task.id} shadow="sm" className="border-divider border-1">
                                         <CardBody className="gap-4">
-                                            <div className="flex justify-between items-start">
-                                                <div className="flex-1">
-                                                    <h4 className="font-semibold text-sm">{task.task_name}</h4>
-                                                    <div
-                                                        className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
-                                                        dangerouslySetInnerHTML={{ __html: (task.description || "").replace(/&nbsp;/g, " ") }}
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col items-end gap-2">
-                                                    <Select
-                                                        label="Status"
-                                                        size="sm"
-                                                        className="w-40"
-                                                        selectedKeys={[report.status]}
-                                                        onChange={(e) => {
-                                                            const newStatus = e.target.value;
-                                                            handleUpdateReport(task.id, "status", newStatus);
-                                                            if (newStatus === "Completed") {
-                                                                handleUpdateReport(task.id, "move_to_tomorrow", false);
-                                                                handleUpdateReport(task.id, "progress", 100);
-                                                            }
-                                                        }}
-                                                    >
-                                                        {[
-                                                            { key: "Todo", label: "To Do" },
-                                                            { key: "In Progress", label: "In Progress" },
-                                                            ...(!report.move_to_tomorrow ? [{ key: "Completed", label: "Completed" }] : [])
-                                                        ].map((item) => (
-                                                            <SelectItem key={item.key}>{item.label}</SelectItem>
-                                                        ))}
-                                                    </Select>
-                                                    {report.status !== "Completed" && (
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-xs font-medium text-default-500">Move to Tomorrow?</span>
-                                                            <Switch
-                                                                size="sm"
-                                                                isSelected={report.move_to_tomorrow}
-                                                                onValueChange={(val) => handleUpdateReport(task.id, "move_to_tomorrow", val)}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
+                                            <div>
+                                                <h4 className="font-semibold text-sm">{task.task_name}</h4>
+                                                <div
+                                                    className="text-xs text-default-500 line-clamp-1 [&>p]:mb-0 [&>p]:inline"
+                                                    dangerouslySetInnerHTML={{ __html: (task.description || "").replace(/&nbsp;/g, " ") }}
+                                                />
                                             </div>
 
                                             <div className="space-y-2">
-                                                <div className="flex justify-between text-xs font-medium">
-                                                    <span>Today's Progress</span>
-                                                    <span className="text-primary">{report.progress}%</span>
+                                                <div className="space-y-2">
+                                                    <Slider
+                                                        label="Today's Progress"
+                                                        size="md"
+                                                        step={5}
+                                                        minValue={0}
+                                                        maxValue={100}
+                                                        showSteps={true}
+                                                        color={report.status === "Completed" ? "success" : (report.progress < 30 ? "danger" : report.progress < 70 ? "warning" : "success")}
+                                                        value={report.progress}
+                                                        isDisabled={report.status === "Completed"}
+                                                        onChange={(value) => handleUpdateReport(task.id, "progress", typeof value === 'number' ? value : value[0])}
+                                                        className="max-w-md w-full"
+                                                        getValue={(v) => `${v}%`}
+                                                    />
                                                 </div>
-                                                <Progress
-                                                    size="sm"
-                                                    color={report.status === "Completed" ? "success" : "primary"}
-                                                    value={report.progress}
-                                                />
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="100"
-                                                    value={report.progress}
-                                                    onChange={(e) => handleUpdateReport(task.id, "progress", parseInt(e.target.value))}
-                                                    className="w-full h-1 bg-default-200 rounded-lg appearance-none cursor-pointer accent-primary"
-                                                />
                                             </div>
 
                                             <div className="flex flex-col gap-2">
@@ -237,7 +200,7 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                     </DrawerFooter>
                 </form>
             </DrawerContent>
-        </Drawer>
+        </Drawer >
     );
 };
 

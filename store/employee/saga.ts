@@ -7,7 +7,8 @@ import {
     UPDATE_EMPLOYEE_REQUEST,
     DELETE_EMPLOYEE_REQUEST,
     UPDATE_USER_PERMISSIONS_REQUEST,
-    GET_USER_PERMISSIONS_REQUEST
+    GET_USER_PERMISSIONS_REQUEST,
+    GET_EMPLOYEES_SUMMARY_REQUEST
 } from "./actionType";
 import {
     createEmployeeSuccess, createEmployeeFailure,
@@ -16,7 +17,8 @@ import {
     updateEmployeeSuccess, updateEmployeeFailure,
     deleteEmployeeSuccess, deleteEmployeeFailure,
     updateUserPermissionsSuccess, updateUserPermissionsFailure,
-    getUserPermissionsSuccess, getUserPermissionsFailure
+    getUserPermissionsSuccess, getUserPermissionsFailure,
+    getEmployeesSummarySuccess, getEmployeesSummaryFailure
 } from "./action";
 import api from "../api";
 
@@ -29,8 +31,12 @@ function createEmployeeApi(payload: FormData) {
     });
 }
 
-function getEmployeesApi() {
-    return api.get("/employees/all");
+function getEmployeesApi(params: any) {
+    const cleanParams = Object.fromEntries(
+        Object.entries(params).filter(([_, v]) => v != null && v !== "")
+    );
+    const query = new URLSearchParams(cleanParams as any).toString();
+    return api.get(`/employees/all?${query}`);
 }
 
 function getEmployeeApi(id: string) {
@@ -67,9 +73,9 @@ function* onCreateEmployee({ payload }: any): SagaIterator {
     }
 }
 
-function* onGetEmployees(): SagaIterator {
+function* onGetEmployees({ payload }: any): SagaIterator {
     try {
-        const response = yield call(getEmployeesApi);
+        const response = yield call(getEmployeesApi, payload);
         yield put(getEmployeesSuccess(response.data));
     } catch (error: any) {
         yield put(getEmployeesFailure(error.response?.data?.message || "Failed to fetch employees"));
@@ -124,6 +130,20 @@ function* onGetUserPermissions({ payload }: any): SagaIterator {
     }
 }
 
+// API Functions
+function getEmployeesSummaryApi() {
+    return api.get("/employees/summary");
+}
+
+function* onGetEmployeesSummary(): SagaIterator {
+    try {
+        const response = yield call(getEmployeesSummaryApi);
+        yield put(getEmployeesSummarySuccess(response.data));
+    } catch (error: any) {
+        yield put(getEmployeesSummaryFailure(error.response?.data?.message || "Failed to fetch employees summary"));
+    }
+}
+
 export default function* employeeSaga(): SagaIterator {
     yield takeEvery(CREATE_EMPLOYEE_REQUEST, onCreateEmployee);
     yield takeEvery(GET_EMPLOYEES_REQUEST, onGetEmployees);
@@ -132,4 +152,5 @@ export default function* employeeSaga(): SagaIterator {
     yield takeEvery(DELETE_EMPLOYEE_REQUEST, onDeleteEmployee);
     yield takeEvery(UPDATE_USER_PERMISSIONS_REQUEST, onUpdateUserPermissions);
     yield takeEvery(GET_USER_PERMISSIONS_REQUEST, onGetUserPermissions);
+    yield takeEvery(GET_EMPLOYEES_SUMMARY_REQUEST, onGetEmployeesSummary);
 }

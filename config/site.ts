@@ -47,6 +47,18 @@ export const siteConfig: SiteConfig = {
           allowedRoles: ["admin"],
         },
         {
+          label: "Onboarding",
+          href: "/employee/onboarding",
+          icon: "UserPlus",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "Offboarding",
+          href: "/employee/offboarding",
+          icon: "UserMinus",
+          allowedRoles: ["admin"],
+        },
+        {
           label: "Department",
           href: "/employee/department",
           icon: "Briefcase",
@@ -99,10 +111,24 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin"],
     },
     {
-      label: "Project",
-      href: "/project/list",
+      label: "Projects & Clients",
+      href: "/projects-clients",
       icon: "Briefcase",
       allowedRoles: ["admin"],
+      children: [
+        {
+          label: "Project",
+          href: "/project/list",
+          icon: "Briefcase",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "Client/Vendor",
+          href: "/client",
+          icon: "Users",
+          allowedRoles: ["admin"],
+        },
+      ],
     },
     {
       label: "Task Management",
@@ -131,68 +157,55 @@ export const siteConfig: SiteConfig = {
         },
       ],
     },
+
     {
-      label: "Client/Vendor",
-      href: "/client",
-      icon: "Users",
-      allowedRoles: ["admin"],
-    },
-    {
-      label: "Asset Management",
-      href: "/asset",
-      icon: "Package",
+      label: "Categories",
+      href: "/categories",
+      icon: "Layers",
       allowedRoles: ["admin"],
       children: [
         {
-          label: "Category",
+          label: "Asset Category",
           href: "/asset/category",
           icon: "Layers",
           allowedRoles: ["admin"],
         },
+        {
+          label: "Expense Category",
+          href: "/expense/category",
+          icon: "Receipt",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "Document Category",
+          href: "/document/category",
+          icon: "FolderTree",
+          allowedRoles: ["admin"],
+        },
+      ],
+    },
+    {
+      label: "Resources",
+      href: "/resources",
+      icon: "Package",
+      allowedRoles: ["admin"],
+      children: [
         {
           label: "Asset",
           href: "/asset/list",
           icon: "Box",
           allowedRoles: ["admin"],
         },
-      ],
-    },
-    {
-      label: "Expense Management",
-      href: "/expense",
-      icon: "Wallet",
-      allowedRoles: ["admin"],
-      children: [
         {
-          label: "Category",
-          href: "/expense/category",
-          icon: "Receipt",
-          allowedRoles: ["admin"],
-        },
-        {
-          label: "Expenses",
+          label: "Expense",
           href: "/expense/list",
-          icon: "Banknote",
-          allowedRoles: ["admin"],
-        },
-      ],
-    },
-    {
-      label: "Document Management",
-      href: "/document",
-      icon: "FileText",
-      allowedRoles: ["admin"],
-      children: [
-        {
-          label: "Category",
-          href: "/document/category",
-          icon: "FolderTree",
+          icon: "Wallet",
           allowedRoles: ["admin"],
         },
         {
           label: "Document",
           href: "/document/list",
-          icon: "Files",
+          icon: "FileText",
           allowedRoles: ["admin"],
         },
       ],

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
@@ -48,13 +49,23 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const loading = isEditMode ? (updateTaskLoading || deleteTaskLoading) : createTaskLoading;
     const success = isEditMode ? (updateTaskSuccess || deleteTaskSuccess) : createTaskSuccess;
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${year}-${month}-${day}`;
+
+    const hours = String(today.getHours()).padStart(2, "0");
+    const minutes = String(today.getMinutes()).padStart(2, "0");
+    const currentTime = `${hours}:${minutes}`;
+
     const initialFormData = {
         project_id: "",
         task_name: "",
         description: "",
-        start_date: selectedDate || new Date().toISOString().split("T")[0],
-        end_date: selectedDate || new Date().toISOString().split("T")[0],
-        start_time: "09:00",
+        start_date: todayStr,
+        end_date: todayStr,
+        start_time: currentTime,
         end_time: "18:00",
         priority: "Medium",
         assigned_to: [] as string[],
@@ -66,6 +77,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
     const [newAttachments, setNewAttachments] = useState<any[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeletePopoverOpen, setIsDeletePopoverOpen] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -89,8 +101,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             } else {
                 setFormData({
                     ...initialFormData,
-                    start_date: selectedDate || new Date().toISOString().split("T")[0],
-                    end_date: selectedDate || new Date().toISOString().split("T")[0],
+                    start_date: todayStr,
+                    end_date: todayStr,
                     status: allowedStatuses?.[0] || "Todo"
                 });
                 setExistingAttachments([]);
@@ -149,6 +161,12 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
         }
     };
 
+    const handleDeleteTask = () => {
+        setIsSubmitting(true);
+        setIsDeletePopoverOpen(false);
+        dispatch(deleteTaskRequest(task.id));
+    };
+
     return (
         <Drawer isOpen={isOpen} onClose={onClose} size="md">
             <DrawerContent>
@@ -175,7 +193,11 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                             <Select
                                 label="Status"
                                 placeholder="Select status"
-                                selectedKeys={formData.status ? [formData.status] : []}
+                                selectedKeys={
+                                    formData.status && allowedStatuses.includes(formData.status)
+                                        ? [formData.status]
+                                        : []
+                                }
                                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                 required
                             >
@@ -249,6 +271,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     value={formData.start_time}
                                     onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
                                     className="w-[150px]"
+                                    isDisabled
                                 />
                             </div>
                             <div className="flex gap-4">
@@ -367,19 +390,80 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                     <DrawerFooter>
                         <div className="flex w-full justify-between">
                             {task && (
-                                <Button
-                                    color="danger"
-                                    variant="flat"
-                                    startContent={!loading && <Trash2 size={18} />}
-                                    isLoading={loading && isSubmitting}
-                                    isDisabled={loading}
-                                    onPress={() => {
-                                        setIsSubmitting(true);
-                                        dispatch(deleteTaskRequest(task.id));
+                                <Popover
+                                    isOpen={isDeletePopoverOpen}
+                                    onOpenChange={setIsDeletePopoverOpen}
+                                    placement="top"
+                                    motionProps={{
+                                        variants: {
+                                            enter: {
+                                                height: "auto",
+                                                opacity: 1,
+                                                y: 0,
+                                                transition: {
+                                                    height: { type: "spring", stiffness: 200, damping: 20 },
+                                                    opacity: { duration: 0.2 },
+                                                    y: { type: "spring", stiffness: 200, damping: 20 },
+                                                },
+                                            },
+                                            exit: {
+                                                height: 0,
+                                                opacity: 0,
+                                                y: -10,
+                                                transition: {
+                                                    height: { duration: 0.2, ease: "easeInOut" },
+                                                    opacity: { duration: 0.15 },
+                                                    y: { duration: 0.2, ease: "easeInOut" },
+                                                },
+                                            },
+                                        },
+                                        initial: { height: 0, opacity: 0, y: -10 },
+                                        animate: "enter",
+                                        exit: "exit",
+                                        style: { overflow: "hidden", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", transformOrigin: "top" },
                                     }}
                                 >
-                                    Delete
-                                </Button>
+                                    <PopoverTrigger>
+                                        <Button
+                                            color="danger"
+                                            variant="flat"
+                                            startContent={!loading && <Trash2 size={18} />}
+                                            isLoading={loading && isSubmitting}
+                                            isDisabled={loading}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[300px]">
+                                        <div className="px-1 py-2">
+                                            <div className="text-small font-bold mb-2">Confirm Delete</div>
+                                            <div className="text-tiny mb-3">
+                                                Are you sure you want to delete this task? This action cannot be undone.
+                                            </div>
+                                            {task && (
+                                                <div className="text-tiny text-default-500 mb-3">
+                                                    Task: <strong>{task.task_name}</strong>
+                                                </div>
+                                            )}
+                                            <div className="flex gap-2 justify-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="light"
+                                                    onPress={() => setIsDeletePopoverOpen(false)}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    color="danger"
+                                                    onPress={handleDeleteTask}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             )}
                             <div className="flex gap-2 ml-auto">
                                 <Button variant="light" onPress={onClose} isDisabled={loading}>

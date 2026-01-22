@@ -21,7 +21,7 @@ import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
 // import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import EodReportDrawer from "./EodReportDrawer";
@@ -71,9 +71,11 @@ const TaskBoard = () => {
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
         dispatch(getProjectsRequest());
-        dispatch(getEmployeesRequest());
+        if (!employees || employees.length === 0) {
+            dispatch(getEmployeesSummaryRequest());
+        }
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee, user]);
+    }, [dispatch, filterDate, filterEmployee, user, employees]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
@@ -152,12 +154,14 @@ const TaskBoard = () => {
 
             // If explicit date filter is set, rely on backend or just simple match
             if (filterDate) {
-                // Backend handles the date filtering mostly, but if we want to be safe:
-                // return true (backend filtered) or specific logic.
-                // Current logic was: hide future tasks (> today) and hide past moved/completed tasks (< today).
+                // Ensure we only display tasks relevant to this date (Start <= Filter <= End)
+                // This prevents tasks created for "Today" (e.g. via drawer default) from appearing when viewing Future/Past dates
+                const start = task.start_date;
+                const end = task.end_date || task.start_date;
 
-                // If viewing past/future date explicitly, we show everything returned by backend for that date
-                return true;
+                if (!start) return false;
+
+                return filterDate >= start && filterDate <= end;
             }
 
             // Default "Today" View Logic

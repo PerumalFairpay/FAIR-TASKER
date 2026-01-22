@@ -5,14 +5,18 @@ import {
     GET_ASSETS_REQUEST,
     GET_ASSET_REQUEST,
     UPDATE_ASSET_REQUEST,
-    DELETE_ASSET_REQUEST
+    DELETE_ASSET_REQUEST,
+    ASSIGN_ASSET_REQUEST,
+    GET_ASSETS_BY_EMPLOYEE_REQUEST
 } from "./actionType";
 import {
     createAssetSuccess, createAssetFailure,
     getAssetsSuccess, getAssetsFailure,
     getAssetSuccess, getAssetFailure,
     updateAssetSuccess, updateAssetFailure,
-    deleteAssetSuccess, deleteAssetFailure
+    deleteAssetSuccess, deleteAssetFailure,
+    assignAssetSuccess, assignAssetFailure,
+    getAssetsByEmployeeSuccess, getAssetsByEmployeeFailure
 } from "./action";
 import api from "../api";
 
@@ -45,13 +49,21 @@ function deleteAssetApi(id: string) {
     return api.delete(`/assets/${id}`);
 }
 
+function assignAssetApi(assetId: string, employeeId: string | null) {
+    return api.put(`/assets/${assetId}/assignment`, { employee_id: employeeId });
+}
+
+function getAssetsByEmployeeApi(employeeId: string) {
+    return api.get(`/assets/employee/${employeeId}`);
+}
+
 // Sagas
 function* onCreateAsset({ payload }: any): SagaIterator {
     try {
-        const response = yield call(createAssetApi, payload);
+        const response = yield call(createAssetApi, payload); 
         yield put(createAssetSuccess(response.data));
-    } catch (error: any) {
-        yield put(createAssetFailure(error.response?.data?.detail || "Failed to create asset"));
+    } catch (error: any) { 
+        yield put(createAssetFailure(error || "Failed to create asset1"));
     }
 }
 
@@ -92,10 +104,31 @@ function* onDeleteAsset({ payload }: any): SagaIterator {
     }
 }
 
+function* onAssignAsset({ payload }: any): SagaIterator {
+    try {
+        const { assetId, employeeId } = payload;
+        const response = yield call(assignAssetApi, assetId, employeeId);
+        yield put(assignAssetSuccess(response.data));
+    } catch (error: any) {
+        yield put(assignAssetFailure(error.response?.data?.detail || "Failed to assign asset"));
+    }
+}
+
+function* onGetAssetsByEmployee({ payload }: any): SagaIterator {
+    try {
+        const response = yield call(getAssetsByEmployeeApi, payload);
+        yield put(getAssetsByEmployeeSuccess(response.data));
+    } catch (error: any) {
+        yield put(getAssetsByEmployeeFailure(error.response?.data?.detail || "Failed to fetch employee assets"));
+    }
+}
+
 export default function* assetSaga(): SagaIterator {
     yield takeEvery(CREATE_ASSET_REQUEST, onCreateAsset);
     yield takeEvery(GET_ASSETS_REQUEST, onGetAssets);
     yield takeEvery(GET_ASSET_REQUEST, onGetAsset);
     yield takeEvery(UPDATE_ASSET_REQUEST, onUpdateAsset);
     yield takeEvery(DELETE_ASSET_REQUEST, onDeleteAsset);
+    yield takeEvery(ASSIGN_ASSET_REQUEST, onAssignAsset);
+    yield takeEvery(GET_ASSETS_BY_EMPLOYEE_REQUEST, onGetAssetsByEmployee);
 }

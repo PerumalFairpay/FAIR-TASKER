@@ -16,7 +16,7 @@ import { DatePicker, DateRangePicker } from "@heroui/date-picker";
 import { parseDate, getLocalTimeZone, today, DateValue } from "@internationalized/date";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
 import { getHolidaysRequest } from "@/store/holiday/action";
 import { getUserRequest } from "@/store/auth/action";
@@ -65,14 +65,20 @@ export default function AddEditLeaveRequestDrawer({
 
     useEffect(() => {
         if (isOpen) {
-            dispatch(getEmployeesRequest());
-            dispatch(getLeaveTypesRequest());
-            dispatch(getHolidaysRequest());
+            if (!employees || employees.length === 0) {
+                dispatch(getEmployeesSummaryRequest());
+            }
+            if (!leaveTypes || leaveTypes.length === 0) {
+                dispatch(getLeaveTypesRequest());
+            }
+            if (!holidays || holidays.length === 0) {
+                dispatch(getHolidaysRequest());
+            }
             if (!user) {
                 dispatch(getUserRequest());
             }
         }
-    }, [isOpen, dispatch, user]);
+    }, [isOpen, dispatch, user, employees, leaveTypes, holidays]);
 
     useEffect(() => {
         if (isOpen && user?.role === "employee" && employees?.length > 0) {
@@ -311,9 +317,23 @@ export default function AddEditLeaveRequestDrawer({
                             >
                                 {(employees || []).map((emp: any) => (
                                     <SelectItem key={emp.id} textValue={emp.name}>
-                                        <div className="flex flex-col">
-                                            <span>{emp.name}</span>
-                                            <span className="text-tiny text-default-400">{emp.employee_no_id}</span>
+                                        <div className="flex gap-2 items-center">
+                                            {emp.profile_picture ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={emp.profile_picture}
+                                                    alt={emp.name}
+                                                    className="w-8 h-8 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-default-200 flex items-center justify-center text-sm font-semibold text-default-500">
+                                                    {emp.name?.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                            <div className="flex flex-col">
+                                                <span className="text-small">{emp.name}</span>
+                                                <span className="text-tiny text-default-400">{emp.email}</span>
+                                            </div>
                                         </div>
                                     </SelectItem>
                                 ))}

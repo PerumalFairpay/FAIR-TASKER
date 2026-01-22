@@ -6,13 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import {
     getProjectsRequest,
+    getProjectRequest,
     createProjectRequest,
     updateProjectRequest,
     deleteProjectRequest,
     clearProjectDetails,
 } from "@/store/project/action";
 import { getClientsRequest } from "@/store/client/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import {
     Table,
     TableHeader,
@@ -31,7 +32,7 @@ import DeleteProjectModal from "./DeleteProjectModal";
 
 export default function ProjectListPage() {
     const dispatch = useDispatch();
-    const { projects, loading, success } = useSelector((state: RootState) => state.Project);
+    const { projects, project, loading, success } = useSelector((state: RootState) => state.Project);
     const { clients } = useSelector((state: RootState) => state.Client);
 
     const { isOpen: isAddEditOpen, onOpen: onAddEditOpen, onOpenChange: onAddEditOpenChange, onClose: onAddEditClose } = useDisclosure();
@@ -40,18 +41,24 @@ export default function ProjectListPage() {
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedProject, setSelectedProject] = useState<any>(null);
 
+    const { employees } = useSelector((state: RootState) => state.Employee);
+
     useEffect(() => {
         dispatch(getProjectsRequest());
         dispatch(getClientsRequest());
-        dispatch(getEmployeesRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (isAddEditOpen && (!employees || employees.length === 0)) {
+            dispatch(getEmployeesSummaryRequest());
+        }
+    }, [isAddEditOpen, employees, dispatch]);
 
     useEffect(() => {
         if (success) {
             onAddEditClose();
             onDeleteClose();
             dispatch(clearProjectDetails());
-            // Refresh list
         }
     }, [success, onAddEditClose, onDeleteClose, dispatch]);
 
@@ -64,6 +71,7 @@ export default function ProjectListPage() {
     const handleEdit = (project: any) => {
         setMode("edit");
         setSelectedProject(project);
+        dispatch(getProjectRequest(project.id));
         onAddEditOpen();
     };
 
@@ -261,7 +269,7 @@ export default function ProjectListPage() {
                 isOpen={isAddEditOpen}
                 onOpenChange={onAddEditOpenChange}
                 mode={mode}
-                selectedProject={selectedProject}
+                selectedProject={mode === 'edit' && project && selectedProject && project.id === selectedProject.id ? project : selectedProject}
                 loading={loading}
                 onSubmit={handleAddEditSubmit}
             />

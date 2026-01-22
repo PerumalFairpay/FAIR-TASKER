@@ -43,6 +43,7 @@ export default function AddEditEmployeeDrawer({
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
     const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
+    const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
@@ -52,6 +53,7 @@ export default function AddEditEmployeeDrawer({
     const [isVisible, setIsVisible] = useState(false);
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
+    const [confirmationPeriod, setConfirmationPeriod] = useState<string>("");
 
     // Compute root departments
     const rootDepartments = useMemo(() => {
@@ -96,6 +98,7 @@ export default function AddEditEmployeeDrawer({
             setSelectedTab("personal");
             setIsVisible(false);
             setIsConfirmVisible(false);
+            setConfirmationPeriod("");
             dispatch(clearEmployeeDetails());
         }
     }, [isOpen, dispatch, mode, selectedEmployee]);
@@ -134,10 +137,12 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...fetchedEmployee });
         } else if (isOpen && mode === "create") {
             if (Object.keys(formData).length === 0) {
-                setFormData({ status: "Active", work_mode: "Office" });
+                setFormData({ status: "Onboarding" });
             }
         }
     }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
+
+
 
     useEffect(() => {
         if (mode === "create" && formData.first_name && formData.last_name) {
@@ -151,13 +156,47 @@ export default function AddEditEmployeeDrawer({
         setFormData((prev: any) => ({ ...prev, [name]: value }));
     };
 
+    const handleConfirmationPeriodChange = (value: string) => {
+        setConfirmationPeriod(value);
+        const days = parseInt(value, 10);
+        if (!isNaN(days) && formData.date_of_joining) {
+            try {
+                const joiningDate = parseDate(formData.date_of_joining);
+                const confirmationDate = joiningDate.add({ days: days });
+                handleChange("confirmation_date", confirmationDate.toString());
+            } catch (error) {
+                console.error("Invalid date", error);
+            }
+        }
+    };
+
+    const handleConfirmationDateChange = (dateStr: string) => {
+        handleChange("confirmation_date", dateStr);
+        if (dateStr && formData.date_of_joining) {
+            try {
+                const start = parseDate(formData.date_of_joining);
+                const end = parseDate(dateStr);
+
+                const d1 = new Date(start.toString());
+                const d2 = new Date(end.toString());
+
+                const diffTime = d2.getTime() - d1.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                setConfirmationPeriod(diffDays.toString());
+            } catch (error) {
+                console.error("Invalid date calculation", error);
+            }
+        }
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
         // This is kept for reference or direct usage, but FilePond uses its own state
     };
 
     const handleSubmit = () => {
         const data = new FormData();
-        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof", "document_name", "documents"];
+        const excludedKeys = ["id", "created_at", "updated_at", "profile_picture", "document_proof", "document_name", "documents", "onboarding_checklist", "offboarding_checklist"];
 
         Object.keys(formData).forEach((key) => {
             if (formData[key] !== null && formData[key] !== undefined && !excludedKeys.includes(key)) {
@@ -171,7 +210,7 @@ export default function AddEditEmployeeDrawer({
 
         if (documentList.length > 0) {
             documentList.forEach((doc) => {
-                if (doc.files && doc.files.length > 0) { 
+                if (doc.files && doc.files.length > 0) {
                     data.append("document_names", doc.name || doc.files[0].file.name);
                     data.append("document_proofs", doc.files[0].file);
                 }
@@ -437,7 +476,10 @@ export default function AddEditEmployeeDrawer({
                                                 selectedKeys={formData.status ? [formData.status] : []}
                                                 onChange={(e) => handleChange("status", e.target.value)}
                                             >
+                                                <SelectItem key="Onboarding" textValue="Onboarding">Onboarding</SelectItem>
+                                                <SelectItem key="Probation" textValue="Probation">Probation</SelectItem>
                                                 <SelectItem key="Active" textValue="Active">Active</SelectItem>
+                                                <SelectItem key="Offboarding" textValue="Offboarding">Offboarding</SelectItem>
                                                 <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
                                                 <SelectItem key="Terminated" textValue="Terminated">Terminated</SelectItem>
                                             </Select>
@@ -447,7 +489,22 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null}
-                                                    onChange={(date) => handleChange("date_of_joining", date?.toString() || "")}
+                                                    onChange={(date) => {
+                                                        const newDate = date?.toString() || "";
+                                                        handleChange("date_of_joining", newDate);
+                                                        if (confirmationPeriod && newDate) {
+                                                            try {
+                                                                const joiningDate = parseDate(newDate);
+                                                                const days = parseInt(confirmationPeriod, 10);
+                                                                if (!isNaN(days)) {
+                                                                    const confirmationDate = joiningDate.add({ days: days });
+                                                                    handleChange("confirmation_date", confirmationDate.toString());
+                                                                }
+                                                            } catch (error) {
+                                                                console.error("Invalid date or period", error);
+                                                            }
+                                                        }
+                                                    }}
                                                 />
                                             </I18nProvider>
                                             <I18nProvider locale="en-GB">
@@ -456,17 +513,17 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
-                                                    onChange={(date) => handleChange("confirmation_date", date?.toString() || "")}
+                                                    onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
                                                 />
                                             </I18nProvider>
                                             <Input
-                                                label="Notice Period"
-                                                placeholder="30 days"
+                                                label="Confirmation Period (Days)"
+                                                placeholder="e.g., 90 days"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                value={formData.notice_period || ""}
-                                                onChange={(e) => handleChange("notice_period", e.target.value)}
-                                                className="md:col-span-2"
+                                                value={confirmationPeriod}
+                                                onChange={(e) => handleConfirmationPeriodChange(e.target.value)}
+                                                type="number"
                                             />
                                             <Select
                                                 label="Work Mode"
@@ -480,6 +537,15 @@ export default function AddEditEmployeeDrawer({
                                                 <SelectItem key="Remote" textValue="Remote">Remote</SelectItem>
                                                 <SelectItem key="Hybrid" textValue="Hybrid">Hybrid</SelectItem>
                                             </Select>
+                                            <Input
+                                                label="Notice Period"
+                                                placeholder="e.g., 30 days"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.notice_period || ""}
+                                                onChange={(e) => handleChange("notice_period", e.target.value)}
+                                                className="md:col-span-2"
+                                            />
                                         </div>
                                     </div>
                                 </Tab>

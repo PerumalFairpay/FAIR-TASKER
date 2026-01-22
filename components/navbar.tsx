@@ -2,17 +2,20 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@heroui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 
 import NextLink from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { link as linkStyles } from "@heroui/theme";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTheme } from "next-themes";
+import { useIsSSR } from "@react-aria/ssr";
 
 import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
+
 import {
-  ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon
+  ChevronLeftIcon, ChevronRightIcon, Logo, LogoutIcon, SunFilledIcon, MoonFilledIcon
 } from "@/components/icons";
 import {
   LayoutDashboard,
@@ -41,7 +44,9 @@ import {
   Key,
   Rss,
   Milestone,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus,
+  UserMinus
 } from "lucide-react";
 
 
@@ -83,7 +88,9 @@ const iconMap: Record<string, any> = {
   Key,
   Rss,
   Milestone,
-  ShieldCheck
+  ShieldCheck,
+  UserPlus,
+  UserMinus
 };
 
 
@@ -96,6 +103,13 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { theme, setTheme } = useTheme();
+  const isSSR = useIsSSR();
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
   useEffect(() => {
     siteConfig.navItems.forEach((item: any) => {
@@ -125,6 +139,10 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   };
 
   const handleLogout = () => {
+    onOpen();
+  };
+
+  const confirmLogout = () => {
     dispatch(logoutRequest());
   };
 
@@ -414,8 +432,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="p-1 border-t border-divider">
             {user && (
               <div className={clsx(
-                "flex items-center mb-2 overflow-hidden transition-all duration-300",
-                isExpanded ? "justify-between px-2" : "justify-center"
+                "flex items-center my-2 overflow-hidden transition-all duration-300",
+                isExpanded ? "justify-between px-2" : "justify-self-end"
               )}>
                 {user?.role?.toLowerCase() === "admin" ? (
                   <div className="flex-1 min-w-0 cursor-default">
@@ -475,6 +493,20 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               "flex items-center gap-1",
               isExpanded ? "justify-between" : "justify-center"
             )}>
+              {isExpanded && (
+                <Button
+                  isIconOnly
+                  className="bg-default-100"
+                  variant="flat"
+                  onPress={toggleTheme}
+                >
+                  {!isSSR && theme === "light" ? (
+                    <MoonFilledIcon size={22} />
+                  ) : (
+                    <SunFilledIcon size={22} />
+                  )}
+                </Button>
+              )}
               <Button
                 isIconOnly
                 className={clsx(
@@ -491,6 +523,31 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
         </div>
       </div>
+
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Confirm Logout</ModalHeader>
+              <ModalBody>
+                <p>Are you sure you want to log out?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="danger" onPress={() => {
+                  confirmLogout();
+                  onClose();
+                }}>
+                  Logout
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 };

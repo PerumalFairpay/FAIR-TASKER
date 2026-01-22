@@ -25,7 +25,7 @@ import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { getProjectsRequest } from "@/store/project/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import ShowMoreText from "react-show-more-text";
@@ -55,8 +55,10 @@ const EODReportsPage = () => {
 
     useEffect(() => {
         dispatch(getProjectsRequest());
-        dispatch(getEmployeesRequest());
-    }, [dispatch]);
+        if (!employees || employees.length === 0) {
+            dispatch(getEmployeesSummaryRequest());
+        }
+    }, [dispatch, employees]);
 
     useEffect(() => {
         const payload: any = {};

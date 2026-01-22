@@ -25,10 +25,12 @@ import AddEditTaskDrawer from "../board/AddEditTaskDrawer";
 import TaskDetailModal from "../board/TaskDetailModal";
 
 const COLUMNS = [
-    { id: "Milestone", title: "Milestone", color: "bg-default-100", textColor: "text-default-600" },
-    { id: "Backlog", title: "Backlog", color: "bg-primary-50", textColor: "text-primary-600" },
+    { id: "Backlog", title: "Backlog", color: "bg-warning-50", textColor: "text-warning-600" },
+    { id: "Milestone", title: "Milestone", color: "bg-primary-50", textColor: "text-primary-600" },
     { id: "Roadmap", title: "Roadmap", color: "bg-success-50", textColor: "text-success-600" },
 ];
+
+const ALLOWED_STATUSES = ["Backlog", "Milestone", "Roadmap"];
 
 const RoadmapBoard = () => {
     const dispatch = useDispatch();
@@ -208,10 +210,10 @@ const RoadmapBoard = () => {
                                     <h3 className={clsx("font-semibold text-sm uppercase tracking-wider", column.textColor)}>
                                         {column.title}
                                     </h3>
-                                    <Chip size="sm" variant="flat" className={column.textColor}>
-                                        {getTasksByStatus(column.id).length}
-                                    </Chip>
                                 </div>
+                                <Chip size="sm" variant="flat" className={column.textColor}>
+                                    {getTasksByStatus(column.id).length}
+                                </Chip>
                             </div>
 
                             <Droppable droppableId={column.id}>
@@ -351,7 +353,7 @@ const RoadmapBoard = () => {
                 onClose={() => setIsTaskDrawerOpen(false)}
                 task={currentTask && currentTask.id === selectedTask?.id ? currentTask : selectedTask}
                 selectedDate={filterDate}
-                allowedStatuses={["Milestone", "Backlog", "Roadmap"]}
+                allowedStatuses={ALLOWED_STATUSES}
             />
 
             <TaskDetailModal
