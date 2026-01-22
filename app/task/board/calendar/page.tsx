@@ -15,7 +15,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Avatar, AvatarGroup } from "@heroui/avatar";
 import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
-import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText, CheckCircle2, AlertCircle, Timer, Eye, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Video, Phone, CloudSun, Sun, CloudRain, Calendar as CalendarIcon, Clock, User, Mail, Link as LinkIcon, ExternalLink, FileText, CheckCircle2, AlertCircle, Timer, Eye, Download, ChevronsUp, ChevronsDown, Circle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
     Drawer,
@@ -51,6 +51,24 @@ const getEventColor = (id: string) => {
     }
     const index = Math.abs(hash) % EVENT_COLORS.length;
     return EVENT_COLORS[index];
+};
+
+const getPriorityIcon = (priority: string, colorPalette: any) => {
+    const iconColor = colorPalette.border;
+    const iconSize = 12;
+
+    switch (priority?.toLowerCase()) {
+        case "urgent":
+            return <AlertCircle size={iconSize} style={{ color: iconColor }} />;
+        case "high":
+            return <ChevronsUp size={iconSize} style={{ color: iconColor }} />;
+        case "medium":
+            return <ChevronsUp size={iconSize} style={{ color: iconColor }} />;
+        case "low":
+            return <ChevronsDown size={iconSize} style={{ color: iconColor }} />;
+        default:
+            return <Circle size={iconSize} style={{ color: iconColor }} />;
+    }
 };
 
 export default function CalendarPage() {
@@ -189,7 +207,7 @@ export default function CalendarPage() {
 
 
     const renderEventContent = (eventInfo: any) => {
-        const { colorPalette, priority, assigned_to } = eventInfo.event.extendedProps;
+        const { colorPalette, priority, assigned_to, status } = eventInfo.event.extendedProps;
         const displayName = eventInfo.event.title;
 
         // map IDs to employee objects
@@ -211,16 +229,25 @@ export default function CalendarPage() {
                     {displayName}
                 </div>
 
-                <div className="flex items-center justify-between">
-                    {/* Priority Badge */}
-                    {priority && (
-                        <div
-                            className="text-[10px] px-1.5 py-[2px] rounded-full bg-white/60 dark:bg-black/20 font-medium uppercase tracking-wider"
-                            style={{ color: colorPalette.border }} // Use border color for text to ensure contrast
-                        >
-                            {priority}
-                        </div>
-                    )}
+                <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1">
+                        {/* Status Badge */}
+                        {status && (
+                            <div
+                                className="text-[9px] px-1.5 py-[2px] rounded-full bg-white/70 dark:bg-black/30 font-medium uppercase tracking-wider"
+                                style={{ color: colorPalette.border }}
+                            >
+                                {status === 'In Progress' ? 'In Prog' : status === 'Todo' ? 'To Do' : status}
+                            </div>
+                        )}
+
+                        {/* Priority Icon */}
+                        {priority && (
+                            <div className="flex items-center justify-center">
+                                {getPriorityIcon(priority, colorPalette)}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Avatars */}
                     {assignedEmployees.length > 0 && (
