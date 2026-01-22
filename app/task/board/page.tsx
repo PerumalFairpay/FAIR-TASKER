@@ -73,13 +73,22 @@ const TaskBoard = () => {
         }
     }, [filterDate, todayStr]);
 
-    const columns = React.useMemo(() => [
-        { id: "Overdue", title: "Overdue", color: "bg-danger-50", textColor: "text-danger-600" },
-        { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
-        { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
-        { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
-        { id: "Moved", title: nextDayLabel, color: "bg-warning-50", textColor: "text-warning-600" },
-    ], [nextDayLabel]);
+    const columns = React.useMemo(() => {
+        const hasOverdueTasks = tasks.some((t: any) => t.is_overdue);
+
+        const cols = [
+            { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
+            { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
+            { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
+            { id: "Moved", title: nextDayLabel, color: "bg-warning-50", textColor: "text-warning-600" },
+        ];
+
+        if (hasOverdueTasks) {
+            cols.unshift({ id: "Overdue", title: "Overdue", color: "bg-danger-50", textColor: "text-danger-600" });
+        }
+
+        return cols;
+    }, [nextDayLabel, tasks]);
 
     const isAdmin = user?.role?.toLowerCase() === "admin";
 
@@ -172,6 +181,9 @@ const TaskBoard = () => {
 
         return tasks.filter((task: any) => {
             const isRolloverForView = task.last_rollover_date === comparisonDate;
+
+            // Filter out unwanted statuses
+            if (["Milestone", "Backlog", "Roadmap"].includes(task.status)) return false;
 
             // 1. Handle "Overdue" column
             if (status === "Overdue") {
