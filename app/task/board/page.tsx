@@ -28,12 +28,7 @@ import EodReportDrawer from "./EodReportDrawer";
 import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import TaskDetailModal from "./TaskDetailModal";
 
-const COLUMNS = [
-    { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
-    { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
-    { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
-    { id: "Moved", title: "Moved to Tomorrow", color: "bg-warning-50", textColor: "text-warning-600" },
-];
+
 
 const TaskBoard = () => {
     const dispatch = useDispatch();
@@ -59,6 +54,30 @@ const TaskBoard = () => {
     // Filters
     const [filterDate, setFilterDate] = useState(todayStr);
     const [filterEmployee, setFilterEmployee] = useState("");
+
+    // Calculate dynamic label for Moved column
+    const nextDayLabel = React.useMemo(() => {
+        const currentStr = filterDate || todayStr;
+        if (currentStr === todayStr) {
+            return "Moved to Tomorrow";
+        }
+
+        try {
+            const current = parseDate(currentStr);
+            const next = current.add({ days: 1 });
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return `Moved to ${months[next.month - 1]} ${next.day}`;
+        } catch (e) {
+            return "Moved to Tomorrow";
+        }
+    }, [filterDate, todayStr]);
+
+    const columns = React.useMemo(() => [
+        { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
+        { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
+        { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
+        { id: "Moved", title: nextDayLabel, color: "bg-warning-50", textColor: "text-warning-600" },
+    ], [nextDayLabel]);
 
     const isAdmin = user?.role?.toLowerCase() === "admin";
 
@@ -308,7 +327,7 @@ const TaskBoard = () => {
 
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="flex gap-6 overflow-x-auto pb-4 min-h-[calc(100vh-250px)]">
-                    {COLUMNS.map((column) => (
+                    {columns.map((column) => (
                         <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
                             <div className={clsx(
                                 "flex items-center justify-between p-3 rounded-xl border border-divider shadow-sm",
