@@ -20,6 +20,7 @@ import {
   GET_EOD_REPORTS_REQUEST,
   GET_EOD_REPORTS_SUCCESS,
   GET_EOD_REPORTS_FAILURE,
+  CLEAR_TASK_DETAILS,
 } from "./actionType";
 
 export const createTaskRequest = (payload: any) => ({
@@ -125,4 +126,8 @@ export const getEodReportsSuccess = (payload: any) => ({
 export const getEodReportsFailure = (error: string) => ({
   type: GET_EOD_REPORTS_FAILURE,
   payload: error,
+});
+
+export const clearTaskDetails = () => ({
+  type: CLEAR_TASK_DETAILS,
 });

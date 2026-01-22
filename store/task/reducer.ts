@@ -20,6 +20,7 @@ import {
   GET_EOD_REPORTS_REQUEST,
   GET_EOD_REPORTS_SUCCESS,
   GET_EOD_REPORTS_FAILURE,
+  CLEAR_TASK_DETAILS,
 } from "./actionType";
 
 interface TaskState {
@@ -260,6 +261,22 @@ const taskReducer = (state = initialState, action: any) => {
         getEodReportsLoading: false,
         getEodReportsError: action.payload,
         getEodReportsSuccess: false,
+      };
+
+    case CLEAR_TASK_DETAILS:
+      return {
+        ...state,
+        createTaskError: null,
+        createTaskSuccess: false,
+        updateTaskError: null,
+        updateTaskSuccess: false,
+        deleteTaskError: null,
+        deleteTaskSuccess: false,
+        submitEodReportError: null,
+        submitEodReportSuccess: false,
+        getTaskError: null,
+        getTaskSuccess: false,
+        currentTask: null,
       };
 
     default:
