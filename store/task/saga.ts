@@ -193,20 +193,7 @@ function* onSubmitEodReport({ payload }: any): SagaIterator {
     const response = yield call(submitEodReportApi, formData);
     if (response.data.success) {
       yield put(submitEodReportSuccess(response.data.data));
-      // Refresh tasks after EOD report
-      const date = new Date();
-      const todayStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-
-      const { user } = yield select((state: any) => state.Auth);
-      const isAdmin = user?.role?.toLowerCase() === "admin";
-
-      yield put({
-        type: GET_TASKS_REQUEST,
-        payload: {
-          date: todayStr,
-          assigned_to: isAdmin ? undefined : user?.employee_id,
-        },
-      });
+      
     } else {
       yield put(
         submitEodReportFailure(
