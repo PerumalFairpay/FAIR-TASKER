@@ -8,7 +8,7 @@ import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
-import { createTaskRequest, updateTaskRequest, deleteTaskRequest } from "@/store/task/action";
+import { createTaskRequest, updateTaskRequest, deleteTaskRequest, clearTaskDetails } from "@/store/task/action";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
@@ -77,15 +77,18 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     const [formData, setFormData] = useState(initialFormData);
     const [existingAttachments, setExistingAttachments] = useState<(string | Attachment)[]>([]);
     const [newAttachments, setNewAttachments] = useState<any[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // REDUX STATE REFACTOR: Removed isSubmitting state
+    // We now rely on loading/success flags from Redux which are cleared on open/close
+
     const [isDeletePopoverOpen, setIsDeletePopoverOpen] = useState(false);
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         if (isOpen) {
-            setIsSubmitting(false);
-            setErrors({}); 
+            dispatch(clearTaskDetails()); // Clear previous success/error states immediately
+            setErrors({});
             if (task) {
                 setFormData({
                     project_id: task.project_id || "",
@@ -115,20 +118,21 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             }
         } else {
             // Reset form when drawer closes
+            dispatch(clearTaskDetails()); // Also clear on close to be safe
             setFormData(initialFormData);
             setExistingAttachments([]);
             setNewAttachments([]);
-            setIsSubmitting(false);
             setErrors({});
         }
-    }, [task, isOpen, selectedDate, allowedStatuses, user]);
+    }, [task, isOpen, selectedDate, allowedStatuses, user, dispatch]);
 
     useEffect(() => {
-        if (isSubmitting && !loading && success) {
+        // Simple check: if not loading and success is true, we are done.
+        // Since we clear state on open, success starts as false.
+        if (!loading && success) {
             onClose();
-            setIsSubmitting(false);
         }
-    }, [loading, success, isSubmitting, onClose]);
+    }, [loading, success, onClose]);
 
     const removeExistingAttachment = (index: number) => {
         const newExisting = [...existingAttachments];
@@ -166,7 +170,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             return;
         }
 
-        setIsSubmitting(true);
+        // No setIsSubmitting(true) here anymore
 
         const data = new FormData();
         data.append("project_id", formData.project_id);
@@ -196,7 +200,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     };
 
     const handleDeleteTask = () => {
-        setIsSubmitting(true);
+        // No setIsSubmitting(true)
         setIsDeletePopoverOpen(false);
         dispatch(deleteTaskRequest(task.id));
     };
@@ -487,7 +491,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                             color="danger"
                                             variant="flat"
                                             startContent={!loading && <Trash2 size={18} />}
-                                            isLoading={loading && isSubmitting}
+                                            isLoading={loading}
                                             isDisabled={loading}
                                         >
                                             Delete
@@ -528,7 +532,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                 <Button variant="light" onPress={onClose} isDisabled={loading}>
                                     Cancel
                                 </Button>
-                                <Button color="primary" type="submit" isLoading={loading && isSubmitting} isDisabled={loading}>
+                                <Button color="primary" type="submit" isLoading={loading} isDisabled={loading}>
                                     {task ? "Update Task" : "Create Task"}
                                 </Button>
                             </div>
