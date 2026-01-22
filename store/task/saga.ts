@@ -193,7 +193,6 @@ function* onSubmitEodReport({ payload }: any): SagaIterator {
     const response = yield call(submitEodReportApi, formData);
     if (response.data.success) {
       yield put(submitEodReportSuccess(response.data.data));
-      
     } else {
       yield put(
         submitEodReportFailure(
