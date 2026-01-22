@@ -15,7 +15,8 @@ import { Avatar, AvatarGroup } from "@heroui/avatar";
 import { Tooltip } from "@heroui/tooltip";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
-    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil
+    Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil,
+    ChevronsUp, ChevronsDown, AlertCircle, Circle
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -236,10 +237,34 @@ const TaskBoard = () => {
 
     const getPriorityColor = (priority: string) => {
         switch (priority?.toLowerCase()) {
+            case "urgent": return "danger";
             case "high": return "danger";
             case "medium": return "warning";
             case "low": return "success";
             default: return "default";
+        }
+    };
+
+    const getPriorityIcon = (priority: string) => {
+        const color = getPriorityColor(priority);
+        const colorMap: Record<string, string> = {
+            danger: "text-danger",
+            warning: "text-warning",
+            success: "text-success",
+            default: "text-default-400"
+        };
+
+        switch (priority?.toLowerCase()) {
+            case "urgent":
+                return <AlertCircle size={16} className={colorMap[color]} />;
+            case "high":
+                return <ChevronsUp size={16} className={colorMap[color]} />;
+            case "medium":
+                return <ChevronsUp size={16} className={colorMap[color]} />;
+            case "low":
+                return <ChevronsDown size={16} className={colorMap[color]} />;
+            default:
+                return <Circle size={16} className={colorMap[color]} />;
         }
     };
 
@@ -429,14 +454,11 @@ const TaskBoard = () => {
                                                                                 </Button>
                                                                             )}
                                                                         </div>
-                                                                        <Chip
-                                                                            size="sm"
-                                                                            color={getPriorityColor(task.priority)}
-                                                                            variant="flat"
-                                                                            className="capitalize text-[10px] h-5"
-                                                                        >
-                                                                            {task.priority || "Medium"}
-                                                                        </Chip>
+                                                                        <Tooltip content={task.priority || "Medium"} size="sm">
+                                                                            <div className="flex items-center justify-center">
+                                                                                {getPriorityIcon(task.priority)}
+                                                                            </div>
+                                                                        </Tooltip>
                                                                     </div>
                                                                 </div>
 
