@@ -133,6 +133,9 @@ const TaskBoard = () => {
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
+        // Prevent moving tasks INTO Overdue column manually
+        if (destination.droppableId === "Overdue") return;
+
         if (destination.droppableId === "Moved" || destination.droppableId === "Completed") {
             const task = tasks.find((t: any) => t.id === draggableId);
             if (task) {
@@ -367,7 +370,7 @@ const TaskBoard = () => {
                                 </Button> */}
                             </div>
 
-                            <Droppable droppableId={column.id}>
+                            <Droppable droppableId={column.id} isDropDisabled={column.id === "Overdue"}>
                                 {(provided, snapshot) => (
                                     <div
                                         {...provided.droppableProps}
