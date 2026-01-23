@@ -199,7 +199,7 @@ export default function AttendancePage() {
         record.date === format(new Date(), "yyyy-MM-dd")
     );
 
-    const isTodayClockIn = !!relevantRecord;
+    const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
 
     const isTodayClockOut = !!relevantRecord?.clock_out;
 
@@ -402,7 +402,17 @@ export default function AttendancePage() {
 
                     {!isAdmin && (
                         <>
-                            {!isTodayClockIn ? (
+                            {relevantRecord?.status === 'Leave' ? (
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold"
+                                    variant="flat"
+                                    color="warning"
+                                    startContent={<CalendarIcon size={20} />}
+                                    disableAnimation
+                                >
+                                    On Leave
+                                </Button>
+                            ) : !isTodayClockIn ? (
                                 <Button
                                     color="primary"
                                     size="lg"
