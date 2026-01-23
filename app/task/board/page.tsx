@@ -73,6 +73,7 @@ const TaskBoard = () => {
     }, [filterDate, todayStr]);
 
     const columns = React.useMemo(() => [
+        { id: "Overdue", title: "Overdue", color: "bg-danger-50", textColor: "text-danger-600" },
         { id: "Todo", title: "To Do", color: "bg-default-100", textColor: "text-default-600" },
         { id: "In Progress", title: "In Progress", color: "bg-primary-50", textColor: "text-primary-600" },
         { id: "Completed", title: "Completed", color: "bg-success-50", textColor: "text-success-600" },
@@ -139,6 +140,15 @@ const TaskBoard = () => {
             return;
         }
 
+        // Handle moving FROM Overdue -> Auto reschedule to Today (Filter Date)
+        if (source.droppableId === "Overdue" && destination.droppableId !== "Overdue") {
+            dispatch(updateTaskRequest(draggableId, {
+                status: destination.droppableId,
+                end_date: filterDate // Reschedule to current view date
+            }));
+            return;
+        }
+
         // Update status in backend
         dispatch(updateTaskRequest(draggableId, { status: destination.droppableId }));
     };
@@ -158,7 +168,15 @@ const TaskBoard = () => {
         return tasks.filter((task: any) => {
             const isRolloverForView = task.last_rollover_date === comparisonDate;
 
-            // 1. Handle "Moved" column
+            // 1. Handle "Overdue" column
+            if (status === "Overdue") {
+                return task.is_overdue;
+            }
+
+            // Exclude overdue tasks from other columns to avoid duplicates
+            if (task.is_overdue) return false;
+
+            // 2. Handle "Moved" column
             if (status === "Moved") {
                 // Task appears here if it has status="Moved" OR is a rollover task for this date
                 return task.status === "Moved" || isRolloverForView;
@@ -381,7 +399,7 @@ const TaskBoard = () => {
                                                                     </h4>
                                                                     <div className="flex items-center gap-1">
                                                                         <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-                                                                            {column.id !== "Moved" && task.status !== "Moved" && filterDate <= todayStr && (
+                                                                            {column.id !== "Moved" && column.id !== "Overdue" && task.status !== "Moved" && filterDate <= todayStr && (
                                                                                 <Button
                                                                                     isIconOnly
                                                                                     size="sm"
