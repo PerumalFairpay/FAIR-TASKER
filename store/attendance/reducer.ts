@@ -24,20 +24,62 @@ interface AttendanceState {
   attendanceHistory: any[];
   allAttendance: any[];
   metrics: any | null;
-  loading: boolean;
-  error: string | null;
-  success: string | null;
-  clockedIn: boolean; // Optional: track if currently clocked in based on last record
+  clockedIn: boolean;
+
+  clockInLoading: boolean;
+  clockInSuccess: boolean;
+  clockInError: string | null;
+
+  clockOutLoading: boolean;
+  clockOutSuccess: boolean;
+  clockOutError: string | null;
+
+  getMyHistoryLoading: boolean;
+  getMyHistorySuccess: boolean;
+  getMyHistoryError: string | null;
+
+  getAllAttendanceLoading: boolean;
+  getAllAttendanceSuccess: boolean;
+  getAllAttendanceError: string | null;
+
+  importAttendanceLoading: boolean;
+  importAttendanceSuccess: boolean;
+  importAttendanceError: string | null;
+
+  updateStatusLoading: boolean;
+  updateStatusSuccess: boolean;
+  updateStatusError: string | null;
 }
 
 const initialAttendanceState: AttendanceState = {
   attendanceHistory: [],
   allAttendance: [],
   metrics: null,
-  loading: false,
-  error: null,
-  success: null,
   clockedIn: false,
+
+  clockInLoading: false,
+  clockInSuccess: false,
+  clockInError: null,
+
+  clockOutLoading: false,
+  clockOutSuccess: false,
+  clockOutError: null,
+
+  getMyHistoryLoading: false,
+  getMyHistorySuccess: false,
+  getMyHistoryError: null,
+
+  getAllAttendanceLoading: false,
+  getAllAttendanceSuccess: false,
+  getAllAttendanceError: null,
+
+  importAttendanceLoading: false,
+  importAttendanceSuccess: false,
+  importAttendanceError: null,
+
+  updateStatusLoading: false,
+  updateStatusSuccess: false,
+  updateStatusError: null,
 };
 
 const attendanceReducer = (
@@ -49,39 +91,39 @@ const attendanceReducer = (
     case CLOCK_IN_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        clockInLoading: true,
+        clockInSuccess: false,
+        clockInError: null,
       };
     case CLOCK_IN_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Clocked in successfully",
+        clockInLoading: false,
+        clockInSuccess: true,
         clockedIn: true,
-        // Optimistically add to history if needed, or rely on refetch
         attendanceHistory: [action.payload.data, ...state.attendanceHistory],
       };
     case CLOCK_IN_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        clockInLoading: false,
+        clockInError: action.payload,
+        clockInSuccess: false,
       };
 
     // Clock Out
     case CLOCK_OUT_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        clockOutLoading: true,
+        clockOutSuccess: false,
+        clockOutError: null,
       };
     case CLOCK_OUT_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Clocked out successfully",
+        clockOutLoading: false,
+        clockOutSuccess: true,
         clockedIn: false,
         attendanceHistory: state.attendanceHistory.map((item) =>
           item.id === action.payload.data.id ? action.payload.data : item,
@@ -90,86 +132,94 @@ const attendanceReducer = (
     case CLOCK_OUT_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        clockOutLoading: false,
+        clockOutError: action.payload,
+        clockOutSuccess: false,
       };
 
     // My History
     case GET_MY_ATTENDANCE_HISTORY_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getMyHistoryLoading: true,
+        getMyHistorySuccess: false,
+        getMyHistoryError: null,
       };
     case GET_MY_ATTENDANCE_HISTORY_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getMyHistoryLoading: false,
+        getMyHistorySuccess: true,
         attendanceHistory: action.payload.data,
         metrics: action.payload.metrics,
       };
     case GET_MY_ATTENDANCE_HISTORY_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getMyHistoryLoading: false,
+        getMyHistoryError: action.payload,
+        getMyHistorySuccess: false,
       };
 
     // All Attendance
     case GET_ALL_ATTENDANCE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getAllAttendanceLoading: true,
+        getAllAttendanceSuccess: false,
+        getAllAttendanceError: null,
       };
     case GET_ALL_ATTENDANCE_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getAllAttendanceLoading: false,
+        getAllAttendanceSuccess: true,
         allAttendance: action.payload.data,
         metrics: action.payload.metrics,
       };
     case GET_ALL_ATTENDANCE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getAllAttendanceLoading: false,
+        getAllAttendanceError: action.payload,
+        getAllAttendanceSuccess: false,
       };
 
     // Import Attendance
     case IMPORT_ATTENDANCE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        importAttendanceLoading: true,
+        importAttendanceSuccess: false,
+        importAttendanceError: null,
       };
     case IMPORT_ATTENDANCE_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Attendance imported successfully",
+        importAttendanceLoading: false,
+        importAttendanceSuccess: true,
       };
     case IMPORT_ATTENDANCE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        importAttendanceLoading: false,
+        importAttendanceError: action.payload,
+        importAttendanceSuccess: false,
       };
 
     // Update Status
     case UPDATE_ATTENDANCE_STATUS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        updateStatusLoading: true,
+        updateStatusSuccess: false,
+        updateStatusError: null,
       };
     case UPDATE_ATTENDANCE_STATUS_SUCCESS:
       return {
         ...state,
-        loading: false,
-        // No success message to avoid triggering refetch
+        updateStatusLoading: false,
+        updateStatusSuccess: true,
         // Update only the status and notes fields, preserve other fields
         attendanceHistory: state.attendanceHistory.map((item) =>
           item.id === action.payload.data.id
@@ -195,15 +245,22 @@ const attendanceReducer = (
     case UPDATE_ATTENDANCE_STATUS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        updateStatusLoading: false,
+        updateStatusError: action.payload,
+        updateStatusSuccess: false,
       };
 
     case CLEAR_ATTENDANCE_STATUS:
       return {
         ...state,
-        error: null,
-        success: null,
+        clockInError: null,
+        clockInSuccess: false,
+        clockOutError: null,
+        clockOutSuccess: false,
+        importAttendanceError: null,
+        importAttendanceSuccess: false,
+        updateStatusError: null,
+        updateStatusSuccess: false,
       };
 
     default:

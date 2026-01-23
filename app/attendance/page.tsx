@@ -65,7 +65,21 @@ const columns = [
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
-    const { attendanceHistory, allAttendance, metrics, loading, success, error } = useSelector((state: AppState) => state.Attendance);
+    const {
+        attendanceHistory,
+        allAttendance,
+        metrics,
+        clockInLoading,
+        clockInSuccess,
+        clockInError,
+        clockOutLoading,
+        clockOutSuccess,
+        clockOutError,
+        getAllAttendanceLoading,
+        importAttendanceLoading,
+        importAttendanceSuccess,
+        importAttendanceError
+    } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
@@ -154,12 +168,57 @@ export default function AttendancePage() {
         }
     }
 
-    // Handle Toasts
+
+    // Handle Clock In/Out Toasts
     useEffect(() => {
-        if (success) {
+        if (clockInSuccess) {
             addToast({
                 title: "Success",
-                description: success,
+                description: "Clocked in successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            if (!isAdmin) {
+                dispatch(getMyAttendanceHistoryRequest());
+            }
+        }
+        if (clockInError) {
+            addToast({
+                title: "Error",
+                description: clockInError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockInSuccess, clockInError, dispatch, isAdmin]);
+
+    useEffect(() => {
+        if (clockOutSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked out successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            if (!isAdmin) {
+                dispatch(getMyAttendanceHistoryRequest());
+            }
+        }
+        if (clockOutError) {
+            addToast({
+                title: "Error",
+                description: clockOutError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockOutSuccess, clockOutError, dispatch, isAdmin]);
+
+    useEffect(() => {
+        if (importAttendanceSuccess) {
+            addToast({
+                title: "Success",
+                description: "Attendance imported successfully",
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
@@ -171,19 +230,17 @@ export default function AttendancePage() {
                 } else {
                     dispatch(getAllAttendanceRequest(filters));
                 }
-            } else {
-                dispatch(getMyAttendanceHistoryRequest());
             }
         }
-        if (error) {
+        if (importAttendanceError) {
             addToast({
                 title: "Error",
-                description: error,
+                description: importAttendanceError,
                 color: "danger"
             });
             dispatch(clearAttendanceStatus());
         }
-    }, [success, error, dispatch, isAdmin, viewMode, currentMonth, filters]);
+    }, [importAttendanceSuccess, importAttendanceError, dispatch, isAdmin, viewMode, currentMonth, filters]);
 
     const handleClockIn = () => {
         const now = new Date();
@@ -463,7 +520,7 @@ export default function AttendancePage() {
                                     size="lg"
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
-                                    isLoading={loading}
+                                    isLoading={clockInLoading}
                                     className="shadow-lg shadow-primary/40 font-semibold"
                                 >
                                     Clock In
@@ -475,7 +532,7 @@ export default function AttendancePage() {
                                     variant="flat"
                                     startContent={<LogOut size={20} />}
                                     onPress={handleClockOut}
-                                    isLoading={loading}
+                                    isLoading={clockOutLoading}
                                     className="font-semibold"
                                 >
                                     Clock Out
@@ -601,7 +658,7 @@ export default function AttendancePage() {
                             color="primary"
                             onPress={handleImportSubmit}
                             isDisabled={importFile.length === 0}
-                            isLoading={loading}
+                            isLoading={importAttendanceLoading}
                         >
                             Start Import
                         </Button>
