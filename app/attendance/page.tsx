@@ -77,6 +77,7 @@ export default function AttendancePage() {
     // Status update state
     const [statusUpdateData, setStatusUpdateData] = useState<{
         attendanceId: string;
+        oldStatus: string;
         newStatus: string;
         reason: string;
         notes: string;
@@ -275,6 +276,7 @@ export default function AttendancePage() {
                                 if (newStatus && newStatus !== cellValue) {
                                     setStatusUpdateData({
                                         attendanceId: item.id,
+                                        oldStatus: cellValue as string,
                                         newStatus,
                                         reason: '',
                                         notes: ''
@@ -633,11 +635,12 @@ export default function AttendancePage() {
                             )}
 
                             <Textarea
-                                label="Notes"
-                                placeholder="Add notes (optional)"
+                                label={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Rejection Reason" : "Notes"}
+                                placeholder={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Enter reason for rejecting the leave request" : "Add notes (optional)"}
                                 value={statusUpdateData?.notes || ''}
                                 onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, notes: e.target.value } : null)}
                                 minRows={3}
+                                description={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "This will be saved as the rejection reason for the associated leave request" : undefined}
                             />
                         </div>
                     </ModalBody>
