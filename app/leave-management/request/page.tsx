@@ -421,7 +421,7 @@ export default function LeaveRequestPage() {
                                                 </DropdownItem>
                                             )}
 
-                                            {(user?.role !== "employee" || item.status === "Pending") && (
+                                            {/* {(user?.role !== "employee" || item.status === "Pending") && (
                                                 <DropdownItem
                                                     key="delete"
                                                     startContent={<TrashIcon size={16} />}
@@ -430,7 +430,7 @@ export default function LeaveRequestPage() {
                                                 >
                                                     Delete
                                                 </DropdownItem>
-                                            )}
+                                            )} */}
                                         </DropdownMenu>
                                     </Dropdown>
                                 </div>
