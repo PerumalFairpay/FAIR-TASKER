@@ -41,7 +41,7 @@ interface DashboardData {
         present_days: number;
         absent_days: number;
         late_days: number;
-        half_days: number;
+        holiday_days: number;
         leave_days: number;
         total_working_days: number;
     };
@@ -310,8 +310,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <span className="text-xs font-bold text-orange-700">{data.attendance_metrics.late_days} <span className="font-medium text-orange-600/70 text-[10px]">Late</span></span>
                                 </div>
                                 <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-violet-50 border border-violet-100/80">
-                                    <Activity size={14} className="text-violet-500" />
-                                    <span className="text-xs font-bold text-violet-700">{data.attendance_metrics.half_days} <span className="font-medium text-violet-600/70 text-[10px]">Half</span></span>
+                                    <Calendar size={14} className="text-violet-500" />
+                                    <span className="text-xs font-bold text-violet-700">{data.attendance_metrics.holiday_days} <span className="font-medium text-violet-600/70 text-[10px]">Holiday</span></span>
                                 </div>
                             </div>
                         </CardBody>
