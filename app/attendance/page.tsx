@@ -26,6 +26,9 @@ import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
+import { Input } from "@heroui/input";
+import { Textarea } from "@heroui/input";
 import FileUpload from "@/components/common/FileUpload";
 import { FileDown, Upload } from "lucide-react";
 
@@ -70,6 +73,14 @@ export default function AttendancePage() {
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
+
+    // Status update state
+    const [statusUpdateData, setStatusUpdateData] = useState<{
+        attendanceId: string;
+        newStatus: string;
+        reason: string;
+        notes: string;
+    } | null>(null);
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -262,7 +273,12 @@ export default function AttendancePage() {
                             onSelectionChange={(keys) => {
                                 const newStatus = Array.from(keys)[0] as string;
                                 if (newStatus && newStatus !== cellValue) {
-                                    dispatch(updateAttendanceStatusRequest(item.id, { status: newStatus }));
+                                    setStatusUpdateData({
+                                        attendanceId: item.id,
+                                        newStatus,
+                                        reason: '',
+                                        notes: ''
+                                    });
                                 }
                             }}
                         >
@@ -586,6 +602,70 @@ export default function AttendancePage() {
                             isLoading={loading}
                         >
                             Start Import
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            {/* Status Update Modal */}
+            <Modal
+                isOpen={!!statusUpdateData}
+                onClose={() => setStatusUpdateData(null)}
+                size="md"
+            >
+                <ModalContent>
+                    <ModalHeader>Update Attendance Status</ModalHeader>
+                    <ModalBody>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-sm text-default-500 mb-1">New Status</p>
+                                <Chip color="primary" variant="flat">{statusUpdateData?.newStatus}</Chip>
+                            </div>
+
+                            {statusUpdateData?.newStatus === 'Leave' && (
+                                <Input
+                                    label="Reason"
+                                    placeholder="Enter leave reason"
+                                    value={statusUpdateData?.reason || ''}
+                                    onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, reason: e.target.value } : null)}
+                                    isRequired
+                                />
+                            )}
+
+                            <Textarea
+                                label="Notes"
+                                placeholder="Add notes (optional)"
+                                value={statusUpdateData?.notes || ''}
+                                onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                                minRows={3}
+                            />
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="flat"
+                            onPress={() => setStatusUpdateData(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            color="primary"
+                            onPress={() => {
+                                if (statusUpdateData) {
+                                    dispatch(updateAttendanceStatusRequest(
+                                        statusUpdateData.attendanceId,
+                                        {
+                                            status: statusUpdateData.newStatus,
+                                            reason: statusUpdateData.reason || undefined,
+                                            notes: statusUpdateData.notes || undefined
+                                        }
+                                    ));
+                                    setStatusUpdateData(null);
+                                }
+                            }}
+                            isDisabled={statusUpdateData?.newStatus === 'Leave' && !statusUpdateData?.reason}
+                        >
+                            Update Status
                         </Button>
                     </ModalFooter>
                 </ModalContent>

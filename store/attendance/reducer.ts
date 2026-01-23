@@ -169,14 +169,27 @@ const attendanceReducer = (
       return {
         ...state,
         loading: false,
-        success:
-          action.payload.message || "Attendance status updated successfully",
-        // Update the record in both lists if it exists
+        // No success message to avoid triggering refetch
+        // Update only the status and notes fields, preserve other fields
         attendanceHistory: state.attendanceHistory.map((item) =>
-          item.id === action.payload.data.id ? action.payload.data : item,
+          item.id === action.payload.data.id
+            ? {
+                ...item,
+                status: action.payload.data.status,
+                notes: action.payload.data.notes,
+                updated_at: action.payload.data.updated_at,
+              }
+            : item,
         ),
         allAttendance: state.allAttendance.map((item) =>
-          item.id === action.payload.data.id ? action.payload.data : item,
+          item.id === action.payload.data.id
+            ? {
+                ...item,
+                status: action.payload.data.status,
+                notes: action.payload.data.notes,
+                updated_at: action.payload.data.updated_at,
+              }
+            : item,
         ),
       };
     case UPDATE_ATTENDANCE_STATUS_FAILURE:
