@@ -9,7 +9,8 @@ import {
     clockInRequest,
     clockOutRequest,
     clearAttendanceStatus,
-    importAttendanceRequest
+    importAttendanceRequest,
+    updateAttendanceStatusRequest
 } from "@/store/attendance/action";
 import { AppState } from "@/store/rootReducer";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
@@ -20,7 +21,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, Bot } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
@@ -216,7 +217,7 @@ export default function AttendancePage() {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
-            case 'auto sync': return <RefreshCw className="w-5 h-5" />;
+            case 'auto sync': return <Bot className="w-5 h-5 text-primary" />;
             default: return <Laptop className="w-5 h-5" />;
         }
     };
@@ -248,6 +249,31 @@ export default function AttendancePage() {
                 else if (cellValue === "Absent") color = "danger";
                 else if (cellValue === "Leave") color = "warning";
                 else if (cellValue === "Holiday") color = "primary";
+
+                if (isAdmin) {
+                    return (
+                        <Select
+                            size="sm"
+                            variant="flat"
+                            color={color}
+                            className="w-32"
+                            aria-label="Update Status"
+                            selectedKeys={[cellValue as string]}
+                            onSelectionChange={(keys) => {
+                                const newStatus = Array.from(keys)[0] as string;
+                                if (newStatus && newStatus !== cellValue) {
+                                    dispatch(updateAttendanceStatusRequest(item.id, { status: newStatus }));
+                                }
+                            }}
+                        >
+                            <SelectItem key="Present">Present</SelectItem>
+                            <SelectItem key="Absent">Absent</SelectItem>
+                            <SelectItem key="Leave">Leave</SelectItem>
+                            <SelectItem key="Holiday">Holiday</SelectItem>
+                            <SelectItem key="Late">Late</SelectItem>
+                        </Select>
+                    );
+                }
 
                 return (
                     <Chip className="capitalize" color={color} size="sm" variant="flat">

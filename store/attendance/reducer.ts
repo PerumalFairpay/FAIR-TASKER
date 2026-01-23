@@ -14,6 +14,9 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
+  UPDATE_ATTENDANCE_STATUS_REQUEST,
+  UPDATE_ATTENDANCE_STATUS_SUCCESS,
+  UPDATE_ATTENDANCE_STATUS_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -148,6 +151,35 @@ const attendanceReducer = (
         success: action.payload.message || "Attendance imported successfully",
       };
     case IMPORT_ATTENDANCE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    // Update Status
+    case UPDATE_ATTENDANCE_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        success: null,
+      };
+    case UPDATE_ATTENDANCE_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success:
+          action.payload.message || "Attendance status updated successfully",
+        // Update the record in both lists if it exists
+        attendanceHistory: state.attendanceHistory.map((item) =>
+          item.id === action.payload.data.id ? action.payload.data : item,
+        ),
+        allAttendance: state.allAttendance.map((item) =>
+          item.id === action.payload.data.id ? action.payload.data : item,
+        ),
+      };
+    case UPDATE_ATTENDANCE_STATUS_FAILURE:
       return {
         ...state,
         loading: false,

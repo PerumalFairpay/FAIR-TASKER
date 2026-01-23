@@ -6,6 +6,7 @@ import {
   GET_MY_ATTENDANCE_HISTORY_REQUEST,
   GET_ALL_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_REQUEST,
+  UPDATE_ATTENDANCE_STATUS_REQUEST,
 } from "./actionType";
 import {
   clockInSuccess,
@@ -18,6 +19,8 @@ import {
   getAllAttendanceFailure,
   importAttendanceSuccess,
   importAttendanceFailure,
+  updateAttendanceStatusSuccess,
+  updateAttendanceStatusFailure,
 } from "./action";
 import api from "../api";
 
@@ -75,6 +78,10 @@ function getAllAttendanceApi(filters?: any) {
   }
 
   return api.get(url);
+}
+
+function updateAttendanceStatusApi(attendanceId: string, payload: any) {
+  return api.patch(`/attendance/update-status/${attendanceId}`, payload);
 }
 
 // Sagas
@@ -139,10 +146,25 @@ function* onImportAttendance({ payload }: any): SagaIterator {
   }
 }
 
+function* onUpdateAttendanceStatus({ payload }: any): SagaIterator {
+  try {
+    const { attendanceId, ...rest } = payload;
+    const response = yield call(updateAttendanceStatusApi, attendanceId, rest);
+    yield put(updateAttendanceStatusSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updateAttendanceStatusFailure(
+        error.response?.data?.message || "Failed to update attendance status",
+      ),
+    );
+  }
+}
+
 export default function* attendanceSaga(): SagaIterator {
   yield takeEvery(CLOCK_IN_REQUEST, onClockIn);
   yield takeEvery(CLOCK_OUT_REQUEST, onClockOut);
   yield takeEvery(GET_MY_ATTENDANCE_HISTORY_REQUEST, onGetMyAttendanceHistory);
   yield takeEvery(GET_ALL_ATTENDANCE_REQUEST, onGetAllAttendance);
   yield takeEvery(IMPORT_ATTENDANCE_REQUEST, onImportAttendance);
+  yield takeEvery(UPDATE_ATTENDANCE_STATUS_REQUEST, onUpdateAttendanceStatus);
 }
