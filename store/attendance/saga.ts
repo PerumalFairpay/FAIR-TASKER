@@ -1,126 +1,170 @@
 import { takeEvery, put, call } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import {
-    CLOCK_IN_REQUEST,
-    CLOCK_OUT_REQUEST,
-    GET_MY_ATTENDANCE_HISTORY_REQUEST,
-    GET_ALL_ATTENDANCE_REQUEST,
-    IMPORT_ATTENDANCE_REQUEST
+  CLOCK_IN_REQUEST,
+  CLOCK_OUT_REQUEST,
+  GET_MY_ATTENDANCE_HISTORY_REQUEST,
+  GET_ALL_ATTENDANCE_REQUEST,
+  IMPORT_ATTENDANCE_REQUEST,
+  UPDATE_ATTENDANCE_STATUS_REQUEST,
 } from "./actionType";
 import {
-    clockInSuccess, clockInFailure,
-    clockOutSuccess, clockOutFailure,
-    getMyAttendanceHistorySuccess, getMyAttendanceHistoryFailure,
-    getAllAttendanceSuccess, getAllAttendanceFailure,
-    importAttendanceSuccess, importAttendanceFailure
+  clockInSuccess,
+  clockInFailure,
+  clockOutSuccess,
+  clockOutFailure,
+  getMyAttendanceHistorySuccess,
+  getMyAttendanceHistoryFailure,
+  getAllAttendanceSuccess,
+  getAllAttendanceFailure,
+  importAttendanceSuccess,
+  importAttendanceFailure,
+  updateAttendanceStatusSuccess,
+  updateAttendanceStatusFailure,
 } from "./action";
 import api from "../api";
 
 // API Functions
 function clockInApi(payload: any) {
-    return api.post("/attendance/clock-in", payload);
+  return api.post("/attendance/clock-in", payload);
 }
 
 function clockOutApi(payload: any) {
-    return api.put("/attendance/clock-out", payload);
+  return api.put("/attendance/clock-out", payload);
 }
 
 function importAttendanceApi(payload: any) {
-    const formData = new FormData();
-    formData.append('file', payload);
-    return api.post("/attendance/import", formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
+  const formData = new FormData();
+  formData.append("file", payload);
+  return api.post("/attendance/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
 function getMyAttendanceHistoryApi(filters?: any) {
-    let url = "/attendance/my-history";
-    if (filters) {
-        const params = new URLSearchParams();
-        if (filters.start_date) params.append('start_date', filters.start_date);
-        if (filters.end_date) params.append('end_date', filters.end_date);
-        const queryString = params.toString();
-        if (queryString) url += `?${queryString}`;
-    }
-    return api.get(url);
+  let url = "/attendance/my-history";
+  if (filters) {
+    const params = new URLSearchParams();
+    if (filters.start_date) params.append("start_date", filters.start_date);
+    if (filters.end_date) params.append("end_date", filters.end_date);
+    const queryString = params.toString();
+    if (queryString) url += `?${queryString}`;
+  }
+  return api.get(url);
 }
 
 function getAllAttendanceApi(filters?: any) {
-    let url = "/attendance/";
-    const params = new URLSearchParams();
+  let url = "/attendance/";
+  const params = new URLSearchParams();
 
-    if (filters) {
-        if (typeof filters === 'string') {
-            params.append('date', filters);
-        } else {
-            if (filters.date) params.append('date', filters.date);
-            if (filters.start_date) params.append('start_date', filters.start_date);
-            if (filters.end_date) params.append('end_date', filters.end_date);
-            if (filters.employee_id) params.append('employee_id', filters.employee_id);
-            if (filters.status) params.append('status', filters.status);
-        }
+  if (filters) {
+    if (typeof filters === "string") {
+      params.append("date", filters);
+    } else {
+      if (filters.date) params.append("date", filters.date);
+      if (filters.start_date) params.append("start_date", filters.start_date);
+      if (filters.end_date) params.append("end_date", filters.end_date);
+      if (filters.employee_id)
+        params.append("employee_id", filters.employee_id);
+      if (filters.status) params.append("status", filters.status);
     }
+  }
 
-    const queryString = params.toString();
-    if (queryString) {
-        url += `?${queryString}`;
-    }
+  const queryString = params.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
 
-    return api.get(url);
+  return api.get(url);
+}
+
+function updateAttendanceStatusApi(attendanceId: string, payload: any) {
+  return api.patch(`/attendance/update-status/${attendanceId}`, payload);
 }
 
 // Sagas
 function* onClockIn({ payload }: any): SagaIterator {
-    try {
-        const response = yield call(clockInApi, payload);
-        yield put(clockInSuccess(response.data));
-    } catch (error: any) {
-        yield put(clockInFailure(error.response?.data?.message || "Failed to clock in"));
-    }
+  try {
+    const response = yield call(clockInApi, payload);
+    yield put(clockInSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      clockInFailure(error.response?.data?.message || "Failed to clock in"),
+    );
+  }
 }
 
 function* onClockOut({ payload }: any): SagaIterator {
-    try {
-        const response = yield call(clockOutApi, payload);
-        yield put(clockOutSuccess(response.data));
-    } catch (error: any) {
-        yield put(clockOutFailure(error.response?.data?.message || "Failed to clock out"));
-    }
+  try {
+    const response = yield call(clockOutApi, payload);
+    yield put(clockOutSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      clockOutFailure(error.response?.data?.message || "Failed to clock out"),
+    );
+  }
 }
 
 function* onGetMyAttendanceHistory({ payload }: any): SagaIterator {
-    try {
-        const response = yield call(getMyAttendanceHistoryApi, payload);
-        yield put(getMyAttendanceHistorySuccess(response.data));
-    } catch (error: any) {
-        yield put(getMyAttendanceHistoryFailure(error.response?.data?.message || "Failed to fetch history"));
-    }
+  try {
+    const response = yield call(getMyAttendanceHistoryApi, payload);
+    yield put(getMyAttendanceHistorySuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      getMyAttendanceHistoryFailure(
+        error.response?.data?.message || "Failed to fetch history",
+      ),
+    );
+  }
 }
 
 function* onGetAllAttendance({ payload }: any): SagaIterator {
-    try {
-        const response = yield call(getAllAttendanceApi, payload);
-        yield put(getAllAttendanceSuccess(response.data));
-    } catch (error: any) {
-        yield put(getAllAttendanceFailure(error.response?.data?.message || "Failed to fetch attendance records"));
-    }
+  try {
+    const response = yield call(getAllAttendanceApi, payload);
+    yield put(getAllAttendanceSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      getAllAttendanceFailure(
+        error.response?.data?.message || "Failed to fetch attendance records",
+      ),
+    );
+  }
 }
 
 function* onImportAttendance({ payload }: any): SagaIterator {
-    try {
-        const response = yield call(importAttendanceApi, payload);
-        yield put(importAttendanceSuccess(response.data));
-    } catch (error: any) {
-        yield put(importAttendanceFailure(error.response?.data?.message || "Failed to import attendance"));
-    }
+  try {
+    const response = yield call(importAttendanceApi, payload);
+    yield put(importAttendanceSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      importAttendanceFailure(
+        error.response?.data?.message || "Failed to import attendance",
+      ),
+    );
+  }
+}
+
+function* onUpdateAttendanceStatus({ payload }: any): SagaIterator {
+  try {
+    const { attendanceId, ...rest } = payload;
+    const response = yield call(updateAttendanceStatusApi, attendanceId, rest);
+    yield put(updateAttendanceStatusSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updateAttendanceStatusFailure(
+        error.response?.data?.message || "Failed to update attendance status",
+      ),
+    );
+  }
 }
 
 export default function* attendanceSaga(): SagaIterator {
-    yield takeEvery(CLOCK_IN_REQUEST, onClockIn);
-    yield takeEvery(CLOCK_OUT_REQUEST, onClockOut);
-    yield takeEvery(GET_MY_ATTENDANCE_HISTORY_REQUEST, onGetMyAttendanceHistory);
-    yield takeEvery(GET_ALL_ATTENDANCE_REQUEST, onGetAllAttendance);
-    yield takeEvery(IMPORT_ATTENDANCE_REQUEST, onImportAttendance);
+  yield takeEvery(CLOCK_IN_REQUEST, onClockIn);
+  yield takeEvery(CLOCK_OUT_REQUEST, onClockOut);
+  yield takeEvery(GET_MY_ATTENDANCE_HISTORY_REQUEST, onGetMyAttendanceHistory);
+  yield takeEvery(GET_ALL_ATTENDANCE_REQUEST, onGetAllAttendance);
+  yield takeEvery(IMPORT_ATTENDANCE_REQUEST, onImportAttendance);
+  yield takeEvery(UPDATE_ATTENDANCE_STATUS_REQUEST, onUpdateAttendanceStatus);
 }

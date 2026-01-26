@@ -78,7 +78,7 @@ export default function AddEditLeaveRequestDrawer({
                 dispatch(getUserRequest());
             }
         }
-    }, [isOpen, dispatch, user, employees, leaveTypes, holidays]);
+    }, [isOpen, dispatch]);
 
     useEffect(() => {
         if (isOpen && user?.role === "employee" && employees?.length > 0) {

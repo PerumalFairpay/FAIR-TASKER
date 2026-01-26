@@ -9,7 +9,8 @@ import {
     clockInRequest,
     clockOutRequest,
     clearAttendanceStatus,
-    importAttendanceRequest
+    importAttendanceRequest,
+    updateAttendanceStatusRequest
 } from "@/store/attendance/action";
 import { AppState } from "@/store/rootReducer";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
@@ -20,11 +21,14 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, Bot } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
+import { Input } from "@heroui/input";
+import { Textarea } from "@heroui/input";
 import FileUpload from "@/components/common/FileUpload";
 import { FileDown, Upload } from "lucide-react";
 
@@ -61,7 +65,21 @@ const columns = [
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
-    const { attendanceHistory, allAttendance, metrics, loading, success, error } = useSelector((state: AppState) => state.Attendance);
+    const {
+        attendanceHistory,
+        allAttendance,
+        metrics,
+        clockInLoading,
+        clockInSuccess,
+        clockInError,
+        clockOutLoading,
+        clockOutSuccess,
+        clockOutError,
+        getAllAttendanceLoading,
+        importAttendanceLoading,
+        importAttendanceSuccess,
+        importAttendanceError
+    } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
@@ -69,6 +87,15 @@ export default function AttendancePage() {
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
+
+    // Status update state
+    const [statusUpdateData, setStatusUpdateData] = useState<{
+        attendanceId: string;
+        oldStatus: string;
+        newStatus: string;
+        reason: string;
+        notes: string;
+    } | null>(null);
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -141,12 +168,57 @@ export default function AttendancePage() {
         }
     }
 
-    // Handle Toasts
+
+    // Handle Clock In/Out Toasts
     useEffect(() => {
-        if (success) {
+        if (clockInSuccess) {
             addToast({
                 title: "Success",
-                description: success,
+                description: "Clocked in successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            if (!isAdmin) {
+                dispatch(getMyAttendanceHistoryRequest());
+            }
+        }
+        if (clockInError) {
+            addToast({
+                title: "Error",
+                description: clockInError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockInSuccess, clockInError, dispatch, isAdmin]);
+
+    useEffect(() => {
+        if (clockOutSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked out successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            if (!isAdmin) {
+                dispatch(getMyAttendanceHistoryRequest());
+            }
+        }
+        if (clockOutError) {
+            addToast({
+                title: "Error",
+                description: clockOutError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockOutSuccess, clockOutError, dispatch, isAdmin]);
+
+    useEffect(() => {
+        if (importAttendanceSuccess) {
+            addToast({
+                title: "Success",
+                description: "Attendance imported successfully",
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
@@ -158,19 +230,17 @@ export default function AttendancePage() {
                 } else {
                     dispatch(getAllAttendanceRequest(filters));
                 }
-            } else {
-                dispatch(getMyAttendanceHistoryRequest());
             }
         }
-        if (error) {
+        if (importAttendanceError) {
             addToast({
                 title: "Error",
-                description: error,
+                description: importAttendanceError,
                 color: "danger"
             });
             dispatch(clearAttendanceStatus());
         }
-    }, [success, error, dispatch, isAdmin, viewMode, currentMonth, filters]);
+    }, [importAttendanceSuccess, importAttendanceError, dispatch, isAdmin, viewMode, currentMonth, filters]);
 
     const handleClockIn = () => {
         const now = new Date();
@@ -199,7 +269,7 @@ export default function AttendancePage() {
         record.date === format(new Date(), "yyyy-MM-dd")
     );
 
-    const isTodayClockIn = !!relevantRecord;
+    const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
 
     const isTodayClockOut = !!relevantRecord?.clock_out;
 
@@ -216,6 +286,7 @@ export default function AttendancePage() {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
+            case 'auto sync': return <Bot className="w-5 h-5 text-primary" />;
             default: return <Laptop className="w-5 h-5" />;
         }
     };
@@ -247,6 +318,37 @@ export default function AttendancePage() {
                 else if (cellValue === "Absent") color = "danger";
                 else if (cellValue === "Leave") color = "warning";
                 else if (cellValue === "Holiday") color = "primary";
+
+                if (isAdmin) {
+                    return (
+                        <Select
+                            size="sm"
+                            variant="flat"
+                            color={color}
+                            className="w-32"
+                            aria-label="Update Status"
+                            selectedKeys={[cellValue as string]}
+                            onSelectionChange={(keys) => {
+                                const newStatus = Array.from(keys)[0] as string;
+                                if (newStatus && newStatus !== cellValue) {
+                                    setStatusUpdateData({
+                                        attendanceId: item.id,
+                                        oldStatus: cellValue as string,
+                                        newStatus,
+                                        reason: '',
+                                        notes: ''
+                                    });
+                                }
+                            }}
+                        >
+                            <SelectItem key="Present">Present</SelectItem>
+                            <SelectItem key="Absent">Absent</SelectItem>
+                            <SelectItem key="Leave">Leave</SelectItem>
+                            <SelectItem key="Holiday">Holiday</SelectItem>
+                            <SelectItem key="Late">Late</SelectItem>
+                        </Select>
+                    );
+                }
 
                 return (
                     <Chip className="capitalize" color={color} size="sm" variant="flat">
@@ -402,13 +504,23 @@ export default function AttendancePage() {
 
                     {!isAdmin && (
                         <>
-                            {!isTodayClockIn ? (
+                            {relevantRecord?.status === 'Leave' ? (
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold"
+                                    variant="flat"
+                                    color="warning"
+                                    startContent={<CalendarIcon size={20} />}
+                                    disableAnimation
+                                >
+                                    On Leave
+                                </Button>
+                            ) : !isTodayClockIn ? (
                                 <Button
                                     color="primary"
                                     size="lg"
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
-                                    isLoading={loading}
+                                    isLoading={clockInLoading}
                                     className="shadow-lg shadow-primary/40 font-semibold"
                                 >
                                     Clock In
@@ -420,7 +532,7 @@ export default function AttendancePage() {
                                     variant="flat"
                                     startContent={<LogOut size={20} />}
                                     onPress={handleClockOut}
-                                    isLoading={loading}
+                                    isLoading={clockOutLoading}
                                     className="font-semibold"
                                 >
                                     Clock Out
@@ -546,9 +658,74 @@ export default function AttendancePage() {
                             color="primary"
                             onPress={handleImportSubmit}
                             isDisabled={importFile.length === 0}
-                            isLoading={loading}
+                            isLoading={importAttendanceLoading}
                         >
                             Start Import
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            {/* Status Update Modal */}
+            <Modal
+                isOpen={!!statusUpdateData}
+                onClose={() => setStatusUpdateData(null)}
+                size="md"
+            >
+                <ModalContent>
+                    <ModalHeader>Update Attendance Status</ModalHeader>
+                    <ModalBody>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-sm text-default-500 mb-1">New Status</p>
+                                <Chip color="primary" variant="flat">{statusUpdateData?.newStatus}</Chip>
+                            </div>
+
+                            {statusUpdateData?.newStatus === 'Leave' && (
+                                <Input
+                                    label="Reason"
+                                    placeholder="Enter leave reason"
+                                    value={statusUpdateData?.reason || ''}
+                                    onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, reason: e.target.value } : null)}
+                                    isRequired
+                                />
+                            )}
+
+                            <Textarea
+                                label={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Rejection Reason" : "Notes"}
+                                placeholder={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Enter reason for rejecting the leave request" : "Add notes (optional)"}
+                                value={statusUpdateData?.notes || ''}
+                                onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                                minRows={3}
+                                description={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "This will be saved as the rejection reason for the associated leave request" : undefined}
+                            />
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="flat"
+                            onPress={() => setStatusUpdateData(null)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            color="primary"
+                            onPress={() => {
+                                if (statusUpdateData) {
+                                    dispatch(updateAttendanceStatusRequest(
+                                        statusUpdateData.attendanceId,
+                                        {
+                                            status: statusUpdateData.newStatus,
+                                            reason: statusUpdateData.reason || undefined,
+                                            notes: statusUpdateData.notes || undefined
+                                        }
+                                    ));
+                                    setStatusUpdateData(null);
+                                }
+                            }}
+                            isDisabled={statusUpdateData?.newStatus === 'Leave' && !statusUpdateData?.reason}
+                        >
+                            Update Status
                         </Button>
                     </ModalFooter>
                 </ModalContent>

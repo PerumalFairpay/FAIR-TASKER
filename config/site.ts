@@ -97,7 +97,7 @@ export const siteConfig: SiteConfig = {
           allowedRoles: ["admin"],
         },
         {
-          label: "Leave Status",
+          label: "Leave Request",
           href: "/leave-management/request",
           icon: "Calendar",
           allowedRoles: ["admin", "employee"],
@@ -220,7 +220,7 @@ export const siteConfig: SiteConfig = {
       label: "Feeds",
       href: "/feeds",
       icon: "Rss", // Using Rss icon for feeds
-      allowedRoles: ["employee"],
+      allowedRoles: ["admin", "employee"],
     },
   ],
 
