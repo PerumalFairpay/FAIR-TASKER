@@ -99,6 +99,46 @@ interface AdminDashboardData {
             on_hold_projects: number;
         };
     };
+    task_analytics: {
+        overview: {
+            total_assigned: number;
+            completed: number;
+            in_progress: number;
+            pending: number;
+            overdue: number;
+            completion_rate_percentage: number;
+        };
+        status_distribution: {
+            todo: number;
+            in_progress: number;
+            in_review: number;
+            completed: number;
+        };
+        priority_breakdown: {
+            critical: number;
+            high: number;
+            medium: number;
+            low: number;
+        };
+        productivity_trends: {
+            labels: string[];
+            completed: number[];
+            created: number[];
+        };
+        top_contributors: Array<{
+            name: string;
+            role: string;
+            completed: number;
+            efficiency: number;
+        }>;
+        recent_overdue_tasks: Array<{
+            id: string;
+            title: string;
+            assigned_to: string;
+            due_date: string;
+            priority: string;
+        }>;
+    };
     alerts: {
         critical: Array<any>;
         warnings: Array<any>;
@@ -317,6 +357,61 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 )) : (
                                     <p className="text-xs text-slate-400 italic">No recent hires.</p>
                                 )}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* Activity Feed */}
+                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
+                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400" />
+                                System Activity
+                            </h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activities.map((act, i) => {
+                                    const dateObj = new Date(act.timestamp);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                                    const isHighWithIcon = act.priority === 'high';
+
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activities.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100"></div>
+                                            )}
+
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 border-rose-100 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 border-amber-100 text-amber-500' :
+                                                        'bg-blue-50 border-blue-100 text-blue-500'
+                                                    }`}>
+                                                    <Activity size={14} strokeWidth={2.5} />
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-xs text-slate-700 font-medium leading-snug">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[9px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-300">•</span>
+                                                    <span className="text-[9px] text-slate-400 font-medium">
+                                                        {timeStr}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </CardBody>
                     </Card>
@@ -559,8 +654,118 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Work Mode Distributions - Standard Card */}
+                    {/* Task Analytics & Productivity Card */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Productivity & Tasks</h3>
+                                <p className="text-xs text-slate-400">Task Completion & Efficiency</p>
+                            </div>
+                            <div className="p-2 bg-indigo-50 rounded-full text-indigo-500">
+                                <CheckCircle size={20} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-8">
+                            {/* Overview Row */}
+                            <div className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50">
+                                <div className="space-y-1">
+                                    <h4 className="text-4xl font-bold text-slate-800">{data.task_analytics.overview.completion_rate_percentage}%</h4>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Completion Rate</p>
+                                </div>
+                                <div className="text-right space-y-1">
+                                    <h4 className="text-2xl font-bold text-slate-800">{data.task_analytics.overview.completed} <span className="text-sm font-medium text-slate-400">/ {data.task_analytics.overview.total_assigned}</span></h4>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Tasks Completed</p>
+                                </div>
+                            </div>
 
+                            {/* Status & Priority Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                                {/* Status */}
+                                <div className="space-y-4">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status Breakdown</p>
+                                    <div className="space-y-3">
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                                <span>In Progress</span>
+                                                <span>{data.task_analytics.status_distribution.in_progress}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                                <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                                <span>Pending</span>
+                                                <span>{data.task_analytics.status_distribution.todo}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                                <div className="h-1.5 rounded-full bg-slate-400" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                                <span>Review</span>
+                                                <span>{data.task_analytics.status_distribution.in_review}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                                <div className="h-1.5 rounded-full bg-amber-400" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Priority */}
+                                <div className="space-y-4">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Priority</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="p-2 bg-rose-50 rounded-xl border border-rose-100 text-center">
+                                            <span className="block text-xl font-bold text-rose-600">{data.task_analytics.priority_breakdown.critical}</span>
+                                            <span className="text-[9px] font-bold text-rose-400 uppercase">Critical</span>
+                                        </div>
+                                        <div className="p-2 bg-orange-50 rounded-xl border border-orange-100 text-center">
+                                            <span className="block text-xl font-bold text-orange-600">{data.task_analytics.priority_breakdown.high}</span>
+                                            <span className="text-[9px] font-bold text-orange-400 uppercase">High</span>
+                                        </div>
+                                        <div className="p-2 bg-blue-50 rounded-xl border border-blue-100 text-center">
+                                            <span className="block text-xl font-bold text-blue-600">{data.task_analytics.priority_breakdown.medium}</span>
+                                            <span className="text-[9px] font-bold text-blue-400 uppercase">Medium</span>
+                                        </div>
+                                        <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
+                                            <span className="block text-xl font-bold text-emerald-600">{data.task_analytics.priority_breakdown.low}</span>
+                                            <span className="text-[9px] font-bold text-emerald-400 uppercase">Low</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Top Contributors */}
+                            {data.task_analytics.top_contributors && data.task_analytics.top_contributors.length > 0 && (
+                                <div className="pt-4 border-t border-slate-50">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Top Performers</p>
+                                    <div className="space-y-3">
+                                        {data.task_analytics.top_contributors.map((c, i) => (
+                                            <div key={i} className="flex justify-between items-center">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${i === 0 ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                        {i + 1}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-slate-700">{c.name}</p>
+                                                        <p className="text-[9px] text-slate-400">{c.role}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-xs font-bold text-slate-800">{c.completed} Tasks</p>
+                                                    <p className="text-[9px] text-emerald-500 font-medium">{c.efficiency}% Eff.</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                        </CardBody>
+                    </Card>
 
 
                 </div>
@@ -704,60 +909,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Activity Feed */}
-                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
-                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400" />
-                                System Activity
-                            </h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activities.map((act, i) => {
-                                    const dateObj = new Date(act.timestamp);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                                    const isHighWithIcon = act.priority === 'high';
 
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 border-rose-100 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 border-amber-100 text-amber-500' :
-                                                        'bg-blue-50 border-blue-100 text-blue-500'
-                                                    }`}>
-                                                    <Activity size={14} strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-sm text-slate-700 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-300">•</span>
-                                                    <span className="text-[10px] text-slate-400 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardBody>
-                    </Card>
 
                 </div>
             </div>
