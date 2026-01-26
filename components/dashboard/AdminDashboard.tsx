@@ -2,15 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
+import Link from "next/link";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Progress } from "@heroui/progress";
 import { User } from "@heroui/user";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Chip } from "@heroui/chip";
+import { Image } from "@heroui/image";
+import { Avatar } from "@heroui/avatar";
 import {
     Users, Briefcase, Calendar, CheckCircle, Clock, AlertCircle,
-    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard
+    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard, ArrowUpRight
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { getBlogsRequest } from "@/store/blog/action";
 
 interface AdminDashboardData {
     employee_analytics: {
@@ -113,6 +118,7 @@ interface AdminDashboardData {
             in_progress: number;
             in_review: number;
             completed: number;
+            created: number;
         };
         priority_breakdown: {
             critical: number;
@@ -173,12 +179,18 @@ const LegendItem = ({ label, color, value, percent }: { label: string, color: st
 
 export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
+    const dispatch = useDispatch();
+    // @ts-ignore
+    const { blogs, getBlogsLoading } = useSelector((state: any) => state.Blog);
 
     useEffect(() => {
+        // @ts-ignore
+        dispatch(getBlogsRequest(1, 10));
+
         setCurrentDate(new Date());
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [dispatch]);
 
     if (!data) return null;
 
@@ -215,6 +227,44 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 
 
+
+                    {/* Recent Hires List */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <h3 className="text-sm font-bold text-slate-800">Recent Joiners</h3>
+                            <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg">
+                                <UserPlus size={16} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-2">
+                            <div className="space-y-4 mb-2">
+                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <User
+                                            name={hire.name}
+                                            description={
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
+                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                                </div>
+                                            }
+                                            avatarProps={{
+                                                src: hire.profile_picture,
+                                                size: "sm",
+                                                radius: "lg",
+                                                classNames: { base: "shrink-0" } // Enforce fix size
+                                            }}
+                                            classNames={{
+                                                name: "text-xs font-bold text-slate-700"
+                                            }}
+                                        />
+                                    </div>
+                                )) : (
+                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
+                                )}
+                            </div>
+                        </CardBody>
+                    </Card>
 
                     {/* Upcoming Confirmations */}
                     {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
@@ -323,43 +373,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Recent Hires List */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <h3 className="text-sm font-bold text-slate-800">Recent Joiners</h3>
-                            <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg">
-                                <UserPlus size={16} />
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 py-2">
-                            <div className="space-y-4 mb-2">
-                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <User
-                                            name={hire.name}
-                                            description={
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
-                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                                                </div>
-                                            }
-                                            avatarProps={{
-                                                src: hire.profile_picture,
-                                                size: "sm",
-                                                radius: "lg",
-                                                classNames: { base: "shrink-0" } // Enforce fix size
-                                            }}
-                                            classNames={{
-                                                name: "text-xs font-bold text-slate-700"
-                                            }}
-                                        />
-                                    </div>
-                                )) : (
-                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
+
 
                     {/* Activity Feed */}
                     <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
@@ -738,8 +752,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 </div>
                             </div>
 
-                            {/* Top Contributors */}
-                            {data.task_analytics.top_contributors && data.task_analytics.top_contributors.length > 0 && (
+                            {/* {data.task_analytics.top_contributors && data.task_analytics.top_contributors.length > 0 && (
                                 <div className="pt-4 border-t border-slate-50">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Top Performers</p>
                                     <div className="space-y-3">
@@ -762,7 +775,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                         ))}
                                     </div>
                                 </div>
-                            )}
+                            )} */}
 
                         </CardBody>
                     </Card>
@@ -911,6 +924,72 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 
 
+                    {/* Activity Feed moved to Col 1 */}
+
+                    {/* Blog / News Feed - Employee Dashboard Style */}
+                    {blogs && blogs.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-center px-1">
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
+                                <Link href="/feeds" className="text-xs font-bold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
+                                    View All
+                                    <ArrowUpRight size={14} />
+                                </Link>
+                            </div>
+
+                            {blogs.slice(0, 3).map((blog: any, i: number) => (
+                                <Link href={`/feeds/${blog.id}`} key={i} className="block group">
+                                    <Card
+                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
+                                        style={{
+                                            borderRadius: "24px",
+                                            boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
+                                        }}
+                                        isPressable={false}
+                                    >
+                                        {/* Card Image Area */}
+                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
+                                            <Image
+                                                removeWrapper
+                                                alt={blog.title}
+                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ease-out"
+                                                src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
+                                            />
+                                        </div>
+
+                                        <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
+                                            <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
+                                                {blog.title}
+                                            </h2>
+                                            <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                                                {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
+                                            </p>
+                                        </CardBody>
+
+                                        {/* Footer with Author and Date */}
+                                        <div className="px-3 pb-2 pt-0 flex items-center justify-between w-full">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar
+                                                    src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                                    name={blog.author?.name || "Admin"}
+                                                    className="w-5 h-5 text-[9px]"
+                                                />
+                                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px]">
+                                                    {blog.author?.name || "Admin"}
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-slate-400">
+                                                {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
