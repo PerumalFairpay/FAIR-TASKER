@@ -124,12 +124,16 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
                                                         size="md"
                                                         step={5}
                                                         minValue={0}
-                                                        maxValue={100}
+                                                        maxValue={report.move_to_tomorrow ? 99 : 100}
                                                         showSteps={true}
                                                         color={report.status === "Completed" ? "success" : (report.progress < 30 ? "danger" : report.progress < 70 ? "warning" : "success")}
                                                         value={report.progress}
                                                         isDisabled={report.status === "Completed"}
-                                                        onChange={(value) => handleUpdateReport(task.id, "progress", typeof value === 'number' ? value : value[0])}
+                                                        onChange={(value) => {
+                                                            let val = typeof value === 'number' ? value : value[0];
+                                                            if (report.move_to_tomorrow && val > 99) val = 99;
+                                                            handleUpdateReport(task.id, "progress", val);
+                                                        }}
                                                         className="max-w-md w-full"
                                                         getValue={(v) => `${v}%`}
                                                     />
