@@ -195,20 +195,20 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-default-50/50 font-sans text-slate-800">
+        <div className="min-h-screen bg-default-50/50 dark:bg-[#0a0a0a] font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
                         Admin Dashboard
                     </h1>
-                    <p className="text-slate-500 mt-1 text-lg">
+                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
                         Welcome back, here's your organization overview.
                     </p>
                 </div>
 
                 <div className="text-right hidden sm:block">
-                    <div className="text-2xl font-bold text-slate-800 tracking-tight">
+                    <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                         {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
                     </div>
                     <div className="text-sm font-medium text-slate-500">
@@ -229,10 +229,10 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 
                     {/* Recent Hires List */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <h3 className="text-sm font-bold text-slate-800">Recent Joiners</h3>
-                            <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg">
+                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Joiners</h3>
+                            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg">
                                 <UserPlus size={16} />
                             </div>
                         </CardHeader>
@@ -255,7 +255,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                                 classNames: { base: "shrink-0" } // Enforce fix size
                                             }}
                                             classNames={{
-                                                name: "text-xs font-bold text-slate-700"
+                                                name: "text-xs font-bold text-slate-700 dark:text-slate-200"
                                             }}
                                         />
                                     </div>
@@ -268,17 +268,17 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                     {/* Upcoming Confirmations */}
                     {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
-                        <Card className="shadow-sm border border-default-100 bg-white">
+                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                             <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                                <h3 className="text-sm font-bold text-slate-800">Key Movements</h3>
-                                <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Key Movements</h3>
+                                <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
                                     <UserCheck size={16} />
                                 </div>
                             </CardHeader>
                             <CardBody className="px-5 py-2">
                                 <div className="space-y-3 mb-2">
                                     {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 rounded-xl border border-purple-50">
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
                                             <User
                                                 name={conf.name}
                                                 description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
@@ -314,13 +314,13 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     )}
 
                     {/* Work Mode Distribution (Linear) */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">Work Mode</h3>
-                                <p className="text-xs text-slate-400">Employee Distribution</p>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Work Mode</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Employee Distribution</p>
                             </div>
-                            <div className="p-2 bg-primary-50 rounded-full text-primary">
+                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
                                 <Building size={20} />
                             </div>
                         </CardHeader>
@@ -376,10 +376,10 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 
                     {/* Activity Feed */}
-                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
-                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400" />
+                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400 dark:text-primary" />
                                 System Activity
                             </h3>
                         </CardHeader>
@@ -389,20 +389,19 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     const dateObj = new Date(act.timestamp);
                                     const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                                     const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                                    const isHighWithIcon = act.priority === 'high';
 
                                     return (
                                         <div key={i} className="flex gap-4 group relative">
                                             {/* Timeline Line */}
                                             {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100"></div>
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
                                             )}
 
                                             {/* Icon */}
                                             <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 border-rose-100 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 border-amber-100 text-amber-500' :
-                                                        'bg-blue-50 border-blue-100 text-blue-500'
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
+                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
                                                     }`}>
                                                     <Activity size={14} strokeWidth={2.5} />
                                                 </div>
@@ -410,15 +409,15 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                                             {/* Content */}
                                             <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-xs text-slate-700 font-medium leading-snug">
+                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
                                                     {act.message}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[9px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
+                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
                                                         {dateStr}
                                                     </span>
-                                                    <span className="text-[9px] text-slate-300">•</span>
-                                                    <span className="text-[9px] text-slate-400 font-medium">
+                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
+                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
                                                         {timeStr}
                                                     </span>
                                                 </div>
@@ -438,17 +437,17 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
 
 
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">Attendance Overview</h3>
-                                <p className="text-xs text-slate-400">Daily Tracking & Insights</p>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Attendance Overview</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Daily Tracking & Insights</p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500">
+                                <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-white/10 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                                     {data.attendance_analytics.today.total_employees} Total Staff
                                 </span>
-                                <div className="p-2 bg-emerald-50 rounded-full text-emerald-500">
+                                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-full text-emerald-500">
                                     <CheckCircle size={20} />
                                 </div>
                             </div>
@@ -460,21 +459,21 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <div className="relative w-40 h-40 flex-shrink-0">
                                     <svg className="w-full h-full transform -rotate-90">
                                         {/* Present - Outer */}
-                                        <circle cx="80" cy="80" r="70" stroke="#ecfdf5" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="70" stroke="#ecfdf5" strokeWidth="10" fill="none" className="dark:stroke-emerald-500/10" />
                                         <circle cx="80" cy="80" r="70" stroke="#10b981" strokeWidth="10" fill="none"
                                             strokeDasharray={440}
                                             strokeDashoffset={440 - (440 * (data.attendance_analytics.today.present_percentage / 100))}
                                             strokeLinecap="round"
                                         />
                                         {/* Absent - Middle */}
-                                        <circle cx="80" cy="80" r="54" stroke="#fff1f2" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="54" stroke="#fff1f2" strokeWidth="10" fill="none" className="dark:stroke-rose-500/10" />
                                         <circle cx="80" cy="80" r="54" stroke="#f43f5e" strokeWidth="10" fill="none"
                                             strokeDasharray={339}
                                             strokeDashoffset={339 - (339 * ((data.attendance_analytics.today.absent / data.attendance_analytics.today.total_employees) || 0))}
                                             strokeLinecap="round"
                                         />
                                         {/* Late - Inner */}
-                                        <circle cx="80" cy="80" r="38" stroke="#fff7ed" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="38" stroke="#fff7ed" strokeWidth="10" fill="none" className="dark:stroke-orange-500/10" />
                                         <circle cx="80" cy="80" r="38" stroke="#f97316" strokeWidth="10" fill="none"
                                             strokeDasharray={239}
                                             strokeDashoffset={239 - (239 * ((data.attendance_analytics.today.late / data.attendance_analytics.today.total_employees) || 0))}
@@ -482,40 +481,40 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                         />
                                     </svg>
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-bold text-slate-800">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
-                                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Present</span>
+                                        <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
+                                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Present</span>
                                     </div>
                                 </div>
 
                                 {/* Legend/Stats List */}
                                 <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Present</span>
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Present</span>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.present}</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.present}</span>
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Absent</span>
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Absent</span>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.absent}</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.absent}</span>
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Late</span>
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Late</span>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.late}</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.late}</span>
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">On Leave</span>
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">On Leave</span>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.on_leave}</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.on_leave}</span>
                                     </div>
                                 </div>
                             </div>
@@ -523,42 +522,42 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             {/* Comparison Metrics */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Work Hours Config */}
-                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                     <div className="flex items-center gap-2 mb-3">
                                         <Clock size={16} className="text-blue-500" />
-                                        <span className="text-xs font-bold text-slate-700 uppercase">Avg Work Hours</span>
+                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Avg Work Hours</span>
                                     </div>
                                     <div className="flex justify-between items-end">
                                         <div>
-                                            <span className="text-2xl font-bold text-slate-800">{data.attendance_analytics.today.avg_work_hours}</span>
-                                            <span className="text-[10px] text-slate-400 ml-1">Today</span>
+                                            <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.avg_work_hours}</span>
+                                            <span className="text-[10px] text-slate-400 dark:text-slate-500 ml-1">Today</span>
                                         </div>
                                         <div className="text-right flex flex-col gap-0.5">
-                                            <div className="text-[10px] text-slate-500 font-medium">
-                                                W: <span className="font-bold text-slate-700">{data.attendance_analytics.this_week.avg_work_hours_per_day}h</span>
+                                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                                W: <span className="font-bold text-slate-700 dark:text-slate-300">{data.attendance_analytics.this_week.avg_work_hours_per_day}h</span>
                                             </div>
-                                            <div className="text-[10px] text-slate-500 font-medium">
-                                                M: <span className="font-bold text-slate-700">{data.attendance_analytics.this_month.avg_work_hours_per_day}h</span>
+                                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                                                M: <span className="font-bold text-slate-700 dark:text-slate-300">{data.attendance_analytics.this_month.avg_work_hours_per_day}h</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Late Trends */}
-                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                                     <div className="flex items-center gap-2 mb-3">
                                         <TrendingUp size={16} className="text-orange-500" />
-                                        <span className="text-xs font-bold text-slate-700 uppercase">Late Trends</span>
+                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">Late Trends</span>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
                                         <div className="flex flex-col">
-                                            <span className="text-lg font-bold text-slate-800">{data.attendance_analytics.this_week.total_late_instances}</span>
-                                            <span className="text-[9px] text-slate-400 uppercase">This Week</span>
+                                            <span className="text-lg font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.this_week.total_late_instances}</span>
+                                            <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase">This Week</span>
                                         </div>
-                                        <div className="w-[1px] h-8 bg-slate-200"></div>
+                                        <div className="w-[1px] h-8 bg-slate-200 dark:bg-white/10"></div>
                                         <div className="flex flex-col text-right">
-                                            <span className="text-lg font-bold text-slate-800">{data.attendance_analytics.this_month.total_late_instances}</span>
-                                            <span className="text-[9px] text-slate-400 uppercase">This Month</span>
+                                            <span className="text-lg font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.this_month.total_late_instances}</span>
+                                            <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase">This Month</span>
                                         </div>
                                     </div>
                                 </div>
@@ -572,13 +571,13 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attention Required</p>
                                     <div className="space-y-2">
                                         {data.attendance_analytics.attendance_concerns.slice(0, 3).map((concern, idx) => (
-                                            <div key={idx} className="flex justify-between items-center p-2 bg-rose-50/30 rounded-lg border border-rose-50">
+                                            <div key={idx} className="flex justify-between items-center p-2 bg-rose-50/30 dark:bg-rose-500/5 rounded-lg border border-rose-50 dark:border-rose-500/10">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-slate-700">{concern.name}</span>
+                                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{concern.name}</span>
                                                 </div>
                                                 <div className="flex gap-2 text-[9px]">
-                                                    <span className="text-rose-600 font-medium">{concern.late_count} Late</span>
-                                                    <span className="text-rose-600 font-medium">{concern.absent_days} Absent</span>
+                                                    <span className="text-rose-600 dark:text-rose-400 font-medium">{concern.late_count} Late</span>
+                                                    <span className="text-rose-600 dark:text-rose-400 font-medium">{concern.absent_days} Absent</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -589,13 +588,13 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     </Card>
 
                     {/* HR Summary Card (Redesigned) */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">Workforce Overview</h3>
-                                <p className="text-xs text-slate-400">Headcount & Movements</p>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Workforce Overview</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Headcount & Movements</p>
                             </div>
-                            <div className="p-2 bg-primary-50 rounded-full text-primary">
+                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
                                 <Users size={20} />
                             </div>
                         </CardHeader>
@@ -603,11 +602,11 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             {/* Main Count */}
                             <div className="flex items-end justify-between">
                                 <div>
-                                    <h3 className="text-5xl font-black tracking-tighter text-slate-800">{data.employee_analytics.overview.total_count}</h3>
-                                    <p className="text-sm font-bold text-slate-400 mt-1">Total Employees</p>
+                                    <h3 className="text-5xl font-black tracking-tighter text-slate-800 dark:text-slate-100">{data.employee_analytics.overview.total_count}</h3>
+                                    <p className="text-sm font-bold text-slate-400 dark:text-slate-500 mt-1">Total Employees</p>
                                 </div>
                                 <div className="mb-2">
-                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100/50">
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100/50 dark:border-emerald-500/20">
                                         <TrendingUp size={14} className="stroke-[3px]" />
                                         <span className="text-xs font-bold">+{data.employee_analytics.overview.growth_rate_percentage}%</span>
                                     </div>
@@ -669,26 +668,26 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     </Card>
 
                     {/* Task Analytics & Productivity Card */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800">Productivity & Tasks</h3>
-                                <p className="text-xs text-slate-400">Task Completion & Efficiency</p>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Productivity & Tasks</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Task Completion & Efficiency</p>
                             </div>
-                            <div className="p-2 bg-indigo-50 rounded-full text-indigo-500">
+                            <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full text-indigo-500">
                                 <CheckCircle size={20} />
                             </div>
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-8">
                             {/* Overview Row */}
-                            <div className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50">
+                            <div className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50 dark:border-white/5">
                                 <div className="space-y-1">
-                                    <h4 className="text-4xl font-bold text-slate-800">{data.task_analytics.overview.completion_rate_percentage}%</h4>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Completion Rate</p>
+                                    <h4 className="text-4xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completion_rate_percentage}%</h4>
+                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Completion Rate</p>
                                 </div>
                                 <div className="text-right space-y-1">
-                                    <h4 className="text-2xl font-bold text-slate-800">{data.task_analytics.overview.completed} <span className="text-sm font-medium text-slate-400">/ {data.task_analytics.overview.total_assigned}</span></h4>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Tasks Completed</p>
+                                    <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completed} <span className="text-sm font-medium text-slate-400 dark:text-slate-600">/ {data.task_analytics.overview.total_assigned}</span></h4>
+                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Tasks Completed</p>
                                 </div>
                             </div>
 
@@ -699,29 +698,29 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status Breakdown</p>
                                     <div className="space-y-3">
                                         <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
                                                 <span>In Progress</span>
                                                 <span>{data.task_analytics.status_distribution.in_progress}</span>
                                             </div>
-                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
                                                 <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
                                                 <span>Pending</span>
                                                 <span>{data.task_analytics.status_distribution.todo}</span>
                                             </div>
-                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
                                                 <div className="h-1.5 rounded-full bg-slate-400" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
                                             </div>
                                         </div>
                                         <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
                                                 <span>Review</span>
                                                 <span>{data.task_analytics.status_distribution.in_review}</span>
                                             </div>
-                                            <div className="w-full bg-slate-100 rounded-full h-1.5">
+                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
                                                 <div className="h-1.5 rounded-full bg-amber-400" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
                                             </div>
                                         </div>
@@ -732,20 +731,20 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <div className="space-y-4">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Priority</p>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <div className="p-2 bg-rose-50 rounded-xl border border-rose-100 text-center">
-                                            <span className="block text-xl font-bold text-rose-600">{data.task_analytics.priority_breakdown.critical}</span>
+                                        <div className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/20 text-center">
+                                            <span className="block text-xl font-bold text-rose-600 dark:text-rose-400">{data.task_analytics.priority_breakdown.critical}</span>
                                             <span className="text-[9px] font-bold text-rose-400 uppercase">Critical</span>
                                         </div>
-                                        <div className="p-2 bg-orange-50 rounded-xl border border-orange-100 text-center">
-                                            <span className="block text-xl font-bold text-orange-600">{data.task_analytics.priority_breakdown.high}</span>
+                                        <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 text-center">
+                                            <span className="block text-xl font-bold text-orange-600 dark:text-orange-400">{data.task_analytics.priority_breakdown.high}</span>
                                             <span className="text-[9px] font-bold text-orange-400 uppercase">High</span>
                                         </div>
-                                        <div className="p-2 bg-blue-50 rounded-xl border border-blue-100 text-center">
-                                            <span className="block text-xl font-bold text-blue-600">{data.task_analytics.priority_breakdown.medium}</span>
+                                        <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 text-center">
+                                            <span className="block text-xl font-bold text-blue-600 dark:text-blue-400">{data.task_analytics.priority_breakdown.medium}</span>
                                             <span className="text-[9px] font-bold text-blue-400 uppercase">Medium</span>
                                         </div>
-                                        <div className="p-2 bg-emerald-50 rounded-xl border border-emerald-100 text-center">
-                                            <span className="block text-xl font-bold text-emerald-600">{data.task_analytics.priority_breakdown.low}</span>
+                                        <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20 text-center">
+                                            <span className="block text-xl font-bold text-emerald-600 dark:text-emerald-400">{data.task_analytics.priority_breakdown.low}</span>
                                             <span className="text-[9px] font-bold text-emerald-400 uppercase">Low</span>
                                         </div>
                                     </div>
@@ -788,12 +787,12 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                     {/* Birthdays (Standalone Card) - Top of Column */}
                     {data.upcoming_events.birthdays.length > 0 && (
-                        <Card className="shadow-sm border-none bg-pink-50/50">
+                        <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10">
                             <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
-                                <div className="p-1.5 bg-pink-100 rounded-lg text-pink-500">
+                                <div className="p-1.5 bg-pink-100 dark:bg-pink-500/20 rounded-lg text-pink-500">
                                     <Bell size={16} />
                                 </div>
-                                <h3 className="font-bold text-pink-900 text-sm">Today's Birthdays</h3>
+                                <h3 className="font-bold text-pink-900 dark:text-pink-300 text-sm">Today's Birthdays</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4">
                                 {data.upcoming_events.birthdays.map((b, i) => (
@@ -812,25 +811,25 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                     {/* Alerts Section */}
                     {(data.alerts.critical.length > 0 || data.alerts.warnings.length > 0) && (
-                        <Card className="shadow-sm border-none bg-rose-50/50 border-l-4 border-rose-500">
+                        <Card className="shadow-sm border-none bg-rose-50/50 dark:bg-rose-500/10 border-l-4 border-rose-500">
                             <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
-                                <div className="p-1.5 bg-rose-100 rounded-lg text-rose-500">
+                                <div className="p-1.5 bg-rose-100 dark:bg-rose-500/20 rounded-lg text-rose-500">
                                     <AlertCircle size={16} />
                                 </div>
-                                <h3 className="font-bold text-rose-900 text-sm">Action Required</h3>
+                                <h3 className="font-bold text-rose-900 dark:text-rose-300 text-sm">Action Required</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4 space-y-3">
                                 {data.alerts.critical.map((alert, idx) => (
-                                    <div key={idx} className="flex gap-3 items-start bg-white/60 p-3 rounded-xl border border-rose-100/50">
+                                    <div key={idx} className="flex gap-3 items-start bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-rose-100/50 dark:border-rose-500/20">
                                         <span className="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
                                         <div>
-                                            <p className="text-sm font-bold text-rose-900">{alert.message}</p>
+                                            <p className="text-sm font-bold text-rose-900 dark:text-rose-200">{alert.message}</p>
                                             <p className="text-[10px] text-rose-500/80 font-medium mt-0.5">Critical Priority</p>
                                         </div>
                                     </div>
                                 ))}
                                 {data.alerts.warnings.map((alert, idx) => (
-                                    <div key={idx} className="flex gap-3 items-start bg-white/60 p-3 rounded-xl border border-amber-100/50">
+                                    <div key={idx} className="flex gap-3 items-start bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-amber-100/50 dark:border-amber-500/20">
                                         <span className="mt-1.5 w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
                                         <div>
                                             <p className="text-sm font-bold text-slate-800">{alert.message}</p>
@@ -844,13 +843,13 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                     {/* Pending Leaves Table - Sidebar Version */}
                     {/* Pending Leaves Table - Sidebar Version */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
                             <div>
-                                <h3 className="text-sm font-bold text-slate-800">Leave Approvals</h3>
-                                <p className="text-[10px] text-slate-400 font-medium">{data.leave_analytics.overview.pending_requests} pending requests</p>
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Leave Approvals</h3>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{data.leave_analytics.overview.pending_requests} pending requests</p>
                             </div>
-                            <div className="p-1.5 bg-amber-50 text-amber-500 rounded-lg relative">
+                            <div className="p-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-500 rounded-lg relative">
                                 <Clock size={16} />
                                 {data.leave_analytics.overview.pending_requests > 0 && (
                                     <span className="absolute -top-1 -right-1 flex h-2 w-2">
@@ -892,26 +891,32 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
                     {/* Upcoming Holidays */}
                     {data.upcoming_events.holidays.length > 0 && (
-                        <Card className="shadow-sm border border-default-100 bg-white">
+                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                             <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
                                 <div className="flex gap-2 items-center">
-                                    <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
+                                    <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
                                         <Calendar size={18} />
                                     </div>
-                                    <h3 className="font-bold text-medium text-slate-800">Upcoming Holidays</h3>
+                                    <h3 className="font-bold text-medium text-slate-800 dark:text-slate-100">Upcoming Holidays</h3>
                                 </div>
                             </CardHeader>
                             <CardBody className="px-5 py-4 space-y-4">
                                 <div className="space-y-3">
                                     {data.upcoming_events.holidays.map((h, idx) => (
-                                        <div key={idx} className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
-                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-white text-slate-700 shadow-sm">
-                                                <span className="text-[8px] font-bold uppercase leading-none text-slate-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                                <span className="text-base font-bold leading-none mt-0.5">{new Date(h.date).getDate()}</span>
+                                        <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-white/5 rounded-[20px] border border-slate-100 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 hover:shadow-lg dark:hover:shadow-purple-500/10 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-300 group cursor-default">
+                                            <div className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/10 group-hover:scale-110 transition-transform duration-300">
+                                                <span className="text-[10px] font-bold uppercase leading-none text-purple-600 dark:text-purple-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                                <span className="text-xl font-bold leading-none mt-1">{new Date(h.date).getDate()}</span>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-800">{h.name}</p>
-                                                <p className="text-[10px] text-slate-500">{h.days_until} days to go</p>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{h.name}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                                                        h.days_until <= 7 ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                                    }`}>
+                                                        {h.days_until} days left
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -956,10 +961,10 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                         </div>
 
                                         <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
-                                            <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
+                                            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
                                                 {blog.title}
                                             </h2>
-                                            <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                                            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed line-clamp-2">
                                                 {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
                                             </p>
                                         </CardBody>
@@ -990,7 +995,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
