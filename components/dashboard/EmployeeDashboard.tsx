@@ -598,6 +598,30 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 3: Stats & Lists (Span 3) --- */}
                 <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
 
+                    {/* Birthdays */}
+                    {data.birthdays.length > 0 && (
+                        <Card className="shadow-sm border-none bg-pink-50/50">
+                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
+                                <div className="p-1.5 bg-pink-100 rounded-lg text-pink-500">
+                                    <Bell size={16} />
+                                </div>
+                                <h3 className="font-bold text-pink-900 text-sm">Today's Birthdays</h3>
+                            </CardHeader>
+                            <CardBody className="px-5 py-4">
+                                {data.birthdays.map((b, i) => (
+                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
+                                        <User
+                                            name={b.name}
+                                            description={<span className="text-pink-600 text-xs font-medium">{b.date}</span>}
+                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
+                                            classNames={{ name: "text-sm font-semibold text-slate-700" }}
+                                        />
+                                    </div>
+                                ))}
+                            </CardBody>
+                        </Card>
+                    )}
+
                     {/* Leave Balance Section */}
                     <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between px-6 pt-6">
@@ -706,29 +730,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
-                    {/* Birthdays */}
-                    {data.birthdays.length > 0 && (
-                        <Card className="shadow-sm border-none bg-pink-50/50">
-                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
-                                <div className="p-1.5 bg-pink-100 rounded-lg text-pink-500">
-                                    <Bell size={16} />
-                                </div>
-                                <h3 className="font-bold text-pink-900 text-sm">Today's Birthdays</h3>
-                            </CardHeader>
-                            <CardBody className="px-5 py-4">
-                                {data.birthdays.map((b, i) => (
-                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
-                                        <User
-                                            name={b.name}
-                                            description={<span className="text-pink-600 text-xs font-medium">{b.date}</span>}
-                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
-                                            classNames={{ name: "text-sm font-semibold text-slate-700" }}
-                                        />
-                                    </div>
-                                ))}
-                            </CardBody>
-                        </Card>
-                    )}
+
 
 
 

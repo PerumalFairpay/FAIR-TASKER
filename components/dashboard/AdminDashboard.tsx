@@ -786,6 +786,30 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                 {/* --- Column 3: Sidebar (Span 4) --- */}
                 <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
 
+                    {/* Birthdays (Standalone Card) - Top of Column */}
+                    {data.upcoming_events.birthdays.length > 0 && (
+                        <Card className="shadow-sm border-none bg-pink-50/50">
+                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
+                                <div className="p-1.5 bg-pink-100 rounded-lg text-pink-500">
+                                    <Bell size={16} />
+                                </div>
+                                <h3 className="font-bold text-pink-900 text-sm">Today's Birthdays</h3>
+                            </CardHeader>
+                            <CardBody className="px-5 py-4">
+                                {data.upcoming_events.birthdays.map((b, i) => (
+                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
+                                        <User
+                                            name={b.name}
+                                            description={<span className="text-pink-600 text-xs font-medium">{b.date}</span>}
+                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
+                                            classNames={{ name: "text-sm font-semibold text-slate-700" }}
+                                        />
+                                    </div>
+                                ))}
+                            </CardBody>
+                        </Card>
+                    )}
+
                     {/* Alerts Section */}
                     {(data.alerts.critical.length > 0 || data.alerts.warnings.length > 0) && (
                         <Card className="shadow-sm border-none bg-rose-50/50 border-l-4 border-rose-500">
@@ -864,63 +888,37 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Upcoming Events */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <div className="flex gap-2 items-center">
-                                <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
-                                    <Gift size={18} />
-                                </div>
-                                <h3 className="font-bold text-medium text-slate-800">Celebrations</h3>
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 py-4 space-y-4">
-                            {/* Birthdays */}
-                            {data.upcoming_events.birthdays.length > 0 && (
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Today's Birthdays</p>
-                                    <div className="space-y-3">
-                                        {data.upcoming_events.birthdays.map((bday, idx) => (
-                                            <div key={idx} className="flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <User
-                                                        name={bday.name}
-                                                        description={<span className="text-[10px] text-pink-500 font-bold uppercase tracking-wider">Today</span>}
-                                                        avatarProps={{ src: bday.profile_picture, size: "sm" }}
-                                                        classNames={{ name: "text-xs font-bold text-slate-700" }}
-                                                    />
-                                                </div>
-                                                <div className="w-8 h-8 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center text-[10px] font-bold">
-                                                    {new Date(bday.date).getDate()}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
-                            {/* Holidays */}
-                            {data.upcoming_events.holidays.length > 0 && (
-                                <div className="pt-2">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Holidays</p>
-                                    <div className="space-y-3">
-                                        {data.upcoming_events.holidays.map((h, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
-                                                <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-white text-slate-700 shadow-sm">
-                                                    <span className="text-[8px] font-bold uppercase leading-none text-slate-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                                    <span className="text-base font-bold leading-none mt-0.5">{new Date(h.date).getDate()}</span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-slate-800">{h.name}</p>
-                                                    <p className="text-[10px] text-slate-500">{h.days_until} days to go</p>
-                                                </div>
-                                            </div>
-                                        ))}
+
+                    {/* Upcoming Holidays */}
+                    {data.upcoming_events.holidays.length > 0 && (
+                        <Card className="shadow-sm border border-default-100 bg-white">
+                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                                <div className="flex gap-2 items-center">
+                                    <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
+                                        <Calendar size={18} />
                                     </div>
+                                    <h3 className="font-bold text-medium text-slate-800">Upcoming Holidays</h3>
                                 </div>
-                            )}
-                        </CardBody>
-                    </Card>
+                            </CardHeader>
+                            <CardBody className="px-5 py-4 space-y-4">
+                                <div className="space-y-3">
+                                    {data.upcoming_events.holidays.map((h, idx) => (
+                                        <div key={idx} className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                                            <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-white text-slate-700 shadow-sm">
+                                                <span className="text-[8px] font-bold uppercase leading-none text-slate-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                                <span className="text-base font-bold leading-none mt-0.5">{new Date(h.date).getDate()}</span>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-slate-800">{h.name}</p>
+                                                <p className="text-[10px] text-slate-500">{h.days_until} days to go</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
 
 
 
