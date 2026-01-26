@@ -172,61 +172,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                 <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
 
                     {/* HR Summary Card */}
-                    {/* HR Summary Card */}
-                    <Card className="shadow-sm border border-default-100 bg-white rounded-[32px] overflow-hidden">
-                        <CardBody className="p-6 space-y-8">
-                            {/* Total Headcount */}
-                            <div>
-                                <div className="flex justify-between items-start">
-                                    <div className="p-3 bg-primary-50 rounded-2xl">
-                                        <Users size={24} className="text-primary" />
-                                    </div>
-                                    <div className="flex flex-col items-end">
-                                        <Chip size="sm" classNames={{ base: "bg-emerald-50 border border-emerald-100", content: "text-emerald-600 font-bold text-[10px]" }}>
-                                            +{data.employee_analytics.overview.growth_rate_percentage}% Growth
-                                        </Chip>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <h3 className="text-4xl font-bold tracking-tight text-slate-900">{data.employee_analytics.overview.total_count}</h3>
-                                    <p className="text-slate-500 text-sm font-medium">Total Employees</p>
-                                </div>
-                            </div>
 
-                            {/* Status Breakdown */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                    <p className="text-2xl font-bold text-slate-800">{data.employee_analytics.overview.active_count}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Active</span>
-                                    </div>
-                                </div>
-                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                    <p className="text-2xl font-bold text-slate-800">{data.employee_analytics.overview.inactive_count}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Inactive</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Recruitment vs Attrition */}
-                            <div className="space-y-4 pt-2">
-                                <div className="flex justify-between items-center px-1">
-                                    <span className="text-xs font-bold text-slate-500">Recruitment</span>
-                                    <span className="text-xs font-bold text-slate-800">{data.employee_analytics.overview.new_hires_this_month} <span className="text-slate-400 font-normal">This Month</span></span>
-                                </div>
-                                <div className="w-full bg-slate-100 rounded-full h-1">
-                                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
-                                </div>
-                                <div className="flex justify-between items-center px-1">
-                                    <span className="text-xs font-bold text-slate-500">Attrition</span>
-                                    <span className="text-xs font-bold text-slate-800">{data.employee_analytics.overview.attrition_this_month} <span className="text-slate-400 font-normal">({data.employee_analytics.overview.attrition_rate_percentage}%)</span></span>
-                                </div>
-                            </div>
-                        </CardBody>
-                    </Card>
 
 
 
@@ -380,6 +326,9 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                 </div>
 
                 <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
+
+
+
                     <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
@@ -530,7 +479,86 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Work Mode Distributions - Large Dark Card */}
+                    {/* HR Summary Card (Redesigned) */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Workforce Overview</h3>
+                                <p className="text-xs text-slate-400">Headcount & Movements</p>
+                            </div>
+                            <div className="p-2 bg-primary-50 rounded-full text-primary">
+                                <Users size={20} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="p-6 space-y-8">
+                            {/* Main Count */}
+                            <div className="flex items-end justify-between">
+                                <div>
+                                    <h3 className="text-5xl font-black tracking-tighter text-slate-800">{data.employee_analytics.overview.total_count}</h3>
+                                    <p className="text-sm font-bold text-slate-400 mt-1">Total Employees</p>
+                                </div>
+                                <div className="mb-2">
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100/50">
+                                        <TrendingUp size={14} className="stroke-[3px]" />
+                                        <span className="text-xs font-bold">+{data.employee_analytics.overview.growth_rate_percentage}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-8 pt-2">
+                                {/* Active Status */}
+                                <div className="space-y-3">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1.5">
+                                                <span className="font-bold text-slate-700">Active</span>
+                                                <span className="font-bold text-slate-400">{data.employee_analytics.overview.active_count}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-50 rounded-full h-1.5">
+                                                <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${(data.employee_analytics.overview.active_count / data.employee_analytics.overview.total_count) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-1.5">
+                                                <span className="font-bold text-slate-700">Inactive</span>
+                                                <span className="font-bold text-slate-400">{data.employee_analytics.overview.inactive_count}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-50 rounded-full h-1.5">
+                                                <div className="h-1.5 rounded-full bg-slate-300" style={{ width: `${(data.employee_analytics.overview.inactive_count / data.employee_analytics.overview.total_count) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Movement */}
+                                <div className="space-y-3 pl-4 border-l border-slate-50">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">This Month</p>
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
+                                                    <UserPlus size={14} />
+                                                </div>
+                                                <span className="text-xs font-bold text-slate-600">Joined</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-800">{data.employee_analytics.overview.new_hires_this_month}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-1.5 rounded-md bg-rose-50 text-rose-600">
+                                                    <UserMinus size={14} />
+                                                </div>
+                                                <span className="text-xs font-bold text-slate-600">Left</span>
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-800">{data.employee_analytics.overview.attrition_this_month}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+
                     {/* Work Mode Distributions - Standard Card */}
 
 
