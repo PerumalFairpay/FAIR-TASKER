@@ -121,12 +121,12 @@ interface AdminDashboardData {
 const LegendItem = ({ label, color, value, percent }: { label: string, color: string, value: number, percent: number }) => (
     <div className="flex justify-between items-center group">
         <div className="flex items-center gap-3">
-            <span className={`w-3 h-3 rounded-full ${color} ring-4 ring-white/5 group-hover:ring-white/10 transition-all`}></span>
-            <span className="text-sm text-slate-300 font-medium">{label}</span>
+            <span className={`w-3 h-3 rounded-full ${color} ring-4 ring-slate-100 group-hover:ring-slate-200 transition-all`}></span>
+            <span className="text-sm text-slate-600 font-medium">{label}</span>
         </div>
         <div className="flex flex-col items-end">
-            <span className="text-sm font-bold text-white">{value}</span>
-            <span className="text-[10px] text-slate-500">{percent}%</span>
+            <span className="text-sm font-bold text-slate-800">{value}</span>
+            <span className="text-[10px] text-slate-400">{percent}%</span>
         </div>
     </div>
 );
@@ -228,7 +228,9 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-{/* Upcoming Confirmations */}
+
+
+                    {/* Upcoming Confirmations */}
                     {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
                         <Card className="shadow-sm border border-default-100 bg-white">
                             <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
@@ -274,7 +276,67 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </CardBody>
                         </Card>
                     )}
-                    
+
+                    {/* Work Mode Distribution (Linear) */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Work Mode</h3>
+                                <p className="text-xs text-slate-400">Employee Distribution</p>
+                            </div>
+                            <div className="p-2 bg-primary-50 rounded-full text-primary">
+                                <Building size={20} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-5">
+                            {/* Office */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Office</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.office_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
+                                />
+                            </div>
+                            {/* Remote */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Remote</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.remote_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
+                                />
+                            </div>
+                            {/* Hybrid */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-warning"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hybrid</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
+                                />
+                            </div>
+                        </CardBody>
+                    </Card>
+
                     {/* Recent Hires List */}
                     <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
@@ -313,15 +375,12 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    
+
 
                 </div>
 
-                {/* --- Column 2: Main Tables & Metrics (Span 5) --- */}
                 <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
-                    {/* Detailed Attendance Overview (Dashboard Style) - COMPACT SIZE */}
-                    {/* Attendance Overview (Replaces previous compact card) */}
-                    <Card className="shadow-sm border border-default-100 bg-white min-h-[440px]">
+                    <Card className="shadow-sm border border-default-100 bg-white">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800">Attendance Overview</h3>
@@ -337,29 +396,69 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </div>
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-6">
-                            {/* Today's Stats Row */}
-                            <div className="grid grid-cols-4 gap-4 pb-6 border-b border-slate-50">
-                                {/* Present */}
-                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-100/50">
-                                    <span className="text-2xl font-bold text-emerald-600">{data.attendance_analytics.today.present}</span>
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mt-1">Present</span>
-                                    <span className="text-[9px] font-medium text-emerald-600/70 mt-0.5">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
+                            {/* Today's Stats Row - Visual Graph */}
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-6 border-b border-slate-50">
+                                {/* Rings Chart */}
+                                <div className="relative w-40 h-40 flex-shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        {/* Present - Outer */}
+                                        <circle cx="80" cy="80" r="70" stroke="#ecfdf5" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="70" stroke="#10b981" strokeWidth="10" fill="none"
+                                            strokeDasharray={440}
+                                            strokeDashoffset={440 - (440 * (data.attendance_analytics.today.present_percentage / 100))}
+                                            strokeLinecap="round"
+                                        />
+                                        {/* Absent - Middle */}
+                                        <circle cx="80" cy="80" r="54" stroke="#fff1f2" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="54" stroke="#f43f5e" strokeWidth="10" fill="none"
+                                            strokeDasharray={339}
+                                            strokeDashoffset={339 - (339 * ((data.attendance_analytics.today.absent / data.attendance_analytics.today.total_employees) || 0))}
+                                            strokeLinecap="round"
+                                        />
+                                        {/* Late - Inner */}
+                                        <circle cx="80" cy="80" r="38" stroke="#fff7ed" strokeWidth="10" fill="none" />
+                                        <circle cx="80" cy="80" r="38" stroke="#f97316" strokeWidth="10" fill="none"
+                                            strokeDasharray={239}
+                                            strokeDashoffset={239 - (239 * ((data.attendance_analytics.today.late / data.attendance_analytics.today.total_employees) || 0))}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-2xl font-bold text-slate-800">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
+                                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Present</span>
+                                    </div>
                                 </div>
-                                {/* Absent */}
-                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-rose-50/50 border border-rose-100/50 transition-colors hover:bg-rose-100/50">
-                                    <span className="text-2xl font-bold text-rose-600">{data.attendance_analytics.today.absent}</span>
-                                    <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">Absent</span>
-                                    <span className="text-[9px] font-medium text-rose-600/70 mt-0.5">Mth: {data.attendance_analytics.this_month.total_absences}</span>
-                                </div>
-                                {/* On Leave */}
-                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-100/50">
-                                    <span className="text-2xl font-bold text-amber-600">{data.attendance_analytics.today.on_leave}</span>
-                                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mt-1">On Leave</span>
-                                </div>
-                                {/* Late */}
-                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-orange-50/50 border border-orange-100/50 transition-colors hover:bg-orange-100/50">
-                                    <span className="text-2xl font-bold text-orange-600">{data.attendance_analytics.today.late}</span>
-                                    <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest mt-1">Late</span>
+
+                                {/* Legend/Stats List */}
+                                <div className="flex-1 grid grid-cols-2 gap-4 w-full">
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Present</span>
+                                        </div>
+                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.present}</span>
+                                    </div>
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Absent</span>
+                                        </div>
+                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.absent}</span>
+                                    </div>
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Late</span>
+                                        </div>
+                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.late}</span>
+                                    </div>
+                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 border border-slate-100/60">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">On Leave</span>
+                                        </div>
+                                        <span className="text-xl font-bold text-slate-800">{data.attendance_analytics.today.on_leave}</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -407,22 +506,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 </div>
                             </div>
 
-                            {/* Week Attendance */}
-                            <div className="mt-2">
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Weekly Average Attendance</span>
-                                    <span className="text-xs font-bold text-slate-700">{data.attendance_analytics.this_week.avg_attendance_percentage}%</span>
-                                </div>
-                                <Progress
-                                    value={data.attendance_analytics.this_week.avg_attendance_percentage}
-                                    size="sm"
-                                    radius="full"
-                                    classNames={{
-                                        track: "bg-slate-100 h-2",
-                                        indicator: "bg-gradient-to-r from-emerald-400 to-teal-500 h-2"
-                                    }}
-                                />
-                            </div>
+
 
                             {/* Attendance Concerns Area */}
                             {data.attendance_analytics.attendance_concerns && data.attendance_analytics.attendance_concerns.length > 0 && (
@@ -447,101 +531,10 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     </Card>
 
                     {/* Work Mode Distributions - Large Dark Card */}
-                    <Card className="shadow-sm border border-slate-100 bg-gradient-to-br from-slate-900 to-slate-950 relative overflow-visible min-h-[350px] rounded-[40px] p-10 text-white">
-                        <div className="flex justify-between items-start mb-10">
-                            <div>
-                                <h3 className="text-2xl font-light tracking-tight">Workforce Distribution</h3>
-                                <p className="text-white/40 text-xs mt-1 font-medium uppercase tracking-widest">Global Work Modes</p>
-                            </div>
-                            <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                                <Building size={24} className="text-primary-400" />
-                            </div>
-                        </div>
+                    {/* Work Mode Distributions - Standard Card */}
 
-                        <div className="flex items-center justify-between gap-10">
-                            {/* Distribution Rings Overlay */}
-                            <div className="relative w-48 h-48 flex-shrink-0">
-                                <svg className="w-full h-full transform -rotate-90">
-                                    {/* Office - Outer */}
-                                    <circle cx="96" cy="96" r="85" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
-                                    <circle cx="96" cy="96" r="85" stroke="#3b82f6" strokeWidth="12" fill="none"
-                                        strokeDasharray={534}
-                                        strokeDashoffset={534 - (534 * (data.employee_analytics.work_mode_distribution.office_percentage / 100))}
-                                        strokeLinecap="round"
-                                    />
-                                    {/* Remote - Middle */}
-                                    <circle cx="96" cy="96" r="65" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
-                                    <circle cx="96" cy="96" r="65" stroke="#8b5cf6" strokeWidth="12" fill="none"
-                                        strokeDasharray={408}
-                                        strokeDashoffset={408 - (408 * (data.employee_analytics.work_mode_distribution.remote_percentage / 100))}
-                                        strokeLinecap="round"
-                                    />
-                                    {/* Hybrid - Inner */}
-                                    <circle cx="96" cy="96" r="45" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
-                                    <circle cx="96" cy="96" r="45" stroke="#f59e0b" strokeWidth="12" fill="none"
-                                        strokeDasharray={282}
-                                        strokeDashoffset={282 - (282 * (data.employee_analytics.work_mode_distribution.hybrid_percentage / 100))}
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-3xl font-black">{data.employee_analytics.overview.active_count}</span>
-                                    <span className="text-[10px] uppercase font-bold text-white/40 tracking-widest">Active</span>
-                                </div>
-                            </div>
 
-                            {/* Legend Information */}
-                            <div className="flex-1 space-y-6">
-                                <LegendItem label="Office" color="bg-blue-500" value={data.employee_analytics.work_mode_distribution.office} percent={data.employee_analytics.work_mode_distribution.office_percentage} />
-                                <LegendItem label="Remote" color="bg-purple-500" value={data.employee_analytics.work_mode_distribution.remote} percent={data.employee_analytics.work_mode_distribution.remote_percentage} />
-                                <LegendItem label="Hybrid" color="bg-amber-500" value={data.employee_analytics.work_mode_distribution.hybrid} percent={data.employee_analytics.work_mode_distribution.hybrid_percentage} />
-                            </div>
-                        </div>
-                    </Card>
 
-                    {/* Pending Leaves Table - Redesigned like My Tasks */}
-                    <Card className="shadow-none border border-slate-100 bg-white rounded-[35px] flex-1">
-                        <CardHeader className="px-8 pt-8 pb-2 flex justify-between items-center">
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-800 tracking-tight">Leave Approvals</h3>
-                                <p className="text-slate-400 text-xs mt-1">Action required on {data.leave_analytics.overview.pending_requests} requests</p>
-                            </div>
-                            <Chip color="warning" variant="flat" size="sm" className="font-bold">Urgent</Chip>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4">
-                            <Table aria-label="Leave Approvals" removeWrapper shadow="none">
-                                <TableHeader>
-                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Employee</TableColumn>
-                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Type</TableColumn>
-                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Days</TableColumn>
-                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400 text-right">Approve</TableColumn>
-                                </TableHeader>
-                                <TableBody emptyContent={"No pending requests."}>
-                                    {data.leave_analytics.pending_requests.slice(0, 5).map((l) => (
-                                        <TableRow key={l.id} className="border-b border-default-50 last:border-none group">
-                                            <TableCell>
-                                                <div className="font-bold text-slate-700">{l.employee_name}</div>
-                                                <div className="text-[10px] text-slate-400 truncate max-w-[150px]">{l.reason}</div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip size="sm" variant="dot" color="primary" className="border-none p-0">{l.leave_type}</Chip>
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className="font-bold text-slate-900">{l.total_days}</span>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <div className="w-8 h-8 rounded-full bg-success-50 text-success flex items-center justify-center cursor-pointer hover:bg-success-100">
-                                                        <CheckCircle size={14} />
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardBody>
-                    </Card>
                 </div>
 
                 {/* --- Column 3: Sidebar (Span 4) --- */}
@@ -578,6 +571,52 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </CardBody>
                         </Card>
                     )}
+
+                    {/* Pending Leaves Table - Sidebar Version */}
+                    {/* Pending Leaves Table - Sidebar Version */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-800">Leave Approvals</h3>
+                                <p className="text-[10px] text-slate-400 font-medium">{data.leave_analytics.overview.pending_requests} pending requests</p>
+                            </div>
+                            <div className="p-1.5 bg-amber-50 text-amber-500 rounded-lg relative">
+                                <Clock size={16} />
+                                {data.leave_analytics.overview.pending_requests > 0 && (
+                                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                                    </span>
+                                )}
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-2">
+                            <Table aria-label="Leave Approvals" removeWrapper shadow="none" hideHeader classNames={{
+                                td: "py-2"
+                            }}>
+                                <TableHeader>
+                                    <TableColumn>EMPLOYEE</TableColumn>
+                                    <TableColumn align="end">TYPE</TableColumn>
+                                </TableHeader>
+                                <TableBody emptyContent={<div className="text-center py-4 text-xs text-slate-400">No pending requests</div>}>
+                                    {data.leave_analytics.pending_requests.slice(0, 5).map((l) => (
+                                        <TableRow key={l.id} className="border-b border-slate-50 last:border-none group">
+                                            <TableCell>
+                                                <div className="font-bold text-xs text-slate-700">{l.employee_name}</div>
+                                                <div className="text-[9px] text-slate-400 truncate max-w-[100px]">{l.reason}</div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[10px] font-semibold text-slate-600">{l.leave_type}</span>
+                                                    <span className="text-[9px] text-slate-400 font-bold">{l.total_days} Days</span>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </CardBody>
+                    </Card>
 
                     {/* Upcoming Events */}
                     <Card className="shadow-sm border border-default-100 bg-white">
