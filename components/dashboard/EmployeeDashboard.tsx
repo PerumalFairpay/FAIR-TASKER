@@ -713,7 +713,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 <div className="p-1.5 bg-pink-100 rounded-lg text-pink-500">
                                     <Bell size={16} />
                                 </div>
-                                <h3 className="font-bold text-pink-900 text-sm">Birthdays</h3>
+                                <h3 className="font-bold text-pink-900 text-sm">Today's Birthdays</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4">
                                 {data.birthdays.map((b, i) => (

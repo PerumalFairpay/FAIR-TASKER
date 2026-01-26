@@ -878,14 +878,14 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             {/* Birthdays */}
                             {data.upcoming_events.birthdays.length > 0 && (
                                 <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Birthdays</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Today's Birthdays</p>
                                     <div className="space-y-3">
                                         {data.upcoming_events.birthdays.map((bday, idx) => (
                                             <div key={idx} className="flex items-center justify-between">
                                                 <div className="flex items-center gap-2">
                                                     <User
                                                         name={bday.name}
-                                                        description={<span className="text-[10px] text-slate-400 font-medium">In {bday.days_until} days</span>}
+                                                        description={<span className="text-[10px] text-pink-500 font-bold uppercase tracking-wider">Today</span>}
                                                         avatarProps={{ src: bday.profile_picture, size: "sm" }}
                                                         classNames={{ name: "text-xs font-bold text-slate-700" }}
                                                     />
