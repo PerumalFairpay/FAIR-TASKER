@@ -1,5 +1,7 @@
+"use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Progress } from "@heroui/progress";
 import { User } from "@heroui/user";
@@ -7,221 +9,532 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 import { Chip } from "@heroui/chip";
 import {
     Users, Briefcase, Calendar, CheckCircle, Clock, AlertCircle,
-    Building, TrendingUp
+    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard
 } from "lucide-react";
 
 interface AdminDashboardData {
-    overview: {
-        total_employees: number;
-        total_clients: number;
-        active_projects: number;
-        total_projects: number;
-        pending_leaves: number;
-        approved_leaves_today: number;
+    employee_analytics: {
+        overview: {
+            total_count: number;
+            active_count: number;
+            inactive_count: number;
+            new_hires_this_month: number;
+            new_hires_last_month: number;
+            growth_rate_percentage: number;
+            attrition_this_month: number;
+            attrition_rate_percentage: number;
+        };
+        work_mode_distribution: {
+            office: number;
+            remote: number;
+            hybrid: number;
+            office_percentage: number;
+            remote_percentage: number;
+            hybrid_percentage: number;
+        };
+        recent_hires: Array<{
+            id: string;
+            name: string;
+            email: string;
+            profile_picture?: string;
+            department: string;
+            designation: string;
+            date_of_joining: string;
+        }>;
+        upcoming_confirmations: Array<any>;
+        upcoming_exits: Array<any>;
     };
-    task_metrics: {
-        total_pending: number;
-        total_completed: number;
-        overdue: number;
-        completion_rate: number;
-        by_priority: Record<string, number>;
-        by_status: Record<string, number>;
-    };
-    attendance_metrics: {
-        today_stats: {
+    attendance_analytics: {
+        today: {
+            date: string;
+            total_employees: number;
             present: number;
             absent: number;
-            late: number;
             on_leave: number;
-            total_records: number;
+            late: number;
+            present_percentage: number;
+            avg_work_hours: number;
+        };
+        this_week: {
+            avg_attendance_percentage: number;
+            total_late_instances: number;
+            avg_work_hours_per_day: number;
+        };
+        this_month: {
+            total_late_instances: number;
+            total_absences: number;
+            avg_work_hours_per_day: number;
+        };
+        attendance_concerns: Array<{
+            employee_id: string;
+            name: string;
+            profile_picture?: string;
+            late_count: number;
+            absent_days: number;
+            concern_level: 'high' | 'medium';
+        }>;
+    };
+    leave_analytics: {
+        overview: {
+            pending_requests: number;
+            approved_today: number;
+            total_leaves_this_month: number;
+        };
+        pending_requests: Array<{
+            id: string;
+            employee_name: string;
+            leave_type: string;
+            start_date: string;
+            end_date: string;
+            total_days: number;
+            reason: string;
+            applied_on: string;
+        }>;
+    };
+    project_analytics: {
+        overview: {
+            total_projects: number;
+            active_projects: number;
+            completed_projects: number;
+            on_hold_projects: number;
         };
     };
-    new_employees: Array<{
-        name: string;
-        designation: string;
-        department: string;
-        date_of_joining: string;
-        profile_picture?: string;
+    alerts: {
+        critical: Array<any>;
+        warnings: Array<any>;
+        info: Array<any>;
+    };
+    recent_activities: Array<{
+        type: string;
+        icon: string;
+        message: string;
+        timestamp: string;
+        priority: string;
     }>;
-    department_distribution: Array<{ name: string; count: number }>;
-    recent_activities: Array<{ type: string; message: string; timestamp: string }>;
-    client_stats: { active_clients: number; new_clients_this_month: number };
-    upcoming_holidays: Array<{ name: string; date: string; type: string }>;
+    upcoming_events: {
+        holidays: Array<{ name: string; date: string; days_until: number; type: string }>;
+        birthdays: Array<{ name: string; date: string; days_until: number; profile_picture?: string }>;
+        anniversaries: Array<{ name: string; date: string; days_until: number; years_completed: number; profile_picture?: string }>;
+    };
 }
 
+const LegendItem = ({ label, color, value, percent }: { label: string, color: string, value: number, percent: number }) => (
+    <div className="flex justify-between items-center group">
+        <div className="flex items-center gap-3">
+            <span className={`w-3 h-3 rounded-full ${color} ring-4 ring-white/5 group-hover:ring-white/10 transition-all`}></span>
+            <span className="text-sm text-slate-300 font-medium">{label}</span>
+        </div>
+        <div className="flex flex-col items-end">
+            <span className="text-sm font-bold text-white">{value}</span>
+            <span className="text-[10px] text-slate-500">{percent}%</span>
+        </div>
+    </div>
+);
+
 export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
+    const [currentDate, setCurrentDate] = useState<Date | null>(null);
+
+    useEffect(() => {
+        setCurrentDate(new Date());
+        const timer = setInterval(() => setCurrentDate(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
     if (!data) return null;
 
     return (
-        <div className="space-y-6">
-            {/* Top Stats Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <DashboardStatCard
-                    title="Total Employees"
-                    value={data.overview.total_employees}
-                    subtext="Active Employees"
-                    icon={<Users className="w-6 h-6 text-primary-500" />}
-                    bgColor="bg-primary-50"
-                />
-                <DashboardStatCard
-                    title="Active Projects"
-                    value={data.overview.active_projects}
-                    subtext="Projects In Progress"
-                    icon={<Briefcase className="w-6 h-6 text-secondary-500" />}
-                    bgColor="bg-secondary-50"
-                />
-                <DashboardStatCard
-                    title="Pending Leaves"
-                    value={data.overview.pending_leaves}
-                    subtext="Awaiting Approval"
-                    icon={<Calendar className="w-6 h-6 text-warning-500" />}
-                    bgColor="bg-warning-50"
-                />
-                <Card className="shadow-sm border-none bg-white h-full">
-                    <CardBody className="flex flex-col p-4">
-                        <div className="flex justify-between items-start">
-                            <p className="text-small font-semibold text-default-500 uppercase tracking-wider">Attendance Today</p>
-                            <div className="p-3 rounded-xl bg-success-50 -mt-1 -mr-1">
-                                <CheckCircle className="w-6 h-6 text-success-500" />
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-success-600">{data.attendance_metrics.today_stats.present}</span>
-                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Present</span>
-                            </div>
-                            <div className="w-[1px] h-8 bg-default-200"></div>
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-danger-500">{data.attendance_metrics.today_stats.absent}</span>
-                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Absent</span>
-                            </div>
-                            <div className="w-[1px] h-8 bg-default-200"></div>
-                            <div className="flex flex-col">
-                                <span className="text-3xl font-bold text-warning-500">{data.overview.approved_leaves_today}</span>
-                                <span className="text-[10px] uppercase text-default-500 font-bold tracking-wider">Leave</span>
-                            </div>
-                        </div>
-                    </CardBody>
-                </Card>
+        <div className="min-h-screen bg-default-50/50 font-sans text-slate-800">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                <div>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+                        Admin Dashboard
+                    </h1>
+                    <p className="text-slate-500 mt-1 text-lg">
+                        Welcome back, here's your organization overview.
+                    </p>
+                </div>
+
+                <div className="text-right hidden sm:block">
+                    <div className="text-2xl font-bold text-slate-800 tracking-tight">
+                        {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                    </div>
+                    <div className="text-sm font-medium text-slate-500">
+                        {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                    </div>
+                </div>
             </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left Column (Main Metrics) */}
-                <div className="lg:col-span-2 space-y-6">
-                    {/* Metrics Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Efficiency / Completion */}
-                        <Card className="shadow-sm border-none p-2">
-                            <CardHeader className="justify-between px-4 pt-4 pb-0">
-                                <div className="flex gap-3">
-                                    <div className="p-2 bg-default-100 rounded-lg">
-                                        <TrendingUp className="w-5 h-5 text-default-600" />
+            {/* Main Bento Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+
+                {/* --- Column 1: Overview & Distribution (Span 3) --- */}
+                <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
+
+                    {/* HR Summary Card */}
+                    {/* HR Summary Card */}
+                    <Card className="shadow-sm border border-default-100 bg-white rounded-[32px] overflow-hidden">
+                        <CardBody className="p-6 space-y-8">
+                            {/* Total Headcount */}
+                            <div>
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 bg-primary-50 rounded-2xl">
+                                        <Users size={24} className="text-primary" />
                                     </div>
-                                    <div className="flex flex-col">
-                                        <p className="text-md font-bold text-default-900">Task Efficiency</p>
-                                        <p className="text-tiny text-default-500">Completion Rate</p>
+                                    <div className="flex flex-col items-end">
+                                        <Chip size="sm" classNames={{ base: "bg-emerald-50 border border-emerald-100", content: "text-emerald-600 font-bold text-[10px]" }}>
+                                            +{data.employee_analytics.overview.growth_rate_percentage}% Growth
+                                        </Chip>
                                     </div>
                                 </div>
-                                <Chip size="sm" color="primary" variant="flat">YTD</Chip>
+                                <div className="mt-4">
+                                    <h3 className="text-4xl font-bold tracking-tight text-slate-900">{data.employee_analytics.overview.total_count}</h3>
+                                    <p className="text-slate-500 text-sm font-medium">Total Employees</p>
+                                </div>
+                            </div>
+
+                            {/* Status Breakdown */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <p className="text-2xl font-bold text-slate-800">{data.employee_analytics.overview.active_count}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Active</span>
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <p className="text-2xl font-bold text-slate-800">{data.employee_analytics.overview.inactive_count}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                        <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Inactive</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Recruitment vs Attrition */}
+                            <div className="space-y-4 pt-2">
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-xs font-bold text-slate-500">Recruitment</span>
+                                    <span className="text-xs font-bold text-slate-800">{data.employee_analytics.overview.new_hires_this_month} <span className="text-slate-400 font-normal">This Month</span></span>
+                                </div>
+                                <div className="w-full bg-slate-100 rounded-full h-1">
+                                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '100%' }}></div>
+                                </div>
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-xs font-bold text-slate-500">Attrition</span>
+                                    <span className="text-xs font-bold text-slate-800">{data.employee_analytics.overview.attrition_this_month} <span className="text-slate-400 font-normal">({data.employee_analytics.overview.attrition_rate_percentage}%)</span></span>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
+
+{/* Upcoming Confirmations */}
+                    {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
+                        <Card className="shadow-sm border border-default-100 bg-white">
+                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                                <h3 className="text-sm font-bold text-slate-800">Key Movements</h3>
+                                <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
+                                    <UserCheck size={16} />
+                                </div>
                             </CardHeader>
-                            <CardBody className="px-4 py-5 flex flex-col justify-center">
-                                <div className="flex justify-between mb-2">
-                                    <span className="text-sm font-medium text-default-600">Progress</span>
-                                    <span className="text-sm font-bold text-default-900">{data.task_metrics.completion_rate}%</span>
-                                </div>
-                                <Progress
-                                    aria-label="Task Completion Rate"
-                                    value={data.task_metrics.completion_rate}
-                                    className="h-3"
-                                    color="primary"
-                                />
-                                <div className="flex justify-between mt-6">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-tiny uppercase text-default-500 font-semibold tracking-wider">Completed</span>
-                                        <span className="text-lg font-bold text-default-900">{data.task_metrics.total_completed}</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1 text-right">
-                                        <span className="text-tiny uppercase text-default-500 font-semibold tracking-wider">Total Tasks</span>
-                                        <span className="text-lg font-bold text-default-900">
-                                            {data.task_metrics.total_completed + data.task_metrics.total_pending}
-                                        </span>
-                                    </div>
+                            <CardBody className="px-5 py-2">
+                                <div className="space-y-3 mb-2">
+                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 rounded-xl border border-purple-50">
+                                            <User
+                                                name={conf.name}
+                                                description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
+                                                avatarProps={{
+                                                    src: conf.profile_picture,
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
+                                            <User
+                                                name={exit.name}
+                                                description={<span className="text-[10px] text-rose-600 font-medium">Exit on {exit.exit_date}</span>}
+                                                avatarProps={{
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </CardBody>
                         </Card>
-
-                        {/* Task Stats (Priority) */}
-                        <Card className="shadow-sm border-none p-2">
-                            <CardHeader className="px-4 pt-4 pb-0">
-                                <div className="flex flex-col">
-                                    <p className="text-md font-bold text-default-900">Task Stats</p>
-                                    <p className="text-tiny text-default-500">Priority Distribution</p>
-                                </div>
-                            </CardHeader>
-                            <CardBody className="px-4 py-4 gap-4">
-                                {Object.entries(data.task_metrics.by_priority).slice(0, 3).map(([priority, count]) => (
-                                    <div key={priority}>
-                                        <div className="flex justify-between mb-1">
-                                            <span className="text-sm text-default-600 capitalize">{priority}</span>
-                                            <span className="text-sm font-bold text-default-900">{count}</span>
-                                        </div>
-                                        <Progress
-                                            value={(count / (data.task_metrics.total_pending + data.task_metrics.total_completed || 1)) * 100}
-                                            color={priority.toLowerCase() === 'high' ? 'danger' : priority.toLowerCase() === 'medium' ? 'warning' : 'primary'}
-                                            className="h-2"
-                                            aria-label={`${priority} priority tasks`}
+                    )}
+                    
+                    {/* Recent Hires List */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <h3 className="text-sm font-bold text-slate-800">Recent Joiners</h3>
+                            <div className="p-1.5 bg-blue-50 text-blue-500 rounded-lg">
+                                <UserPlus size={16} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-2">
+                            <div className="space-y-4 mb-2">
+                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <User
+                                            name={hire.name}
+                                            description={
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
+                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                                </div>
+                                            }
+                                            avatarProps={{
+                                                src: hire.profile_picture,
+                                                size: "sm",
+                                                radius: "lg",
+                                                classNames: { base: "shrink-0" } // Enforce fix size
+                                            }}
+                                            classNames={{
+                                                name: "text-xs font-bold text-slate-700"
+                                            }}
                                         />
                                     </div>
-                                ))}
-                            </CardBody>
-                        </Card>
-                    </div>
-
-                    {/* New Joiners Table (Replaces Project Status) */}
-                    <Card className="shadow-sm border-none">
-                        <CardHeader className="flex justify-between px-6 py-4">
-                            <div className="flex gap-2 items-center">
-                                <Users className="w-5 h-5 text-default-500" />
-                                <h3 className="font-bold text-large text-default-900">New Employees</h3>
+                                )) : (
+                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
+                                )}
                             </div>
-                            <Chip size="sm" variant="flat" color="default">Last 30 Days</Chip>
+                        </CardBody>
+                    </Card>
+
+                    
+
+                </div>
+
+                {/* --- Column 2: Main Tables & Metrics (Span 5) --- */}
+                <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
+                    {/* Detailed Attendance Overview (Dashboard Style) - COMPACT SIZE */}
+                    {/* Attendance Overview (Replaces previous compact card) */}
+                    <Card className="shadow-sm border border-default-100 bg-white min-h-[440px]">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Attendance Overview</h3>
+                                <p className="text-xs text-slate-400">Daily Tracking & Insights</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="px-2 py-1 rounded-lg bg-slate-100 text-[10px] font-bold text-slate-500">
+                                    {data.attendance_analytics.today.total_employees} Total Staff
+                                </span>
+                                <div className="p-2 bg-emerald-50 rounded-full text-emerald-500">
+                                    <CheckCircle size={20} />
+                                </div>
+                            </div>
                         </CardHeader>
-                        <CardBody className="px-4 pb-4">
-                            <Table aria-label="New Joiners Table" removeWrapper shadow="none">
-                                <TableHeader>
-                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Employee</TableColumn>
-                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Department</TableColumn>
-                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Role</TableColumn>
-                                    <TableColumn className="uppercase text-xs text-default-500 bg-transparent">Joined Date</TableColumn>
-                                </TableHeader>
-                                <TableBody emptyContent={"No new employees found."}>
-                                    {data.new_employees.map((emp, index) => (
-                                        <TableRow key={index} className="border-b border-default-100 last:border-none">
-                                            <TableCell>
-                                                <User
-                                                    name={emp.name}
-                                                    description={emp.designation}
-                                                    avatarProps={{
-                                                        src: emp.profile_picture,
-                                                        radius: "lg",
-                                                        size: "sm",
-                                                        color: "primary",
-                                                        isBordered: true
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell>
+                        <CardBody className="px-6 py-4 space-y-6">
+                            {/* Today's Stats Row */}
+                            <div className="grid grid-cols-4 gap-4 pb-6 border-b border-slate-50">
+                                {/* Present */}
+                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-100/50">
+                                    <span className="text-2xl font-bold text-emerald-600">{data.attendance_analytics.today.present}</span>
+                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mt-1">Present</span>
+                                    <span className="text-[9px] font-medium text-emerald-600/70 mt-0.5">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
+                                </div>
+                                {/* Absent */}
+                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-rose-50/50 border border-rose-100/50 transition-colors hover:bg-rose-100/50">
+                                    <span className="text-2xl font-bold text-rose-600">{data.attendance_analytics.today.absent}</span>
+                                    <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-1">Absent</span>
+                                    <span className="text-[9px] font-medium text-rose-600/70 mt-0.5">Mth: {data.attendance_analytics.this_month.total_absences}</span>
+                                </div>
+                                {/* On Leave */}
+                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-100/50">
+                                    <span className="text-2xl font-bold text-amber-600">{data.attendance_analytics.today.on_leave}</span>
+                                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mt-1">On Leave</span>
+                                </div>
+                                {/* Late */}
+                                <div className="flex flex-col items-center justify-center p-3 rounded-2xl bg-orange-50/50 border border-orange-100/50 transition-colors hover:bg-orange-100/50">
+                                    <span className="text-2xl font-bold text-orange-600">{data.attendance_analytics.today.late}</span>
+                                    <span className="text-[10px] font-bold text-orange-400 uppercase tracking-widest mt-1">Late</span>
+                                </div>
+                            </div>
+
+                            {/* Comparison Metrics */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Work Hours Config */}
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <Clock size={16} className="text-blue-500" />
+                                        <span className="text-xs font-bold text-slate-700 uppercase">Avg Work Hours</span>
+                                    </div>
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <span className="text-2xl font-bold text-slate-800">{data.attendance_analytics.today.avg_work_hours}</span>
+                                            <span className="text-[10px] text-slate-400 ml-1">Today</span>
+                                        </div>
+                                        <div className="text-right flex flex-col gap-0.5">
+                                            <div className="text-[10px] text-slate-500 font-medium">
+                                                W: <span className="font-bold text-slate-700">{data.attendance_analytics.this_week.avg_work_hours_per_day}h</span>
+                                            </div>
+                                            <div className="text-[10px] text-slate-500 font-medium">
+                                                M: <span className="font-bold text-slate-700">{data.attendance_analytics.this_month.avg_work_hours_per_day}h</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Late Trends */}
+                                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <TrendingUp size={16} className="text-orange-500" />
+                                        <span className="text-xs font-bold text-slate-700 uppercase">Late Trends</span>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <div className="flex flex-col">
+                                            <span className="text-lg font-bold text-slate-800">{data.attendance_analytics.this_week.total_late_instances}</span>
+                                            <span className="text-[9px] text-slate-400 uppercase">This Week</span>
+                                        </div>
+                                        <div className="w-[1px] h-8 bg-slate-200"></div>
+                                        <div className="flex flex-col text-right">
+                                            <span className="text-lg font-bold text-slate-800">{data.attendance_analytics.this_month.total_late_instances}</span>
+                                            <span className="text-[9px] text-slate-400 uppercase">This Month</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Week Attendance */}
+                            <div className="mt-2">
+                                <div className="flex justify-between items-center mb-1.5">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Weekly Average Attendance</span>
+                                    <span className="text-xs font-bold text-slate-700">{data.attendance_analytics.this_week.avg_attendance_percentage}%</span>
+                                </div>
+                                <Progress
+                                    value={data.attendance_analytics.this_week.avg_attendance_percentage}
+                                    size="sm"
+                                    radius="full"
+                                    classNames={{
+                                        track: "bg-slate-100 h-2",
+                                        indicator: "bg-gradient-to-r from-emerald-400 to-teal-500 h-2"
+                                    }}
+                                />
+                            </div>
+
+                            {/* Attendance Concerns Area */}
+                            {data.attendance_analytics.attendance_concerns && data.attendance_analytics.attendance_concerns.length > 0 && (
+                                <div className="mt-2 pt-4 border-t border-slate-50">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attention Required</p>
+                                    <div className="space-y-2">
+                                        {data.attendance_analytics.attendance_concerns.slice(0, 3).map((concern, idx) => (
+                                            <div key={idx} className="flex justify-between items-center p-2 bg-rose-50/30 rounded-lg border border-rose-50">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="w-2 h-2 rounded-full bg-success-500"></span>
-                                                    <span className="text-default-700 font-medium">{emp.department}</span>
+                                                    <span className="text-xs font-bold text-slate-700">{concern.name}</span>
                                                 </div>
+                                                <div className="flex gap-2 text-[9px]">
+                                                    <span className="text-rose-600 font-medium">{concern.late_count} Late</span>
+                                                    <span className="text-rose-600 font-medium">{concern.absent_days} Absent</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+
+                    {/* Work Mode Distributions - Large Dark Card */}
+                    <Card className="shadow-sm border border-slate-100 bg-gradient-to-br from-slate-900 to-slate-950 relative overflow-visible min-h-[350px] rounded-[40px] p-10 text-white">
+                        <div className="flex justify-between items-start mb-10">
+                            <div>
+                                <h3 className="text-2xl font-light tracking-tight">Workforce Distribution</h3>
+                                <p className="text-white/40 text-xs mt-1 font-medium uppercase tracking-widest">Global Work Modes</p>
+                            </div>
+                            <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
+                                <Building size={24} className="text-primary-400" />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-10">
+                            {/* Distribution Rings Overlay */}
+                            <div className="relative w-48 h-48 flex-shrink-0">
+                                <svg className="w-full h-full transform -rotate-90">
+                                    {/* Office - Outer */}
+                                    <circle cx="96" cy="96" r="85" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
+                                    <circle cx="96" cy="96" r="85" stroke="#3b82f6" strokeWidth="12" fill="none"
+                                        strokeDasharray={534}
+                                        strokeDashoffset={534 - (534 * (data.employee_analytics.work_mode_distribution.office_percentage / 100))}
+                                        strokeLinecap="round"
+                                    />
+                                    {/* Remote - Middle */}
+                                    <circle cx="96" cy="96" r="65" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
+                                    <circle cx="96" cy="96" r="65" stroke="#8b5cf6" strokeWidth="12" fill="none"
+                                        strokeDasharray={408}
+                                        strokeDashoffset={408 - (408 * (data.employee_analytics.work_mode_distribution.remote_percentage / 100))}
+                                        strokeLinecap="round"
+                                    />
+                                    {/* Hybrid - Inner */}
+                                    <circle cx="96" cy="96" r="45" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="none" />
+                                    <circle cx="96" cy="96" r="45" stroke="#f59e0b" strokeWidth="12" fill="none"
+                                        strokeDasharray={282}
+                                        strokeDashoffset={282 - (282 * (data.employee_analytics.work_mode_distribution.hybrid_percentage / 100))}
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span className="text-3xl font-black">{data.employee_analytics.overview.active_count}</span>
+                                    <span className="text-[10px] uppercase font-bold text-white/40 tracking-widest">Active</span>
+                                </div>
+                            </div>
+
+                            {/* Legend Information */}
+                            <div className="flex-1 space-y-6">
+                                <LegendItem label="Office" color="bg-blue-500" value={data.employee_analytics.work_mode_distribution.office} percent={data.employee_analytics.work_mode_distribution.office_percentage} />
+                                <LegendItem label="Remote" color="bg-purple-500" value={data.employee_analytics.work_mode_distribution.remote} percent={data.employee_analytics.work_mode_distribution.remote_percentage} />
+                                <LegendItem label="Hybrid" color="bg-amber-500" value={data.employee_analytics.work_mode_distribution.hybrid} percent={data.employee_analytics.work_mode_distribution.hybrid_percentage} />
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Pending Leaves Table - Redesigned like My Tasks */}
+                    <Card className="shadow-none border border-slate-100 bg-white rounded-[35px] flex-1">
+                        <CardHeader className="px-8 pt-8 pb-2 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-800 tracking-tight">Leave Approvals</h3>
+                                <p className="text-slate-400 text-xs mt-1">Action required on {data.leave_analytics.overview.pending_requests} requests</p>
+                            </div>
+                            <Chip color="warning" variant="flat" size="sm" className="font-bold">Urgent</Chip>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4">
+                            <Table aria-label="Leave Approvals" removeWrapper shadow="none">
+                                <TableHeader>
+                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Employee</TableColumn>
+                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Type</TableColumn>
+                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400">Days</TableColumn>
+                                    <TableColumn className="bg-transparent text-xs uppercase font-black text-slate-400 text-right">Approve</TableColumn>
+                                </TableHeader>
+                                <TableBody emptyContent={"No pending requests."}>
+                                    {data.leave_analytics.pending_requests.slice(0, 5).map((l) => (
+                                        <TableRow key={l.id} className="border-b border-default-50 last:border-none group">
+                                            <TableCell>
+                                                <div className="font-bold text-slate-700">{l.employee_name}</div>
+                                                <div className="text-[10px] text-slate-400 truncate max-w-[150px]">{l.reason}</div>
                                             </TableCell>
                                             <TableCell>
-                                                <span className="text-default-500">{emp.designation}</span>
+                                                <Chip size="sm" variant="dot" color="primary" className="border-none p-0">{l.leave_type}</Chip>
                                             </TableCell>
                                             <TableCell>
-                                                <span className="text-default-500 font-medium">{new Date(emp.date_of_joining).toLocaleDateString()}</span>
+                                                <span className="font-bold text-slate-900">{l.total_days}</span>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div className="w-8 h-8 rounded-full bg-success-50 text-success flex items-center justify-center cursor-pointer hover:bg-success-100">
+                                                        <CheckCircle size={14} />
+                                                    </div>
+                                                </div>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -231,112 +544,157 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     </Card>
                 </div>
 
-                {/* Right Column (Sidebar) */}
-                <div className="space-y-6">
-                    {/* Departments */}
-                    <Card className="shadow-sm border-none">
-                        <CardHeader className="flex justify-between px-6 py-4 pb-2">
-                            <div className="flex gap-2 items-center">
-                                <Building className="w-5 h-5 text-default-500" />
-                                <h3 className="font-bold text-medium text-default-900">Departments</h3>
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4 pt-2">
-                            <div className="space-y-4">
-                                {data.department_distribution.map((dept, index) => (
-                                    <div key={index} className="flex justify-between items-center py-2 border-b border-default-100 last:border-none">
-                                        <span className="text-sm font-medium text-default-700">{dept.name}</span>
-                                        <Chip size="sm" variant="flat" className="bg-default-100 text-default-700 font-bold min-w-[30px] text-center">
-                                            {dept.count}
-                                        </Chip>
+                {/* --- Column 3: Sidebar (Span 4) --- */}
+                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+
+                    {/* Alerts Section */}
+                    {(data.alerts.critical.length > 0 || data.alerts.warnings.length > 0) && (
+                        <Card className="shadow-sm border-none bg-rose-50/50 border-l-4 border-rose-500">
+                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
+                                <div className="p-1.5 bg-rose-100 rounded-lg text-rose-500">
+                                    <AlertCircle size={16} />
+                                </div>
+                                <h3 className="font-bold text-rose-900 text-sm">Action Required</h3>
+                            </CardHeader>
+                            <CardBody className="px-5 py-4 space-y-3">
+                                {data.alerts.critical.map((alert, idx) => (
+                                    <div key={idx} className="flex gap-3 items-start bg-white/60 p-3 rounded-xl border border-rose-100/50">
+                                        <span className="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
+                                        <div>
+                                            <p className="text-sm font-bold text-rose-900">{alert.message}</p>
+                                            <p className="text-[10px] text-rose-500/80 font-medium mt-0.5">Critical Priority</p>
+                                        </div>
                                     </div>
                                 ))}
+                                {data.alerts.warnings.map((alert, idx) => (
+                                    <div key={idx} className="flex gap-3 items-start bg-white/60 p-3 rounded-xl border border-amber-100/50">
+                                        <span className="mt-1.5 w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-800">{alert.message}</p>
+                                            <p className="text-[10px] text-amber-600 font-medium mt-0.5">Warning</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {/* Upcoming Events */}
+                    <Card className="shadow-sm border border-default-100 bg-white">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <div className="flex gap-2 items-center">
+                                <div className="p-1.5 bg-purple-50 text-purple-500 rounded-lg">
+                                    <Gift size={18} />
+                                </div>
+                                <h3 className="font-bold text-medium text-slate-800">Celebrations</h3>
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-4 space-y-4">
+                            {/* Birthdays */}
+                            {data.upcoming_events.birthdays.length > 0 && (
+                                <div>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Birthdays</p>
+                                    <div className="space-y-3">
+                                        {data.upcoming_events.birthdays.map((bday, idx) => (
+                                            <div key={idx} className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <User
+                                                        name={bday.name}
+                                                        description={<span className="text-[10px] text-slate-400 font-medium">In {bday.days_until} days</span>}
+                                                        avatarProps={{ src: bday.profile_picture, size: "sm" }}
+                                                        classNames={{ name: "text-xs font-bold text-slate-700" }}
+                                                    />
+                                                </div>
+                                                <div className="w-8 h-8 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center text-[10px] font-bold">
+                                                    {new Date(bday.date).getDate()}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Holidays */}
+                            {data.upcoming_events.holidays.length > 0 && (
+                                <div className="pt-2">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 pl-1">Holidays</p>
+                                    <div className="space-y-3">
+                                        {data.upcoming_events.holidays.map((h, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                                                <div className="flex flex-col items-center justify-center w-10 h-10 rounded-lg bg-white text-slate-700 shadow-sm">
+                                                    <span className="text-[8px] font-bold uppercase leading-none text-slate-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                                    <span className="text-base font-bold leading-none mt-0.5">{new Date(h.date).getDate()}</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-bold text-slate-800">{h.name}</p>
+                                                    <p className="text-[10px] text-slate-500">{h.days_until} days to go</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+
+                    {/* Activity Feed */}
+                    <Card className="shadow-none border border-slate-100 bg-white min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white border-b border-slate-50">
+                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400" />
+                                System Activity
+                            </h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activities.map((act, i) => {
+                                    const dateObj = new Date(act.timestamp);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                                    const isHighWithIcon = act.priority === 'high';
+
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activities.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100"></div>
+                                            )}
+
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 border-rose-100 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 border-amber-100 text-amber-500' :
+                                                        'bg-blue-50 border-blue-100 text-blue-500'
+                                                    }`}>
+                                                    <Activity size={14} strokeWidth={2.5} />
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-sm text-slate-700 font-medium leading-snug">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[10px] text-slate-500 font-semibold bg-slate-100/50 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-300">•</span>
+                                                    <span className="text-[10px] text-slate-400 font-medium">
+                                                        {timeStr}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </CardBody>
                     </Card>
 
-                    {/* Daily Exceptions */}
-                    <Card className="shadow-sm border-none border-l-4 border-danger">
-                        <CardHeader className="flex gap-2 px-6 py-4 text-danger">
-                            <AlertCircle className="w-5 h-5" />
-                            <h3 className="font-bold text-medium">Daily Exceptions</h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-2 pb-6">
-                            <div className="space-y-4">
-                                <div className="flex flex-col">
-                                    <span className="text-xs uppercase text-default-500 font-semibold mb-1">Late Arrivals</span>
-                                    {data.attendance_metrics.today_stats.late > 0 ? (
-                                        <div className="p-3 bg-danger-50 rounded-lg border border-danger-100">
-                                            <p className="text-sm font-medium text-danger-700">
-                                                {data.attendance_metrics.today_stats.late} employees arrived late today.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-default-400 italic">No one was late today.</p>
-                                    )}
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-xs uppercase text-default-500 font-semibold mb-1">On Leave</span>
-                                    {data.attendance_metrics.today_stats.on_leave > 0 ? (
-                                        <div className="p-3 bg-warning-50 rounded-lg border border-warning-100">
-                                            <p className="text-sm font-medium text-warning-700">
-                                                {data.attendance_metrics.today_stats.on_leave} employees are on leave.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-default-400 italic">All employees present.</p>
-                                    )}
-                                </div>
-                            </div>
-                        </CardBody>
-                    </Card>
-
-                    {/* Recent Activity */}
-                    <Card className="shadow-sm border-none">
-                        <CardHeader className="flex gap-2 px-6 py-4">
-                            <Clock className="w-5 h-5 text-default-500" />
-                            <h3 className="font-bold text-medium text-default-900">Recent Activity</h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-2 pb-6">
-                            <div className="relative border-l border-default-200 ml-2 space-y-6">
-                                {data.recent_activities.length === 0 ? (
-                                    <p className="pl-6 text-sm text-default-500 italic">No recent activity.</p>
-                                ) : (
-                                    data.recent_activities.slice(0, 5).map((act, index) => (
-                                        <div key={index} className="ml-6 relative">
-                                            <span className="absolute -left-[31px] top-1 w-2.5 h-2.5 rounded-full bg-primary-500 ring-4 ring-white"></span>
-                                            <p className="text-sm font-semibold text-default-900">{act.type === 'new_user' ? 'New Employee' : act.type === 'project_created' ? 'New Project' : 'System Update'}</p>
-                                            <p className="text-xs text-default-600 mt-0.5 line-clamp-2">{act.message}</p>
-                                            <span className="text-[10px] text-default-400 block mt-1">
-                                                {new Date(act.timestamp).toLocaleDateString()}
-                                            </span>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
                 </div>
             </div>
         </div>
     );
 }
 
-function DashboardStatCard({ title, value, subtext, icon, bgColor }: { title: string, value: string | number, subtext: string, icon: React.ReactNode, bgColor: string }) {
-    return (
-        <Card className="shadow-sm border-none h-full bg-white">
-            <CardBody className="flex flex-col p-4">
-                <div className="flex justify-between items-start">
-                    <p className="text-small font-semibold text-default-500 uppercase tracking-wider">{title}</p>
-                    <div className={`p-3 rounded-xl ${bgColor} -mt-1 -mr-1`}>
-                        {icon}
-                    </div>
-                </div>
-                <div>
-                    <h3 className="text-3xl font-bold text-default-900">{value}</h3>
-                    <p className="text-xs text-default-400 mt-1">{subtext}</p>
-                </div>
-            </CardBody>
-        </Card>
-    );
-}
