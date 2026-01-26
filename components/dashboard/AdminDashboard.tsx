@@ -12,7 +12,7 @@ import { Image } from "@heroui/image";
 import { Avatar } from "@heroui/avatar";
 import {
     Users, Briefcase, Calendar, CheckCircle, Clock, AlertCircle,
-    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard, ArrowUpRight
+    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard, ArrowUpRight, Bell
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getBlogsRequest } from "@/store/blog/action";
