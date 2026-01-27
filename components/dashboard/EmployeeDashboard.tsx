@@ -645,7 +645,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
 
                         {/* Bottom Section: Dark Task Card */}
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/10 rounded-[28px] p-7 text-white flex flex-col shadow-2xl mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-[#18181b] to-black border border-white/10 rounded-[28px] p-7 text-white flex flex-col mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
                             {/* Decorative Background Glow */}
                             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
                             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
