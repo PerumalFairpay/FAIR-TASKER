@@ -305,6 +305,12 @@ export default function LeaveRequestPage() {
                                             {item.half_day_session}
                                         </span>
                                     )}
+                                    {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
+                                        <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 px-1.5 py-0.5 rounded-md w-fit">
+                                            <Clock size={10} />
+                                            <span>{item.start_time} - {item.end_time}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </TableCell>
                             <TableCell>

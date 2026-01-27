@@ -36,6 +36,7 @@ export default function AddEditLeaveTypeDrawer({
         status: "Active",
         number_of_days: 0,
         monthly_allowed: 0,
+        allowed_hours: 0,
     });
 
     useEffect(() => {
@@ -47,6 +48,7 @@ export default function AddEditLeaveTypeDrawer({
                 status: selectedLeaveType.status || "Active",
                 number_of_days: selectedLeaveType.number_of_days || 0,
                 monthly_allowed: selectedLeaveType.monthly_allowed || 0,
+                allowed_hours: selectedLeaveType.allowed_hours || 0,
             });
         } else {
             setFormData({
@@ -56,6 +58,7 @@ export default function AddEditLeaveTypeDrawer({
                 status: "Active",
                 number_of_days: 0,
                 monthly_allowed: 0,
+                allowed_hours: 0,
             });
         }
     }, [mode, selectedLeaveType, isOpen]);
@@ -64,7 +67,7 @@ export default function AddEditLeaveTypeDrawer({
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "number_of_days" || name === "monthly_allowed" ? parseInt(value) || 0 : value
+            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" ? parseFloat(value) || 0 : value
         }));
     };
 
@@ -142,6 +145,17 @@ export default function AddEditLeaveTypeDrawer({
                                 onChange={handleInputChange}
                                 variant="bordered"
                                 isRequired
+                            />
+
+                            <Input
+                                label="Allowed Hours (Optional)"
+                                placeholder="e.g., 2 (for permissions)"
+                                type="number"
+                                name="allowed_hours"
+                                value={formData.allowed_hours.toString()}
+                                onChange={handleInputChange}
+                                variant="bordered"
+                                description="Set 0 if not applicable"
                             />
 
                             <Select

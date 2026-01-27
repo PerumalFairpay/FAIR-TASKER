@@ -57,6 +57,8 @@ export default function AddEditLeaveRequestDrawer({
         start_date: today(getLocalTimeZone()).toString(),
         end_date: today(getLocalTimeZone()).toString(),
         half_day_session: "",
+        start_time: "",
+        end_time: "",
         total_days: 1,
         reason: "",
     });
@@ -100,7 +102,9 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: selectedRequest.start_date || today(getLocalTimeZone()).toString(),
                 end_date: selectedRequest.end_date || today(getLocalTimeZone()).toString(),
                 half_day_session: selectedRequest.half_day_session || "",
-                total_days: selectedRequest.total_days || 1,
+                start_time: selectedRequest.start_time || "",
+                end_time: selectedRequest.end_time || "",
+                total_days: selectedRequest.total_days !== undefined ? selectedRequest.total_days : 1,
                 reason: selectedRequest.reason || "",
             });
             setFiles([]); // Reset files on edit open, as we don't pre-fill existing files in FilePond usually
@@ -113,6 +117,8 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: today(getLocalTimeZone()).toString(),
                 end_date: today(getLocalTimeZone()).toString(),
                 half_day_session: "",
+                start_time: "",
+                end_time: "",
                 total_days: 1,
                 reason: "",
             });
@@ -166,6 +172,9 @@ export default function AddEditLeaveRequestDrawer({
                 } catch (e) {
                     console.error("Error calculating days:", e);
                 }
+            } else if (newData.leave_duration_type === "Permission") {
+                newData.end_date = newData.start_date;
+                newData.total_days = 0;
             }
 
 
@@ -187,7 +196,9 @@ export default function AddEditLeaveRequestDrawer({
         onSubmit(data);
     };
 
-    const durationTypes = ["Single", "Multiple", "Half Day"];
+
+    // Updated duration types to include Permission
+    const durationTypes = ["Single", "Multiple", "Half Day", "Permission"];
     const sessions = ["First Half", "Second Half"];
 
     const isDateUnavailable = (date: DateValue) => {
@@ -339,6 +350,29 @@ export default function AddEditLeaveRequestDrawer({
                                         <SelectItem key={s}>{s}</SelectItem>
                                     ))}
                                 </Select>
+                            )}
+
+                            {formData.leave_duration_type === "Permission" && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Input
+                                        label="Start Time"
+                                        type="time"
+                                        name="start_time"
+                                        value={formData.start_time}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                        isRequired
+                                    />
+                                    <Input
+                                        label="End Time"
+                                        type="time"
+                                        name="end_time"
+                                        value={formData.end_time}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                        isRequired
+                                    />
+                                </div>
                             )}
 
                             <Input
