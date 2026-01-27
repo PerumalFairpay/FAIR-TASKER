@@ -129,7 +129,31 @@ export default function AddEditLeaveRequestDrawer({
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        let newData = { ...formData, [name]: value };
+
+        // Auto-calculate End Time for Permission based on allowed_hours
+        if (name === "start_time" && formData.leave_duration_type === "Permission" && formData.leave_type_id) {
+            const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+            if (selectedType && selectedType.allowed_hours) {
+                try {
+                    const [hours, minutes] = value.split(':').map(Number);
+                    if (!isNaN(hours) && !isNaN(minutes)) {
+                        const allowedMinutes = selectedType.allowed_hours * 60;
+                        const totalMinutes = (hours * 60) + minutes + allowedMinutes;
+
+                        const endHours = Math.floor(totalMinutes / 60) % 24;
+                        const endMinutes = totalMinutes % 60;
+
+                        const formattedEndTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+                        newData.end_time = formattedEndTime;
+                    }
+                } catch (error) {
+                    console.error("Error calculating end time:", error);
+                }
+            }
+        }
+
+        setFormData(newData);
     };
 
     const handleSelectChange = (name: string, value: any) => {
