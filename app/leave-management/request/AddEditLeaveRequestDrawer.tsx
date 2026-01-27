@@ -216,98 +216,21 @@ export default function AddEditLeaveRequestDrawer({
                 newData.total_days = 0.5;
             } else if (newData.leave_duration_type === "Multiple") {
                 try {
-                    const startKey = parseDate(newData.start_date);
-                    const endKey = parseDate(newData.end_date);
+                    const start = parseDate(newData.start_date);
+                    const end = parseDate(newData.end_date);
+                    const d1 = new Date(start.year, start.month - 1, start.day);
+                    const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    const d1 = new Date(startKey.year, startKey.month - 1, startKey.day);
-                    const d2 = new Date(endKey.year, endKey.month - 1, endKey.day);
+                    // Simple calendar day count
+                    const diffTime = d2.getTime() - d1.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    let total = diffDays > 0 ? diffDays : 0;
 
-                    // Generate all dates in range
-                    const datesInRange: Date[] = [];
-                    let current = new Date(d1);
-                    while (current <= d2) {
-                        datesInRange.push(new Date(current));
-                        current.setDate(current.getDate() + 1);
-                    }
+                    // Adjust for start/end sessions
+                    if (newData.start_session === "Second Half") total -= 0.5;
+                    if (newData.end_session === "First Half") total -= 0.5;
 
-                    // Helper to check if a date is working day (Mon-Sat AND not holiday)
-                    const isWorkingDay = (d: Date) => {
-                        const dayOfWeek = d.getDay();
-                        // 0 = Sunday
-                        if (dayOfWeek === 0) return false;
-
-                        // Check public holidays
-                        // local date string match
-                        const y = d.getFullYear();
-                        const m = String(d.getMonth() + 1).padStart(2, '0');
-                        const dayStr = String(d.getDate()).padStart(2, '0');
-                        const dateStr = `${y}-${m}-${dayStr}`;
-
-                        return !holidays.some((h: any) => h.date === dateStr && h.status === "Active");
-                    };
-
-                    // Find first and last working day indices
-                    let firstWorkingIdx = -1;
-                    let lastWorkingIdx = -1;
-
-                    for (let i = 0; i < datesInRange.length; i++) {
-                        if (isWorkingDay(datesInRange[i])) {
-                            if (firstWorkingIdx === -1) firstWorkingIdx = i;
-                            lastWorkingIdx = i;
-                        }
-                    }
-
-                    if (firstWorkingIdx === -1) {
-                        // No working days in selection
-                        newData.total_days = 0;
-                    } else {
-                        // Calculate Sandwich Days
-                        let total = 0;
-
-                        // 1. Duration of First Working Day
-                        if (newData.start_session === "Second Half") total += 0.5;
-                        else total += 1.0;
-
-                        // 2. Duration of Last Working Day (if different from first)
-                        if (lastWorkingIdx > firstWorkingIdx) {
-                            if (newData.end_session === "First Half") total += 0.5;
-                            else total += 1.0;
-                        } else if (firstWorkingIdx === lastWorkingIdx) {
-                            // If same day, we already added first day duration. 
-                            // If user selected "Start: 2nd Half" and "End: 1st Half" on same day -> 0? 
-                            // But UI shouldn't allow illogical same-day multiple. 
-                            // Assume simplified logic for same-day is driven by Single/HalfDay types, 
-                            // but if they use Multiple for 1 day:
-                            if (newData.start_session === "Second Half" && newData.end_session === "First Half") {
-                                // Illogical, but lets say 0 or 0.5?
-                                // If I start 2nd half and end 1st half, I work -1 hours? 
-                                // Reset to 0.5 or 1 based on dominant. 
-                                // Let's just trust valid inputs or max(0, ...). 
-                                // Actually, if single day multiple:
-                                // If start=Second, End=Full -> 0.5.
-                                // If start=Full, End=First -> 0.5.
-                                // If start=Second, End=First -> 0?
-                                // If start=Full, End=Full -> 1.
-                                // Re-eval:
-                                total = 0;
-                                // Add 1 for the day
-                                let dayVal = 1.0;
-                                if (newData.start_session === "Second Half") dayVal -= 0.5;
-                                if (newData.end_session === "First Half") dayVal -= 0.5;
-                                total += Math.max(0, dayVal);
-                            }
-                        }
-
-                        // 3. Add 1.0 for every day strictly BETWEEN first and last working day
-                        // Because of sandwich rule, we count EVERYTHING in between.
-                        const daysBetween = lastWorkingIdx - firstWorkingIdx - 1;
-                        if (daysBetween > 0) {
-                            total += daysBetween;
-                        }
-
-                        newData.total_days = total;
-                    }
-
+                    newData.total_days = Math.max(0, total);
                 } catch (e) {
                     console.error("Error calculating days:", e);
                 }
