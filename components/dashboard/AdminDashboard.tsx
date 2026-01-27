@@ -218,222 +218,9 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
             </div>
 
             {/* Main Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
 
-                {/* --- Column 1: Overview & Distribution (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
-
-                    {/* HR Summary Card */}
-
-
-
-
-                    {/* Recent Hires List */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Joiners</h3>
-                            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg">
-                                <UserPlus size={16} />
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 py-2">
-                            <div className="space-y-4 mb-2">
-                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <User
-                                            name={hire.name}
-                                            description={
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
-                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                                                </div>
-                                            }
-                                            avatarProps={{
-                                                src: hire.profile_picture,
-                                                size: "sm",
-                                                radius: "lg",
-                                                classNames: { base: "shrink-0" } // Enforce fix size
-                                            }}
-                                            classNames={{
-                                                name: "text-xs font-bold text-slate-700 dark:text-slate-200"
-                                            }}
-                                        />
-                                    </div>
-                                )) : (
-                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
-
-                    {/* Upcoming Confirmations */}
-                    {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
-                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Key Movements</h3>
-                                <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
-                                    <UserCheck size={16} />
-                                </div>
-                            </CardHeader>
-                            <CardBody className="px-5 py-2">
-                                <div className="space-y-3 mb-2">
-                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
-                                            <User
-                                                name={conf.name}
-                                                description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
-                                                avatarProps={{
-                                                    src: conf.profile_picture,
-                                                    size: "sm",
-                                                    isBordered: false
-                                                }}
-                                                classNames={{
-                                                    name: "text-xs font-bold text-slate-700"
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
-                                            <User
-                                                name={exit.name}
-                                                description={<span className="text-[10px] text-rose-600 font-medium">Exit on {exit.exit_date}</span>}
-                                                avatarProps={{
-                                                    size: "sm",
-                                                    isBordered: false
-                                                }}
-                                                classNames={{
-                                                    name: "text-xs font-bold text-slate-700"
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardBody>
-                        </Card>
-                    )}
-
-                    {/* Work Mode Distribution (Linear) */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Work Mode</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">Employee Distribution</p>
-                            </div>
-                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
-                                <Building size={20} />
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-5">
-                            {/* Office */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Office</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.office_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
-                                />
-                            </div>
-                            {/* Remote */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-secondary"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Remote</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.remote_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
-                                />
-                            </div>
-                            {/* Hybrid */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-warning"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hybrid</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
-                                />
-                            </div>
-                        </CardBody>
-                    </Card>
-
-
-
-                    {/* Activity Feed */}
-                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400 dark:text-primary" />
-                                System Activity
-                            </h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activities.map((act, i) => {
-                                    const dateObj = new Date(act.timestamp);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
-                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
-                                                    }`}>
-                                                    <Activity size={14} strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
-                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardBody>
-                    </Card>
-
-
-
-                </div>
-
-                <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
+                <div className="w-full lg:w-5/12 flex flex-col gap-6">
 
 
 
@@ -783,7 +570,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                 </div>
 
                 {/* --- Column 3: Sidebar (Span 4) --- */}
-                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+                <div className="w-full lg:flex-1 flex flex-col gap-6">
 
                     {/* Birthdays (Standalone Card) - Top of Column */}
                     {data.upcoming_events.birthdays.length > 0 && (
@@ -911,9 +698,8 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{h.name}</p>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                                                        h.days_until <= 7 ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
-                                                    }`}>
+                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${h.days_until <= 7 ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                                        }`}>
                                                         {h.days_until} days left
                                                     </span>
                                                 </div>
@@ -993,6 +779,219 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             ))}
                         </div>
                     )}
+                </div>
+
+                {/* --- Column 1: Overview & Distribution (Span 3) --- */}
+                <div className="w-full lg:flex-1 flex flex-col gap-6">
+
+                    {/* HR Summary Card */}
+
+
+
+
+                    {/* Recent Hires List */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Joiners</h3>
+                            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg">
+                                <UserPlus size={16} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-2">
+                            <div className="space-y-4 mb-2">
+                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <User
+                                            name={hire.name}
+                                            description={
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
+                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                                </div>
+                                            }
+                                            avatarProps={{
+                                                src: hire.profile_picture,
+                                                size: "sm",
+                                                radius: "lg",
+                                                classNames: { base: "shrink-0" } // Enforce fix size
+                                            }}
+                                            classNames={{
+                                                name: "text-xs font-bold text-slate-700 dark:text-slate-200"
+                                            }}
+                                        />
+                                    </div>
+                                )) : (
+                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
+                                )}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* Upcoming Confirmations */}
+                    {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
+                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Key Movements</h3>
+                                <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
+                                    <UserCheck size={16} />
+                                </div>
+                            </CardHeader>
+                            <CardBody className="px-5 py-2">
+                                <div className="space-y-3 mb-2">
+                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
+                                            <User
+                                                name={conf.name}
+                                                description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
+                                                avatarProps={{
+                                                    src: conf.profile_picture,
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
+                                            <User
+                                                name={exit.name}
+                                                description={<span className="text-[10px] text-rose-600 font-medium">Exit on {exit.exit_date}</span>}
+                                                avatarProps={{
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    {/* Work Mode Distribution (Linear) */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Work Mode</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Employee Distribution</p>
+                            </div>
+                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
+                                <Building size={20} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-5">
+                            {/* Office */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Office</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.office_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
+                                />
+                            </div>
+                            {/* Remote */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Remote</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.remote_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
+                                />
+                            </div>
+                            {/* Hybrid */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-warning"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hybrid</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
+                                />
+                            </div>
+                        </CardBody>
+                    </Card>
+
+
+
+                    {/* Activity Feed */}
+                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400 dark:text-primary" />
+                                System Activity
+                            </h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activities.map((act, i) => {
+                                    const dateObj = new Date(act.timestamp);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activities.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
+                                            )}
+
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
+                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
+                                                    }`}>
+                                                    <Activity size={14} strokeWidth={2.5} />
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
+                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
+                                                        {timeStr}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+
+
                 </div>
             </div>
         </div >
