@@ -330,12 +330,27 @@ export default function LeaveRequestPage() {
                                         )}
                                     </div>
                                     {item.half_day_session && (
-                                        <span className="text-tiny text-primary-500 font-medium">
-                                            {item.half_day_session}
-                                        </span>
+                                        <div className="flex items-center gap-1.5 text-tiny text-primary-600 font-medium bg-primary-50 dark:bg-primary-950/30 px-1.5 py-0.5 rounded-md w-fit border border-primary-100 dark:border-primary-800">
+                                            <Clock size={10} />
+                                            <span>{item.half_day_session}</span>
+                                        </div>
+                                    )}
+                                    {item.leave_duration_type === "Multiple" && (item.start_session || item.end_session) && (
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            {item.start_session && item.start_session !== "Full Day" && (
+                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                    Start: {item.start_session}
+                                                </span>
+                                            )}
+                                            {item.end_session && item.end_session !== "Full Day" && (
+                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                    End: {item.end_session}
+                                                </span>
+                                            )}
+                                        </div>
                                     )}
                                     {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
-                                        <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 px-1.5 py-0.5 rounded-md w-fit">
+                                        <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 dark:bg-warning-950/30 px-1.5 py-0.5 rounded-md w-fit border border-warning-100 dark:border-warning-800">
                                             <Clock size={10} />
                                             <span>{item.start_time} - {item.end_time}</span>
                                         </div>
