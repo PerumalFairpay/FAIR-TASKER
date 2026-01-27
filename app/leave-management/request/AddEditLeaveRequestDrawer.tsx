@@ -57,6 +57,8 @@ export default function AddEditLeaveRequestDrawer({
         start_date: today(getLocalTimeZone()).toString(),
         end_date: today(getLocalTimeZone()).toString(),
         half_day_session: "",
+        start_session: "Full Day",
+        end_session: "Full Day",
         start_time: "",
         end_time: "",
         total_days: 1,
@@ -102,6 +104,8 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: selectedRequest.start_date || today(getLocalTimeZone()).toString(),
                 end_date: selectedRequest.end_date || today(getLocalTimeZone()).toString(),
                 half_day_session: selectedRequest.half_day_session || "",
+                start_session: selectedRequest.start_session || "Full Day",
+                end_session: selectedRequest.end_session || "Full Day",
                 start_time: selectedRequest.start_time || "",
                 end_time: selectedRequest.end_time || "",
                 total_days: selectedRequest.total_days !== undefined ? selectedRequest.total_days : 1,
@@ -117,6 +121,8 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: today(getLocalTimeZone()).toString(),
                 end_date: today(getLocalTimeZone()).toString(),
                 half_day_session: "",
+                start_session: "Full Day",
+                end_session: "Full Day",
                 start_time: "",
                 end_time: "",
                 total_days: 1,
@@ -200,7 +206,7 @@ export default function AddEditLeaveRequestDrawer({
         }
 
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id") {
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session") {
 
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
@@ -210,15 +216,98 @@ export default function AddEditLeaveRequestDrawer({
                 newData.total_days = 0.5;
             } else if (newData.leave_duration_type === "Multiple") {
                 try {
-                    const start = parseDate(newData.start_date);
-                    const end = parseDate(newData.end_date);
-                    const d1 = new Date(start.year, start.month - 1, start.day);
-                    const d2 = new Date(end.year, end.month - 1, end.day);
+                    const startKey = parseDate(newData.start_date);
+                    const endKey = parseDate(newData.end_date);
 
-                    // Count every day in the range regardless of holidays
-                    const diffTime = d2.getTime() - d1.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    newData.total_days = diffDays > 0 ? diffDays : 0;
+                    const d1 = new Date(startKey.year, startKey.month - 1, startKey.day);
+                    const d2 = new Date(endKey.year, endKey.month - 1, endKey.day);
+
+                    // Generate all dates in range
+                    const datesInRange: Date[] = [];
+                    let current = new Date(d1);
+                    while (current <= d2) {
+                        datesInRange.push(new Date(current));
+                        current.setDate(current.getDate() + 1);
+                    }
+
+                    // Helper to check if a date is working day (Mon-Sat AND not holiday)
+                    const isWorkingDay = (d: Date) => {
+                        const dayOfWeek = d.getDay();
+                        // 0 = Sunday
+                        if (dayOfWeek === 0) return false;
+
+                        // Check public holidays
+                        // local date string match
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const dayStr = String(d.getDate()).padStart(2, '0');
+                        const dateStr = `${y}-${m}-${dayStr}`;
+
+                        return !holidays.some((h: any) => h.date === dateStr && h.status === "Active");
+                    };
+
+                    // Find first and last working day indices
+                    let firstWorkingIdx = -1;
+                    let lastWorkingIdx = -1;
+
+                    for (let i = 0; i < datesInRange.length; i++) {
+                        if (isWorkingDay(datesInRange[i])) {
+                            if (firstWorkingIdx === -1) firstWorkingIdx = i;
+                            lastWorkingIdx = i;
+                        }
+                    }
+
+                    if (firstWorkingIdx === -1) {
+                        // No working days in selection
+                        newData.total_days = 0;
+                    } else {
+                        // Calculate Sandwich Days
+                        let total = 0;
+
+                        // 1. Duration of First Working Day
+                        if (newData.start_session === "Second Half") total += 0.5;
+                        else total += 1.0;
+
+                        // 2. Duration of Last Working Day (if different from first)
+                        if (lastWorkingIdx > firstWorkingIdx) {
+                            if (newData.end_session === "First Half") total += 0.5;
+                            else total += 1.0;
+                        } else if (firstWorkingIdx === lastWorkingIdx) {
+                            // If same day, we already added first day duration. 
+                            // If user selected "Start: 2nd Half" and "End: 1st Half" on same day -> 0? 
+                            // But UI shouldn't allow illogical same-day multiple. 
+                            // Assume simplified logic for same-day is driven by Single/HalfDay types, 
+                            // but if they use Multiple for 1 day:
+                            if (newData.start_session === "Second Half" && newData.end_session === "First Half") {
+                                // Illogical, but lets say 0 or 0.5?
+                                // If I start 2nd half and end 1st half, I work -1 hours? 
+                                // Reset to 0.5 or 1 based on dominant. 
+                                // Let's just trust valid inputs or max(0, ...). 
+                                // Actually, if single day multiple:
+                                // If start=Second, End=Full -> 0.5.
+                                // If start=Full, End=First -> 0.5.
+                                // If start=Second, End=First -> 0?
+                                // If start=Full, End=Full -> 1.
+                                // Re-eval:
+                                total = 0;
+                                // Add 1 for the day
+                                let dayVal = 1.0;
+                                if (newData.start_session === "Second Half") dayVal -= 0.5;
+                                if (newData.end_session === "First Half") dayVal -= 0.5;
+                                total += Math.max(0, dayVal);
+                            }
+                        }
+
+                        // 3. Add 1.0 for every day strictly BETWEEN first and last working day
+                        // Because of sandwich rule, we count EVERYTHING in between.
+                        const daysBetween = lastWorkingIdx - firstWorkingIdx - 1;
+                        if (daysBetween > 0) {
+                            total += daysBetween;
+                        }
+
+                        newData.total_days = total;
+                    }
+
                 } catch (e) {
                     console.error("Error calculating days:", e);
                 }
@@ -248,6 +337,8 @@ export default function AddEditLeaveRequestDrawer({
     // Updated duration types to include Permission
     const durationTypes = ["Single", "Multiple", "Half Day", "Permission"];
     const sessions = ["First Half", "Second Half"];
+    const startSessions = ["Full Day", "Second Half"];
+    const endSessions = ["Full Day", "First Half"];
 
     const isDateUnavailable = (date: DateValue) => {
         return holidays.some(
@@ -350,24 +441,45 @@ export default function AddEditLeaveRequestDrawer({
 
                             <div className="grid grid-cols-2 gap-4">
                                 {formData.leave_duration_type === "Multiple" ? (
-                                    <DateRangePicker
-                                        label="Date Range"
-                                        value={formData.start_date && formData.end_date ? {
-                                            start: parseDate(formData.start_date),
-                                            end: parseDate(formData.end_date),
-                                        } : null}
-                                        onChange={(value) => handleSelectChange("date_range", value)}
-                                        variant="bordered"
-                                        isRequired
-                                        className="col-span-2"
-                                        isDateUnavailable={isDateUnavailable}
-                                        minValue={today(getLocalTimeZone())}
-                                        allowsNonContiguousRanges
-
-                                        calendarProps={{
-                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
-                                        }}
-                                    />
+                                    <>
+                                        <DateRangePicker
+                                            label="Date Range"
+                                            value={formData.start_date && formData.end_date ? {
+                                                start: parseDate(formData.start_date),
+                                                end: parseDate(formData.end_date),
+                                            } : null}
+                                            onChange={(value) => handleSelectChange("date_range", value)}
+                                            variant="bordered"
+                                            isRequired
+                                            className="col-span-2"
+                                            minValue={today(getLocalTimeZone())}
+                                            allowsNonContiguousRanges
+                                        />
+                                        <div className="col-span-1">
+                                            <Select
+                                                label="Start Session"
+                                                selectedKeys={[formData.start_session]}
+                                                onSelectionChange={(keys) => handleSelectChange("start_session", Array.from(keys)[0])}
+                                                variant="bordered"
+                                            >
+                                                {startSessions.map((s) => (
+                                                    <SelectItem key={s}>{s}</SelectItem>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                        <div className="col-span-1">
+                                            <Select
+                                                label="End Session"
+                                                selectedKeys={[formData.end_session]}
+                                                onSelectionChange={(keys) => handleSelectChange("end_session", Array.from(keys)[0])}
+                                                variant="bordered"
+                                            >
+                                                {endSessions.map((s) => (
+                                                    <SelectItem key={s}>{s}</SelectItem>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                    </>
                                 ) : (
                                     <DatePicker
                                         label="Date"
