@@ -107,7 +107,7 @@ export default function AddEditLeaveRequestDrawer({
                 total_days: selectedRequest.total_days !== undefined ? selectedRequest.total_days : 1,
                 reason: selectedRequest.reason || "",
             });
-            setFiles([]); 
+            setFiles([]);
 
         } else {
             setFormData({
