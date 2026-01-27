@@ -149,8 +149,34 @@ export default function AddEditLeaveRequestDrawer({
             newData = { ...newData, [name]: value };
         }
 
+        // Handle Permission constraints
+        if (name === "leave_type_id") {
+            const selectedType = leaveTypes?.find((lt: any) => lt.id === value);
+            if (selectedType?.name === "Permission") {
+                newData.leave_duration_type = "Permission";
+            } else if (newData.leave_duration_type === "Permission") {
+                // If switching away from Permission type, reset duration from Permission
+                newData.leave_duration_type = "Single";
+            }
+        }
+
+        if (name === "leave_duration_type") {
+            if (value === "Permission") {
+                const permissionType = leaveTypes?.find((lt: any) => lt.name === "Permission");
+                if (permissionType) {
+                    newData.leave_type_id = permissionType.id;
+                }
+            } else {
+                // If switching away from Permission duration, reset leave type if it was Permission
+                const currentType = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
+                if (currentType?.name === "Permission") {
+                    newData.leave_type_id = "";
+                }
+            }
+        }
+
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range") {
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id") {
 
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
@@ -176,8 +202,6 @@ export default function AddEditLeaveRequestDrawer({
                 newData.end_date = newData.start_date;
                 newData.total_days = 0;
             }
-
-
         }
 
         setFormData(newData);
