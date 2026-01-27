@@ -15,7 +15,8 @@ import {
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
     Activity, ShieldCheck, AlertCircle, Target, ListTodo,
-    Bug, Users, ClipboardList, LogOut
+    Bug, Users, ClipboardList, LogOut,
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -224,7 +225,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
             if (relevantRecord && relevantRecord.clock_in && !relevantRecord.clock_out) {
                 const clockInTime = new Date(relevantRecord.clock_in).getTime();
                 const now = new Date().getTime();
-                const diffSeconds = Math.floor((now - clockInTime) / 1000); 
+                const diffSeconds = Math.floor((now - clockInTime) / 1000);
                 totalSeconds += diffSeconds;
             }
             setElapsedSeconds(totalSeconds);
@@ -838,18 +839,86 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             <div className="space-y-4">
                                 {data.leave_details.balance.map((item, idx) => {
-                                    const isSick = item.type.toLowerCase().includes("sick");
-                                    const isCasual = item.type.toLowerCase().includes("casual");
+                                    const typeName = item.type.toLowerCase();
+
+                                    let config = {
+                                        icon: <Briefcase size={18} strokeWidth={2.5} />,
+                                        bg: "bg-primary-50 dark:bg-primary-500/10",
+                                        text: "text-primary",
+                                        progressFrom: "from-primary-400",
+                                        progressTo: "to-primary-600",
+                                        shadow: "shadow-primary/25"
+                                    };
+
+                                    if (typeName.includes("sick")) {
+                                        config = {
+                                            icon: <HeartPulse size={18} strokeWidth={2.5} />, // Changed to HeartPulse for Sick
+                                            bg: "bg-rose-50 dark:bg-rose-500/10",
+                                            text: "text-rose-500",
+                                            progressFrom: "from-rose-400",
+                                            progressTo: "to-rose-600",
+                                            shadow: "shadow-rose-200"
+                                        };
+                                    } else if (typeName.includes("casual")) {
+                                        config = {
+                                            icon: <Sun size={18} strokeWidth={2.5} />,
+                                            bg: "bg-orange-50 dark:bg-orange-500/10",
+                                            text: "text-orange-500",
+                                            progressFrom: "from-orange-400",
+                                            progressTo: "to-orange-600",
+                                            shadow: "shadow-orange-200"
+                                        };
+                                    } else if (typeName.includes("earned") || typeName.includes("privilege")) {
+                                        config = {
+                                            icon: <Award size={18} strokeWidth={2.5} />,
+                                            bg: "bg-emerald-50 dark:bg-emerald-500/10",
+                                            text: "text-emerald-500",
+                                            progressFrom: "from-emerald-400",
+                                            progressTo: "to-emerald-600",
+                                            shadow: "shadow-emerald-200"
+                                        };
+                                    } else if (typeName.includes("compensatory") || typeName.includes("comp")) {
+                                        config = {
+                                            icon: <RefreshCw size={18} strokeWidth={2.5} />,
+                                            bg: "bg-cyan-50 dark:bg-cyan-500/10",
+                                            text: "text-cyan-500",
+                                            progressFrom: "from-cyan-400",
+                                            progressTo: "to-cyan-600",
+                                            shadow: "shadow-cyan-200"
+                                        };
+                                    } else if (typeName.includes("loss of pay") || typeName.includes("lop")) {
+                                        config = {
+                                            icon: <Ban size={18} strokeWidth={2.5} />,
+                                            bg: "bg-slate-100 dark:bg-slate-700/30",
+                                            text: "text-slate-500",
+                                            progressFrom: "from-slate-400",
+                                            progressTo: "to-slate-600",
+                                            shadow: "shadow-slate-200"
+                                        };
+                                    } else if (typeName.includes("maternity") || typeName.includes("paternity")) {
+                                        config = {
+                                            icon: <Baby size={18} strokeWidth={2.5} />,
+                                            bg: "bg-pink-50 dark:bg-pink-500/10",
+                                            text: "text-pink-500",
+                                            progressFrom: "from-pink-400",
+                                            progressTo: "to-pink-600",
+                                            shadow: "shadow-pink-200"
+                                        };
+                                    } else if (typeName.includes("permission")) {
+                                        config = {
+                                            icon: <FileText size={18} strokeWidth={2.5} />,
+                                            bg: "bg-violet-50 dark:bg-violet-500/10",
+                                            text: "text-violet-500",
+                                            progressFrom: "from-violet-400",
+                                            progressTo: "to-violet-600",
+                                            shadow: "shadow-violet-200"
+                                        };
+                                    }
 
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${isSick ? "bg-rose-50 dark:bg-rose-500/10 text-rose-500" :
-                                                isCasual ? "bg-orange-50 dark:bg-orange-500/10 text-orange-500" :
-                                                    "bg-primary-50 dark:bg-primary-500/10 text-primary"
-                                                }`}>
-                                                {isSick ? <Activity size={18} strokeWidth={2.5} /> :
-                                                    isCasual ? <Sun size={18} strokeWidth={2.5} /> :
-                                                        <Briefcase size={18} strokeWidth={2.5} />}
+                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${config.bg} ${config.text}`}>
+                                                {config.icon}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-end mb-1.5">
@@ -862,10 +931,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                     radius="full"
                                                     classNames={{
                                                         track: "bg-slate-100 dark:bg-white/10 h-1.5",
-                                                        indicator: `${isSick ? "bg-gradient-to-r from-rose-400 to-rose-500 shadow-rose-200" :
-                                                            isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
-                                                                "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
-                                                            } h-1.5 shadow-sm`
+                                                        indicator: `bg-gradient-to-r ${config.progressFrom} ${config.progressTo} ${config.shadow} h-1.5 shadow-sm`
                                                     }}
                                                 />
                                             </div>
