@@ -679,39 +679,50 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     {/* Upcoming Holidays */}
                     {data.upcoming_events.holidays.length > 0 && (
                         <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                                <div className="flex gap-2 items-center">
-                                    <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
-                                        <Calendar size={18} />
+                            <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                                <div className="flex gap-3 items-center">
+                                    <div className="p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
+                                        <Calendar size={18} strokeWidth={2.5} />
                                     </div>
-                                    <h3 className="font-bold text-medium text-slate-800 dark:text-slate-100">Upcoming Holidays</h3>
+                                    <div>
+                                        <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Upcoming Holidays</h3>
+                                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">Public & Optional Holidays</p>
+                                    </div>
                                 </div>
                             </CardHeader>
-                            <CardBody className="px-5 py-4 space-y-4">
+                            <CardBody className="px-6 py-4 space-y-4">
                                 <div className="space-y-3">
-                                    {data.upcoming_events.holidays.map((h, idx) => (
-                                        <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-white/5 rounded-[20px] border border-slate-100 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 hover:shadow-lg dark:hover:shadow-purple-500/10 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-300 group cursor-default">
-                                            <div className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/10 group-hover:scale-110 transition-transform duration-300">
-                                                <span className="text-[10px] font-bold uppercase leading-none text-purple-600 dark:text-purple-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                                <span className="text-xl font-bold leading-none mt-1">{new Date(h.date).getDate()}</span>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{h.name}</p>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${h.days_until <= 7 ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
-                                                        }`}>
-                                                        {h.days_until} days left
-                                                    </span>
+                                    {data.upcoming_events.holidays.map((h, idx) => {
+                                        const date = new Date(h.date);
+                                        return (
+                                            <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                                                <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/50 dark:border-white/10 shadow-sm shrink-0">
+                                                    <span className="text-[9px] font-bold uppercase text-purple-600 dark:text-purple-400 tracking-wider">{format(date, 'MMM')}</span>
+                                                    <span className="text-lg font-black text-slate-800 dark:text-slate-100 leading-none mt-0.5">{format(date, 'dd')}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{h.name}</h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{format(date, 'EEEE')}</span>
+                                                        <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
+                                                        <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400">{h.type}</span>
+                                                    </div>
+                                                </div>
+                                                <div className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${h.days_until <= 7
+                                                        ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
+                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                                                    }`}>
+                                                    {h.days_until === 0 ? 'Today' : `${h.days_until}d`}
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </CardBody>
                         </Card>
                     )}
 
-<Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
+                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
                         <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
                             <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
                                 <Activity size={16} className="text-slate-400 dark:text-primary" />
@@ -764,8 +775,8 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                   
-                    
+
+
                 </div>
 
                 {/* --- Column 1: Overview & Distribution (Span 3) --- */}
@@ -920,8 +931,8 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </div>
                         </CardBody>
                     </Card>
- 
- {blogs && blogs.length > 0 && (
+
+                    {blogs && blogs.length > 0 && (
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-center px-1">
                                 <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
