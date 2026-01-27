@@ -16,7 +16,7 @@ import { Tooltip } from "@heroui/tooltip";
 import {
     Plus, MoreVertical, Calendar as CalendarIcon,
     Paperclip, Clock, MoveRight, FileText, ChevronLeft, ChevronRight, Eye, Pencil,
-    ChevronsUp, ChevronsDown, AlertCircle, Circle
+    ChevronsUp, ChevronsDown, AlertCircle, Circle, Info
 } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
@@ -29,6 +29,7 @@ import clsx from "clsx";
 import EodReportDrawer from "./EodReportDrawer";
 import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import TaskDetailModal from "./TaskDetailModal";
+import TaskRulesDrawer from "./TaskRulesDrawer";
 
 
 
@@ -43,6 +44,7 @@ const TaskBoard = () => {
     const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isEodDrawerOpen, setIsEodDrawerOpen] = useState(false);
+    const [isRulesDrawerOpen, setIsRulesDrawerOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
     const [eodDrawerInitialReports, setEodDrawerInitialReports] = useState<Record<string, any>>({});
@@ -375,6 +377,17 @@ const TaskBoard = () => {
                     </Button>
 
                     <Button
+                        isIconOnly
+                        variant="flat"
+                        color="default"
+                        className="min-w-10 w-10 h-10 border border-default-200"
+                        onPress={() => setIsRulesDrawerOpen(true)}
+                        aria-label="Task Rules"
+                    >
+                        <Info size={18} className="text-default-500" />
+                    </Button>
+
+                    <Button
                         color="primary"
                         startContent={<Plus size={18} />}
                         variant="shadow"
@@ -567,6 +580,11 @@ const TaskBoard = () => {
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 task={selectedTask}
+            />
+
+            <TaskRulesDrawer
+                isOpen={isRulesDrawerOpen}
+                onClose={() => setIsRulesDrawerOpen(false)}
             />
         </div >
     );

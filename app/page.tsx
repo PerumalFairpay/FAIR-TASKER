@@ -9,8 +9,9 @@ import { loginRequest } from "@/store/auth/action";
 import { AppState } from "@/store/rootReducer";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Banknote, CalendarCheck, Eye, EyeOff, ShieldCheck, Users, BarChart3 } from "lucide-react";
-import { Logo } from "@/components/icons";
+import { Banknote, CalendarCheck, Eye, EyeOff, ShieldCheck, Users, BarChart3, User as UserIcon, Clock, KanbanSquare, Package, Briefcase, Newspaper } from "lucide-react";
+import Image from "next/image";
+import FairPayLogo from "@/app/assets/FairPay.png";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -60,10 +61,14 @@ export default function LoginPage() {
   };
 
   const features = [
-    { icon: <Users className="text-blue-400" size={20} />, text: "Employee Lifecycle Management" },
-    { icon: <Banknote className="text-green-400" size={20} />, text: "Automated Payroll Processing" },
-    { icon: <BarChart3 className="text-purple-400" size={20} />, text: "Performance & Growth Tracking" },
-    { icon: <CalendarCheck className="text-yellow-400" size={20} />, text: "Seamless Leave & Attendance" },
+    { icon: <Users className="text-blue-400" />, text: "Employee Lifecycle Management" },
+    { icon: <Clock className="text-green-400" />, text: "Smart Attendance & Leave" },
+    { icon: <KanbanSquare className="text-purple-400" />, text: "Advanced Task & Project Board" },
+    { icon: <Package className="text-yellow-400" />, text: "Asset & Resource Tracking" },
+    { icon: <Briefcase className="text-cyan-400" />, text: "Client & Vendor Management" },
+    { icon: <BarChart3 className="text-orange-400" />, text: "Insightful HR Analytics" },
+    { icon: <Newspaper className="text-rose-400" />, text: "Internal Blog & News Feeds" },
+    { icon: <ShieldCheck className="text-emerald-400" />, text: "Granular Access Control" },
   ];
 
   return (
@@ -73,70 +78,81 @@ export default function LoginPage() {
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative hidden w-1/2 flex-col justify-between p-12 lg:flex"
+        className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-blue-950 to-black p-12 lg:flex"
       >
-        {/* Background Image with Overlay */}
-        <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('/login-bg.png')" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/70 to-blue-900/80 backdrop-blur-[2px]" />
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute -left-20 -top-20 h-[500px] w-[500px] rounded-full bg-blue-600/20 blur-3xl"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            className="absolute bottom-0 right-0 h-[600px] w-[600px] rounded-full bg-purple-600/20 blur-3xl"
+          />
         </div>
 
         {/* Content */}
-        <div className="relative z-10">
-          <motion.div
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex items-center gap-2 text-white"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
-              <Logo className="text-white" size={24} />
-            </div>
-            <span className="text-2xl font-bold tracking-tight">FairTasker HRM</span>
-          </motion.div>
+        <div className="relative z-10 flex h-full flex-col justify-between">
+          <div />
 
           <motion.div
-            className="mt-24 space-y-6"
+            className="space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             <motion.h1
               variants={itemVariants}
-              className="text-5xl font-extrabold leading-tight text-white"
+              className="text-4xl font-bold leading-tight text-white tracking-tight sm:text-5xl"
             >
               Empower your <br />
               <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Human Capital
               </span>
             </motion.h1>
-            <motion.p variants={itemVariants} className="max-w-md text-lg text-blue-100/80">
-              The all-in-one HRM solution to manage your workforce, automate payroll, and cultivate a high-performance culture.
+            <motion.p variants={itemVariants} className="max-w-md text-base text-blue-100/70 leading-relaxed">
+              The all-in-one HRM solution to manage your workforce, automate payroll, and cultivate a high-performance culture with ease and precision.
             </motion.p>
 
-            <motion.div variants={itemVariants} className="space-y-4 pt-8">
+            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 pt-2">
               {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-3 text-white/90">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-                    {feature.icon}
+                <div key={index} className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/5 p-3 backdrop-blur-sm transition-colors hover:bg-white/10 text-white/90">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20 text-blue-300">
+                    {React.cloneElement(feature.icon as React.ReactElement, { size: 16 })}
                   </div>
-                  <span className="font-medium">{feature.text}</span>
+                  <span className="text-xs font-medium">{feature.text}</span>
                 </div>
               ))}
             </motion.div>
           </motion.div>
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="relative z-10 text-sm text-white/50"
-        >
-          © 2025 FairTasker. All rights reserved.
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="text-xs text-white/40"
+          >
+            © 2025 FairTasker. All rights reserved.
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* Right Side - Login Form */}
@@ -145,14 +161,28 @@ export default function LoginPage() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="mx-auto w-full max-w-[420px]"
+          className="mx-auto w-full max-w-[400px]"
         >
-          <div className="mb-10 text-center lg:text-left">
-            <h2 className="text-3xl font-bold text-foreground">Welcome back</h2>
-            <p className="mt-2 text-default-500">Please enter your details to sign in.</p>
+          <div className="mb-10 text-center flex flex-col items-center">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <Image
+                src={FairPayLogo}
+                alt="FairPay Logo"
+                width={200}
+                height={70}
+                className="object-contain"
+                priority
+              />
+            </motion.div>
+            <p className="mt-2 text-default-500">Sign in to your account to continue</p>
           </div>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-6">
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
             <motion.div
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -162,7 +192,7 @@ export default function LoginPage() {
                 isRequired
                 label="Email"
                 labelPlacement="outside"
-                placeholder="john@gmail.com"
+                placeholder="john@example.com"
                 type="email"
                 variant="bordered"
                 value={email}
@@ -170,7 +200,7 @@ export default function LoginPage() {
                 className="max-w-full"
                 classNames={{
                   label: "text-foreground font-medium",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary transition-colors",
+                  inputWrapper: "h-12 border-default-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all",
                 }}
               />
             </motion.div>
@@ -190,20 +220,21 @@ export default function LoginPage() {
                 value={password}
                 onValueChange={setPassword}
                 endContent={
-                  <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                  <button className="focus:outline-none opacity-70 hover:opacity-100 transition-opacity" type="button" onClick={toggleVisibility}>
                     {isVisible ? (
-                      <EyeOff className="text-2xl text-default-400 pointer-events-none" />
+                      <EyeOff className="text-xl text-default-400" />
                     ) : (
-                      <Eye className="text-2xl text-default-400 pointer-events-none" />
+                      <Eye className="text-xl text-default-400" />
                     )}
                   </button>
                 }
                 classNames={{
                   label: "text-foreground font-medium",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary transition-colors",
+                  inputWrapper: "h-12 border-default-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all",
                 }}
               />
             </motion.div>
+
 
             <AnimatePresence mode="wait">
               {loginError && (
@@ -211,9 +242,9 @@ export default function LoginPage() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="rounded-lg bg-danger-50 p-3 text-center text-sm font-medium text-danger"
+                  className="rounded-lg bg-danger-50/50 border border-danger-100 p-3 text-center text-sm font-medium text-danger"
                 >
-                  {typeof loginError === 'string' ? loginError : 'Login failed. Please check your credentials.'}
+                  {typeof loginError === 'string' ? loginError : 'Invalid credentials. Please try again.'}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -221,16 +252,18 @@ export default function LoginPage() {
             <motion.div
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
+              className="pt-2"
             >
               <Button
-                className="h-12 w-full bg-primary font-semibold text-white shadow-lg shadow-primary/20"
+                className="h-12 w-full bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-white shadow-lg shadow-blue-500/30 transition-shadow hover:shadow-blue-500/40"
                 type="submit"
                 isLoading={loginLoading}
+                size="lg"
               >
                 Sign In
               </Button>
             </motion.div>
-          </form>
+          </form> 
         </motion.div>
       </div>
     </div>

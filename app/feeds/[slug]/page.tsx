@@ -36,7 +36,7 @@ export default function BlogDetailPage() {
 
     if (getBlogLoading && !blog) {
         return (
-            <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] pt-24 pb-20 px-6 font-sans">
+            <div className="w-full min-h-screen pt-24 pb-20 px-6 font-sans">
                 <div className="max-w-2xl mx-auto">
                     <Skeleton className="rounded-lg w-24 h-8 mb-6" />
                     <Skeleton className="rounded-lg w-3/4 h-12 mb-4" />
@@ -61,7 +61,7 @@ export default function BlogDetailPage() {
 
     if (getBlogError || (!getBlogLoading && !blog)) {
         return (
-            <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
+            <div className="w-full min-h-screen   pt-32 pb-20 px-6 flex flex-col items-center justify-center text-center">
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Blog not found</h1>
                 <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
                     We couldn't find the blog post you're looking for. It might have been removed or the URL is incorrect.
@@ -77,7 +77,7 @@ export default function BlogDetailPage() {
     }
 
     return (
-        <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] p-4 sm:p-6 lg:p-8 font-sans">
+        <div className="w-full min-h-screen   p-4 sm:p-6 lg:p-8 font-sans">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
