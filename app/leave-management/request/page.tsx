@@ -37,15 +37,22 @@ import RejectLeaveModal from "./RejectLeaveModal";
 import { User } from "@heroui/user";
 import { Tooltip } from "@heroui/tooltip";
 import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
-
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
+import { addToast } from "@heroui/toast";
 
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
-    const { leaveRequests, leaveMetrics, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+    const {
+        leaveRequests, leaveMetrics,
+        getRequestsLoading, getRequestsError,
+        createLoading, createSuccess, createError,
+        updateLoading, updateSuccess, updateError,
+        statusLoading, statusSuccess, statusError,
+        deleteLoading, deleteSuccess, deleteError
+    } = useSelector((state: RootState) => state.LeaveRequest);
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { hasPermission, user } = usePermissions();
 
@@ -68,12 +75,28 @@ export default function LeaveRequestPage() {
     }, [dispatch, statusFilter, employeeFilter]);
 
     useEffect(() => {
-        if (success) {
+        const successMessage = createSuccess || updateSuccess || statusSuccess || deleteSuccess;
+        const errorMessage = createError || updateError || statusError || deleteError || getRequestsError;
+
+        if (successMessage) {
+            addToast({
+                title: "Success",
+                description: successMessage,
+                color: "success"
+            });
             onClose();
             onRejectClose();
             dispatch(clearLeaveRequestDetails());
         }
-    }, [success, onClose, onRejectClose, dispatch]);
+        if (errorMessage) {
+            addToast({
+                title: "Error",
+                description: typeof errorMessage === 'string' ? errorMessage : "Something went wrong",
+                color: "danger"
+            });
+            dispatch(clearLeaveRequestDetails());
+        }
+    }, [createSuccess, updateSuccess, statusSuccess, deleteSuccess, createError, updateError, statusError, deleteError, getRequestsError, onClose, onRejectClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -269,7 +292,7 @@ export default function LeaveRequestPage() {
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={loading}>
+                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={getRequestsLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>
@@ -451,7 +474,7 @@ export default function LeaveRequestPage() {
                 onOpenChange={onOpenChange}
                 mode={mode}
                 selectedRequest={selectedRequest}
-                loading={loading}
+                loading={mode === "create" ? createLoading : updateLoading}
                 onSubmit={(data) => {
                     if (mode === "create") {
                         dispatch(createLeaveRequestRequest(data));
@@ -465,7 +488,7 @@ export default function LeaveRequestPage() {
                 isOpen={isRejectOpen}
                 onOpenChange={onRejectOpenChange}
                 onConfirm={handleRejectConfirm}
-                loading={loading}
+                loading={statusLoading}
             />
 
             {previewData && (
