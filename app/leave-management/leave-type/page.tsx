@@ -111,6 +111,7 @@ export default function LeaveTypePage() {
                     <TableColumn>TYPE</TableColumn>
                     <TableColumn>YEARLY DAYS</TableColumn>
                     <TableColumn>MONTHLY LIMIT</TableColumn>
+                    <TableColumn>DURATION LIMIT</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
@@ -145,6 +146,13 @@ export default function LeaveTypePage() {
                             </TableCell>
                             <TableCell>
                                 <span className="text-sm text-default-600 font-medium">{item.monthly_allowed} / Month</span>
+                            </TableCell>
+                            <TableCell>
+                                {item.allowed_hours > 0 ? (
+                                    <span className="text-sm text-default-600 font-medium">{item.allowed_hours} Hours</span>
+                                ) : (
+                                    <span className="text-sm text-default-300">-</span>
+                                )}
                             </TableCell>
                             <TableCell>
                                 <Chip

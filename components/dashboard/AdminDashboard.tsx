@@ -218,222 +218,9 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
             </div>
 
             {/* Main Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="flex flex-col lg:flex-row gap-6">
 
-                {/* --- Column 1: Overview & Distribution (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-3 flex flex-col gap-6">
-
-                    {/* HR Summary Card */}
-
-
-
-
-                    {/* Recent Hires List */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Joiners</h3>
-                            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg">
-                                <UserPlus size={16} />
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 py-2">
-                            <div className="space-y-4 mb-2">
-                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <User
-                                            name={hire.name}
-                                            description={
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
-                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                                                </div>
-                                            }
-                                            avatarProps={{
-                                                src: hire.profile_picture,
-                                                size: "sm",
-                                                radius: "lg",
-                                                classNames: { base: "shrink-0" } // Enforce fix size
-                                            }}
-                                            classNames={{
-                                                name: "text-xs font-bold text-slate-700 dark:text-slate-200"
-                                            }}
-                                        />
-                                    </div>
-                                )) : (
-                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
-
-                    {/* Upcoming Confirmations */}
-                    {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
-                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Key Movements</h3>
-                                <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
-                                    <UserCheck size={16} />
-                                </div>
-                            </CardHeader>
-                            <CardBody className="px-5 py-2">
-                                <div className="space-y-3 mb-2">
-                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
-                                            <User
-                                                name={conf.name}
-                                                description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
-                                                avatarProps={{
-                                                    src: conf.profile_picture,
-                                                    size: "sm",
-                                                    isBordered: false
-                                                }}
-                                                classNames={{
-                                                    name: "text-xs font-bold text-slate-700"
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
-                                        <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
-                                            <User
-                                                name={exit.name}
-                                                description={<span className="text-[10px] text-rose-600 font-medium">Exit on {exit.exit_date}</span>}
-                                                avatarProps={{
-                                                    size: "sm",
-                                                    isBordered: false
-                                                }}
-                                                classNames={{
-                                                    name: "text-xs font-bold text-slate-700"
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardBody>
-                        </Card>
-                    )}
-
-                    {/* Work Mode Distribution (Linear) */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Work Mode</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">Employee Distribution</p>
-                            </div>
-                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
-                                <Building size={20} />
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-5">
-                            {/* Office */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Office</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.office_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
-                                />
-                            </div>
-                            {/* Remote */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-secondary"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Remote</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.remote_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
-                                />
-                            </div>
-                            {/* Hybrid */}
-                            <div>
-                                <div className="flex justify-between items-end mb-1.5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-warning"></div>
-                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hybrid</span>
-                                    </div>
-                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
-                                </div>
-                                <Progress
-                                    value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
-                                    size="sm" radius="full"
-                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
-                                />
-                            </div>
-                        </CardBody>
-                    </Card>
-
-
-
-                    {/* Activity Feed */}
-                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400 dark:text-primary" />
-                                System Activity
-                            </h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activities.map((act, i) => {
-                                    const dateObj = new Date(act.timestamp);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
-                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
-                                                    }`}>
-                                                    <Activity size={14} strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
-                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardBody>
-                    </Card>
-
-
-
-                </div>
-
-                <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
+                <div className="w-full lg:w-5/12 flex flex-col gap-6">
 
 
 
@@ -667,115 +454,176 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Task Analytics & Productivity Card */}
+                    {/* Task Analytics & Productivity Card - Revamped with Circle Graphs */}
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Productivity & Tasks</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">Task Completion & Efficiency</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Efficiency & Status Breakdown</p>
                             </div>
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full text-indigo-500">
-                                <CheckCircle size={20} />
+                                <Activity size={20} />
                             </div>
                         </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-8">
-                            {/* Overview Row */}
-                            <div className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50 dark:border-white/5">
-                                <div className="space-y-1">
-                                    <h4 className="text-4xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completion_rate_percentage}%</h4>
-                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Completion Rate</p>
+                        <CardBody className="px-6 py-4">
+                            <div className="flex flex-col gap-6">
+                                {/* Top Section: Circular Graphs & Key Metrics */}
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+                                    {/* Multi-Ring Activity Chart - Employee Dashboard Style */}
+                                    <div className="relative w-48 h-48 flex-shrink-0">
+                                        <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
+                                            {/* --- Ring 1: Completed (Outer) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="80"
+                                                stroke="#10b981"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={502}
+                                                strokeDashoffset={502 - (502 * (data.task_analytics.overview.completion_rate_percentage / 100))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+
+                                            {/* --- Ring 2: In Progress (Middle) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="60" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="60"
+                                                stroke="#3b82f6"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={377}
+                                                strokeDashoffset={377 - (377 * ((data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) || 0))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+
+                                            {/* --- Ring 3: In Review (Inner) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="40" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-amber-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="40"
+                                                stroke="#f59e0b"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={251}
+                                                strokeDashoffset={251 - (251 * ((data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) || 0))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+                                        </svg>
+
+                                        {/* Central Icon */}
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                            <div className="bg-white dark:bg-white/10 p-3 rounded-full shadow-sm text-indigo-500">
+                                                <TrendingUp size={24} className="text-indigo-500 dark:text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Legend & Stats List - Stacked Vertical Row */}
+                                    <div className="flex-1 w-full flex flex-col gap-4">
+                                        {/* Completed */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completed}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${data.task_analytics.overview.completion_rate_percentage}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round(data.task_analytics.overview.completion_rate_percentage)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* In Progress */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.in_progress}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* In Review */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Review</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.in_review}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Pending */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.todo}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-right space-y-1">
-                                    <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completed} <span className="text-sm font-medium text-slate-400 dark:text-slate-600">/ {data.task_analytics.overview.total_assigned}</span></h4>
-                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Tasks Completed</p>
+
+                                {/* Divider */}
+                                <div className="h-px w-full bg-slate-100 dark:bg-white/5"></div>
+
+                                {/* Priority Breakdown */}
+                                <div>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Workload by Priority</p>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                        <div className="flex-1 min-w-[80px] p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-rose-600 dark:text-rose-400">{data.task_analytics.priority_breakdown.critical}</span>
+                                            <span className="text-[9px] font-bold text-rose-400/80 uppercase mt-0.5">Critical</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{data.task_analytics.priority_breakdown.high}</span>
+                                            <span className="text-[9px] font-bold text-orange-400/80 uppercase mt-0.5">High</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{data.task_analytics.priority_breakdown.medium}</span>
+                                            <span className="text-[9px] font-bold text-blue-400/80 uppercase mt-0.5">Medium</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{data.task_analytics.priority_breakdown.low}</span>
+                                            <span className="text-[9px] font-bold text-slate-400/80 uppercase mt-0.5">Low</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Status & Priority Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                {/* Status */}
-                                <div className="space-y-4">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status Breakdown</p>
-                                    <div className="space-y-3">
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>In Progress</span>
-                                                <span>{data.task_analytics.status_distribution.in_progress}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>Pending</span>
-                                                <span>{data.task_analytics.status_distribution.todo}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-slate-400" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>Review</span>
-                                                <span>{data.task_analytics.status_distribution.in_review}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-amber-400" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Priority */}
-                                <div className="space-y-4">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Priority</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/20 text-center">
-                                            <span className="block text-xl font-bold text-rose-600 dark:text-rose-400">{data.task_analytics.priority_breakdown.critical}</span>
-                                            <span className="text-[9px] font-bold text-rose-400 uppercase">Critical</span>
-                                        </div>
-                                        <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 text-center">
-                                            <span className="block text-xl font-bold text-orange-600 dark:text-orange-400">{data.task_analytics.priority_breakdown.high}</span>
-                                            <span className="text-[9px] font-bold text-orange-400 uppercase">High</span>
-                                        </div>
-                                        <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 text-center">
-                                            <span className="block text-xl font-bold text-blue-600 dark:text-blue-400">{data.task_analytics.priority_breakdown.medium}</span>
-                                            <span className="text-[9px] font-bold text-blue-400 uppercase">Medium</span>
-                                        </div>
-                                        <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20 text-center">
-                                            <span className="block text-xl font-bold text-emerald-600 dark:text-emerald-400">{data.task_analytics.priority_breakdown.low}</span>
-                                            <span className="text-[9px] font-bold text-emerald-400 uppercase">Low</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* {data.task_analytics.top_contributors && data.task_analytics.top_contributors.length > 0 && (
-                                <div className="pt-4 border-t border-slate-50">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Top Performers</p>
-                                    <div className="space-y-3">
-                                        {data.task_analytics.top_contributors.map((c, i) => (
-                                            <div key={i} className="flex justify-between items-center">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${i === 0 ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>
-                                                        {i + 1}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs font-bold text-slate-700">{c.name}</p>
-                                                        <p className="text-[9px] text-slate-400">{c.role}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs font-bold text-slate-800">{c.completed} Tasks</p>
-                                                    <p className="text-[9px] text-emerald-500 font-medium">{c.efficiency}% Eff.</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )} */}
-
                         </CardBody>
                     </Card>
 
@@ -783,7 +631,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                 </div>
 
                 {/* --- Column 3: Sidebar (Span 4) --- */}
-                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+                <div className="w-full lg:flex-1 flex flex-col gap-6">
 
                     {/* Birthdays (Standalone Card) - Top of Column */}
                     {data.upcoming_events.birthdays.length > 0 && (
@@ -892,32 +740,192 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                     {/* Upcoming Holidays */}
                     {data.upcoming_events.holidays.length > 0 && (
                         <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                                <div className="flex gap-2 items-center">
-                                    <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
-                                        <Calendar size={18} />
+                            <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                                <div className="flex gap-3 items-center">
+                                    <div className="p-2 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
+                                        <Calendar size={18} strokeWidth={2.5} />
                                     </div>
-                                    <h3 className="font-bold text-medium text-slate-800 dark:text-slate-100">Upcoming Holidays</h3>
+                                    <div>
+                                        <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Upcoming Holidays</h3>
+                                        <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500">Public & Optional Holidays</p>
+                                    </div>
                                 </div>
                             </CardHeader>
-                            <CardBody className="px-5 py-4 space-y-4">
+                            <CardBody className="px-6 py-4 space-y-4">
                                 <div className="space-y-3">
-                                    {data.upcoming_events.holidays.map((h, idx) => (
-                                        <div key={idx} className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-white/5 rounded-[20px] border border-slate-100 dark:border-white/5 hover:bg-white dark:hover:bg-white/10 hover:shadow-lg dark:hover:shadow-purple-500/10 hover:border-purple-200 dark:hover:border-purple-500/30 transition-all duration-300 group cursor-default">
-                                            <div className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-slate-700 dark:text-slate-200 shadow-sm border border-slate-100 dark:border-white/10 group-hover:scale-110 transition-transform duration-300">
-                                                <span className="text-[10px] font-bold uppercase leading-none text-purple-600 dark:text-purple-400">{new Date(h.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                                <span className="text-xl font-bold leading-none mt-1">{new Date(h.date).getDate()}</span>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">{h.name}</p>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                                                        h.days_until <= 7 ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400' : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                    {data.upcoming_events.holidays.map((h, idx) => {
+                                        const date = new Date(h.date);
+                                        return (
+                                            <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
+                                                <div className="flex flex-col items-center justify-center w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 border border-slate-200/50 dark:border-white/10 shadow-sm shrink-0">
+                                                    <span className="text-[9px] font-bold uppercase text-purple-600 dark:text-purple-400 tracking-wider">{format(date, 'MMM')}</span>
+                                                    <span className="text-lg font-black text-slate-800 dark:text-slate-100 leading-none mt-0.5">{format(date, 'dd')}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{h.name}</h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500">{format(date, 'EEEE')}</span>
+                                                        <span className="text-[10px] text-slate-300 dark:text-slate-600">•</span>
+                                                        <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400">{h.type}</span>
+                                                    </div>
+                                                </div>
+                                                <div className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${h.days_until <= 7
+                                                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
+                                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                                                     }`}>
-                                                        {h.days_until} days left
+                                                    {h.days_until === 0 ? 'Today' : `${h.days_until}d`}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </CardBody>
+                        </Card>
+                    )}
+
+                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400 dark:text-primary" />
+                                System Activity
+                            </h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activities.map((act, i) => {
+                                    const dateObj = new Date(act.timestamp);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activities.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
+                                            )}
+
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
+                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
+                                                    }`}>
+                                                    <Activity size={14} strokeWidth={2.5} />
+                                                </div>
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
+                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
+                                                        {timeStr}
                                                     </span>
                                                 </div>
                                             </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+
+
+                </div>
+
+                {/* --- Column 1: Overview & Distribution (Span 3) --- */}
+                <div className="w-full lg:flex-1 flex flex-col gap-6">
+
+                    {/* HR Summary Card */}
+
+
+
+
+                    {/* Recent Hires List */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Joiners</h3>
+                            <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-lg">
+                                <UserPlus size={16} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 py-2">
+                            <div className="space-y-4 mb-2">
+                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
+                                    <div key={i} className="flex items-center gap-3">
+                                        <User
+                                            name={hire.name}
+                                            description={
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-slate-400 font-medium">{hire.designation}</span>
+                                                    <span className="text-[9px] text-slate-300">Joined {new Date(hire.date_of_joining).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                                                </div>
+                                            }
+                                            avatarProps={{
+                                                src: hire.profile_picture,
+                                                size: "sm",
+                                                radius: "lg",
+                                                classNames: { base: "shrink-0" } // Enforce fix size
+                                            }}
+                                            classNames={{
+                                                name: "text-xs font-bold text-slate-700 dark:text-slate-200"
+                                            }}
+                                        />
+                                    </div>
+                                )) : (
+                                    <p className="text-xs text-slate-400 italic">No recent hires.</p>
+                                )}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* Upcoming Confirmations */}
+                    {(data.employee_analytics.upcoming_confirmations.length > 0 || data.employee_analytics.upcoming_exits.length > 0) && (
+                        <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                            <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Key Movements</h3>
+                                <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-500 rounded-lg">
+                                    <UserCheck size={16} />
+                                </div>
+                            </CardHeader>
+                            <CardBody className="px-5 py-2">
+                                <div className="space-y-3 mb-2">
+                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
+                                            <User
+                                                name={conf.name}
+                                                description={<span className="text-[10px] text-purple-600 font-medium">Probation ends in {conf.days_until_confirmation} days</span>}
+                                                avatarProps={{
+                                                    src: conf.profile_picture,
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
+                                        </div>
+                                    ))}
+                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
+                                            <User
+                                                name={exit.name}
+                                                description={<span className="text-[10px] text-rose-600 font-medium">Exit on {exit.exit_date}</span>}
+                                                avatarProps={{
+                                                    size: "sm",
+                                                    isBordered: false
+                                                }}
+                                                classNames={{
+                                                    name: "text-xs font-bold text-slate-700"
+                                                }}
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -925,11 +933,66 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </Card>
                     )}
 
+                    {/* Work Mode Distribution (Linear) */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Work Mode</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Employee Distribution</p>
+                            </div>
+                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
+                                <Building size={20} />
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-5">
+                            {/* Office */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Office</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.office_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
+                                />
+                            </div>
+                            {/* Remote */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Remote</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.remote_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
+                                />
+                            </div>
+                            {/* Hybrid */}
+                            <div>
+                                <div className="flex justify-between items-end mb-1.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-warning"></div>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Hybrid</span>
+                                    </div>
+                                    <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
+                                </div>
+                                <Progress
+                                    value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
+                                    size="sm" radius="full"
+                                    classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
+                                />
+                            </div>
+                        </CardBody>
+                    </Card>
 
-
-                    {/* Activity Feed moved to Col 1 */}
-
-                    {/* Blog / News Feed - Employee Dashboard Style */}
                     {blogs && blogs.length > 0 && (
                         <div className="flex flex-col gap-4">
                             <div className="flex justify-between items-center px-1">

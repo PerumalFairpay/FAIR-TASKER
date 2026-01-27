@@ -37,15 +37,22 @@ import RejectLeaveModal from "./RejectLeaveModal";
 import { User } from "@heroui/user";
 import { Tooltip } from "@heroui/tooltip";
 import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
-
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
+import { addToast } from "@heroui/toast";
 
 export default function LeaveRequestPage() {
     const dispatch = useDispatch();
-    const { leaveRequests, leaveMetrics, loading, success } = useSelector((state: RootState) => state.LeaveRequest);
+    const {
+        leaveRequests, leaveMetrics,
+        getRequestsLoading, getRequestsError,
+        createLoading, createSuccess, createError,
+        updateLoading, updateSuccess, updateError,
+        statusLoading, statusSuccess, statusError,
+        deleteLoading, deleteSuccess, deleteError
+    } = useSelector((state: RootState) => state.LeaveRequest);
     const { employees } = useSelector((state: RootState) => state.Employee);
     const { hasPermission, user } = usePermissions();
 
@@ -68,12 +75,28 @@ export default function LeaveRequestPage() {
     }, [dispatch, statusFilter, employeeFilter]);
 
     useEffect(() => {
-        if (success) {
+        const successMessage = createSuccess || updateSuccess || statusSuccess || deleteSuccess;
+        const errorMessage = createError || updateError || statusError || deleteError || getRequestsError;
+
+        if (successMessage) {
+            addToast({
+                title: "Success",
+                description: successMessage,
+                color: "success"
+            });
             onClose();
             onRejectClose();
             dispatch(clearLeaveRequestDetails());
         }
-    }, [success, onClose, onRejectClose, dispatch]);
+        if (errorMessage) {
+            addToast({
+                title: "Error",
+                description: typeof errorMessage === 'string' ? errorMessage : "Something went wrong",
+                color: "danger"
+            });
+            dispatch(clearLeaveRequestDetails());
+        }
+    }, [createSuccess, updateSuccess, statusSuccess, deleteSuccess, createError, updateError, statusError, deleteError, getRequestsError, onClose, onRejectClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -225,6 +248,12 @@ export default function LeaveRequestPage() {
                                                     <div className="w-[1px] h-2 bg-default-300 mx-0.5"></div>
                                                     <span className="text-default-700 font-semibold">{metric.total_allowed}</span> Total
                                                 </div>
+                                                {metric.allowed_hours > 0 && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-warning-600 bg-warning-50 px-1.5 py-0.5 rounded-full border border-warning-100 whitespace-nowrap">
+                                                        <Clock size={10} strokeWidth={2.5} />
+                                                        <span className="font-bold">{metric.allowed_hours}</span> Hrs
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex items-baseline gap-1 mt-1.5">
@@ -269,7 +298,7 @@ export default function LeaveRequestPage() {
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={loading}>
+                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={getRequestsLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>
@@ -301,9 +330,30 @@ export default function LeaveRequestPage() {
                                         )}
                                     </div>
                                     {item.half_day_session && (
-                                        <span className="text-tiny text-primary-500 font-medium">
-                                            {item.half_day_session}
-                                        </span>
+                                        <div className="flex items-center gap-1.5 text-tiny text-primary-600 font-medium bg-primary-50 dark:bg-primary-950/30 px-1.5 py-0.5 rounded-md w-fit border border-primary-100 dark:border-primary-800">
+                                            <Clock size={10} />
+                                            <span>{item.half_day_session}</span>
+                                        </div>
+                                    )}
+                                    {item.leave_duration_type === "Multiple" && (item.start_session || item.end_session) && (
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                            {item.start_session && item.start_session !== "Full Day" && (
+                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                    Start: {item.start_session}
+                                                </span>
+                                            )}
+                                            {item.end_session && item.end_session !== "Full Day" && (
+                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                    End: {item.end_session}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
+                                        <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 dark:bg-warning-950/30 px-1.5 py-0.5 rounded-md w-fit border border-warning-100 dark:border-warning-800">
+                                            <Clock size={10} />
+                                            <span>{item.start_time} - {item.end_time}</span>
+                                        </div>
                                     )}
                                 </div>
                             </TableCell>
@@ -445,7 +495,7 @@ export default function LeaveRequestPage() {
                 onOpenChange={onOpenChange}
                 mode={mode}
                 selectedRequest={selectedRequest}
-                loading={loading}
+                loading={mode === "create" ? createLoading : updateLoading}
                 onSubmit={(data) => {
                     if (mode === "create") {
                         dispatch(createLeaveRequestRequest(data));
@@ -459,7 +509,7 @@ export default function LeaveRequestPage() {
                 isOpen={isRejectOpen}
                 onOpenChange={onRejectOpenChange}
                 onConfirm={handleRejectConfirm}
-                loading={loading}
+                loading={statusLoading}
             />
 
             {previewData && (

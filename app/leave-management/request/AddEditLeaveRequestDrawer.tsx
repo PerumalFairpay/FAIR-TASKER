@@ -13,7 +13,8 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker, DateRangePicker } from "@heroui/date-picker";
-import { parseDate, getLocalTimeZone, today, DateValue } from "@internationalized/date";
+import { TimeInput } from "@heroui/date-input";
+import { parseDate, getLocalTimeZone, today, DateValue, Time, parseTime } from "@internationalized/date";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
@@ -57,11 +58,15 @@ export default function AddEditLeaveRequestDrawer({
         start_date: today(getLocalTimeZone()).toString(),
         end_date: today(getLocalTimeZone()).toString(),
         half_day_session: "",
+        start_session: "Full Day",
+        end_session: "Full Day",
+        start_time: "",
+        end_time: "",
         total_days: 1,
         reason: "",
     });
     const [files, setFiles] = useState<any[]>([]);
-    const [lopWarning, setLopWarning] = useState<{ title: string; holidays: string[] } | null>(null);
+
 
     useEffect(() => {
         if (isOpen) {
@@ -100,11 +105,15 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: selectedRequest.start_date || today(getLocalTimeZone()).toString(),
                 end_date: selectedRequest.end_date || today(getLocalTimeZone()).toString(),
                 half_day_session: selectedRequest.half_day_session || "",
-                total_days: selectedRequest.total_days || 1,
+                start_session: selectedRequest.start_session || "Full Day",
+                end_session: selectedRequest.end_session || "Full Day",
+                start_time: selectedRequest.start_time || "",
+                end_time: selectedRequest.end_time || "",
+                total_days: selectedRequest.total_days !== undefined ? selectedRequest.total_days : 1,
                 reason: selectedRequest.reason || "",
             });
-            setFiles([]); // Reset files on edit open, as we don't pre-fill existing files in FilePond usually
-            setLopWarning(null);
+            setFiles([]);
+
         } else {
             setFormData({
                 employee_id: "",
@@ -113,17 +122,45 @@ export default function AddEditLeaveRequestDrawer({
                 start_date: today(getLocalTimeZone()).toString(),
                 end_date: today(getLocalTimeZone()).toString(),
                 half_day_session: "",
+                start_session: "Full Day",
+                end_session: "Full Day",
+                start_time: "",
+                end_time: "",
                 total_days: 1,
                 reason: "",
             });
             setFiles([]);
-            setLopWarning(null);
+
         }
     }, [mode, selectedRequest, isOpen]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        let newData = { ...formData, [name]: value };
+
+        // Auto-calculate End Time for Permission based on allowed_hours
+        if (name === "start_time" && formData.leave_duration_type === "Permission" && formData.leave_type_id) {
+            const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+            if (selectedType && selectedType.allowed_hours) {
+                try {
+                    const [hours, minutes] = value.split(':').map(Number);
+                    if (!isNaN(hours) && !isNaN(minutes)) {
+                        const allowedMinutes = selectedType.allowed_hours * 60;
+                        const totalMinutes = (hours * 60) + minutes + allowedMinutes;
+
+                        const endHours = Math.floor(totalMinutes / 60) % 24;
+                        const endMinutes = totalMinutes % 60;
+
+                        const formattedEndTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+                        newData.end_time = formattedEndTime;
+                    }
+                } catch (error) {
+                    console.error("Error calculating end time:", error);
+                }
+            }
+        }
+
+        setFormData(newData);
     };
 
     const handleSelectChange = (name: string, value: any) => {
@@ -143,9 +180,35 @@ export default function AddEditLeaveRequestDrawer({
             newData = { ...newData, [name]: value };
         }
 
+        // Handle Permission constraints
+        if (name === "leave_type_id") {
+            const selectedType = leaveTypes?.find((lt: any) => lt.id === value);
+            if (selectedType?.name === "Permission") {
+                newData.leave_duration_type = "Permission";
+            } else if (newData.leave_duration_type === "Permission") {
+                // If switching away from Permission type, reset duration from Permission
+                newData.leave_duration_type = "Single";
+            }
+        }
+
+        if (name === "leave_duration_type") {
+            if (value === "Permission") {
+                const permissionType = leaveTypes?.find((lt: any) => lt.name === "Permission");
+                if (permissionType) {
+                    newData.leave_type_id = permissionType.id;
+                }
+            } else {
+                // If switching away from Permission duration, reset leave type if it was Permission
+                const currentType = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
+                if (currentType?.name === "Permission") {
+                    newData.leave_type_id = "";
+                }
+            }
+        }
+
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range") {
-            setLopWarning(null);
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session") {
+
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
                 newData.total_days = 1;
@@ -159,94 +222,22 @@ export default function AddEditLeaveRequestDrawer({
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    // Count every day in the range regardless of holidays
+                    // Simple calendar day count
                     const diffTime = d2.getTime() - d1.getTime();
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    newData.total_days = diffDays > 0 ? diffDays : 0;
+                    let total = diffDays > 0 ? diffDays : 0;
+
+                    // Adjust for start/end sessions
+                    if (newData.start_session === "Second Half") total -= 0.5;
+                    if (newData.end_session === "First Half") total -= 0.5;
+
+                    newData.total_days = Math.max(0, total);
                 } catch (e) {
                     console.error("Error calculating days:", e);
                 }
-            }
-
-            // Check if start or end date is adjacent to a holiday
-            try {
-                const start = parseDate(newData.start_date);
-                const end = parseDate(newData.end_date);
-
-                const d1 = new Date(start.year, start.month - 1, start.day);
-                const d2 = new Date(end.year, end.month - 1, end.day);
-
-                const prevDay = new Date(d1);
-                prevDay.setDate(d1.getDate() - 1);
-
-                const nextDay = new Date(d2);
-                nextDay.setDate(d2.getDate() + 1);
-
-                const formatDate = (d: Date) => {
-                    const year = d.getFullYear();
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                };
-
-                const prevDateStr = formatDate(prevDay);
-                const nextDateStr = formatDate(nextDay);
-
-                const prevHoliday = holidays.find((h: any) => h.date === prevDateStr && h.status === "Active");
-                const nextHoliday = holidays.find((h: any) => h.date === nextDateStr && h.status === "Active");
-
-                const interiorHolidays: any[] = [];
-                if (newData.leave_duration_type === "Multiple") {
-                    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
-                        const dateStr = formatDate(d);
-                        const holiday = holidays.find((h: any) => h.date === dateStr && h.status === "Active");
-                        if (holiday) {
-                            interiorHolidays.push(holiday);
-                        }
-                    }
-                }
-
-                if (prevHoliday || nextHoliday || interiorHolidays.length > 0) {
-                    const lopType = leaveTypes?.find((lt: any) => lt.name.toLowerCase().includes("loss of pay") || lt.code === "LOP");
-                    if (lopType) {
-                        newData.leave_type_id = lopType.id;
-                        if (newData.leave_duration_type === "Single") {
-                            newData.leave_duration_type = "Multiple";
-                            // Expand the date range to include the triggering adjacent holidays
-                            if (prevHoliday) {
-                                newData.start_date = prevHoliday.date;
-                            }
-                            if (nextHoliday) {
-                                newData.end_date = nextHoliday.date;
-                            }
-                        }
-                        let extraDays = 0;
-                        const holidayDetails: string[] = [];
-
-                        if (prevHoliday) {
-                            extraDays += 1;
-                            holidayDetails.push(`${prevHoliday.name} (${prevHoliday.date})`);
-                        }
-
-                        interiorHolidays.forEach((h) => {
-                            holidayDetails.push(`${h.name} (${h.date})`);
-                        });
-
-                        if (nextHoliday) {
-                            extraDays += 1;
-                            holidayDetails.push(`${nextHoliday.name} (${nextHoliday.date})`);
-                        }
-
-                        newData.total_days += extraDays;
-                        const uniqueHolidays = Array.from(new Set(holidayDetails));
-                        setLopWarning({
-                            title: "Sandwich Rule Applied (Loss of Pay)",
-                            holidays: uniqueHolidays
-                        });
-                    }
-                }
-            } catch (e) {
-                // Ignore date parsing errors
+            } else if (newData.leave_duration_type === "Permission") {
+                newData.end_date = newData.start_date;
+                newData.total_days = 0;
             }
         }
 
@@ -266,8 +257,12 @@ export default function AddEditLeaveRequestDrawer({
         onSubmit(data);
     };
 
-    const durationTypes = ["Single", "Multiple", "Half Day"];
+
+    // Updated duration types to include Permission
+    const durationTypes = ["Single", "Multiple", "Half Day", "Permission"];
     const sessions = ["First Half", "Second Half"];
+    const startSessions = ["Full Day", "Second Half"];
+    const endSessions = ["Full Day", "First Half"];
 
     const isDateUnavailable = (date: DateValue) => {
         return holidays.some(
@@ -292,20 +287,7 @@ export default function AddEditLeaveRequestDrawer({
                                     </div>
                                 </Alert>
                             )}
-                            {lopWarning && (
-                                <Alert color="warning" title={lopWarning.title}>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-sm">
-                                            The following holidays are included in your leave duration:
-                                        </span>
-                                        <ul className="list-disc list-inside text-sm ml-2">
-                                            {lopWarning.holidays.map((h, i) => (
-                                                <li key={i}>{h}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </Alert>
-                            )}
+
                             <Select
                                 label="Employee"
                                 placeholder="Select employee"
@@ -346,7 +328,7 @@ export default function AddEditLeaveRequestDrawer({
                                 onSelectionChange={(keys) => handleSelectChange("leave_type_id", Array.from(keys)[0])}
                                 variant="bordered"
                                 isRequired
-                                isDisabled={!!lopWarning}
+
                             >
                                 {(leaveTypes || []).map((lt: any) => {
                                     const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
@@ -383,25 +365,45 @@ export default function AddEditLeaveRequestDrawer({
 
                             <div className="grid grid-cols-2 gap-4">
                                 {formData.leave_duration_type === "Multiple" ? (
-                                    <DateRangePicker
-                                        label="Date Range"
-                                        value={formData.start_date && formData.end_date ? {
-                                            start: parseDate(formData.start_date),
-                                            end: parseDate(formData.end_date),
-                                        } : null}
-                                        onChange={(value) => handleSelectChange("date_range", value)}
-                                        variant="bordered"
-                                        isRequired
-                                        className="col-span-2"
-                                        isDateUnavailable={isDateUnavailable}
-                                        minValue={today(getLocalTimeZone())}
-                                        allowsNonContiguousRanges
-                                        isInvalid={!!lopWarning}
-                                        errorMessage={lopWarning ? "Sandwich Rule Applied: Holidays are included in your leave." : undefined}
-                                        calendarProps={{
-                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
-                                        }}
-                                    />
+                                    <>
+                                        <DateRangePicker
+                                            label="Date Range"
+                                            value={formData.start_date && formData.end_date ? {
+                                                start: parseDate(formData.start_date),
+                                                end: parseDate(formData.end_date),
+                                            } : null}
+                                            onChange={(value) => handleSelectChange("date_range", value)}
+                                            variant="bordered"
+                                            isRequired
+                                            className="col-span-2"
+                                            minValue={today(getLocalTimeZone())}
+                                            allowsNonContiguousRanges
+                                        />
+                                        <div className="col-span-1">
+                                            <Select
+                                                label="Start Session"
+                                                selectedKeys={[formData.start_session]}
+                                                onSelectionChange={(keys) => handleSelectChange("start_session", Array.from(keys)[0])}
+                                                variant="bordered"
+                                            >
+                                                {startSessions.map((s) => (
+                                                    <SelectItem key={s}>{s}</SelectItem>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                        <div className="col-span-1">
+                                            <Select
+                                                label="End Session"
+                                                selectedKeys={[formData.end_session]}
+                                                onSelectionChange={(keys) => handleSelectChange("end_session", Array.from(keys)[0])}
+                                                variant="bordered"
+                                            >
+                                                {endSessions.map((s) => (
+                                                    <SelectItem key={s}>{s}</SelectItem>
+                                                ))}
+                                            </Select>
+                                        </div>
+                                    </>
                                 ) : (
                                     <DatePicker
                                         label="Date"
@@ -432,6 +434,140 @@ export default function AddEditLeaveRequestDrawer({
                                         <SelectItem key={s}>{s}</SelectItem>
                                     ))}
                                 </Select>
+                            )}
+
+                            {formData.leave_duration_type === "Permission" && (
+                                <>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <TimeInput
+                                            label="Start Time"
+                                            name="start_time"
+                                            value={formData.start_time ? parseTime(formData.start_time) : null}
+                                            onChange={(time) => {
+                                                if (time) {
+                                                    const timeString = `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
+                                                    handleInputChange({
+                                                        target: { name: 'start_time', value: timeString }
+                                                    } as React.ChangeEvent<HTMLInputElement>);
+                                                }
+                                            }}
+                                            variant="bordered"
+                                            isRequired
+                                            hourCycle={12}
+                                        />
+                                        <TimeInput
+                                            label="End Time"
+                                            name="end_time"
+                                            value={formData.end_time ? parseTime(formData.end_time) : null}
+                                            onChange={(time) => {
+                                                if (time && formData.start_time) {
+                                                    const timeString = `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
+
+                                                    // Validate duration
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = timeString.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        // Only update if within allowed duration and end is after start
+                                                        if (durationMinutes > 0 && durationMinutes <= allowedMinutes) {
+                                                            setFormData(prev => ({ ...prev, end_time: timeString }));
+                                                        }
+                                                    } else {
+                                                        setFormData(prev => ({ ...prev, end_time: timeString }));
+                                                    }
+                                                }
+                                            }}
+                                            variant="bordered"
+                                            isRequired
+                                            hourCycle={12}
+                                            description={(() => {
+                                                if (formData.start_time && formData.end_time) {
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        const hours = Math.floor(durationMinutes / 60);
+                                                        const minutes = durationMinutes % 60;
+
+                                                        if (durationMinutes <= 0) {
+                                                            return "End time must be after start time";
+                                                        } else if (durationMinutes > allowedMinutes) {
+                                                            return `Exceeds allowed duration of ${selectedType.allowed_hours} hours`;
+                                                        } else {
+                                                            return `Duration: ${hours}h ${minutes}m`;
+                                                        }
+                                                    }
+                                                }
+                                                return "Auto-calculated based on start time";
+                                            })()}
+                                            isInvalid={(() => {
+                                                if (formData.start_time && formData.end_time) {
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        return durationMinutes <= 0 || durationMinutes > allowedMinutes;
+                                                    }
+                                                }
+                                                return false;
+                                            })()}
+                                        />
+                                    </div>
+                                    {formData.leave_type_id && (() => {
+                                        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                        if (selectedType?.allowed_hours) {
+                                            return (
+                                                <div className="flex items-start gap-2 p-3 bg-primary-50 dark:bg-primary-950/30 rounded-lg border border-primary-200 dark:border-primary-800">
+                                                    <svg className="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
+                                                            Allowed Duration: {selectedType.allowed_hours} {selectedType.allowed_hours === 1 ? 'hour' : 'hours'}
+                                                            {formData.start_time && formData.end_time && (() => {
+                                                                const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                                const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                                const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                                const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                                const durationMinutes = endTotalMinutes - startTotalMinutes;
+
+                                                                if (durationMinutes > 0) {
+                                                                    const hours = Math.floor(durationMinutes / 60);
+                                                                    const minutes = durationMinutes % 60;
+                                                                    return ` • Current: ${hours}h ${minutes}m`;
+                                                                }
+                                                                return '';
+                                                            })()}
+                                                        </p>
+                                                        <p className="text-xs text-primary-700 dark:text-primary-300 mt-0.5">
+                                                            End time can be edited but must not exceed the allowed duration
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+                                </>
                             )}
 
                             <Input

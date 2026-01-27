@@ -21,7 +21,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, Bot } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
@@ -286,7 +286,7 @@ export default function AttendancePage() {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
-            case 'auto sync': return <Bot className="w-5 h-5 text-primary" />;
+            case 'auto sync': return <RefreshCw className="w-5 h-5" />;
             default: return <Laptop className="w-5 h-5" />;
         }
     };

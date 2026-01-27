@@ -15,8 +15,18 @@ import {
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
     Activity, ShieldCheck, AlertCircle, Target, ListTodo,
-    Bug, Users, ClipboardList
+    Bug, Users, ClipboardList, LogOut,
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@/store/rootReducer";
+import {
+    clockInRequest,
+    clockOutRequest,
+    clearAttendanceStatus,
+    getMyAttendanceHistoryRequest
+} from "@/store/attendance/action";
+import { addToast } from "@heroui/toast";
 
 interface DashboardData {
     type: string;
@@ -101,14 +111,141 @@ interface DashboardData {
 
 // --- Component ---
 
+// --- Component ---
+
 export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     useEffect(() => {
         setCurrentDate(new Date());
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    const dispatch = useDispatch();
+    const {
+        attendanceHistory,
+        clockInLoading,
+        clockInSuccess,
+        clockInError,
+        clockOutLoading,
+        clockOutSuccess,
+        clockOutError
+    } = useSelector((state: AppState) => state.Attendance);
+
+    const { user } = useSelector((state: AppState) => state.Auth);
+
+    useEffect(() => {
+        dispatch(getMyAttendanceHistoryRequest());
+    }, [dispatch]);
+
+    // Handle Clock In/Out Toasts
+    useEffect(() => {
+        if (clockInSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked in successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            dispatch(getMyAttendanceHistoryRequest());
+        }
+        if (clockInError) {
+            addToast({
+                title: "Error",
+                description: clockInError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockInSuccess, clockInError, dispatch]);
+
+    useEffect(() => {
+        if (clockOutSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked out successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            dispatch(getMyAttendanceHistoryRequest());
+        }
+        if (clockOutError) {
+            addToast({
+                title: "Error",
+                description: clockOutError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockOutSuccess, clockOutError, dispatch]);
+
+    const handleClockIn = () => {
+        const now = new Date();
+        const payload = {
+            date: format(now, "yyyy-MM-dd"),
+            clock_in: now.toISOString(),
+            device_type: "Web",
+            location: "Web Portal",
+            notes: "Web Clock In"
+        };
+        dispatch(clockInRequest(payload));
+    };
+
+    const handleClockOut = () => {
+        const now = new Date();
+        const payload = {
+            clock_out: now.toISOString(),
+            device_type: "Web"
+        };
+        dispatch(clockOutRequest(payload));
+    };
+
+    // Check if already clocked in today
+    const relevantRecord = attendanceHistory?.find((record: any) =>
+        record.date === format(new Date(), "yyyy-MM-dd")
+    );
+
+    const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
+    const isTodayClockOut = !!relevantRecord?.clock_out;
+
+    // Timer Logic for Today's Work
+    useEffect(() => {
+        const calculateElapsed = () => {
+            // 1. Start with base from props (converted to seconds)
+            let totalSeconds = data.work_hours.today * 3600;
+
+            // 2. If we have a local record for today, prioritize its data for the live session
+            // Note: If the backend 'today' hours already include the COMPLETED part of today, we shouldn't add it again.
+            // However, usually 'data' is a snapshot.
+            // Let's assume 'data.work_hours.today' is the correct historical total.
+            // We adding the current *active* session duration if applicable.
+
+            if (relevantRecord && relevantRecord.clock_in && !relevantRecord.clock_out) {
+                const clockInTime = new Date(relevantRecord.clock_in).getTime();
+                const now = new Date().getTime();
+                const diffSeconds = Math.floor((now - clockInTime) / 1000);
+                totalSeconds += diffSeconds;
+            }
+            setElapsedSeconds(totalSeconds);
+        };
+
+        calculateElapsed(); // Initial calculation
+
+        const timer = setInterval(calculateElapsed, 1000);
+
+        return () => clearInterval(timer);
+    }, [data.work_hours.today, relevantRecord]);
+
+
+    // Helper to format seconds to HH:MM:SS
+    const formatDuration = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     if (!data) return null;
 
@@ -125,12 +262,65 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </p>
                 </div>
 
-                <div className="text-right hidden sm:block">
-                    <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                        {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                <div className="hidden sm:flex items-center gap-6">
+                    {/* Buttons Section */}
+                    <div>
+                        {relevantRecord?.status === 'Leave' ? (
+                            <Button
+                                className="cursor-default opacity-100 font-semibold"
+                                variant="flat"
+                                color="warning"
+                                size="lg"
+                                startContent={<Calendar size={20} />}
+                                disableAnimation
+                            >
+                                On Leave
+                            </Button>
+                        ) : !isTodayClockIn ? (
+                            <Button
+                                color="primary"
+                                size="lg"
+                                startContent={<Clock size={20} />}
+                                onPress={handleClockIn}
+                                isLoading={clockInLoading}
+                                className="shadow-lg shadow-primary/40 font-semibold"
+                            >
+                                Clock In
+                            </Button>
+                        ) : !isTodayClockOut ? (
+                            <Button
+                                color="warning"
+                                size="lg"
+                                variant="flat"
+                                startContent={<LogOut size={20} />}
+                                onPress={handleClockOut}
+                                isLoading={clockOutLoading}
+                                className="font-semibold"
+                            >
+                                Clock Out
+                            </Button>
+                        ) : (
+                            <Button
+                                className="cursor-default opacity-100 font-semibold"
+                                variant="flat"
+                                color="success"
+                                size="lg"
+                                startContent={<CheckCircle size={20} />}
+                                disableAnimation
+                            >
+                                Done for Today
+                            </Button>
+                        )}
                     </div>
-                    <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
-                        {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+
+                    {/* Clock Section */}
+                    <div className="text-right border-l pl-6 border-slate-200 dark:border-white/10">
+                        <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                            {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                        </div>
+                        <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
+                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,8 +352,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
                     </Card>
 
-                    {/* Work Hours Widget */}
-                    {/* Work Hours Widget */}
+
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md h-auto">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
@@ -182,13 +371,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" className="dark:stroke-white/5" />
                                         <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
                                             strokeDasharray={351}
-                                            strokeDashoffset={351 - (351 * (data.work_hours.today / 9))} /* Assuming 9h workday */
-                                            className="text-primary"
+                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 3600, 9) / 9))} /* Assuming 9h workday */
+                                            className="text-primary transition-all duration-1000 ease-linear"
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{data.work_hours.today}h</span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">Today</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-white tabular-nums tracking-tight">
+                                            {formatDuration(elapsedSeconds)}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase mt-1">Today</span>
                                     </div>
                                 </div>
                             </div>
@@ -454,7 +645,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
 
                         {/* Bottom Section: Dark Task Card */}
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/10 rounded-[28px] p-7 text-white flex flex-col shadow-2xl mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
+                        <div className="bg-gradient-to-br from-[#18181b] to-black border border-white/10 rounded-[28px] p-7 text-white flex flex-col mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
                             {/* Decorative Background Glow */}
                             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
                             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
@@ -476,7 +667,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
 
                             {/* Task List */}
-                            <div className="relative space-y-4 pr-1 z-10">
+                            <div className="relative space-y-3 pr-1 z-10 mt-2">
                                 {data.recent_tasks.slice(0, 5).map((task, idx) => {
                                     const isCompleted = task.status.toLowerCase() === 'completed';
                                     const isInProgress = task.status.toLowerCase() === 'in progress';
@@ -484,45 +675,61 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     const isMeeting = task.task_name.toLowerCase().includes('meeting');
 
                                     return (
-                                        <div key={idx} className="flex items-center gap-4 group p-2 mx-[-8px] rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                                        <div key={idx} className="group flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-lg hover:shadow-black/20 cursor-default">
                                             {/* Icon Circle */}
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isCompleted ? 'bg-emerald-400 text-emerald-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]' :
-                                                isInProgress ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                                    'bg-slate-800/80 text-slate-400 border border-white/5'
+                                            <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isCompleted
+                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                : isInProgress
+                                                    ? 'bg-blue-500/20 text-blue-400'
+                                                    : 'bg-zinc-800 text-zinc-400'
                                                 }`}>
-                                                {isBug ? <Bug size={16} strokeWidth={2} /> :
-                                                    isMeeting ? <Users size={16} strokeWidth={2} /> :
-                                                        <ClipboardList size={16} strokeWidth={2} />}
+
+                                                {/* Icons with dynamic stroke */}
+                                                {isBug ? <Bug size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
+                                                    isMeeting ? <Users size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
+                                                        <ClipboardList size={18} strokeWidth={isCompleted ? 2.5 : 2} />}
                                             </div>
 
-                                            {/* Text */}
+                                            {/* Text Content */}
                                             <div className="flex-1 min-w-0">
-                                                <p className={`text-sm font-medium truncate transition-colors ${isCompleted ? 'text-slate-200 line-through opacity-50' : 'text-slate-200'
-                                                    }`}>{task.task_name}</p>
-                                                <div className="flex justify-between items-center pr-2 mt-1">
-                                                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1">
-                                                        <Calendar size={10} />
-                                                        {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                <div className="flex items-start justify-between">
+                                                    <p className={`text-sm font-medium truncate ${isCompleted ? 'text-zinc-500 line-through decoration-zinc-600' : 'text-zinc-100 group-hover:text-white'
+                                                        }`}>
+                                                        {task.task_name}
                                                     </p>
-                                                    <p className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm ${task.priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-slate-800 text-slate-500 border border-slate-700'
-                                                        }`}>{task.priority}</p>
+                                                </div>
+
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-medium">
+                                                        <Calendar size={12} className={isCompleted ? "opacity-50" : "text-zinc-400"} />
+                                                        <span className={isCompleted ? "opacity-50" : ""}>
+                                                            {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className={`h-1 w-1 rounded-full bg-zinc-700`}></div>
+
+                                                    <div className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${task.priority.toLowerCase() === 'high'
+                                                        ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                                        : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'
+                                                        }`}>
+                                                        {task.priority}
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            {/* Status Check */}
+                                            {/* Status Indicator (Right Side) */}
                                             <div className="pl-2">
                                                 {isCompleted ? (
-                                                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-900/50">
-                                                        <CheckCircle size={12} className="text-white fill-current" />
+                                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                                                        <CheckCircle size={14} className="text-emerald-400" />
                                                     </div>
                                                 ) : isInProgress ? (
-                                                    <div className="relative w-5 h-5 flex items-center justify-center">
-                                                        <div className="absolute inset-0 rounded-full border-2 border-blue-500 opacity-30"></div>
-                                                        <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 animate-spin"></div>
-                                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                                                    <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center relative shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                                     </div>
                                                 ) : (
-                                                    <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors"></div>
+                                                    <div className="w-6 h-6 rounded-full border-2 border-zinc-700/50 group-hover:border-zinc-500"></div>
                                                 )}
                                             </div>
                                         </div>
@@ -648,18 +855,86 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             <div className="space-y-4">
                                 {data.leave_details.balance.map((item, idx) => {
-                                    const isSick = item.type.toLowerCase().includes("sick");
-                                    const isCasual = item.type.toLowerCase().includes("casual");
+                                    const typeName = item.type.toLowerCase();
+
+                                    let config = {
+                                        icon: <Briefcase size={18} strokeWidth={2.5} />,
+                                        bg: "bg-primary-50 dark:bg-primary-500/10",
+                                        text: "text-primary",
+                                        progressFrom: "from-primary-400",
+                                        progressTo: "to-primary-600",
+                                        shadow: "shadow-primary/25"
+                                    };
+
+                                    if (typeName.includes("sick")) {
+                                        config = {
+                                            icon: <HeartPulse size={18} strokeWidth={2.5} />, // Changed to HeartPulse for Sick
+                                            bg: "bg-rose-50 dark:bg-rose-500/10",
+                                            text: "text-rose-500",
+                                            progressFrom: "from-rose-400",
+                                            progressTo: "to-rose-600",
+                                            shadow: "shadow-rose-200"
+                                        };
+                                    } else if (typeName.includes("casual")) {
+                                        config = {
+                                            icon: <Sun size={18} strokeWidth={2.5} />,
+                                            bg: "bg-orange-50 dark:bg-orange-500/10",
+                                            text: "text-orange-500",
+                                            progressFrom: "from-orange-400",
+                                            progressTo: "to-orange-600",
+                                            shadow: "shadow-orange-200"
+                                        };
+                                    } else if (typeName.includes("earned") || typeName.includes("privilege")) {
+                                        config = {
+                                            icon: <Award size={18} strokeWidth={2.5} />,
+                                            bg: "bg-emerald-50 dark:bg-emerald-500/10",
+                                            text: "text-emerald-500",
+                                            progressFrom: "from-emerald-400",
+                                            progressTo: "to-emerald-600",
+                                            shadow: "shadow-emerald-200"
+                                        };
+                                    } else if (typeName.includes("compensatory") || typeName.includes("comp")) {
+                                        config = {
+                                            icon: <RefreshCw size={18} strokeWidth={2.5} />,
+                                            bg: "bg-cyan-50 dark:bg-cyan-500/10",
+                                            text: "text-cyan-500",
+                                            progressFrom: "from-cyan-400",
+                                            progressTo: "to-cyan-600",
+                                            shadow: "shadow-cyan-200"
+                                        };
+                                    } else if (typeName.includes("loss of pay") || typeName.includes("lop")) {
+                                        config = {
+                                            icon: <Ban size={18} strokeWidth={2.5} />,
+                                            bg: "bg-slate-100 dark:bg-slate-700/30",
+                                            text: "text-slate-500",
+                                            progressFrom: "from-slate-400",
+                                            progressTo: "to-slate-600",
+                                            shadow: "shadow-slate-200"
+                                        };
+                                    } else if (typeName.includes("maternity") || typeName.includes("paternity")) {
+                                        config = {
+                                            icon: <Baby size={18} strokeWidth={2.5} />,
+                                            bg: "bg-pink-50 dark:bg-pink-500/10",
+                                            text: "text-pink-500",
+                                            progressFrom: "from-pink-400",
+                                            progressTo: "to-pink-600",
+                                            shadow: "shadow-pink-200"
+                                        };
+                                    } else if (typeName.includes("permission")) {
+                                        config = {
+                                            icon: <FileText size={18} strokeWidth={2.5} />,
+                                            bg: "bg-violet-50 dark:bg-violet-500/10",
+                                            text: "text-violet-500",
+                                            progressFrom: "from-violet-400",
+                                            progressTo: "to-violet-600",
+                                            shadow: "shadow-violet-200"
+                                        };
+                                    }
 
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${isSick ? "bg-rose-50 dark:bg-rose-500/10 text-rose-500" :
-                                                isCasual ? "bg-orange-50 dark:bg-orange-500/10 text-orange-500" :
-                                                    "bg-primary-50 dark:bg-primary-500/10 text-primary"
-                                                }`}>
-                                                {isSick ? <Activity size={18} strokeWidth={2.5} /> :
-                                                    isCasual ? <Sun size={18} strokeWidth={2.5} /> :
-                                                        <Briefcase size={18} strokeWidth={2.5} />}
+                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${config.bg} ${config.text}`}>
+                                                {config.icon}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-end mb-1.5">
@@ -672,10 +947,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                     radius="full"
                                                     classNames={{
                                                         track: "bg-slate-100 dark:bg-white/10 h-1.5",
-                                                        indicator: `${isSick ? "bg-gradient-to-r from-rose-400 to-rose-500 shadow-rose-200" :
-                                                            isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
-                                                                "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
-                                                            } h-1.5 shadow-sm`
+                                                        indicator: `bg-gradient-to-r ${config.progressFrom} ${config.progressTo} ${config.shadow} h-1.5 shadow-sm`
                                                     }}
                                                 />
                                             </div>
@@ -686,9 +958,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Recent Leave Request Status */}
                             {data.leave_details.recent_requests_status.length > 0 && (
-                                <div className="mt-6 pt-5 border-t border-slate-100/80">
+                                <div className="mt-6 pt-5 border-t border-slate-100/80 dark:border-white/10">
                                     <div className="flex justify-between items-center mb-3">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Activity</p>
+                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Recent Activity</p>
                                     </div>
                                     <div className="space-y-1">
                                         {data.leave_details.recent_requests_status.slice(0, 3).map((req, i) => {
@@ -697,10 +969,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             const isRejected = req.status.toLowerCase() === 'rejected';
 
                                             return (
-                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent">
-                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
-                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
-                                                            'bg-rose-50 border-rose-100 text-rose-600'
+                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
+                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
+                                                            'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
                                                         }`}>
                                                         {isApproved ? <CheckCircle size={15} strokeWidth={2.5} /> :
                                                             isPending ? <Clock size={15} strokeWidth={2.5} /> :
@@ -709,15 +981,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex justify-between items-center mb-0.5">
-                                                            <p className="text-xs font-bold text-slate-700 truncate">{req.type}</p>
-                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                    'bg-rose-50 text-rose-600 border-rose-100'
+                                                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{req.type}</p>
+                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
+                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
+                                                                    'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
                                                                 }`}>
                                                                 {req.status}
                                                             </span>
                                                         </div>
-                                                        <p className="text-[10px] text-slate-400 font-medium">
+                                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                                                             {new Date(req.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                                         </p>
                                                     </div>
