@@ -113,7 +113,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-default-50/50 dark:bg-[#0a0a0a] font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
+        <div className="min-h-screen  font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
@@ -129,7 +129,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                         {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
                     </div>
-                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
                         {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
                     </div>
                 </div>
@@ -163,6 +163,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
                     {/* Work Hours Widget */}
+                    {/* Work Hours Widget */}
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md h-auto">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
@@ -186,7 +187,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.work_hours.today}h</span>
+                                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{data.work_hours.today}h</span>
                                         <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">Today</span>
                                     </div>
                                 </div>
@@ -217,7 +218,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 {data.projects.map((project, i) => (
                                     <div key={i} className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 font-bold text-sm">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">
                                                 {project.name.charAt(0)}
                                             </div>
                                             <div>
@@ -225,9 +226,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{project.role}</p>
                                             </div>
                                         </div>
-                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400' :
-                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' :
-                                                'bg-slate-50 dark:bg-white/10 text-slate-500 dark:text-slate-400'
+                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                                'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
                                             }`}>
                                             {project.status}
                                         </div>
@@ -252,13 +253,13 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             {data.upcoming_holidays.length > 0 ? (
                                 data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group cursor-default">
-                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 text-primary border border-primary-100">
+                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
                                             <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
                                             <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{holiday.name}</p>
-                                            <p className="text-[11px] text-slate-500 dark:text-slate-500 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
                                         </div>
                                     </div>
                                 ))
@@ -281,25 +282,25 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <CardBody className="p-5">
                             {/* Header */}
                             <div className="flex justify-between items-center mb-5">
-                                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Attendance</h3>
+                                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-100 uppercase tracking-wide">Attendance</h3>
                                 <div className="px-2 py-1 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-md text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                                     Total: {data.attendance_metrics.total_working_days} Days
                                 </div>
                             </div>
 
                             {/* Primary Stats */}
-                            <div className="flex justify-between items-center divide-x divide-slate-100 mb-6">
+                            <div className="flex justify-between items-center divide-x divide-slate-100 dark:divide-white/5 mb-6">
                                 <div className="flex flex-col items-center w-1/3 px-2">
                                     <span className="text-2xl font-bold text-emerald-500 leading-none">{data.attendance_metrics.present_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wide">Present</span>
+                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Present</span>
                                 </div>
                                 <div className="flex flex-col items-center w-1/3 px-2">
                                     <span className="text-2xl font-bold text-rose-500 leading-none">{data.attendance_metrics.absent_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wide">Absent</span>
+                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Absent</span>
                                 </div>
                                 <div className="flex flex-col items-center w-1/3 px-2">
                                     <span className="text-2xl font-bold text-amber-500 leading-none">{data.attendance_metrics.leave_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wide">Leave</span>
+                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Leave</span>
                                 </div>
                             </div>
 
@@ -307,11 +308,11 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-100/80 dark:border-orange-500/20">
                                     <Clock size={14} className="text-orange-500" />
-                                    <span className="text-xs font-bold text-orange-700 dark:text-orange-400">{data.attendance_metrics.late_days} <span className="font-medium text-orange-600/70 dark:text-orange-500/60 text-[10px]">Late</span></span>
+                                    <span className="text-xs font-bold text-orange-700 dark:text-orange-400">{data.attendance_metrics.late_days} <span className="font-medium text-orange-600/70 dark:text-orange-400/70 text-[10px]">Late</span></span>
                                 </div>
                                 <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100/80 dark:border-violet-500/20">
                                     <Calendar size={14} className="text-violet-500" />
-                                    <span className="text-xs font-bold text-violet-700 dark:text-violet-400">{data.attendance_metrics.holiday_days} <span className="font-medium text-violet-600/70 dark:text-violet-500/60 text-[10px]">Holiday</span></span>
+                                    <span className="text-xs font-bold text-violet-700 dark:text-violet-400">{data.attendance_metrics.holiday_days} <span className="font-medium text-violet-600/70 dark:text-violet-400/70 text-[10px]">Holiday</span></span>
                                 </div>
                             </div>
                         </CardBody>
@@ -324,10 +325,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <h3 className="text-xl font-medium text-slate-800 dark:text-slate-100 tracking-tight">Task Overview</h3>
-                                    <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">Completion Status</p>
+                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Completion Status</p>
                                 </div>
-                                <div className="p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-slate-100 dark:border-white/5">
-                                    <span className="text-slate-800 dark:text-slate-200 font-bold px-1">{data.task_metrics.total_assigned} Total</span>
+                                <div className="p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm border border-slate-100 dark:border-white/5">
+                                    <span className="text-slate-800 dark:text-slate-100 font-bold px-1">{data.task_metrics.total_assigned} Total</span>
                                 </div>
                             </div>
 
@@ -337,7 +338,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
                                         {/* --- Ring 1: Completed (Outer) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-emerald-500/20" />
+                                        <circle cx="88" cy="88" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
                                         {/* Progress */}
                                         <circle
                                             cx="88" cy="88" r="80"
@@ -352,7 +353,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                         {/* --- Ring 2: Pending (Middle) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="60" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-orange-500/20" />
+                                        <circle cx="88" cy="88" r="60" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
                                         {/* Progress */}
                                         <circle
                                             cx="88" cy="88" r="60"
@@ -367,7 +368,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                         {/* --- Ring 3: In Progress (Inner) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="40" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-blue-500/20" />
+                                        <circle cx="88" cy="88" r="40" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
                                         {/* Progress */}
                                         <circle
                                             cx="88" cy="88" r="40"
@@ -383,8 +384,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                     {/* Central Icon */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <div className="bg-white dark:bg-zinc-800 p-3 rounded-full shadow-sm text-primary border border-slate-100 dark:border-white/5">
-                                            <ListTodo size={24} className="text-primary" />
+                                        <div className="bg-white dark:bg-white/10 p-3 rounded-full shadow-sm text-primary">
+                                            <ListTodo size={24} className="text-primary dark:text-white" />
                                         </div>
                                     </div>
                                 </div>
@@ -394,42 +395,42 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     {/* Completed (Outer) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wide">Completed</span>
+                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
                                             <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.completed}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-emerald-100 rounded-full overflow-hidden">
+                                            <div className="w-full h-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
-                                            <span className="text-[10px] font-medium text-emerald-600 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                            <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
                                         </div>
                                     </div>
 
                                     {/* Pending (Middle) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wide">Pending</span>
+                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
                                             <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.pending}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-orange-100 rounded-full overflow-hidden">
+                                            <div className="w-full h-1.5 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
-                                            <span className="text-[10px] font-medium text-orange-600 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                            <span className="text-[10px] font-medium text-orange-600 dark:text-orange-400 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
                                         </div>
                                     </div>
 
                                     {/* In Progress (Inner) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wide">In Progress</span>
+                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
                                             <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.in_progress}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-blue-100 rounded-full overflow-hidden">
+                                            <div className="w-full h-1.5 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
-                                            <span className="text-[10px] font-medium text-blue-600 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                            <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -437,14 +438,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Overdue Alert Banner */}
                             {data.task_metrics.overdue > 0 && (
-                                <div className="flex items-center justify-between bg-red-50 dark:bg-rose-500/10 border border-red-100 dark:border-rose-500/20 p-3 rounded-2xl mb-2 transition-none">
+                                <div className="flex items-center justify-between bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-3 rounded-2xl mb-2 transition-none">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-1.5 bg-red-100 dark:bg-rose-500/20 text-red-600 dark:text-rose-400 rounded-full">
+                                        <div className="p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full">
                                             <AlertCircle size={16} />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-red-800 dark:text-rose-200 uppercase tracking-wide">Attention Needed</p>
-                                            <p className="text-[10px] text-red-600 dark:text-rose-400/80 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
+                                            <p className="text-xs font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Attention Needed</p>
+                                            <p className="text-[10px] text-red-600 dark:text-red-400 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
                                         </div>
                                     </div>
 
@@ -452,8 +453,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             )}
                         </div>
 
-                        {/* Bottom Section: Solid Task Card */}
-                        <div className="bg-slate-900 border border-white/10 rounded-[28px] p-7 text-white flex flex-col shadow-2xl mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
+                        {/* Bottom Section: Dark Task Card */}
+                        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/10 rounded-[28px] p-7 text-white flex flex-col shadow-2xl mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
                             {/* Decorative Background Glow */}
                             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
                             <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
@@ -534,7 +535,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     {/* Recent Activity Feed (Redesigned) */}
                     <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
                         <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm uppercase tracking-wide flex items-center gap-2">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
                                 <Activity size={16} className="text-slate-400 dark:text-slate-500" />
                                 Activity Feed
                             </h3>
@@ -552,7 +553,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <div key={i} className="flex gap-4 group relative">
                                             {/* Timeline Line */}
                                             {i !== data.recent_activity.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-white/5"></div>
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
                                             )}
 
                                             {/* Icon */}
@@ -574,8 +575,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                     <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
                                                         {dateStr}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-300">•</span>
-                                                    <span className="text-[10px] text-slate-400 font-medium">
+                                                    <span className="text-[10px] text-slate-300 dark:text-slate-700">•</span>
+                                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                                                         {timeStr}
                                                     </span>
                                                 </div>
@@ -623,26 +624,25 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     )}
 
                     {/* Leave Balance Section */}
-                    <Card className="shadow-sm border border-default-100 bg-white">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between px-6 pt-6">
-                            <h3 className="text-lg font-bold text-slate-800">Leave Balance</h3>
-
+                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Leave Balance</h3>
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-5">
                             <div className="flex justify-between items-center bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
                                 <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.leave_details.summary.total_allowed}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-500 uppercase font-bold">Total</p>
+                                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.leave_details.summary.total_allowed}</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Total</p>
                                 </div>
                                 <div className="w-[1px] h-8 bg-slate-200 dark:bg-white/10"></div>
                                 <div className="text-center px-2">
                                     <p className="text-2xl font-bold text-primary">{data.leave_details.summary.total_remaining}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-500 uppercase font-bold">Left</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Left</p>
                                 </div>
                                 <div className="w-[1px] h-8 bg-slate-200 dark:bg-white/10"></div>
                                 <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.leave_details.summary.total_taken}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-500 uppercase font-bold">Used</p>
+                                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.leave_details.summary.total_taken}</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Used</p>
                                 </div>
                             </div>
 
@@ -653,9 +653,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                     return (
                                         <div key={idx} className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${isSick ? "bg-rose-50 text-rose-500" :
-                                                isCasual ? "bg-orange-50 text-orange-500" :
-                                                    "bg-primary-50 text-primary"
+                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${isSick ? "bg-rose-50 dark:bg-rose-500/10 text-rose-500" :
+                                                isCasual ? "bg-orange-50 dark:bg-orange-500/10 text-orange-500" :
+                                                    "bg-primary-50 dark:bg-primary-500/10 text-primary"
                                                 }`}>
                                                 {isSick ? <Activity size={18} strokeWidth={2.5} /> :
                                                     isCasual ? <Sun size={18} strokeWidth={2.5} /> :
@@ -671,7 +671,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                     size="sm"
                                                     radius="full"
                                                     classNames={{
-                                                        track: "bg-slate-100 h-1.5",
+                                                        track: "bg-slate-100 dark:bg-white/10 h-1.5",
                                                         indicator: `${isSick ? "bg-gradient-to-r from-rose-400 to-rose-500 shadow-rose-200" :
                                                             isCasual ? "bg-gradient-to-r from-orange-400 to-orange-500 shadow-orange-200" :
                                                                 "bg-gradient-to-r from-primary-400 to-primary-600 shadow-primary/25"
@@ -709,15 +709,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex justify-between items-center mb-0.5">
-                                                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{req.type}</p>
-                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/30' :
-                                                                isPending ? 'bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/30' :
-                                                                    'bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/30'
+                                                            <p className="text-xs font-bold text-slate-700 truncate">{req.type}</p>
+                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                                    'bg-rose-50 text-rose-600 border-rose-100'
                                                                 }`}>
                                                                 {req.status}
                                                             </span>
                                                         </div>
-                                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                                                        <p className="text-[10px] text-slate-400 font-medium">
                                                             {new Date(req.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                                         </p>
                                                     </div>
@@ -767,10 +767,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         </div>
 
                                         <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
-                                            <h2 className="text-base font-bold text-slate-800 leading-tight line-clamp-2">
+                                            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
                                                 {blog.title}
                                             </h2>
-                                            <p className="text-slate-500 text-xs leading-relaxed line-clamp-2">
+                                            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed line-clamp-2">
                                                 {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
                                             </p>
                                         </CardBody>

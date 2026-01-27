@@ -51,7 +51,7 @@ export default function FeedPage() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#F9FAFB] dark:bg-[#131314] p-4 sm:p-6 lg:p-8 font-sans">
+        <div className="w-full min-h-screen bg-default-50/50 dark:bg-[#0a0a0a] p-4 sm:p-6 lg:p-8 font-sans transition-colors duration-300">
             <div className="max-w-7xl mx-auto flex flex-col items-center">
 
                 {/* Header Section */}
@@ -69,7 +69,7 @@ export default function FeedPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-base md:text-lg text-[#6B7280] dark:text-[#A1A1AA] leading-relaxed max-w-xl"
+                        className="text-base md:text-lg text-[#6B7280] dark:text-slate-400 leading-relaxed max-w-xl"
                     >
                         Deep dives, smart strategies, and real results — explore how we build funnels that actually convert.
                     </motion.p>
@@ -79,19 +79,19 @@ export default function FeedPage() {
                 {getBlogsLoading && (!blogs || blogs.length === 0) ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <Card key={i} className="w-full p-2 bg-white dark:bg-[#1a1a1a] shadow-sm border border-transparent" radius="lg" style={{ borderRadius: "24px" }}>
-                                <Skeleton className="rounded-[16px]">
+                            <Card key={i} className="w-full p-2 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md shadow-sm border border-transparent dark:border-white/5" radius="lg" style={{ borderRadius: "24px" }}>
+                                <Skeleton className="rounded-[16px] dark:bg-zinc-800">
                                     <div className="h-56 rounded-[16px] bg-default-300"></div>
                                 </Skeleton>
                                 <div className="space-y-3 mt-4 px-3 pb-2">
-                                    <Skeleton className="w-3/4 rounded-lg">
+                                    <Skeleton className="w-3/4 rounded-lg dark:bg-zinc-800">
                                         <div className="h-6 w-3/4 rounded-lg bg-default-200"></div>
                                     </Skeleton>
-                                    <Skeleton className="w-full rounded-lg">
+                                    <Skeleton className="w-full rounded-lg dark:bg-zinc-800">
                                         <div className="h-3 w-full rounded-lg bg-default-200"></div>
                                     </Skeleton>
                                     <div className="pt-2">
-                                        <Skeleton className="w-24 rounded-full">
+                                        <Skeleton className="w-24 rounded-full dark:bg-zinc-800">
                                             <div className="h-6 w-24 rounded-full bg-default-200"></div>
                                         </Skeleton>
                                     </div>
@@ -111,19 +111,19 @@ export default function FeedPage() {
                                 {/* Linking to /feeds/[id] since we use ID for lookup */}
                                 <Link href={`/feeds/${blog.id}`} className="block h-full group">
                                     <Card
-                                        className="h-full bg-white dark:bg-[#1a1a1a] border border-white dark:border-[#333] p-2 transition-all duration-300"
+                                        className="h-full bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md border border-white dark:border-white/5 p-2 transition-all duration-300 hover:border-purple-200 dark:hover:border-purple-500/30"
                                         style={{
                                             borderRadius: "24px",
-                                            boxShadow: '0px 0.6021873017743928px 0.6021873017743928px 0px rgba(28, 28, 28, 0.01), 0px 2.288533303243457px 2.288533303243457px 0px rgba(28, 28, 28, 0.03), 0px 10px 10px 0px rgba(28, 28, 28, 0.12), 0px -6px 6px -5px rgb(255, 255, 255)'
+                                            boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04)'
                                         }}
                                     >
 
                                         {/* Card Image Area */}
-                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-gray-100 dark:bg-zinc-800">
+                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
                                             <Image
                                                 removeWrapper
                                                 alt={blog.title}
-                                                className="w-full h-full object-cover transform group-hover:scale-105 group-hover:blur-[2px] transition-all duration-500 ease-out"
+                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ease-out"
                                                 src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
                                             />
                                             {/* Category Badge - Top Right */}
@@ -131,8 +131,8 @@ export default function FeedPage() {
                                                 <div className="absolute top-3 right-3 z-10">
                                                     <Chip
                                                         classNames={{
-                                                            base: "bg-white/90 dark:bg-black/80 backdrop-blur-md shadow-sm h-7",
-                                                            content: "text-[11px] font-semibold text-default-800 dark:text-gray-200 px-2"
+                                                            base: "bg-white/90 dark:bg-black/60 backdrop-blur-md shadow-sm h-7 border border-transparent dark:border-white/10",
+                                                            content: "text-[11px] font-semibold text-slate-800 dark:text-slate-200 px-2"
                                                         }}
                                                         variant="flat"
                                                     >
@@ -143,10 +143,10 @@ export default function FeedPage() {
                                         </div>
 
                                         <CardBody className="px-3 pt-4 pb-2 flex flex-col gap-2">
-                                            <h2 className="text-xl font-bold text-[#111827] dark:text-[#E3E3E3] leading-[1.2] tracking-tight line-clamp-2">
+                                            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 leading-[1.2] tracking-tight line-clamp-2 group-hover:text-primary transition-colors">
                                                 {blog.title}
                                             </h2>
-                                            <p className="text-[#52525B] dark:text-gray-400 text-base leading-relaxed line-clamp-2 min-h-[40px]">
+                                            <p className="text-slate-500 dark:text-slate-400 text-base leading-relaxed line-clamp-2 min-h-[40px]">
                                                 {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 150) + "..." || "No description"}
                                             </p>
                                         </CardBody>
@@ -158,7 +158,7 @@ export default function FeedPage() {
                                                     name={blog.author?.name || defaultAuthor.name}
                                                     className="w-8 h-8 text-tiny"
                                                 />
-                                                <span className="text-[15px] font-medium text-[#374151] dark:text-gray-300">
+                                                <span className="text-[15px] font-medium text-slate-700 dark:text-slate-300">
                                                     {blog.author?.name || defaultAuthor.name}
                                                 </span>
                                             </div>

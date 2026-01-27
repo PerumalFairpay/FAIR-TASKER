@@ -195,7 +195,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
     if (!data) return null;
 
     return (
-        <div className="min-h-screen bg-default-50/50 dark:bg-[#0a0a0a] font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
+        <div className="min-h-screen font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
