@@ -13,7 +13,8 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { DatePicker, DateRangePicker } from "@heroui/date-picker";
-import { parseDate, getLocalTimeZone, today, DateValue } from "@internationalized/date";
+import { TimeInput } from "@heroui/date-input";
+import { parseDate, getLocalTimeZone, today, DateValue, Time, parseTime } from "@internationalized/date";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
@@ -436,26 +437,137 @@ export default function AddEditLeaveRequestDrawer({
                             )}
 
                             {formData.leave_duration_type === "Permission" && (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <Input
-                                        label="Start Time"
-                                        type="time"
-                                        name="start_time"
-                                        value={formData.start_time}
-                                        onChange={handleInputChange}
-                                        variant="bordered"
-                                        isRequired
-                                    />
-                                    <Input
-                                        label="End Time"
-                                        type="time"
-                                        name="end_time"
-                                        value={formData.end_time}
-                                        onChange={handleInputChange}
-                                        variant="bordered"
-                                        isRequired
-                                    />
-                                </div>
+                                <>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <TimeInput
+                                            label="Start Time"
+                                            name="start_time"
+                                            value={formData.start_time ? parseTime(formData.start_time) : null}
+                                            onChange={(time) => {
+                                                if (time) {
+                                                    const timeString = `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
+                                                    handleInputChange({
+                                                        target: { name: 'start_time', value: timeString }
+                                                    } as React.ChangeEvent<HTMLInputElement>);
+                                                }
+                                            }}
+                                            variant="bordered"
+                                            isRequired
+                                            hourCycle={12}
+                                        />
+                                        <TimeInput
+                                            label="End Time"
+                                            name="end_time"
+                                            value={formData.end_time ? parseTime(formData.end_time) : null}
+                                            onChange={(time) => {
+                                                if (time && formData.start_time) {
+                                                    const timeString = `${time.hour.toString().padStart(2, '0')}:${time.minute.toString().padStart(2, '0')}`;
+
+                                                    // Validate duration
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = timeString.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        // Only update if within allowed duration and end is after start
+                                                        if (durationMinutes > 0 && durationMinutes <= allowedMinutes) {
+                                                            setFormData(prev => ({ ...prev, end_time: timeString }));
+                                                        }
+                                                    } else {
+                                                        setFormData(prev => ({ ...prev, end_time: timeString }));
+                                                    }
+                                                }
+                                            }}
+                                            variant="bordered"
+                                            isRequired
+                                            hourCycle={12}
+                                            description={(() => {
+                                                if (formData.start_time && formData.end_time) {
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        const hours = Math.floor(durationMinutes / 60);
+                                                        const minutes = durationMinutes % 60;
+
+                                                        if (durationMinutes <= 0) {
+                                                            return "End time must be after start time";
+                                                        } else if (durationMinutes > allowedMinutes) {
+                                                            return `Exceeds allowed duration of ${selectedType.allowed_hours} hours`;
+                                                        } else {
+                                                            return `Duration: ${hours}h ${minutes}m`;
+                                                        }
+                                                    }
+                                                }
+                                                return "Auto-calculated based on start time";
+                                            })()}
+                                            isInvalid={(() => {
+                                                if (formData.start_time && formData.end_time) {
+                                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                                    if (selectedType?.allowed_hours) {
+                                                        const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                        const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                        const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                        const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                        const durationMinutes = endTotalMinutes - startTotalMinutes;
+                                                        const allowedMinutes = selectedType.allowed_hours * 60;
+
+                                                        return durationMinutes <= 0 || durationMinutes > allowedMinutes;
+                                                    }
+                                                }
+                                                return false;
+                                            })()}
+                                        />
+                                    </div>
+                                    {formData.leave_type_id && (() => {
+                                        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                        if (selectedType?.allowed_hours) {
+                                            return (
+                                                <div className="flex items-start gap-2 p-3 bg-primary-50 dark:bg-primary-950/30 rounded-lg border border-primary-200 dark:border-primary-800">
+                                                    <svg className="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
+                                                            Allowed Duration: {selectedType.allowed_hours} {selectedType.allowed_hours === 1 ? 'hour' : 'hours'}
+                                                            {formData.start_time && formData.end_time && (() => {
+                                                                const [startHours, startMinutes] = formData.start_time.split(':').map(Number);
+                                                                const [endHours, endMinutes] = formData.end_time.split(':').map(Number);
+
+                                                                const startTotalMinutes = (startHours * 60) + startMinutes;
+                                                                const endTotalMinutes = (endHours * 60) + endMinutes;
+                                                                const durationMinutes = endTotalMinutes - startTotalMinutes;
+
+                                                                if (durationMinutes > 0) {
+                                                                    const hours = Math.floor(durationMinutes / 60);
+                                                                    const minutes = durationMinutes % 60;
+                                                                    return ` • Current: ${hours}h ${minutes}m`;
+                                                                }
+                                                                return '';
+                                                            })()}
+                                                        </p>
+                                                        <p className="text-xs text-primary-700 dark:text-primary-300 mt-0.5">
+                                                            End time can be edited but must not exceed the allowed duration
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+                                </>
                             )}
 
                             <Input
