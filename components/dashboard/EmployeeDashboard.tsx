@@ -110,8 +110,11 @@ interface DashboardData {
 
 // --- Component ---
 
+// --- Component ---
+
 export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     useEffect(() => {
         setCurrentDate(new Date());
@@ -205,6 +208,43 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
     const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
     const isTodayClockOut = !!relevantRecord?.clock_out;
+
+    // Timer Logic for Today's Work
+    useEffect(() => {
+        const calculateElapsed = () => {
+            // 1. Start with base from props (converted to seconds)
+            let totalSeconds = data.work_hours.today * 3600;
+
+            // 2. If we have a local record for today, prioritize its data for the live session
+            // Note: If the backend 'today' hours already include the COMPLETED part of today, we shouldn't add it again.
+            // However, usually 'data' is a snapshot.
+            // Let's assume 'data.work_hours.today' is the correct historical total.
+            // We adding the current *active* session duration if applicable.
+
+            if (relevantRecord && relevantRecord.clock_in && !relevantRecord.clock_out) {
+                const clockInTime = new Date(relevantRecord.clock_in).getTime();
+                const now = new Date().getTime();
+                const diffSeconds = Math.floor((now - clockInTime) / 1000); 
+                totalSeconds += diffSeconds;
+            }
+            setElapsedSeconds(totalSeconds);
+        };
+
+        calculateElapsed(); // Initial calculation
+
+        const timer = setInterval(calculateElapsed, 1000);
+
+        return () => clearInterval(timer);
+    }, [data.work_hours.today, relevantRecord]);
+
+
+    // Helper to format seconds to HH:MM:SS
+    const formatDuration = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     if (!data) return null;
 
@@ -311,8 +351,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
                     </Card>
 
-                    {/* Work Hours Widget */}
-                    {/* Work Hours Widget */}
+
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md h-auto">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
@@ -331,13 +370,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" className="dark:stroke-white/5" />
                                         <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
                                             strokeDasharray={351}
-                                            strokeDashoffset={351 - (351 * (data.work_hours.today / 9))} /* Assuming 9h workday */
-                                            className="text-primary"
+                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 3600, 9) / 9))} /* Assuming 9h workday */
+                                            className="text-primary transition-all duration-1000 ease-linear"
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{data.work_hours.today}h</span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">Today</span>
+                                        <span className="text-xl font-bold text-slate-800 dark:text-white tabular-nums tracking-tight">
+                                            {formatDuration(elapsedSeconds)}
+                                        </span>
+                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase mt-1">Today</span>
                                     </div>
                                 </div>
                             </div>
