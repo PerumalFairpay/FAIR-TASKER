@@ -61,7 +61,7 @@ export default function AddEditLeaveRequestDrawer({
         reason: "",
     });
     const [files, setFiles] = useState<any[]>([]);
-    const [lopWarning, setLopWarning] = useState<{ title: string; holidays: string[] } | null>(null);
+
 
     useEffect(() => {
         if (isOpen) {
@@ -104,7 +104,7 @@ export default function AddEditLeaveRequestDrawer({
                 reason: selectedRequest.reason || "",
             });
             setFiles([]); // Reset files on edit open, as we don't pre-fill existing files in FilePond usually
-            setLopWarning(null);
+
         } else {
             setFormData({
                 employee_id: "",
@@ -117,7 +117,7 @@ export default function AddEditLeaveRequestDrawer({
                 reason: "",
             });
             setFiles([]);
-            setLopWarning(null);
+
         }
     }, [mode, selectedRequest, isOpen]);
 
@@ -145,7 +145,7 @@ export default function AddEditLeaveRequestDrawer({
 
         // Auto calculate days if dates or type change
         if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range") {
-            setLopWarning(null);
+
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
                 newData.total_days = 1;
@@ -168,86 +168,7 @@ export default function AddEditLeaveRequestDrawer({
                 }
             }
 
-            // Check if start or end date is adjacent to a holiday
-            try {
-                const start = parseDate(newData.start_date);
-                const end = parseDate(newData.end_date);
 
-                const d1 = new Date(start.year, start.month - 1, start.day);
-                const d2 = new Date(end.year, end.month - 1, end.day);
-
-                const prevDay = new Date(d1);
-                prevDay.setDate(d1.getDate() - 1);
-
-                const nextDay = new Date(d2);
-                nextDay.setDate(d2.getDate() + 1);
-
-                const formatDate = (d: Date) => {
-                    const year = d.getFullYear();
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const day = String(d.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                };
-
-                const prevDateStr = formatDate(prevDay);
-                const nextDateStr = formatDate(nextDay);
-
-                const prevHoliday = holidays.find((h: any) => h.date === prevDateStr && h.status === "Active");
-                const nextHoliday = holidays.find((h: any) => h.date === nextDateStr && h.status === "Active");
-
-                const interiorHolidays: any[] = [];
-                if (newData.leave_duration_type === "Multiple") {
-                    for (let d = new Date(d1); d <= d2; d.setDate(d.getDate() + 1)) {
-                        const dateStr = formatDate(d);
-                        const holiday = holidays.find((h: any) => h.date === dateStr && h.status === "Active");
-                        if (holiday) {
-                            interiorHolidays.push(holiday);
-                        }
-                    }
-                }
-
-                if (prevHoliday || nextHoliday || interiorHolidays.length > 0) {
-                    const lopType = leaveTypes?.find((lt: any) => lt.name.toLowerCase().includes("loss of pay") || lt.code === "LOP");
-                    if (lopType) {
-                        newData.leave_type_id = lopType.id;
-                        if (newData.leave_duration_type === "Single") {
-                            newData.leave_duration_type = "Multiple";
-                            // Expand the date range to include the triggering adjacent holidays
-                            if (prevHoliday) {
-                                newData.start_date = prevHoliday.date;
-                            }
-                            if (nextHoliday) {
-                                newData.end_date = nextHoliday.date;
-                            }
-                        }
-                        let extraDays = 0;
-                        const holidayDetails: string[] = [];
-
-                        if (prevHoliday) {
-                            extraDays += 1;
-                            holidayDetails.push(`${prevHoliday.name} (${prevHoliday.date})`);
-                        }
-
-                        interiorHolidays.forEach((h) => {
-                            holidayDetails.push(`${h.name} (${h.date})`);
-                        });
-
-                        if (nextHoliday) {
-                            extraDays += 1;
-                            holidayDetails.push(`${nextHoliday.name} (${nextHoliday.date})`);
-                        }
-
-                        newData.total_days += extraDays;
-                        const uniqueHolidays = Array.from(new Set(holidayDetails));
-                        setLopWarning({
-                            title: "Sandwich Rule Applied (Loss of Pay)",
-                            holidays: uniqueHolidays
-                        });
-                    }
-                }
-            } catch (e) {
-                // Ignore date parsing errors
-            }
         }
 
         setFormData(newData);
@@ -292,20 +213,7 @@ export default function AddEditLeaveRequestDrawer({
                                     </div>
                                 </Alert>
                             )}
-                            {lopWarning && (
-                                <Alert color="warning" title={lopWarning.title}>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-sm">
-                                            The following holidays are included in your leave duration:
-                                        </span>
-                                        <ul className="list-disc list-inside text-sm ml-2">
-                                            {lopWarning.holidays.map((h, i) => (
-                                                <li key={i}>{h}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </Alert>
-                            )}
+
                             <Select
                                 label="Employee"
                                 placeholder="Select employee"
@@ -346,7 +254,7 @@ export default function AddEditLeaveRequestDrawer({
                                 onSelectionChange={(keys) => handleSelectChange("leave_type_id", Array.from(keys)[0])}
                                 variant="bordered"
                                 isRequired
-                                isDisabled={!!lopWarning}
+
                             >
                                 {(leaveTypes || []).map((lt: any) => {
                                     const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
@@ -396,8 +304,7 @@ export default function AddEditLeaveRequestDrawer({
                                         isDateUnavailable={isDateUnavailable}
                                         minValue={today(getLocalTimeZone())}
                                         allowsNonContiguousRanges
-                                        isInvalid={!!lopWarning}
-                                        errorMessage={lopWarning ? "Sandwich Rule Applied: Holidays are included in your leave." : undefined}
+
                                         calendarProps={{
                                             className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
                                         }}
