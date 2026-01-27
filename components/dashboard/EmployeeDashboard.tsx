@@ -667,7 +667,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
 
                             {/* Task List */}
-                            <div className="relative space-y-4 pr-1 z-10">
+                            <div className="relative space-y-3 pr-1 z-10 mt-2">
                                 {data.recent_tasks.slice(0, 5).map((task, idx) => {
                                     const isCompleted = task.status.toLowerCase() === 'completed';
                                     const isInProgress = task.status.toLowerCase() === 'in progress';
@@ -675,45 +675,61 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     const isMeeting = task.task_name.toLowerCase().includes('meeting');
 
                                     return (
-                                        <div key={idx} className="flex items-center gap-4 group p-2 mx-[-8px] rounded-xl hover:bg-white/5 transition-colors cursor-default">
+                                        <div key={idx} className="group flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-lg hover:shadow-black/20 cursor-default">
                                             {/* Icon Circle */}
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isCompleted ? 'bg-emerald-400 text-emerald-950 shadow-[0_0_15px_rgba(52,211,153,0.4)]' :
-                                                isInProgress ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                                    'bg-slate-800/80 text-slate-400 border border-white/5'
+                                            <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isCompleted
+                                                ? 'bg-emerald-500/20 text-emerald-400'
+                                                : isInProgress
+                                                    ? 'bg-blue-500/20 text-blue-400'
+                                                    : 'bg-zinc-800 text-zinc-400'
                                                 }`}>
-                                                {isBug ? <Bug size={16} strokeWidth={2} /> :
-                                                    isMeeting ? <Users size={16} strokeWidth={2} /> :
-                                                        <ClipboardList size={16} strokeWidth={2} />}
+
+                                                {/* Icons with dynamic stroke */}
+                                                {isBug ? <Bug size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
+                                                    isMeeting ? <Users size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
+                                                        <ClipboardList size={18} strokeWidth={isCompleted ? 2.5 : 2} />}
                                             </div>
 
-                                            {/* Text */}
+                                            {/* Text Content */}
                                             <div className="flex-1 min-w-0">
-                                                <p className={`text-sm font-medium truncate transition-colors ${isCompleted ? 'text-slate-200 line-through opacity-50' : 'text-slate-200'
-                                                    }`}>{task.task_name}</p>
-                                                <div className="flex justify-between items-center pr-2 mt-1">
-                                                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1">
-                                                        <Calendar size={10} />
-                                                        {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                <div className="flex items-start justify-between">
+                                                    <p className={`text-sm font-medium truncate ${isCompleted ? 'text-zinc-500 line-through decoration-zinc-600' : 'text-zinc-100 group-hover:text-white'
+                                                        }`}>
+                                                        {task.task_name}
                                                     </p>
-                                                    <p className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm ${task.priority.toLowerCase() === 'high' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' : 'bg-slate-800 text-slate-500 border border-slate-700'
-                                                        }`}>{task.priority}</p>
+                                                </div>
+
+                                                <div className="flex items-center gap-3 mt-1.5">
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-medium">
+                                                        <Calendar size={12} className={isCompleted ? "opacity-50" : "text-zinc-400"} />
+                                                        <span className={isCompleted ? "opacity-50" : ""}>
+                                                            {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className={`h-1 w-1 rounded-full bg-zinc-700`}></div>
+
+                                                    <div className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${task.priority.toLowerCase() === 'high'
+                                                        ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                                        : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'
+                                                        }`}>
+                                                        {task.priority}
+                                                    </div>
                                                 </div>
                                             </div>
 
-                                            {/* Status Check */}
+                                            {/* Status Indicator (Right Side) */}
                                             <div className="pl-2">
                                                 {isCompleted ? (
-                                                    <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-900/50">
-                                                        <CheckCircle size={12} className="text-white fill-current" />
+                                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                                                        <CheckCircle size={14} className="text-emerald-400" />
                                                     </div>
                                                 ) : isInProgress ? (
-                                                    <div className="relative w-5 h-5 flex items-center justify-center">
-                                                        <div className="absolute inset-0 rounded-full border-2 border-blue-500 opacity-30"></div>
-                                                        <div className="absolute inset-0 rounded-full border-2 border-t-blue-500 animate-spin"></div>
-                                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_5px_rgba(59,130,246,0.8)]"></div>
+                                                    <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center relative shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                                                     </div>
                                                 ) : (
-                                                    <div className="w-5 h-5 rounded-full border-2 border-slate-700 group-hover:border-slate-500 transition-colors"></div>
+                                                    <div className="w-6 h-6 rounded-full border-2 border-zinc-700/50 group-hover:border-zinc-500"></div>
                                                 )}
                                             </div>
                                         </div>
@@ -942,9 +958,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Recent Leave Request Status */}
                             {data.leave_details.recent_requests_status.length > 0 && (
-                                <div className="mt-6 pt-5 border-t border-slate-100/80">
+                                <div className="mt-6 pt-5 border-t border-slate-100/80 dark:border-white/10">
                                     <div className="flex justify-between items-center mb-3">
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Activity</p>
+                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Recent Activity</p>
                                     </div>
                                     <div className="space-y-1">
                                         {data.leave_details.recent_requests_status.slice(0, 3).map((req, i) => {
@@ -953,10 +969,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             const isRejected = req.status.toLowerCase() === 'rejected';
 
                                             return (
-                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent">
-                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600' :
-                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600' :
-                                                            'bg-rose-50 border-rose-100 text-rose-600'
+                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
+                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
+                                                            'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
                                                         }`}>
                                                         {isApproved ? <CheckCircle size={15} strokeWidth={2.5} /> :
                                                             isPending ? <Clock size={15} strokeWidth={2.5} /> :
@@ -965,15 +981,15 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex justify-between items-center mb-0.5">
-                                                            <p className="text-xs font-bold text-slate-700 truncate">{req.type}</p>
-                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                    'bg-rose-50 text-rose-600 border-rose-100'
+                                                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{req.type}</p>
+                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
+                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
+                                                                    'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
                                                                 }`}>
                                                                 {req.status}
                                                             </span>
                                                         </div>
-                                                        <p className="text-[10px] text-slate-400 font-medium">
+                                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
                                                             {new Date(req.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                                         </p>
                                                     </div>
