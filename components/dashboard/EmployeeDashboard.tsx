@@ -15,8 +15,17 @@ import {
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
     Activity, ShieldCheck, AlertCircle, Target, ListTodo,
-    Bug, Users, ClipboardList
+    Bug, Users, ClipboardList, LogOut
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@/store/rootReducer";
+import {
+    clockInRequest,
+    clockOutRequest,
+    clearAttendanceStatus,
+    getMyAttendanceHistoryRequest
+} from "@/store/attendance/action";
+import { addToast } from "@heroui/toast";
 
 interface DashboardData {
     type: string;
@@ -110,6 +119,93 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
         return () => clearInterval(timer);
     }, []);
 
+    const dispatch = useDispatch();
+    const {
+        attendanceHistory,
+        clockInLoading,
+        clockInSuccess,
+        clockInError,
+        clockOutLoading,
+        clockOutSuccess,
+        clockOutError
+    } = useSelector((state: AppState) => state.Attendance);
+
+    const { user } = useSelector((state: AppState) => state.Auth);
+
+    useEffect(() => {
+        dispatch(getMyAttendanceHistoryRequest());
+    }, [dispatch]);
+
+    // Handle Clock In/Out Toasts
+    useEffect(() => {
+        if (clockInSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked in successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            dispatch(getMyAttendanceHistoryRequest());
+        }
+        if (clockInError) {
+            addToast({
+                title: "Error",
+                description: clockInError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockInSuccess, clockInError, dispatch]);
+
+    useEffect(() => {
+        if (clockOutSuccess) {
+            addToast({
+                title: "Success",
+                description: "Clocked out successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            dispatch(getMyAttendanceHistoryRequest());
+        }
+        if (clockOutError) {
+            addToast({
+                title: "Error",
+                description: clockOutError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [clockOutSuccess, clockOutError, dispatch]);
+
+    const handleClockIn = () => {
+        const now = new Date();
+        const payload = {
+            date: format(now, "yyyy-MM-dd"),
+            clock_in: now.toISOString(),
+            device_type: "Web",
+            location: "Web Portal",
+            notes: "Web Clock In"
+        };
+        dispatch(clockInRequest(payload));
+    };
+
+    const handleClockOut = () => {
+        const now = new Date();
+        const payload = {
+            clock_out: now.toISOString(),
+            device_type: "Web"
+        };
+        dispatch(clockOutRequest(payload));
+    };
+
+    // Check if already clocked in today
+    const relevantRecord = attendanceHistory?.find((record: any) =>
+        record.date === format(new Date(), "yyyy-MM-dd")
+    );
+
+    const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
+    const isTodayClockOut = !!relevantRecord?.clock_out;
+
     if (!data) return null;
 
     return (
@@ -125,12 +221,65 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </p>
                 </div>
 
-                <div className="text-right hidden sm:block">
-                    <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                        {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                <div className="hidden sm:flex items-center gap-6">
+                    {/* Buttons Section */}
+                    <div>
+                        {relevantRecord?.status === 'Leave' ? (
+                            <Button
+                                className="cursor-default opacity-100 font-semibold"
+                                variant="flat"
+                                color="warning"
+                                size="lg"
+                                startContent={<Calendar size={20} />}
+                                disableAnimation
+                            >
+                                On Leave
+                            </Button>
+                        ) : !isTodayClockIn ? (
+                            <Button
+                                color="primary"
+                                size="lg"
+                                startContent={<Clock size={20} />}
+                                onPress={handleClockIn}
+                                isLoading={clockInLoading}
+                                className="shadow-lg shadow-primary/40 font-semibold"
+                            >
+                                Clock In
+                            </Button>
+                        ) : !isTodayClockOut ? (
+                            <Button
+                                color="warning"
+                                size="lg"
+                                variant="flat"
+                                startContent={<LogOut size={20} />}
+                                onPress={handleClockOut}
+                                isLoading={clockOutLoading}
+                                className="font-semibold"
+                            >
+                                Clock Out
+                            </Button>
+                        ) : (
+                            <Button
+                                className="cursor-default opacity-100 font-semibold"
+                                variant="flat"
+                                color="success"
+                                size="lg"
+                                startContent={<CheckCircle size={20} />}
+                                disableAnimation
+                            >
+                                Done for Today
+                            </Button>
+                        )}
                     </div>
-                    <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
-                        {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+
+                    {/* Clock Section */}
+                    <div className="text-right border-l pl-6 border-slate-200 dark:border-white/10">
+                        <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                            {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                        </div>
+                        <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
+                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                        </div>
                     </div>
                 </div>
             </div>
