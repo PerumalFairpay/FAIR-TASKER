@@ -711,74 +711,61 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </Card>
                     )}
 
+<Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
+                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
+                                <Activity size={16} className="text-slate-400 dark:text-primary" />
+                                System Activity
+                            </h3>
+                        </CardHeader>
+                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
+                            <div className="space-y-0">
+                                {data.recent_activities.map((act, i) => {
+                                    const dateObj = new Date(act.timestamp);
+                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
 
+                                    return (
+                                        <div key={i} className="flex gap-4 group relative">
+                                            {/* Timeline Line */}
+                                            {i !== data.recent_activities.length - 1 && (
+                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
+                                            )}
 
-                    {/* Activity Feed moved to Col 1 */}
-
-                    {/* Blog / News Feed - Employee Dashboard Style */}
-                    {blogs && blogs.length > 0 && (
-                        <div className="flex flex-col gap-4">
-                            <div className="flex justify-between items-center px-1">
-                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
-                                <Link href="/feeds" className="text-xs font-bold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
-                                    View All
-                                    <ArrowUpRight size={14} />
-                                </Link>
-                            </div>
-
-                            {blogs.slice(0, 3).map((blog: any, i: number) => (
-                                <Link href={`/feeds/${blog.id}`} key={i} className="block group">
-                                    <Card
-                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
-                                        style={{
-                                            borderRadius: "24px",
-                                            boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
-                                        }}
-                                        isPressable={false}
-                                    >
-                                        {/* Card Image Area */}
-                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
-                                            <Image
-                                                removeWrapper
-                                                alt={blog.title}
-                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ease-out"
-                                                src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
-                                            />
-                                        </div>
-
-                                        <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
-                                            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
-                                                {blog.title}
-                                            </h2>
-                                            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed line-clamp-2">
-                                                {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
-                                            </p>
-                                        </CardBody>
-
-                                        {/* Footer with Author and Date */}
-                                        <div className="px-3 pb-2 pt-0 flex items-center justify-between w-full">
-                                            <div className="flex items-center gap-2">
-                                                <Avatar
-                                                    src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
-                                                    name={blog.author?.name || "Admin"}
-                                                    className="w-5 h-5 text-[9px]"
-                                                />
-                                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px]">
-                                                    {blog.author?.name || "Admin"}
-                                                </span>
+                                            {/* Icon */}
+                                            <div className="relative z-10 flex-shrink-0">
+                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
+                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
+                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
+                                                    }`}>
+                                                    <Activity size={14} strokeWidth={2.5} />
+                                                </div>
                                             </div>
-                                            <span className="text-[10px] font-medium text-slate-400">
-                                                {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric'
-                                                })}
-                                            </span>
+
+                                            {/* Content */}
+                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
+                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
+                                                    {act.message}
+                                                </p>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
+                                                        {dateStr}
+                                                    </span>
+                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
+                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
+                                                        {timeStr}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </Card>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
+                                    );
+                                })}
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                   
+                    
                 </div>
 
                 {/* --- Column 1: Overview & Distribution (Span 3) --- */}
@@ -933,65 +920,70 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </div>
                         </CardBody>
                     </Card>
-
-
-
-                    {/* Activity Feed */}
-                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400 dark:text-primary" />
-                                System Activity
-                            </h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activities.map((act, i) => {
-                                    const dateObj = new Date(act.timestamp);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
-                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
-                                                    }`}>
-                                                    <Activity size={14} strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
-                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+ 
+ {blogs && blogs.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between items-center px-1">
+                                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Blogs</h3>
+                                <Link href="/feeds" className="text-xs font-bold text-primary hover:text-primary-600 transition-colors flex items-center gap-1">
+                                    View All
+                                    <ArrowUpRight size={14} />
+                                </Link>
                             </div>
-                        </CardBody>
-                    </Card>
 
+                            {blogs.slice(0, 3).map((blog: any, i: number) => (
+                                <Link href={`/feeds/${blog.id}`} key={i} className="block group">
+                                    <Card
+                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
+                                        style={{
+                                            borderRadius: "24px",
+                                            boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
+                                        }}
+                                        isPressable={false}
+                                    >
+                                        {/* Card Image Area */}
+                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
+                                            <Image
+                                                removeWrapper
+                                                alt={blog.title}
+                                                className="w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ease-out"
+                                                src={blog.cover_image?.replace("host.docker.internal", "localhost") || "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2664&auto=format&fit=crop"}
+                                            />
+                                        </div>
 
+                                        <CardBody className="px-3 pt-3 pb-2 flex flex-col gap-1.5">
+                                            <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 leading-tight line-clamp-2">
+                                                {blog.title}
+                                            </h2>
+                                            <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed line-clamp-2">
+                                                {blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 100) + "..." || "No description"}
+                                            </p>
+                                        </CardBody>
 
+                                        {/* Footer with Author and Date */}
+                                        <div className="px-3 pb-2 pt-0 flex items-center justify-between w-full">
+                                            <div className="flex items-center gap-2">
+                                                <Avatar
+                                                    src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                                    name={blog.author?.name || "Admin"}
+                                                    className="w-5 h-5 text-[9px]"
+                                                />
+                                                <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[100px]">
+                                                    {blog.author?.name || "Admin"}
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-slate-400">
+                                                {new Date(blog.created_at || Date.now()).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                    </Card>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div >
