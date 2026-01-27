@@ -248,6 +248,12 @@ export default function LeaveRequestPage() {
                                                     <div className="w-[1px] h-2 bg-default-300 mx-0.5"></div>
                                                     <span className="text-default-700 font-semibold">{metric.total_allowed}</span> Total
                                                 </div>
+                                                {metric.allowed_hours > 0 && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-warning-600 bg-warning-50 px-1.5 py-0.5 rounded-full border border-warning-100 whitespace-nowrap">
+                                                        <Clock size={10} strokeWidth={2.5} />
+                                                        <span className="font-bold">{metric.allowed_hours}</span> Hrs
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex items-baseline gap-1 mt-1.5">
