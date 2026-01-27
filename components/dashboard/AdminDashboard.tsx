@@ -454,115 +454,176 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardBody>
                     </Card>
 
-                    {/* Task Analytics & Productivity Card */}
+                    {/* Task Analytics & Productivity Card - Revamped with Circle Graphs */}
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Productivity & Tasks</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">Task Completion & Efficiency</p>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">Efficiency & Status Breakdown</p>
                             </div>
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full text-indigo-500">
-                                <CheckCircle size={20} />
+                                <Activity size={20} />
                             </div>
                         </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-8">
-                            {/* Overview Row */}
-                            <div className="flex items-center justify-between gap-6 pb-6 border-b border-slate-50 dark:border-white/5">
-                                <div className="space-y-1">
-                                    <h4 className="text-4xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completion_rate_percentage}%</h4>
-                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Completion Rate</p>
+                        <CardBody className="px-6 py-4">
+                            <div className="flex flex-col gap-6">
+                                {/* Top Section: Circular Graphs & Key Metrics */}
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
+                                    {/* Multi-Ring Activity Chart - Employee Dashboard Style */}
+                                    <div className="relative w-48 h-48 flex-shrink-0">
+                                        <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
+                                            {/* --- Ring 1: Completed (Outer) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="80"
+                                                stroke="#10b981"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={502}
+                                                strokeDashoffset={502 - (502 * (data.task_analytics.overview.completion_rate_percentage / 100))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+
+                                            {/* --- Ring 2: In Progress (Middle) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="60" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="60"
+                                                stroke="#3b82f6"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={377}
+                                                strokeDashoffset={377 - (377 * ((data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) || 0))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+
+                                            {/* --- Ring 3: In Review (Inner) --- */}
+                                            {/* Background */}
+                                            <circle cx="96" cy="96" r="40" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-amber-500/10" />
+                                            {/* Progress */}
+                                            <circle
+                                                cx="96" cy="96" r="40"
+                                                stroke="#f59e0b"
+                                                strokeWidth="10"
+                                                fill="none"
+                                                strokeDasharray={251}
+                                                strokeDashoffset={251 - (251 * ((data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) || 0))}
+                                                strokeLinecap="round"
+                                                className="transition-all duration-1000 ease-out"
+                                            />
+                                        </svg>
+
+                                        {/* Central Icon */}
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                            <div className="bg-white dark:bg-white/10 p-3 rounded-full shadow-sm text-indigo-500">
+                                                <TrendingUp size={24} className="text-indigo-500 dark:text-white" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Legend & Stats List - Stacked Vertical Row */}
+                                    <div className="flex-1 w-full flex flex-col gap-4">
+                                        {/* Completed */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completed}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${data.task_analytics.overview.completion_rate_percentage}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round(data.task_analytics.overview.completion_rate_percentage)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* In Progress */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.in_progress}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* In Review */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Review</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.in_review}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-amber-100 dark:bg-amber-500/20 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Pending */}
+                                        <div className="flex flex-col">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                                                    <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.status_distribution.todo}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-full h-1.5 bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-slate-400 rounded-full" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
+                                                </div>
+                                                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 w-8 text-right">{Math.round((data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100)}%</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-right space-y-1">
-                                    <h4 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{data.task_analytics.overview.completed} <span className="text-sm font-medium text-slate-400 dark:text-slate-600">/ {data.task_analytics.overview.total_assigned}</span></h4>
-                                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Tasks Completed</p>
+
+                                {/* Divider */}
+                                <div className="h-px w-full bg-slate-100 dark:bg-white/5"></div>
+
+                                {/* Priority Breakdown */}
+                                <div>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Workload by Priority</p>
+                                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                        <div className="flex-1 min-w-[80px] p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-rose-600 dark:text-rose-400">{data.task_analytics.priority_breakdown.critical}</span>
+                                            <span className="text-[9px] font-bold text-rose-400/80 uppercase mt-0.5">Critical</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-orange-600 dark:text-orange-400">{data.task_analytics.priority_breakdown.high}</span>
+                                            <span className="text-[9px] font-bold text-orange-400/80 uppercase mt-0.5">High</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{data.task_analytics.priority_breakdown.medium}</span>
+                                            <span className="text-[9px] font-bold text-blue-400/80 uppercase mt-0.5">Medium</span>
+                                        </div>
+                                        <div className="flex-1 min-w-[80px] p-2 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 flex flex-col items-center justify-center">
+                                            <span className="text-sm font-bold text-slate-600 dark:text-slate-400">{data.task_analytics.priority_breakdown.low}</span>
+                                            <span className="text-[9px] font-bold text-slate-400/80 uppercase mt-0.5">Low</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Status & Priority Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                {/* Status */}
-                                <div className="space-y-4">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Status Breakdown</p>
-                                    <div className="space-y-3">
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>In Progress</span>
-                                                <span>{data.task_analytics.status_distribution.in_progress}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${(data.task_analytics.status_distribution.in_progress / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>Pending</span>
-                                                <span>{data.task_analytics.status_distribution.todo}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-slate-400" style={{ width: `${(data.task_analytics.status_distribution.todo / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                                <span>Review</span>
-                                                <span>{data.task_analytics.status_distribution.in_review}</span>
-                                            </div>
-                                            <div className="w-full bg-slate-100 dark:bg-white/10 rounded-full h-1.5">
-                                                <div className="h-1.5 rounded-full bg-amber-400" style={{ width: `${(data.task_analytics.status_distribution.in_review / data.task_analytics.overview.total_assigned) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Priority */}
-                                <div className="space-y-4">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Priority</p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="p-2 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/20 text-center">
-                                            <span className="block text-xl font-bold text-rose-600 dark:text-rose-400">{data.task_analytics.priority_breakdown.critical}</span>
-                                            <span className="text-[9px] font-bold text-rose-400 uppercase">Critical</span>
-                                        </div>
-                                        <div className="p-2 bg-orange-50 dark:bg-orange-500/10 rounded-xl border border-orange-100 dark:border-orange-500/20 text-center">
-                                            <span className="block text-xl font-bold text-orange-600 dark:text-orange-400">{data.task_analytics.priority_breakdown.high}</span>
-                                            <span className="text-[9px] font-bold text-orange-400 uppercase">High</span>
-                                        </div>
-                                        <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl border border-blue-100 dark:border-blue-500/20 text-center">
-                                            <span className="block text-xl font-bold text-blue-600 dark:text-blue-400">{data.task_analytics.priority_breakdown.medium}</span>
-                                            <span className="text-[9px] font-bold text-blue-400 uppercase">Medium</span>
-                                        </div>
-                                        <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20 text-center">
-                                            <span className="block text-xl font-bold text-emerald-600 dark:text-emerald-400">{data.task_analytics.priority_breakdown.low}</span>
-                                            <span className="text-[9px] font-bold text-emerald-400 uppercase">Low</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* {data.task_analytics.top_contributors && data.task_analytics.top_contributors.length > 0 && (
-                                <div className="pt-4 border-t border-slate-50">
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Top Performers</p>
-                                    <div className="space-y-3">
-                                        {data.task_analytics.top_contributors.map((c, i) => (
-                                            <div key={i} className="flex justify-between items-center">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${i === 0 ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'}`}>
-                                                        {i + 1}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs font-bold text-slate-700">{c.name}</p>
-                                                        <p className="text-[9px] text-slate-400">{c.role}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs font-bold text-slate-800">{c.completed} Tasks</p>
-                                                    <p className="text-[9px] text-emerald-500 font-medium">{c.efficiency}% Eff.</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )} */}
-
                         </CardBody>
                     </Card>
 
@@ -709,8 +770,8 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                                     </div>
                                                 </div>
                                                 <div className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold border ${h.days_until <= 7
-                                                        ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
-                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                                                    ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'
+                                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                                                     }`}>
                                                     {h.days_until === 0 ? 'Today' : `${h.days_until}d`}
                                                 </div>
