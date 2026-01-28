@@ -378,7 +378,7 @@ export default function EmployeeListPage() {
                                                 <TrashIcon size={16} />
                                             </span>
                                         </PermissionGuard>
-                                        <PermissionGuard permission="permission:manage">
+                                        <PermissionGuard permission="permission:submit">
                                             <span className="text-lg text-secondary cursor-pointer active:opacity-50" onClick={() => handlePermissions(item)}>
                                                 <ShieldCheck size={16} />
                                             </span>
