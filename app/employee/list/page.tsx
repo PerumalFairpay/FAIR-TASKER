@@ -122,7 +122,7 @@ export default function EmployeeListPage() {
             onClose();
             onDeleteClose();
             dispatch(clearEmployeeDetails());
-            dispatch(getEmployeesRequest(page, limit));
+            // dispatch(getEmployeesRequest(page, limit));
         }
         if (error) {
             addToast({
