@@ -27,6 +27,8 @@ import { Chip } from "@heroui/chip";
 import AddEditRoleDrawer from "./AddEditRoleDrawer";
 import DeleteRoleModal from "./DeleteRoleModal";
 
+import { PermissionGuard } from "@/components/PermissionGuard";
+
 export default function RolePage() {
     const dispatch = useDispatch();
     const { roles, loading, error, success } = useSelector(
@@ -105,85 +107,93 @@ export default function RolePage() {
     };
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-                <PageHeader title="Roles" />
-                <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
-                    Add New Role
-                </Button>
+        <PermissionGuard permission="role:view" fallback={<div className="p-6 text-center text-red-500">Access Denied</div>}>
+            <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <PageHeader title="Roles" />
+                    <PermissionGuard permission="role:submit">
+                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                            Add New Role
+                        </Button>
+                    </PermissionGuard>
+                </div>
+
+                <Table aria-label="Roles table" removeWrapper isHeaderSticky>
+                    <TableHeader>
+                        <TableColumn>NAME</TableColumn>
+                        <TableColumn>DESCRIPTION</TableColumn>
+                        <TableColumn>PERMISSIONS</TableColumn>
+                        <TableColumn align="center">ACTIONS</TableColumn>
+                    </TableHeader>
+                    <TableBody items={roles || []} emptyContent={"No roles found"} isLoading={loading}>
+                        {(item: any) => (
+                            <TableRow key={item.id}>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <p className="text-bold text-sm capitalize">{item.name}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <p className="text-bold text-sm text-default-500">{item.description || "-"}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex gap-1 flex-wrap max-w-xs">
+                                        {item.permissions && item.permissions.length > 0 ? (
+                                            item.permissions.slice(0, 3).map((permId: string) => {
+                                                const perm = permissions.find((p: any) => p.id === permId);
+                                                return (
+                                                    <Chip key={permId} size="sm" variant="flat">
+                                                        {perm ? perm.slug : permId}
+                                                    </Chip>
+                                                );
+                                            })
+                                        ) : (
+                                            <span className="text-default-400 text-sm">-</span>
+                                        )}
+                                        {item.permissions && item.permissions.length > 3 && (
+                                            <Chip size="sm" variant="flat">+{item.permissions.length - 3}</Chip>
+                                        )}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="relative flex items-center justify-center gap-2">
+                                        <PermissionGuard permission="role:submit">
+                                            <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
+                                                <PencilIcon size={16} />
+                                            </span>
+                                        </PermissionGuard>
+                                        <PermissionGuard permission="role:submit">
+                                            <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
+                                                <TrashIcon size={16} />
+                                            </span>
+                                        </PermissionGuard>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+
+                <AddEditRoleDrawer
+                    isOpen={isOpen}
+                    onOpenChange={onOpenChange}
+                    mode={mode}
+                    formData={formData}
+                    setFormData={setFormData}
+                    loading={loading}
+                    onSubmit={handleSubmit}
+                />
+
+                <DeleteRoleModal
+                    isOpen={isDeleteOpen}
+                    onOpenChange={onDeleteOpenChange}
+                    loading={loading}
+                    onConfirm={confirmDelete}
+                />
             </div>
-
-            <Table aria-label="Roles table" removeWrapper isHeaderSticky>
-                <TableHeader>
-                    <TableColumn>NAME</TableColumn>
-                    <TableColumn>DESCRIPTION</TableColumn>
-                    <TableColumn>PERMISSIONS</TableColumn>
-                    <TableColumn align="center">ACTIONS</TableColumn>
-                </TableHeader>
-                <TableBody items={roles || []} emptyContent={"No roles found"} isLoading={loading}>
-                    {(item: any) => (
-                        <TableRow key={item.id}>
-                            <TableCell>
-                                <div className="flex flex-col">
-                                    <p className="text-bold text-sm capitalize">{item.name}</p>
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex flex-col">
-                                    <p className="text-bold text-sm text-default-500">{item.description || "-"}</p>
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex gap-1 flex-wrap max-w-xs">
-                                    {item.permissions && item.permissions.length > 0 ? (
-                                        item.permissions.slice(0, 3).map((permId: string) => {
-                                            const perm = permissions.find((p: any) => p.id === permId);
-                                            return (
-                                                <Chip key={permId} size="sm" variant="flat">
-                                                    {perm ? perm.slug : permId}
-                                                </Chip>
-                                            );
-                                        })
-                                    ) : (
-                                        <span className="text-default-400 text-sm">-</span>
-                                    )}
-                                    {item.permissions && item.permissions.length > 3 && (
-                                        <Chip size="sm" variant="flat">+{item.permissions.length - 3}</Chip>
-                                    )}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="relative flex items-center justify-center gap-2">
-                                    <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
-                                        <PencilIcon size={16} />
-                                    </span>
-                                    <span className="text-lg text-danger cursor-pointer active:opacity-50" onClick={() => handleDelete(item.id)}>
-                                        <TrashIcon size={16} />
-                                    </span>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-
-            <AddEditRoleDrawer
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-                mode={mode}
-                formData={formData}
-                setFormData={setFormData}
-                loading={loading}
-                onSubmit={handleSubmit}
-            />
-
-            <DeleteRoleModal
-                isOpen={isDeleteOpen}
-                onOpenChange={onDeleteOpenChange}
-                loading={loading}
-                onConfirm={confirmDelete}
-            />
-        </div>
+        </PermissionGuard>
     );
 }
 

@@ -359,6 +359,7 @@ export default function AddEditEmployeeDrawer({
                                                     label="Date of Birth"
                                                     labelPlacement="outside"
                                                     variant="bordered"
+                                                    showMonthAndYearPickers
                                                     value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
                                                     onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
                                                 />
@@ -488,6 +489,7 @@ export default function AddEditEmployeeDrawer({
                                                     label="Date of Joining"
                                                     labelPlacement="outside"
                                                     variant="bordered"
+                                                    showMonthAndYearPickers
                                                     value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null}
                                                     onChange={(date) => {
                                                         const newDate = date?.toString() || "";
@@ -512,6 +514,7 @@ export default function AddEditEmployeeDrawer({
                                                     label="Confirmation Date"
                                                     labelPlacement="outside"
                                                     variant="bordered"
+                                                    showMonthAndYearPickers
                                                     value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
                                                     onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
                                                 />

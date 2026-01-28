@@ -435,47 +435,25 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 "flex items-center my-2 overflow-hidden transition-all duration-300",
                 isExpanded ? "justify-between px-2" : "justify-self-end"
               )}>
-                {user?.role?.toLowerCase() === "admin" ? (
-                  <div className="flex-1 min-w-0 cursor-default">
-                    <User
-                      name={isExpanded ? (`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.name || "") : ""}
-                      description={isExpanded ? (
-                        <p className="truncate max-w-[100px] text-tiny text-default-500">
-                          {user.email}
-                        </p>
-                      ) : ""}
-                      avatarProps={{
-                        src: user.profile_picture,
-                        name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
-                      }}
-                      classNames={{
-                        name: clsx("text-sm font-semibold", !isExpanded && "hidden"),
-                        description: clsx(!isExpanded && "hidden"),
-                        base: clsx("transition-transform", !isExpanded && "justify-center")
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <NextLink href="/profile" className="flex-1 min-w-0">
-                    <User
-                      name={isExpanded ? (`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.name || "") : ""}
-                      description={isExpanded ? (
-                        <p className="truncate max-w-[100px] text-tiny text-default-500">
-                          {user.email}
-                        </p>
-                      ) : ""}
-                      avatarProps={{
-                        src: user.profile_picture,
-                        name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
-                      }}
-                      classNames={{
-                        name: clsx("text-sm font-semibold", !isExpanded && "hidden"),
-                        description: clsx(!isExpanded && "hidden"),
-                        base: clsx("transition-transform", !isExpanded && "justify-center")
-                      }}
-                    />
-                  </NextLink>
-                )}
+                <NextLink href="/profile" className="flex-1 min-w-0">
+                  <User
+                    name={isExpanded ? (`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.name || "") : ""}
+                    description={isExpanded ? (
+                      <p className="truncate max-w-[100px] text-tiny text-default-500">
+                        {user.email}
+                      </p>
+                    ) : ""}
+                    avatarProps={{
+                      src: user.profile_picture,
+                      name: (user.first_name || user.name || "?").charAt(0).toUpperCase()
+                    }}
+                    classNames={{
+                      name: clsx("text-sm font-semibold", !isExpanded && "hidden"),
+                      description: clsx(!isExpanded && "hidden"),
+                      base: clsx("transition-transform", !isExpanded && "justify-center")
+                    }}
+                  />
+                </NextLink>
                 {isExpanded && (
                   <Button
                     isIconOnly

@@ -172,7 +172,7 @@ const CategoryTreeNode = ({
                 </div>
 
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
-                    {hasPermission("asset:manage") && (
+                    {hasPermission("asset:submit") && (
                         <>
                             <Button size="sm" isIconOnly variant="flat" color="primary" onPress={() => onAddSub(node.id)} className="rounded-lg">
                                 <PlusIcon size={16} />
@@ -331,7 +331,7 @@ export default function AssetCategoryPage() {
                         title="Asset Categories"
                         description="Organize and manage your asset tracking hierarchy."
                     />
-                    <PermissionGuard permission="asset:manage">
+                    <PermissionGuard permission="asset:submit">
                         <Button
                             color="primary"
                             size="md"

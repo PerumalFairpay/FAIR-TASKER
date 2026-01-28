@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
+import { usePermissions, PermissionGuard } from "@/components/PermissionGuard";
 
 // Helper to get specialized icons for expense categories
 const getCategoryIcon = (name: string, level: number, hasChildren: boolean, isOpen: boolean) => {
@@ -114,6 +115,7 @@ const CategoryTreeNode = ({
 }) => {
     const [isOpen, setIsOpen] = useState(true);
     const hasChildren = node.children && node.children.length > 0;
+    const { hasPermission } = usePermissions();
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
@@ -173,15 +175,19 @@ const CategoryTreeNode = ({
                 </div>
 
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
-                    <Button size="sm" isIconOnly variant="flat" color="primary" onPress={() => onAddSub(node.id)} className="rounded-lg">
-                        <PlusIcon size={16} />
-                    </Button>
-                    <Button size="sm" isIconOnly variant="flat" color="warning" onPress={() => onEdit(node)} className="rounded-lg">
-                        <PencilIcon size={16} />
-                    </Button>
-                    <Button size="sm" isIconOnly variant="flat" color="danger" onPress={() => onDelete(node.id)} className="rounded-lg">
-                        <TrashIcon size={16} />
-                    </Button>
+                    {hasPermission("expense:submit") && (
+                        <>
+                            <Button size="sm" isIconOnly variant="flat" color="primary" onPress={() => onAddSub(node.id)} className="rounded-lg">
+                                <PlusIcon size={16} />
+                            </Button>
+                            <Button size="sm" isIconOnly variant="flat" color="warning" onPress={() => onEdit(node)} className="rounded-lg">
+                                <PencilIcon size={16} />
+                            </Button>
+                            <Button size="sm" isIconOnly variant="flat" color="danger" onPress={() => onDelete(node.id)} className="rounded-lg">
+                                <TrashIcon size={16} />
+                            </Button>
+                        </>
+                    )}
                     {hasChildren && (
                         <Button size="sm" isIconOnly variant="light" onClick={toggleOpen} className="rounded-lg ml-1">
                             <motion.div
@@ -321,125 +327,129 @@ export default function ExpenseCategoryPage() {
     const treeData = React.useMemo(() => buildTree(expenseCategories || []), [expenseCategories]);
 
     return (
-        <div className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-                <PageHeader
-                    title="Expense Categories"
-                    description="Organize and manage your expense tracking hierarchy."
-                />
-                <Button
-                    color="primary"
-                    size="md"
-                    variant="shadow"
-                    startContent={<PlusIcon size={18} />}
-                    onPress={handleCreate}
-                    className="font-semibold px-6"
-                >
-                    Category
-                </Button>
-            </div>
-
-            <div className="relative p-0 pt-4">
-                {!loading && treeData.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full py-20 text-center">
-                        <div className="p-4 bg-default-100 rounded-2xl mb-4 text-default-400">
-                            <Tag size={48} />
-                        </div>
-                        <h3 className="text-lg font-semibold text-default-900">No Categories Found</h3>
-                        <p className="text-default-500 max-w-xs">Start by creating your first root category to build your expense tracking tree.</p>
-                    </div>
-                )}
-
-                <div className="space-y-4">
-                    {treeData.map((node: any, index: number) => (
-                        <CategoryTreeNode
-                            key={node.id}
-                            node={node}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onAddSub={handleAddSub}
-                            level={0}
-                            isLast={index === treeData.length - 1}
-                        />
-                    ))}
+        <PermissionGuard permission="expense:view" fallback={<div className="p-6 text-center text-red-500">Access Denied</div>}>
+            <div className="p-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                    <PageHeader
+                        title="Expense Categories"
+                        description="Organize and manage your expense tracking hierarchy."
+                    />
+                    <PermissionGuard permission="expense:submit">
+                        <Button
+                            color="primary"
+                            size="md"
+                            variant="shadow"
+                            startContent={<PlusIcon size={18} />}
+                            onPress={handleCreate}
+                            className="font-semibold px-6"
+                        >
+                            Category
+                        </Button>
+                    </PermissionGuard>
                 </div>
+
+                <div className="relative p-0 pt-4">
+                    {!loading && treeData.length === 0 && (
+                        <div className="flex flex-col items-center justify-center h-full py-20 text-center">
+                            <div className="p-4 bg-default-100 rounded-2xl mb-4 text-default-400">
+                                <Tag size={48} />
+                            </div>
+                            <h3 className="text-lg font-semibold text-default-900">No Categories Found</h3>
+                            <p className="text-default-500 max-w-xs">Start by creating your first root category to build your expense tracking tree.</p>
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        {treeData.map((node: any, index: number) => (
+                            <CategoryTreeNode
+                                key={node.id}
+                                node={node}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onAddSub={handleAddSub}
+                                level={0}
+                                isLast={index === treeData.length - 1}
+                            />
+                        ))}
+                    </div>
+                </div>
+
+                <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">
+                                    {mode === "create" ? "Add Category" : "Edit Category"}
+                                </ModalHeader>
+                                <ModalBody>
+                                    <Input
+                                        label="Name"
+                                        placeholder="Enter category name"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        isRequired
+                                    />
+                                    <Textarea
+                                        label="Description"
+                                        placeholder="Enter category description"
+                                        value={formData.description}
+                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    />
+                                    {showParentSelect && (
+                                        <Select
+                                            label="Parent Category"
+                                            placeholder="Select a parent (optional)"
+                                            selectedKeys={formData.parent_id ? [formData.parent_id] : []}
+                                            onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                                        >
+                                            {[
+                                                { id: "", name: "None (Root)" },
+                                                ...(expenseCategories || []).filter((cat: any) => cat.id !== selectedCategory?.id)
+                                            ].map((cat: any) => (
+                                                <SelectItem key={cat.id || "root"} textValue={cat.name}>
+                                                    {cat.name}
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
+                                    )}
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button color="danger" variant="light" onPress={onClose}>
+                                        Close
+                                    </Button>
+                                    <Button color="primary" onPress={handleSubmit} isLoading={loading}>
+                                        {mode === "create" ? "Create" : "Update"}
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
+
+                {/* Delete Confirmation Modal */}
+                <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">Confirm Delete</ModalHeader>
+                                <ModalBody>
+                                    <p className="text-default-600">
+                                        Are you sure you want to delete this category? This action cannot be undone.
+                                    </p>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button color="danger" variant="shadow" onPress={confirmDelete} isLoading={loading}>
+                                        Delete
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
             </div>
-
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                {mode === "create" ? "Add Category" : "Edit Category"}
-                            </ModalHeader>
-                            <ModalBody>
-                                <Input
-                                    label="Name"
-                                    placeholder="Enter category name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    isRequired
-                                />
-                                <Textarea
-                                    label="Description"
-                                    placeholder="Enter category description"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                />
-                                {showParentSelect && (
-                                    <Select
-                                        label="Parent Category"
-                                        placeholder="Select a parent (optional)"
-                                        selectedKeys={formData.parent_id ? [formData.parent_id] : []}
-                                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
-                                    >
-                                        {[
-                                            { id: "", name: "None (Root)" },
-                                            ...(expenseCategories || []).filter((cat: any) => cat.id !== selectedCategory?.id)
-                                        ].map((cat: any) => (
-                                            <SelectItem key={cat.id || "root"} textValue={cat.name}>
-                                                {cat.name}
-                                            </SelectItem>
-                                        ))}
-                                    </Select>
-                                )}
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="light" onPress={onClose}>
-                                    Close
-                                </Button>
-                                <Button color="primary" onPress={handleSubmit} isLoading={loading}>
-                                    {mode === "create" ? "Create" : "Update"}
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
-
-            {/* Delete Confirmation Modal */}
-            <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">Confirm Delete</ModalHeader>
-                            <ModalBody>
-                                <p className="text-default-600">
-                                    Are you sure you want to delete this category? This action cannot be undone.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button variant="light" onPress={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button color="danger" variant="shadow" onPress={confirmDelete} isLoading={loading}>
-                                    Delete
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
-        </div>
+        </PermissionGuard>
     );
 }

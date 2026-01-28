@@ -130,7 +130,7 @@ export default function AssetListPage() {
                         title="Assets"
                         description="Manage company assets and inventory"
                     />
-                    <PermissionGuard permission="asset:manage">
+                    <PermissionGuard permission="asset:submit">
                         <Button
                             color="primary"
                             endContent={<PlusIcon size={16} />}
@@ -204,7 +204,7 @@ export default function AssetListPage() {
                                 </TableCell>
                                 <TableCell>
                                     <div className="relative flex items-center justify-center gap-2">
-                                        {hasPermission("asset:manage") && (
+                                        {hasPermission("asset:submit") && (
                                             <>
                                                 <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={() => handleEdit(item)}>
                                                     <PencilIcon size={18} />
