@@ -26,6 +26,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { Pagination } from "@heroui/pagination";
 import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
@@ -78,7 +79,8 @@ export default function AttendancePage() {
         getAllAttendanceLoading,
         importAttendanceLoading,
         importAttendanceSuccess,
-        importAttendanceError
+        importAttendanceError,
+        pagination
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
@@ -87,6 +89,10 @@ export default function AttendancePage() {
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
+
+    // Pagination State
+    const [page, setPage] = useState(1);
+    const limit = 20;
 
     // Status update state
     const [statusUpdateData, setStatusUpdateData] = useState<{
@@ -133,7 +139,7 @@ export default function AttendancePage() {
             if (viewMode === "calendar") {
                 dispatch(getAllAttendanceRequest({ start_date: start, end_date: end }));
             } else {
-                dispatch(getAllAttendanceRequest(filters));
+                dispatch(getAllAttendanceRequest({ ...filters, page, limit }));
             }
 
             if (employees.length === 0) {
@@ -371,11 +377,16 @@ export default function AttendancePage() {
 
     const displayData = isAdmin ? allAttendance : attendanceHistory;
 
+
+
     // Helper stats
-    const totalDays = metrics?.total_records || 0;
-    const presentDays = metrics?.present || 0;
-    const absentDays = metrics?.absent || 0;
-    const leaveDays = metrics?.leave || 0;
+    const todayStats = metrics?.today || { present: 0, absent: 0, late: 0 };
+    const monthStats = metrics?.month || { present: 0, absent: 0, leave: 0 };
+    const yearStats = metrics?.year || { present: 0 };
+
+    // Calculate total headcount for today (Present + Absent + Leave + Late) - simplistic
+    const todayTotal = (todayStats.present || 0) + (todayStats.absent || 0) + (todayStats.late || 0) + (todayStats.leave || 0);
+
 
     // Filter columns based on role
     const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
@@ -584,29 +595,57 @@ export default function AttendancePage() {
             ) : (
                 <>
                     {/* Stats Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                        <Card className="shadow-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {/* Today's Overview */}
+                        <Card className="shadow-sm border-l-4 border-primary">
                             <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold">{isAdmin ? "Total Records" : "Total Days"}</p>
-                                <h4 className="text-2xl font-bold mt-1">{totalDays}</h4>
+                                <p className="text-small text-default-500 uppercase font-bold mb-2">Today's Overview</p>
+                                <div className="flex justify-between items-center text-sm">
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Present</span>
+                                        <span className="text-xl font-bold text-success">{todayStats.present || 0}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Late</span>
+                                        <span className="text-xl font-bold text-warning">{todayStats.late || 0}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Absent</span>
+                                        <span className="text-xl font-bold text-danger">{todayStats.absent || 0}</span>
+                                    </div>
+                                </div>
                             </CardBody>
                         </Card>
+
+                        {/* This Month */}
+                        <Card className="shadow-sm border-l-4 border-secondary">
+                            <CardBody className="py-4">
+                                <p className="text-small text-default-500 uppercase font-bold mb-2">This Month</p>
+                                <div className="flex justify-between items-center text-sm">
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Present</span>
+                                        <span className="text-xl font-bold text-default-700">{monthStats.present || 0}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Leaves</span>
+                                        <span className="text-xl font-bold text-default-700">{monthStats.leave || 0}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-default-400">Absent</span>
+                                        <span className="text-xl font-bold text-default-700">{monthStats.absent || 0}</span>
+                                    </div>
+                                </div>
+                            </CardBody>
+                        </Card>
+
+                        {/* Year Total */}
                         <Card className="shadow-sm border-l-4 border-success">
                             <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold">Present</p>
-                                <h4 className="text-2xl font-bold mt-1 text-success">{presentDays}</h4>
-                            </CardBody>
-                        </Card>
-                        <Card className="shadow-sm border-l-4 border-danger">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold">Absent</p>
-                                <h4 className="text-2xl font-bold mt-1 text-danger">{absentDays}</h4>
-                            </CardBody>
-                        </Card>
-                        <Card className="shadow-sm border-l-4 border-warning">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold">Leave</p>
-                                <h4 className="text-2xl font-bold mt-1 text-warning">{leaveDays}</h4>
+                                <p className="text-small text-default-500 uppercase font-bold mb-2">Yearly Attendance</p>
+                                <div className="flex items-end gap-2">
+                                    <h4 className="text-3xl font-bold text-success">{yearStats.present || 0}</h4>
+                                    <span className="text-small text-default-400 mb-1">Total Days Present</span>
+                                </div>
                             </CardBody>
                         </Card>
                     </div>
@@ -628,6 +667,19 @@ export default function AttendancePage() {
                             )}
                         </TableBody>
                     </Table>
+
+                    {/* Pagination */}
+                    {pagination && pagination.total_pages > 1 && (
+                        <div className="flex justify-center mt-4">
+                            <Pagination
+                                isCompact
+                                showControls
+                                total={pagination.total_pages}
+                                page={page}
+                                onChange={(p) => setPage(p)}
+                            />
+                        </div>
+                    )}
                 </>
             )}
 
