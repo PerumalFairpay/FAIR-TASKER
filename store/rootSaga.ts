@@ -20,8 +20,7 @@ import attendanceSaga from "./attendance/saga";
 import permissionSaga from "./permission/saga";
 import dashboardSaga from "./dashboard/saga";
 import profileSaga from "./profile/saga";
-
-
+import settingsSaga from "./settings/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -46,7 +45,6 @@ export default function* rootSaga() {
     fork(permissionSaga),
     fork(dashboardSaga),
     fork(profileSaga),
-
-
+    fork(settingsSaga),
   ]);
 }
