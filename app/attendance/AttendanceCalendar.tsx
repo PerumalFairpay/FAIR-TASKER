@@ -3,7 +3,7 @@ import { format, getDaysInMonth, startOfMonth, endOfMonth, isSameDay, parseISO }
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Avatar } from "@heroui/avatar";
 import { Tooltip } from "@heroui/tooltip";
-import { X, Check, Calendar, Coffee, AlertCircle } from "lucide-react";
+import { X, Check, Calendar, Coffee, AlertCircle, Clock } from "lucide-react";
 
 interface AttendanceCalendarProps {
     employees: any[];
@@ -46,6 +46,8 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
         if (record) {
             if (record.status === "Present") {
                 return { type: "Present", label: <Check size={14} strokeWidth={3} />, color: "bg-success text-white" };
+            } else if (record.status === "Late") {
+                return { type: "Late", label: <Clock size={14} />, color: "bg-amber-500 text-white" };
             } else if (record.status === "Absent") {
                 return { type: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
             } else if (record.status === "Leave") {
