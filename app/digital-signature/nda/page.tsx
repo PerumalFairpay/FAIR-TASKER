@@ -8,45 +8,78 @@ import { useSelector } from "react-redux";
 import api from "@/store/api";
 import { Loader2 } from "lucide-react";
 
+import Link from "next/link"; // Added import
+
 export default function NDAPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    // const { toast } = useToast(); // Removed, using addToast directly
     const { user, isAuthenticated } = useSelector((state: any) => state.Auth);
 
     const [loading, setLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false); // Added verifying state
     const [signed, setSigned] = useState(false);
+    const [documentUrl, setDocumentUrl] = useState<string | null>(null); // Added documentUrl state
 
     useEffect(() => {
         if (!isAuthenticated && !user) {
-            // Redirect if not logged in
             router.push("/auth/login");
         }
     }, [isAuthenticated, user, router]);
 
+    const verifySignature = async () => {
+        setVerifying(true);
+        try {
+            const response = await api.post("/digital-signature/verify-nda");
+            if (response.data.status === "signed") {
+                setSigned(true);
+                setDocumentUrl(response.data.document_url);
+                addToast({
+                    title: "Success",
+                    description: "NDA Verified & Signed Successfully!",
+                    color: "success",
+                });
+                // Optional area: clean URL? currently handled in next effect
+            } else {
+                addToast({
+                    title: "Status: " + response.data.status,
+                    description: "Signature processing. Please check back shortly.",
+                    color: "warning",
+                });
+            }
+        } catch (error: any) {
+            console.error("Verification Error:", error);
+            addToast({
+                title: "Verification Failed",
+                description: error.response?.data?.detail || "Could not verify signature.",
+                color: "danger",
+            });
+        } finally {
+            setVerifying(false);
+        }
+    };
+
     useEffect(() => {
-        // Check for success callback from DocuSign
         const event = searchParams.get("event");
         if (event === "signing_complete") {
-            setSigned(true);
-            addToast({
-                title: "Success",
-                description: "NDA Signed Successfully!",
-                color: "success",
-            });
-            // Clean up URL
+            // Remove the query param to prevent re-triggering? 
+            // Better to verify first then cleanup.
+            verifySignature();
             router.replace("/digital-signature/nda");
+        } else {
+            // Also try to verify on load if we suspect they might be signed?
+            // Or just wait for user action. 
+            // For now, let's auto-verify if they have no query params just in case?
+            // No, that might spam 400s if they haven't started.
+            // Let's stick to event-based trigger for now, effectively.
         }
     }, [searchParams, router]);
 
     const handleSign = async () => {
         setLoading(true);
         try {
-            // Initiate signing process
             const response = await api.post("/digital-signature/send-nda");
 
             if (response.data && response.data.signing_url) {
-                // Redirect to DocuSign
                 window.location.href = response.data.signing_url;
             } else {
                 throw new Error("No signing URL returned");
@@ -67,7 +100,6 @@ export default function NDAPage() {
         return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
     }
 
-    // Visual layout helpers
     const dateStr = new Date(user.join_date || Date.now()).toLocaleDateString();
     const empName = user.name || "________________";
     const empFather = user.father_name || "________________";
@@ -81,8 +113,18 @@ export default function NDAPage() {
                 <div className="bg-slate-900 text-white p-4 flex justify-between items-center">
                     <h1 className="text-xl font-bold">Digital Signature</h1>
                     {signed ? (
-                        <Button variant="flat" className="bg-green-500 hover:bg-green-600 text-white" disabled>
-                            Signed & Verified (Simulated)
+                        <Button
+                            as={Link}
+                            href={documentUrl ? documentUrl : "#"}
+                            target="_blank"
+                            variant="flat"
+                            className="bg-green-500 hover:bg-green-600 text-white"
+                        >
+                            View Signed Document
+                        </Button>
+                    ) : verifying ? (
+                        <Button disabled className="bg-yellow-500 text-white">
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Verifying...
                         </Button>
                     ) : (
                         <Button onPress={handleSign} isDisabled={loading} className="bg-blue-600 hover:bg-blue-700">
