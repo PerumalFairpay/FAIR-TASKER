@@ -576,23 +576,19 @@ export default function AttendancePage() {
 
 
             {viewMode === "calendar" ? (
-                <Card className="shadow-sm">
-                    <CardBody>
-                        <AttendanceCalendar
-                            employees={isAdmin ? employees : [{
-                                id: user?.id,
-                                name: user?.name,
-                                email: user?.email,
-                                employee_id: user?.employee_id,
-                                employee_no_id: user?.employee_no_id,
-                                profile_picture: user?.profile_picture
-                            }]}
-                            attendance={isAdmin ? allAttendance : attendanceHistory}
-                            holidays={holidays || []}
-                            currentMonth={currentMonth}
-                        />
-                    </CardBody>
-                </Card>
+                <AttendanceCalendar
+                    employees={isAdmin ? employees : [{
+                        id: user?.id,
+                        name: user?.name,
+                        email: user?.email,
+                        employee_id: user?.employee_id,
+                        employee_no_id: user?.employee_no_id,
+                        profile_picture: user?.profile_picture
+                    }]}
+                    attendance={isAdmin ? allAttendance : attendanceHistory}
+                    holidays={holidays || []}
+                    currentMonth={currentMonth}
+                />
             ) : (
                 <>
                     {/* Stats Grid */}
