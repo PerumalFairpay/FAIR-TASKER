@@ -526,7 +526,7 @@ export default function AttendancePage() {
                                 >
                                     On Leave
                                 </Button>
-                            ) : !isTodayClockIn ? (
+                            ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
                                 <Button
                                     color="primary"
                                     size="lg"
@@ -537,7 +537,7 @@ export default function AttendancePage() {
                                 >
                                     Clock In
                                 </Button>
-                            ) : !isTodayClockOut ? (
+                            ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
@@ -582,7 +582,7 @@ export default function AttendancePage() {
                                         </div>
                                     </PopoverContent>
                                 </Popover>
-                            ) : (
+                            ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
                                 <Button
                                     className="cursor-default opacity-100 font-semibold"
                                     variant="flat"
@@ -592,7 +592,7 @@ export default function AttendancePage() {
                                 >
                                     Done for Today
                                 </Button>
-                            )}
+                            ) : null}
                         </>
                     )}
 
