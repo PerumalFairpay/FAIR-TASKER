@@ -34,6 +34,7 @@ export default function SettingsPage() {
             Object.keys(settings).forEach(group => {
                 settings[group].forEach((setting: any) => {
                     initialData[setting.key] = setting.value;
+                    initialData[`${setting.key}_is_public`] = setting.is_public || false;
                 });
             });
             setFormData(initialData);
@@ -74,8 +75,22 @@ export default function SettingsPage() {
     };
 
     const renderInput = (setting: any) => {
-        const { key, label, input_type, options, value } = setting;
+        const { key, label, input_type, options, value, is_public } = setting;
         const currentValue = formData[key] !== undefined ? formData[key] : value;
+        const currentIsPublic = formData[`${key}_is_public`] !== undefined ? formData[`${key}_is_public`] : is_public;
+
+        const renderPublicToggle = () => (
+            <div className="flex items-center justify-between px-3 py-2 bg-default-50 rounded-b-lg border-t border-default-200">
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-default-600">Public Access</span>
+                </div>
+                <Switch
+                    size="sm"
+                    isSelected={!!currentIsPublic}
+                    onValueChange={(isSelected) => handleInputChange(`${key}_is_public`, isSelected)}
+                />
+            </div>
+        );
 
         switch (input_type) {
             case "text":
@@ -84,63 +99,75 @@ export default function SettingsPage() {
             case "time":
             case "date":
                 return (
-                    <Input
-                        key={key}
-                        label={label}
-                        type={input_type}
-                        placeholder={`Enter ${label}`}
-                        value={currentValue?.toString() || ""}
-                        onChange={(e) => handleInputChange(key, input_type === "number" ? Number(e.target.value) : e.target.value)}
-                        variant="bordered"
-                        className="mb-4"
-                    />
+                    <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
+                        <div className="p-3">
+                            <Input
+                                label={label}
+                                type={input_type}
+                                placeholder={`Enter ${label}`}
+                                value={currentValue?.toString() || ""}
+                                onChange={(e) => handleInputChange(key, input_type === "number" ? Number(e.target.value) : e.target.value)}
+                                variant="bordered"
+                            />
+                        </div>
+                        {renderPublicToggle()}
+                    </div>
                 );
             case "boolean":
                 return (
-                    <div key={key} className="flex items-center justify-between mb-4 border p-3 rounded-lg border-default-200">
-                        <span className="text-small font-medium">{label}</span>
-                        <Switch
-                            isSelected={!!currentValue}
-                            onValueChange={(isSelected) => handleInputChange(key, isSelected)}
-                        />
+                    <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-small font-medium">{label}</span>
+                            <Switch
+                                isSelected={!!currentValue}
+                                onValueChange={(isSelected) => handleInputChange(key, isSelected)}
+                            />
+                        </div>
+                        {renderPublicToggle()}
                     </div>
                 );
             case "select":
                 return (
-                    <Select
-                        key={key}
-                        label={label}
-                        variant="bordered"
-                        placeholder={`Select ${label}`}
-                        selectedKeys={currentValue ? [currentValue] : []}
-                        onChange={(e) => handleInputChange(key, e.target.value)}
-                        className="mb-4"
-                    >
-                        {(options || []).map((opt: string) => (
-                            <SelectItem key={opt}>
-                                {opt}
-                            </SelectItem>
-                        ))}
-                    </Select>
+                    <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
+                        <div className="p-3">
+                            <Select
+                                label={label}
+                                variant="bordered"
+                                placeholder={`Select ${label}`}
+                                selectedKeys={currentValue ? [currentValue] : []}
+                                onChange={(e) => handleInputChange(key, e.target.value)}
+                            >
+                                {(options || []).map((opt: string) => (
+                                    <SelectItem key={opt}>
+                                        {opt}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                        {renderPublicToggle()}
+                    </div>
                 );
             case "multiselect":
                 return (
-                    <Select
-                        key={key}
-                        label={label}
-                        variant="bordered"
-                        placeholder={`Select ${label}`}
-                        selectionMode="multiple"
-                        selectedKeys={new Set(Array.isArray(currentValue) ? currentValue : [])}
-                        onSelectionChange={(keys) => handleInputChange(key, Array.from(keys))}
-                        className="mb-4"
-                    >
-                        {(options || []).map((opt: string) => (
-                            <SelectItem key={opt}>
-                                {opt}
-                            </SelectItem>
-                        ))}
-                    </Select>
+                    <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
+                        <div className="p-3">
+                            <Select
+                                label={label}
+                                variant="bordered"
+                                placeholder={`Select ${label}`}
+                                selectionMode="multiple"
+                                selectedKeys={new Set(Array.isArray(currentValue) ? currentValue : [])}
+                                onSelectionChange={(keys) => handleInputChange(key, Array.from(keys))}
+                            >
+                                {(options || []).map((opt: string) => (
+                                    <SelectItem key={opt}>
+                                        {opt}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        </div>
+                        {renderPublicToggle()}
+                    </div>
                 );
             default:
                 return null;

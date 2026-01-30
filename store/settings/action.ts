@@ -2,6 +2,9 @@ import {
   GET_SETTINGS_REQUEST,
   GET_SETTINGS_SUCCESS,
   GET_SETTINGS_FAILURE,
+  GET_PUBLIC_SETTINGS_REQUEST,
+  GET_PUBLIC_SETTINGS_SUCCESS,
+  GET_PUBLIC_SETTINGS_FAILURE,
   UPDATE_SETTINGS_REQUEST,
   UPDATE_SETTINGS_SUCCESS,
   UPDATE_SETTINGS_FAILURE,
@@ -19,6 +22,21 @@ export const getSettingsSuccess = (payload: any) => ({
 
 export const getSettingsFailure = (payload: any) => ({
   type: GET_SETTINGS_FAILURE,
+  payload,
+});
+
+// Get Public Settings
+export const getPublicSettingsRequest = () => ({
+  type: GET_PUBLIC_SETTINGS_REQUEST,
+});
+
+export const getPublicSettingsSuccess = (payload: any) => ({
+  type: GET_PUBLIC_SETTINGS_SUCCESS,
+  payload,
+});
+
+export const getPublicSettingsFailure = (payload: any) => ({
+  type: GET_PUBLIC_SETTINGS_FAILURE,
   payload,
 });
 

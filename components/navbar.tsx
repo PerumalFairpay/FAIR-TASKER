@@ -46,7 +46,8 @@ import {
   Milestone,
   ShieldCheck,
   UserPlus,
-  UserMinus
+  UserMinus,
+  SettingsIcon,
 } from "lucide-react";
 
 

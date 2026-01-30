@@ -222,6 +222,12 @@ export const siteConfig: SiteConfig = {
       icon: "Rss", // Using Rss icon for feeds
       allowedRoles: ["admin", "employee"],
     },
+    {
+      label: "Settings",
+      href: "/settings",
+      icon: "SettingsIcon",
+      allowedRoles: ["admin"],
+    },
   ],
 
   navMenuItems: [
