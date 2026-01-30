@@ -2,8 +2,8 @@ import React from "react";
 import { format, getDaysInMonth, startOfMonth, endOfMonth, isSameDay, parseISO } from "date-fns";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Avatar } from "@heroui/avatar";
-import { Tooltip } from "@heroui/tooltip"; // Assuming this exists or similar
-import { X, Check } from "lucide-react"; // Icons for Present/Absent
+import { Tooltip } from "@heroui/tooltip";
+import { X, Check, Calendar, Coffee, AlertCircle } from "lucide-react";
 
 interface AttendanceCalendarProps {
     employees: any[];
@@ -20,51 +20,40 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
 }) => {
     const daysInMonth = getDaysInMonth(currentMonth);
     const startDate = startOfMonth(currentMonth);
-
-    // Generate array of days [1, 2, ..., n]
-    // But we need actual Date objects for comparison
     const days = Array.from({ length: daysInMonth }, (_, i) => {
         const d = new Date(currentMonth);
         d.setDate(i + 1);
         return d;
     });
-
-    // Helper to get status for a specific employee and date
     const getStatus = (emp: any, date: Date) => {
         const dateStr = format(date, "yyyy-MM-dd");
 
-        // 1. Check Holiday (from the separate holiday list)
         const holiday = holidays.find((h) => h.date === dateStr);
         if (holiday) {
-            return { type: "Holiday", label: "H", color: "bg-orange-400 text-white", name: holiday.name };
+            return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white", name: holiday.name };
         }
-
-        // 2. Check Attendance Records (Present, Absent, Leave)
         const record = attendance.find((a) => {
-            // Match against ObjectId (Primary) or Employee No (Secondary)
-            // The API returns 'employee_id' as the ObjectId string
-            const matchesId = a.employee_id === emp.id || a.employee_id === emp._id || a.employee_id === emp.employee_id;
+            const empIds = [emp.id, emp._id, emp.employee_id, emp.employee_no_id].filter(Boolean);
+            let isMatch = empIds.includes(a.employee_id);
+            if (!isMatch && a.employee_details) {
+                if (a.employee_details.id && empIds.includes(a.employee_details.id)) isMatch = true;
+                if (a.employee_details.employee_no_id && empIds.includes(a.employee_details.employee_no_id)) isMatch = true;
+            }
 
-            // Also check embedded details if strictly needed, or fallback to emp_no
-            // Some records might use employee_no_id if legacy
-            const matchesNo = emp.employee_no_id && (a.employee_id === emp.employee_no_id);
-
-            return (matchesId || matchesNo) && a.date === dateStr;
+            return isMatch && a.date === dateStr;
         });
 
         if (record) {
             if (record.status === "Present") {
-                return { type: "Present", label: "P", color: "bg-success text-white" };
+                return { type: "Present", label: <Check size={14} strokeWidth={3} />, color: "bg-success text-white" };
             } else if (record.status === "Absent") {
-                return { type: "Absent", label: "A", color: "bg-danger text-white" };
+                return { type: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
             } else if (record.status === "Leave") {
-                return { type: "Leave", label: "L", color: "bg-warning text-white" };
+                return { type: "Leave", label: <Calendar size={14} />, color: "bg-warning text-white" };
             }
-            // Fallback for other statuses
-            return { type: record.status, label: record.status[0], color: "bg-primary text-white" };
+            return { type: record.status, label: <AlertCircle size={14} />, color: "bg-primary text-white" };
         }
 
-        // 3. Weekend/Default
         const dayOfWeek = date.getDay();
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             return { type: "Weekend", label: "-", color: "text-default-300" };
@@ -91,13 +80,14 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                 </thead>
                 <tbody>
                     {employees.map((emp) => (
-                        <tr key={emp.employee_no_id || emp.id} className="hover:bg-default-50 transition-colors border-b border-divider/50">
+                        <tr key={emp.employee_id || emp.id} className="hover:bg-default-50 transition-colors border-b border-divider/50">
                             <td className="p-3 sticky left-0 bg-background z-10 border-r border-divider">
                                 <div className="flex items-center gap-3">
                                     <Avatar src={emp.profile_picture} name={emp.name} size="sm" />
                                     <div>
                                         <p className="text-sm font-medium text-default-900 line-clamp-1">{emp.name}</p>
-                                        <p className="text-xs text-primary">{emp.employee_no_id || emp.id}</p>
+                                        <p className="text-xs text-primary">{emp.employee_id || emp.id}</p>
+
                                     </div>
                                 </div>
                             </td>
