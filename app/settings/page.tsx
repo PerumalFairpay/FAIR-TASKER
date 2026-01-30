@@ -10,7 +10,6 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Switch } from "@heroui/switch";
-import { Tabs, Tab } from "@heroui/tabs";
 import { addToast } from "@heroui/toast";
 import { Save, RefreshCw } from "lucide-react";
 
@@ -170,27 +169,22 @@ export default function SettingsPage() {
                 </Button>
             </div>
 
-            <Card className="min-h-[500px]">
-                <CardBody className="p-6">
-                    {settings && (
-                        <Tabs
-                            aria-label="Settings Groups"
-                            color="primary"
-                            variant="underlined"
-                            selectedKey={activeTab}
-                            onSelectionChange={setActiveTab}
-                        >
-                            {Object.keys(settings).map(group => (
-                                <Tab key={group} title={group}>
-                                    <div className="flex flex-col gap-4 mt-4 max-w-2xl">
-                                        {settings[group].map((setting: any) => renderInput(setting))}
-                                    </div>
-                                </Tab>
-                            ))}
-                        </Tabs>
-                    )}
-                </CardBody>
-            </Card>
+            <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
+                {settings && Object.keys(settings).map(group => (
+                    <Card key={group}>
+                        <CardHeader className="flex gap-3">
+                            <div className="flex flex-col">
+                                <p className="text-md font-bold">{group} Settings</p>
+                                <p className="text-small text-default-500">Configure {group.toLowerCase()} parameters</p>
+                            </div>
+                        </CardHeader>
+                        <div className="h-px bg-default-200" />
+                        <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                            {settings[group].map((setting: any) => renderInput(setting))}
+                        </CardBody>
+                    </Card>
+                ))}
+            </div>
         </div>
     );
 }
