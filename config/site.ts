@@ -225,7 +225,7 @@ export const siteConfig: SiteConfig = {
     {
       label: "Settings",
       href: "/settings",
-      icon: "SettingsIcon",
+      icon: "Settings",
       allowedRoles: ["admin"],
     },
   ],
