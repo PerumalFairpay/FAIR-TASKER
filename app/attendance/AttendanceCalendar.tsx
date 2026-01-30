@@ -32,7 +32,6 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     // Helper to get status for a specific employee and date
     const getStatus = (emp: any, date: Date) => {
         const dateStr = format(date, "yyyy-MM-dd");
-        const empId = emp.employee_no_id || emp.id || emp.employee_id;
 
         // 1. Check Holiday (from the separate holiday list)
         const holiday = holidays.find((h) => h.date === dateStr);
@@ -42,8 +41,15 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
 
         // 2. Check Attendance Records (Present, Absent, Leave)
         const record = attendance.find((a) => {
-            const recordEmpId = a.employee_id || a.employee_details?.employee_no_id || a.employee_details?.id;
-            return recordEmpId === empId && a.date === dateStr;
+            // Match against ObjectId (Primary) or Employee No (Secondary)
+            // The API returns 'employee_id' as the ObjectId string
+            const matchesId = a.employee_id === emp.id || a.employee_id === emp._id || a.employee_id === emp.employee_id;
+
+            // Also check embedded details if strictly needed, or fallback to emp_no
+            // Some records might use employee_no_id if legacy
+            const matchesNo = emp.employee_no_id && (a.employee_id === emp.employee_no_id);
+
+            return (matchesId || matchesNo) && a.date === dateStr;
         });
 
         if (record) {
