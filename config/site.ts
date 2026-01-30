@@ -223,6 +223,20 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin", "employee"],
     },
     {
+      label: "Digital Signature",
+      href: "/digital-signature",
+      icon: "PenTool", // Assuming PenTool exists, or FileSignature if available
+      allowedRoles: ["admin", "employee"],
+      children: [
+        {
+          label: "NDA",
+          href: "/digital-signature/nda",
+          icon: "FileCheck",
+          allowedRoles: ["admin", "employee"],
+        },
+      ],
+    },
+    {
       label: "Settings",
       href: "/settings",
       icon: "Settings",

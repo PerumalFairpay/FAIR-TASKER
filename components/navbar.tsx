@@ -48,7 +48,9 @@ import {
   UserPlus,
   UserMinus,
   SettingsIcon,
-  Settings
+  Settings,
+  PenTool,
+  FileCheck
 } from "lucide-react";
 
 
@@ -94,7 +96,9 @@ const iconMap: Record<string, any> = {
   UserPlus,
   UserMinus,
   SettingsIcon,
-  Settings
+  Settings,
+  PenTool,
+  FileCheck
 };
 
 
