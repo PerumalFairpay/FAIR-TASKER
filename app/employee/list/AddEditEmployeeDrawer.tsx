@@ -389,6 +389,15 @@ export default function AddEditEmployeeDrawer({
                                                 <SelectItem key="Married" textValue="Married">Married</SelectItem>
                                                 <SelectItem key="Divorced" textValue="Divorced">Divorced</SelectItem>
                                             </Select>
+                                            <Textarea
+                                                label="Address"
+                                                placeholder="Enter employee address"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address || ""}
+                                                onChange={(e) => handleChange("address", e.target.value)}
+                                                className="md:col-span-2"
+                                            />
                                         </div>
                                     </div>
                                 </Tab>

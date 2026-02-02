@@ -44,7 +44,8 @@ export default function ProfilePage() {
         emergency_contact_number: "",
         marital_status: "",
         department: "",
-        designation: ""
+        designation: "",
+        address: ""
     });
 
     const [profilePic, setProfilePic] = useState<File | null>(null);
@@ -87,7 +88,8 @@ export default function ProfilePage() {
                 emergency_contact_number: profile.emergency_contact_number || "",
                 marital_status: profile.marital_status || "",
                 department: profile.department || "",
-                designation: profile.designation || user?.role || ""
+                designation: profile.designation || user?.role || "",
+                address: profile.address || ""
             });
             setProfilePicPreview(profile.profile_picture || null);
             if (profile.documents && profile.documents.length > 0) {
@@ -493,6 +495,29 @@ export default function ProfilePage() {
                                                         <SelectItem key="Female">Female</SelectItem>
                                                         <SelectItem key="Other">Other</SelectItem>
                                                     </Select>
+                                                    <Input
+                                                        label="Marital Status"
+                                                        placeholder="Enter marital status"
+                                                        name="marital_status"
+                                                        value={formData.marital_status}
+                                                        onChange={handleInputChange}
+                                                        variant="bordered"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                    />
+                                                    <Input
+                                                        label="Address"
+                                                        placeholder="Enter your address"
+                                                        name="address"
+                                                        value={formData.address}
+                                                        onChange={handleInputChange}
+                                                        variant="bordered"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        className="md:col-span-2"
+                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                    />
                                                 </div>
 
                                                 <div>
