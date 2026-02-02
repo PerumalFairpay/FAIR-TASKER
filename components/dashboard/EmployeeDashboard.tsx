@@ -27,6 +27,7 @@ import {
     getMyAttendanceHistoryRequest
 } from "@/store/attendance/action";
 import { addToast } from "@heroui/toast";
+import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 
 interface DashboardData {
     type: string;
@@ -116,6 +117,7 @@ interface DashboardData {
 export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
+    const [isClockOutPopoverOpen, setIsClockOutPopoverOpen] = useState(false);
 
     useEffect(() => {
         setCurrentDate(new Date());
@@ -276,7 +278,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             >
                                 On Leave
                             </Button>
-                        ) : !isTodayClockIn ? (
+                        ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
                             <Button
                                 color="primary"
                                 size="lg"
@@ -287,19 +289,52 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             >
                                 Clock In
                             </Button>
-                        ) : !isTodayClockOut ? (
-                            <Button
-                                color="warning"
-                                size="lg"
-                                variant="flat"
-                                startContent={<LogOut size={20} />}
-                                onPress={handleClockOut}
-                                isLoading={clockOutLoading}
-                                className="font-semibold"
+                        ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
+                            <Popover
+                                isOpen={isClockOutPopoverOpen}
+                                onOpenChange={setIsClockOutPopoverOpen}
+                                placement="bottom"
+                                showArrow
                             >
-                                Clock Out
-                            </Button>
-                        ) : (
+                                <PopoverTrigger>
+                                    <Button
+                                        color="warning"
+                                        size="lg"
+                                        variant="flat"
+                                        startContent={<LogOut size={20} />}
+                                        isLoading={clockOutLoading}
+                                        className="font-semibold"
+                                    >
+                                        Clock Out
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <div className="px-1 py-2 w-56">
+                                        <div className="text-small font-bold">Confirmation</div>
+                                        <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
+                                        <div className="flex gap-2 mt-3 justify-end">
+                                            <Button
+                                                size="sm"
+                                                variant="light"
+                                                onPress={() => setIsClockOutPopoverOpen(false)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                size="sm"
+                                                color="warning"
+                                                onPress={() => {
+                                                    handleClockOut();
+                                                    setIsClockOutPopoverOpen(false);
+                                                }}
+                                            >
+                                                Yes, Clock Out
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
                             <Button
                                 className="cursor-default opacity-100 font-semibold"
                                 variant="flat"
@@ -310,7 +345,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             >
                                 Done for Today
                             </Button>
-                        )}
+                        ) : null}
                     </div>
 
                     {/* Clock Section */}

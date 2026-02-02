@@ -74,6 +74,8 @@ export const getAllAttendanceRequest = (
         end_date?: string;
         employee_id?: string;
         status?: string;
+        page?: number;
+        limit?: number;
       }
     | string,
 ) => ({

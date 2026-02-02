@@ -46,7 +46,9 @@ import {
   Milestone,
   ShieldCheck,
   UserPlus,
-  UserMinus
+  UserMinus,
+  SettingsIcon,
+  Settings
 } from "lucide-react";
 
 
@@ -90,7 +92,9 @@ const iconMap: Record<string, any> = {
   Milestone,
   ShieldCheck,
   UserPlus,
-  UserMinus
+  UserMinus,
+  SettingsIcon,
+  Settings
 };
 
 

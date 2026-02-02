@@ -24,6 +24,12 @@ interface AttendanceState {
   attendanceHistory: any[];
   allAttendance: any[];
   metrics: any | null;
+  pagination: {
+    total_records: number;
+    current_page: number;
+    limit: number;
+    total_pages: number;
+  } | null;
   clockedIn: boolean;
 
   clockInLoading: boolean;
@@ -55,6 +61,7 @@ const initialAttendanceState: AttendanceState = {
   attendanceHistory: [],
   allAttendance: [],
   metrics: null,
+  pagination: null,
   clockedIn: false,
 
   clockInLoading: false,
@@ -176,6 +183,7 @@ const attendanceReducer = (
         getAllAttendanceSuccess: true,
         allAttendance: action.payload.data,
         metrics: action.payload.metrics,
+        pagination: action.payload.pagination,
       };
     case GET_ALL_ATTENDANCE_FAILURE:
       return {

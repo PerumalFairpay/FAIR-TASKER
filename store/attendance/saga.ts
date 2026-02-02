@@ -69,6 +69,8 @@ function getAllAttendanceApi(filters?: any) {
       if (filters.employee_id)
         params.append("employee_id", filters.employee_id);
       if (filters.status) params.append("status", filters.status);
+      if (filters.page) params.append("page", filters.page.toString());
+      if (filters.limit) params.append("limit", filters.limit.toString());
     }
   }
 
