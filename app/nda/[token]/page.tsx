@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { Button } from "@heroui/button";
 import { addToast } from "@heroui/toast";
 import SignatureCanvas from 'react-signature-canvas';
-// @ts-ignore
-import html2pdf from "html2pdf.js";
 import { useDispatch, useSelector } from "react-redux";
 import { getNdaRequest, signNdaRequest, clearNda } from "@/store/nda/action";
 import { AppState } from "@/store/rootReducer";
@@ -94,22 +92,6 @@ export default function SignNDAPage() {
         dispatch(signNdaRequest({ token, signature_data: signatureData }));
     };
 
-    const handleDownloadPDF = () => {
-        if (!contentRef.current) return;
-
-        const element = contentRef.current;
-
-        const opt = {
-            margin: 10,
-            filename: `NDA_${ndaData?.employee_name || 'Document'}.pdf`,
-            image: { type: 'jpeg' as const, quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
-        };
-
-        html2pdf().set(opt).from(element).save();
-    };
-
     if (getNdaLoading) {
         return <div className="flex h-screen items-center justify-center">Loading NDA...</div>;
     }
@@ -124,8 +106,8 @@ export default function SignNDAPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
-            <div className="max-w-[210mm] mx-auto bg-white shadow-lg md:p-8 p-4 rounded-lg">
+        <div className="min-h-screen">
+            <div className="mx-auto">
                 <div ref={contentRef}>
                     {/* Render Backend HTML */}
                     <div dangerouslySetInnerHTML={{ __html: ndaData?.html_content || '' }} />
@@ -175,17 +157,6 @@ export default function SignNDAPage() {
                             isLoading={signNdaLoading}
                         >
                             Sign & Submit
-                        </Button>
-                    )}
-
-                    {isSigned && (
-                        <Button
-                            color="secondary"
-                            variant="flat"
-                            size="lg"
-                            onClick={handleDownloadPDF}
-                        >
-                            Download PDF
                         </Button>
                     )}
                 </div>

@@ -53,8 +53,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     // If it's the login page or a public page (like NDA signing), render full width without sidebar
     if (isPublicPage) {
         return (
-            <div className="relative flex flex-col h-screen overflow-hidden">
-                <main className="flex-grow">
+            <div className="relative flex flex-col h-screen overflow-hidden bg-gray-50">
+                <main className="flex-grow overflow-y-auto">
                     {children}
                 </main>
             </div>

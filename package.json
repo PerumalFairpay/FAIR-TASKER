@@ -74,7 +74,6 @@
     "filepond-plugin-image-preview": "^4.6.12",
     "framer-motion": "11.18.2",
     "html-react-parser": "^5.2.11",
-    "html2pdf.js": "^0.14.0",
     "intl-messageformat": "10.7.16",
     "lodash": "^4.17.21",
     "lottie-react": "^2.4.1",
