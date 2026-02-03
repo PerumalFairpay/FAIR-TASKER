@@ -13,6 +13,8 @@ import HRMLoading from "./assets/HRMLoading.json";
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+    // Login page and NDA signing pages (but not creation page) are public
+    const isPublicPage = pathname === "/" || (pathname?.startsWith("/nda/") && pathname !== "/nda/create");
     const isLoginPage = pathname === "/";
     const [isExpanded, setIsExpanded] = useState(true);
     const dispatch = useDispatch();
@@ -20,17 +22,20 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     const { user, getUserLoading, logoutSuccess, getUserError } = useSelector((state: AppState) => state.Auth);
 
     useEffect(() => {
-        dispatch(getUserRequest());
-    }, [dispatch]);
+        // Only fetch user data if not on a public page
+        if (!isPublicPage) {
+            dispatch(getUserRequest());
+        }
+    }, [dispatch, isPublicPage]);
 
     useEffect(() => {
-        if (!isLoginPage && (logoutSuccess)) {
+        if (!isPublicPage && (logoutSuccess)) {
             router.push("/");
             dispatch(clearAuth());
         }
-    }, [logoutSuccess, getUserError, user, isLoginPage, router, dispatch]);
- 
-    if (!isLoginPage && !user) {
+    }, [logoutSuccess, getUserError, user, isPublicPage, router, dispatch]);
+
+    if (!isPublicPage && !user) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-50">
                 <div className="flex flex-col items-center">
@@ -45,8 +50,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // If it's the login page, render full width without sidebar
-    if (isLoginPage) {
+    // If it's the login page or a public page (like NDA signing), render full width without sidebar
+    if (isPublicPage) {
         return (
             <div className="relative flex flex-col h-screen overflow-hidden">
                 <main className="flex-grow">

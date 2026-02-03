@@ -21,6 +21,7 @@ import permissionSaga from "./permission/saga";
 import dashboardSaga from "./dashboard/saga";
 import profileSaga from "./profile/saga";
 import settingsSaga from "./settings/saga";
+import ndaSaga from "./nda/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -46,5 +47,6 @@ export default function* rootSaga() {
     fork(dashboardSaga),
     fork(profileSaga),
     fork(settingsSaga),
+    fork(ndaSaga),
   ]);
 }
