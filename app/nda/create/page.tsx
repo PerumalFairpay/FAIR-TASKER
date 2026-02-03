@@ -12,6 +12,7 @@ import { AppState } from "@/store/rootReducer";
 
 interface NDACreateForm {
     employee_name: string;
+    employee_role: string;
     employee_address: string;
 }
 
@@ -62,6 +63,15 @@ export default function CreateNDAPage() {
                         {...register("employee_name", { required: "Employee name is required" })}
                         isInvalid={!!errors.employee_name}
                         errorMessage={errors.employee_name?.message}
+                        variant="bordered"
+                    />
+
+                    <Input
+                        label="Employee Role"
+                        placeholder="Enter employee's role (e.g. Developer, Designer)"
+                        {...register("employee_role", { required: "Employee role is required" })}
+                        isInvalid={!!errors.employee_role}
+                        errorMessage={errors.employee_role?.message}
                         variant="bordered"
                     />
 
