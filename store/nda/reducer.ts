@@ -107,6 +107,12 @@ const ndaReducer = (
         ...state,
         signNdaLoading: false,
         signNdaSuccess: action.payload.message || "NDA signed successfully",
+        ndaData: {
+          ...state.ndaData,
+          status: action.payload.status,
+          signature_data: action.payload.signature_data,
+          html_content: action.payload.html_content,
+        },
       };
     case SIGN_NDA_FAILURE:
       return {
