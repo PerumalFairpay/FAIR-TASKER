@@ -76,6 +76,12 @@ export const siteConfig: SiteConfig = {
           icon: "ShieldCheck",
           allowedRoles: ["admin"],
         },
+        {
+          label: "Create NDA",
+          href: "/nda/create",
+          icon: "FileText",
+          allowedRoles: ["admin"],
+        },
       ],
     },
     {
