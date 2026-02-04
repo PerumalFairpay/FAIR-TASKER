@@ -125,6 +125,36 @@ export default function NDATokenPage() {
         dispatch(signNDARequest(token, sigData));
     };
 
+    const downloadNDA = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nda/download/${token}`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `NDA_${token}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                console.error("Failed to download PDF");
+                addToast({
+                    title: "Error",
+                    description: "Failed to download PDF",
+                    color: "danger",
+                });
+            }
+        } catch (error) {
+            console.error("Error downloading PDF:", error);
+            addToast({
+                title: "Error",
+                description: "Error downloading PDF",
+                color: "danger",
+            });
+        }
+    };
+
     if (error && error.includes("expired")) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -139,6 +169,33 @@ export default function NDATokenPage() {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    // New top-level success view
+    if (ndaData?.status === "Signed") {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-center min-h-screen bg-gray-50 dark:bg-gray-900">
+                <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
+                <h2 className="text-2xl font-bold mb-2">NDA Signed Successfully</h2>
+                <p className="text-gray-600 mb-6">
+                    Thank you for signing the Non-Disclosure Agreement. A copy has been sent to your email.
+                </p>
+                <div className="flex gap-4">
+                    <Button
+                        className="bg-primary text-white"
+                        onPress={downloadNDA}
+                    >
+                        Download Signed PDF
+                    </Button>
+                    <Button
+                        variant="bordered"
+                        onPress={() => window.close()}
+                    >
+                        Close Window
+                    </Button>
+                </div>
             </div>
         );
     }
@@ -200,7 +257,7 @@ export default function NDATokenPage() {
                                         <Button
                                             color="primary"
                                             onPress={() => {
-                                                handleUpload(); 
+                                                handleUpload();
                                             }}
                                             isLoading={loading}
                                         >
