@@ -14,14 +14,18 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const isLoginPage = pathname === "/";
+    const isNDATokenPage = pathname?.startsWith("/nda/") && pathname !== "/nda";
     const [isExpanded, setIsExpanded] = useState(true);
     const dispatch = useDispatch();
 
     const { user, getUserLoading, logoutSuccess, getUserError } = useSelector((state: AppState) => state.Auth);
 
     useEffect(() => {
-        dispatch(getUserRequest());
-    }, [dispatch]);
+        // Skip getUserRequest for public NDA token pages
+        if (!isNDATokenPage) {
+            dispatch(getUserRequest());
+        }
+    }, [dispatch, isNDATokenPage]);
 
     useEffect(() => {
         if (!isLoginPage && (logoutSuccess)) {
@@ -29,8 +33,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             dispatch(clearAuth());
         }
     }, [logoutSuccess, getUserError, user, isLoginPage, router, dispatch]);
- 
-    if (!isLoginPage && !user) {
+
+    // Skip authentication check for NDA token pages
+    if (!isLoginPage && !isNDATokenPage && !user) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-50">
                 <div className="flex flex-col items-center">
@@ -45,8 +50,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         );
     }
 
-    // If it's the login page, render full width without sidebar
-    if (isLoginPage) {
+    // If it's the login page or NDA token page, render full width without sidebar
+    if (isLoginPage || isNDATokenPage) {
         return (
             <div className="relative flex flex-col h-screen overflow-hidden">
                 <main className="flex-grow">
