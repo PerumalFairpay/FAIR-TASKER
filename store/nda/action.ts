@@ -65,10 +65,10 @@ export const getNDAByTokenFailure = (error: any) => ({
 // Upload Documents
 export const uploadNDADocumentsRequest = (
   token: string,
-  documents: string[],
+  formData: FormData,
 ) => ({
   type: UPLOAD_NDA_DOCUMENTS_REQUEST,
-  payload: { token, documents },
+  payload: { token, formData },
 });
 export const uploadNDADocumentsSuccess = (response: any) => ({
   type: UPLOAD_NDA_DOCUMENTS_SUCCESS,

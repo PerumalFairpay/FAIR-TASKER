@@ -38,8 +38,12 @@ function getNDAByTokenApi(token: string) {
   return publicApi.get(`/nda/view/${token}`);
 }
 
-function uploadNDADocumentsApi(token: string, documents: string[]) {
-  return publicApi.post(`/nda/upload/${token}`, documents);
+function uploadNDADocumentsApi(token: string, formData: FormData) {
+  return publicApi.post(`/nda/upload/${token}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
 function signNDAApi(token: string, signature: string) {
@@ -88,8 +92,8 @@ function* onGetNDAByToken({ payload }: any): SagaIterator {
 
 function* onUploadNDADocuments({ payload }: any): SagaIterator {
   try {
-    const { token, documents } = payload;
-    const response = yield call(uploadNDADocumentsApi, token, documents);
+    const { token, formData } = payload;
+    const response = yield call(uploadNDADocumentsApi, token, formData);
     yield put(uploadNDADocumentsSuccess(response.data));
   } catch (error: any) {
     yield put(
