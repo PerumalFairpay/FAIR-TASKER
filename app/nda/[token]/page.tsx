@@ -200,12 +200,11 @@ export default function NDATokenPage() {
                                         <Button
                                             color="primary"
                                             onPress={() => {
-                                                handleUpload();
-                                                setActiveTab("review"); // Move to next tab
+                                                handleUpload(); 
                                             }}
                                             isLoading={loading}
                                         >
-                                            Upload & Continue
+                                            Upload 
                                         </Button>
                                     </div>
                                 </div>

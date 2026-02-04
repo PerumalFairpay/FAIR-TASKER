@@ -43,9 +43,7 @@ export default function NDAPage() {
                 title: "Success",
                 description: success,
                 color: "success",
-            });
-            // Drawer will show the link automatically via generatedLink prop
-            dispatch(getNDAListRequest()); // Refresh list
+            }); 
         }
         if (error) {
             addToast({
