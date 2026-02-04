@@ -1,0 +1,99 @@
+import {
+  GENERATE_NDA_REQUEST,
+  GENERATE_NDA_SUCCESS,
+  GENERATE_NDA_FAILURE,
+  GET_NDA_LIST_REQUEST,
+  GET_NDA_LIST_SUCCESS,
+  GET_NDA_LIST_FAILURE,
+  GET_NDA_BY_TOKEN_REQUEST,
+  GET_NDA_BY_TOKEN_SUCCESS,
+  GET_NDA_BY_TOKEN_FAILURE,
+  UPLOAD_NDA_DOCUMENTS_REQUEST,
+  UPLOAD_NDA_DOCUMENTS_SUCCESS,
+  UPLOAD_NDA_DOCUMENTS_FAILURE,
+  SIGN_NDA_REQUEST,
+  SIGN_NDA_SUCCESS,
+  SIGN_NDA_FAILURE,
+  CLEAR_NDA_STATE,
+} from "./actionType";
+
+// Generate NDA Link
+export const generateNDARequest = (payload: {
+  employee_name: string;
+  role: string;
+  address: string;
+}) => ({
+  type: GENERATE_NDA_REQUEST,
+  payload,
+});
+export const generateNDASuccess = (response: any) => ({
+  type: GENERATE_NDA_SUCCESS,
+  payload: response,
+});
+export const generateNDAFailure = (error: any) => ({
+  type: GENERATE_NDA_FAILURE,
+  payload: error,
+});
+
+// Get NDA List
+export const getNDAListRequest = () => ({
+  type: GET_NDA_LIST_REQUEST,
+});
+export const getNDAListSuccess = (response: any) => ({
+  type: GET_NDA_LIST_SUCCESS,
+  payload: response,
+});
+export const getNDAListFailure = (error: any) => ({
+  type: GET_NDA_LIST_FAILURE,
+  payload: error,
+});
+
+// Get NDA by Token
+export const getNDAByTokenRequest = (token: string) => ({
+  type: GET_NDA_BY_TOKEN_REQUEST,
+  payload: token,
+});
+export const getNDAByTokenSuccess = (response: any) => ({
+  type: GET_NDA_BY_TOKEN_SUCCESS,
+  payload: response,
+});
+export const getNDAByTokenFailure = (error: any) => ({
+  type: GET_NDA_BY_TOKEN_FAILURE,
+  payload: error,
+});
+
+// Upload Documents
+export const uploadNDADocumentsRequest = (
+  token: string,
+  documents: string[],
+) => ({
+  type: UPLOAD_NDA_DOCUMENTS_REQUEST,
+  payload: { token, documents },
+});
+export const uploadNDADocumentsSuccess = (response: any) => ({
+  type: UPLOAD_NDA_DOCUMENTS_SUCCESS,
+  payload: response,
+});
+export const uploadNDADocumentsFailure = (error: any) => ({
+  type: UPLOAD_NDA_DOCUMENTS_FAILURE,
+  payload: error,
+});
+
+// Sign NDA
+export const signNDARequest = (token: string, signature: string) => ({
+  type: SIGN_NDA_REQUEST,
+  payload: { token, signature },
+});
+export const signNDASuccess = (response: any) => ({
+  type: SIGN_NDA_SUCCESS,
+  payload: response,
+});
+export const signNDAFailure = (error: any) => ({
+  type: SIGN_NDA_FAILURE,
+  payload: error,
+});
+
+// Clear State
+export const clearNDAState = () => ({
+  type: CLEAR_NDA_STATE,
+});

@@ -64,6 +64,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@types/lodash": "^4.17.23",
     "@types/react-show-more-text": "^1.4.5",
+    "@types/react-signature-canvas": "^1.0.7",
     "axios": "^1.13.2",
     "clsx": "2.1.1",
     "date-fns": "^4.1.0",
@@ -87,6 +88,7 @@
     "react-quill-new": "^3.7.0",
     "react-redux": "^9.2.0",
     "react-show-more-text": "^1.7.1",
+    "react-signature-canvas": "^1.1.0-alpha.2",
     "redux": "^5.0.1",
     "redux-saga": "^1.4.2",
     "yet-another-react-lightbox": "^3.28.0"
