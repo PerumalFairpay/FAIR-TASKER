@@ -180,22 +180,14 @@ export default function NDATokenPage() {
                 <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
                 <h2 className="text-2xl font-bold mb-2">NDA Signed Successfully</h2>
                 <p className="text-gray-600 mb-6">
-                    Thank you for signing the Non-Disclosure Agreement. A copy has been sent to your email.
+                    Thank you for signing the Non-Disclosure Agreement. The signed document has been securely stored.
                 </p>
-                <div className="flex gap-4">
-                    <Button
-                        className="bg-primary text-white"
-                        onPress={downloadNDA}
-                    >
-                        Download Signed PDF
-                    </Button>
-                    <Button
-                        variant="bordered"
-                        onPress={() => window.close()}
-                    >
-                        Close Window
-                    </Button>
-                </div>
+                <Button
+                    variant="bordered"
+                    onPress={() => window.close()}
+                >
+                    Close Window
+                </Button>
             </div>
         );
     }
