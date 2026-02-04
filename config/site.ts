@@ -81,7 +81,7 @@ export const siteConfig: SiteConfig = {
     },
     {
           label: "NDA",
-          href: "/employee/nda",
+          href: "/nda",
           icon: "FileText",
           allowedRoles: ["admin"],
         },

@@ -56,6 +56,9 @@ const ndaReducer = (
         success: action.payload.message || "NDA link generated successfully",
         generatedLink: action.payload.data?.link || null,
         currentNDA: action.payload.data?.nda || null,
+        ndaList: action.payload.data?.nda
+          ? [action.payload.data.nda, ...state.ndaList]
+          : state.ndaList,
       };
     case GENERATE_NDA_FAILURE:
       return {

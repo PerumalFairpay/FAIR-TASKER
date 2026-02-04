@@ -204,7 +204,7 @@ export default function NDATokenPage() {
                                             }}
                                             isLoading={loading}
                                         >
-                                            Upload 
+                                            Upload
                                         </Button>
                                     </div>
                                 </div>
