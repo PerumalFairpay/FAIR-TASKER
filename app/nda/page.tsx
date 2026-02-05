@@ -28,6 +28,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@herou
 import { Eye, Download } from "lucide-react";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
+import DownloadButton, { PDFDownloadButton } from "@/components/common/DownloadButton";
 
 export default function NDAPage() {
     const dispatch = useDispatch();
@@ -209,16 +210,12 @@ export default function NDAPage() {
                                             <Copy size={16} />
                                         </Button>
                                         {item.status === "Signed" && item.signed_pdf_path && (
-                                            <a
-                                                href={item.signed_pdf_path}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                download={`Signed_NDA_${item.employee_name}.pdf`}
-                                            >
-                                                <Button isIconOnly size="sm" variant="light" aria-label="Download Signed PDF">
-                                                    <Download size={16} />
-                                                </Button>
-                                            </a>
+                                            <PDFDownloadButton
+                                                fileUrl={item.signed_pdf_path}
+                                                baseName={item.employee_name}
+                                                prefix="Signed_NDA"
+                                                ariaLabel="Download Signed PDF"
+                                            />
                                         )}
                                     </div>
                                 </TableCell>
@@ -272,11 +269,12 @@ export default function NDAPage() {
                                                     >
                                                         <Eye size={18} className="text-default-500" />
                                                     </Button>
-                                                    <a href={doc.url} download target="_blank" rel="noopener noreferrer">
-                                                        <Button isIconOnly size="sm" variant="light">
-                                                            <Download size={18} className="text-default-500" />
-                                                        </Button>
-                                                    </a>
+                                                    <DownloadButton
+                                                        fileUrl={doc.url}
+                                                        fileName={doc.name || `Document_${index + 1}.${doc.type?.split('/')[1] || 'pdf'}`}
+                                                        iconSize={18}
+                                                        ariaLabel={`Download ${doc.name || 'document'}`}
+                                                    />
                                                 </div>
                                             </div>
                                         ))}
