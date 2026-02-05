@@ -178,11 +178,13 @@ export default function GenerateNDADrawer({
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <Input
-                                        label="Employee Name"
+                                    <label className="text-sm font-medium text-foreground">
+                                        Employee Name
+                                    </label>
+                                    <Input 
                                         placeholder="Enter employee full name"
-                                        labelPlacement="outside"
-                                        variant="bordered"
+                                        // labelPlacement="outside"
+                                        variant="faded"
                                         value={formData.employee_name}
                                         onChange={(e) =>
                                             handleChange("employee_name", e.target.value)
@@ -194,11 +196,13 @@ export default function GenerateNDADrawer({
                                             <User className="text-default-400" size={18} />
                                         }
                                     />
+                                    <label className="text-sm font-medium text-foreground">
+                                        Role
+                                    </label>
                                     <Input
-                                        label="Role"
                                         placeholder="Enter employee role/designation"
-                                        labelPlacement="outside"
-                                        variant="bordered"
+                                        // labelPlacement="outside"
+                                        variant="faded"
                                         value={formData.role}
                                         onChange={(e) => handleChange("role", e.target.value)}
                                         isRequired
@@ -208,11 +212,13 @@ export default function GenerateNDADrawer({
                                             <Briefcase className="text-default-400" size={18} />
                                         }
                                     />
+                                    <label className="text-sm font-medium text-foreground">
+                                        Address
+                                    </label>
                                     <Textarea
-                                        label="Address"
                                         placeholder="Enter employee address"
-                                        labelPlacement="outside"
-                                        variant="bordered"
+                                        // labelPlacement="outside"
+                                        variant="faded"
                                         value={formData.address}
                                         onChange={(e) => handleChange("address", e.target.value)}
                                         isRequired
@@ -220,7 +226,7 @@ export default function GenerateNDADrawer({
                                         errorMessage={errors.address}
                                         minRows={3}
                                         startContent={
-                                            <MapPin className="text-default-400 mt-2" size={18} />
+                                            <MapPin className="text-default-400" size={18} />
                                         }
                                     />
                                     <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">

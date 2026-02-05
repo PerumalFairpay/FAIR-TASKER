@@ -141,7 +141,7 @@ export default function NDAPage() {
                     isHeaderSticky
                 >
                     <TableHeader>
-                        <TableColumn>EMPLOYEE NAME</TableColumn>
+                        <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
                         <TableColumn>ROLE</TableColumn>
                         <TableColumn>STATUS</TableColumn>
                         <TableColumn>DOCUMENTS</TableColumn>
@@ -155,9 +155,11 @@ export default function NDAPage() {
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell>
-                                    <div className="flex flex-col">
-                                        <p className="text-bold text-sm">{item.employee_name}</p>
-                                        <p className="text-tiny text-default-400">
+                                    <div className="flex flex-col max-w-[250px]">
+                                        <p className="text-bold text-sm truncate" title={item.employee_name}>
+                                            {item.employee_name}
+                                        </p>
+                                        <p className="text-tiny text-default-400 truncate" title={item.address}>
                                             {item.address}
                                         </p>
                                     </div>
