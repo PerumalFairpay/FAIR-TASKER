@@ -202,6 +202,7 @@ export default function NDAPage() {
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex items-center justify-center gap-2">
+                                        {item.status !== "Signed" &&
                                         <Button
                                             isIconOnly
                                             size="sm"
@@ -211,6 +212,7 @@ export default function NDAPage() {
                                         >
                                             <Copy size={16} />
                                         </Button>
+                                        }
                                         {item.status === "Signed" && item.signed_pdf_path && (
                                             <PDFDownloadButton
                                                 fileUrl={item.signed_pdf_path}
