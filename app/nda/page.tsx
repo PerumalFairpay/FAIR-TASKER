@@ -208,6 +208,18 @@ export default function NDAPage() {
                                         >
                                             <Copy size={16} />
                                         </Button>
+                                        {item.status === "Signed" && item.signed_pdf_path && (
+                                            <a
+                                                href={item.signed_pdf_path}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                download={`Signed_NDA_${item.employee_name}.pdf`}
+                                            >
+                                                <Button isIconOnly size="sm" variant="light" aria-label="Download Signed PDF">
+                                                    <Download size={16} />
+                                                </Button>
+                                            </a>
+                                        )}
                                     </div>
                                 </TableCell>
                             </TableRow>
