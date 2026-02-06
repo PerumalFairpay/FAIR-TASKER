@@ -14,6 +14,9 @@ import {
   SIGN_NDA_REQUEST,
   SIGN_NDA_SUCCESS,
   SIGN_NDA_FAILURE,
+  REGENERATE_NDA_REQUEST,
+  REGENERATE_NDA_SUCCESS,
+  REGENERATE_NDA_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -146,6 +149,35 @@ const ndaReducer = (
         currentNDA: action.payload.data,
       };
     case SIGN_NDA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    // Regenerate NDA
+    case REGENERATE_NDA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+        success: null,
+      };
+    case REGENERATE_NDA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action.payload.message || "NDA link regenerated successfully",
+        // We might want to update the specific item in ndaList, but since we refresh the list saga often cleans this up.
+        // Or we can manually update it here if payload returns the updated NDA.
+        // Assuming payload.data.nda is the updated NDA object.
+        ndaList: state.ndaList.map((item) =>
+          item.id === action.payload.data?.nda?.id
+            ? action.payload.data.nda
+            : item,
+        ),
+      };
+    case REGENERATE_NDA_FAILURE:
       return {
         ...state,
         loading: false,

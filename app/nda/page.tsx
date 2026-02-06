@@ -7,6 +7,7 @@ import {
     generateNDARequest,
     getNDAListRequest,
     clearNDAState,
+    regenerateNDARequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
@@ -19,7 +20,7 @@ import {
     TableCell,
 } from "@heroui/table";
 import { useDisclosure } from "@heroui/modal";
-import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen } from "lucide-react";
+import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { PermissionGuard } from "@/components/PermissionGuard";
@@ -203,15 +204,28 @@ export default function NDAPage() {
                                 <TableCell>
                                     <div className="flex items-center justify-center gap-2">
                                         {item.status !== "Signed" &&
-                                            <Button
-                                                isIconOnly
-                                                size="sm"
-                                                variant="light"
-                                                onPress={() => handleCopyLink(item.token)}
-                                                aria-label="Copy NDA link"
-                                            >
-                                                <Copy size={16} />
-                                            </Button>
+                                            <>
+                                                <Button
+                                                    isIconOnly
+                                                    size="sm"
+                                                    variant="light"
+                                                    onPress={() => handleCopyLink(item.token)}
+                                                    aria-label="Copy NDA link"
+                                                >
+                                                    <Copy size={16} />
+                                                </Button>
+                                                <Button
+                                                    isIconOnly
+                                                    size="sm"
+                                                    variant="light"
+                                                    color="primary"
+                                                    onPress={() => dispatch(regenerateNDARequest(item.id))}
+                                                    aria-label="Regenerate Link"
+                                                    title="Regenerate Link"
+                                                >
+                                                    <RefreshCw size={16} />
+                                                </Button>
+                                            </>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
                                             <div className="flex gap-1">

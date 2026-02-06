@@ -14,6 +14,9 @@ import {
   SIGN_NDA_REQUEST,
   SIGN_NDA_SUCCESS,
   SIGN_NDA_FAILURE,
+  REGENERATE_NDA_REQUEST,
+  REGENERATE_NDA_SUCCESS,
+  REGENERATE_NDA_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -90,6 +93,20 @@ export const signNDASuccess = (response: any) => ({
 });
 export const signNDAFailure = (error: any) => ({
   type: SIGN_NDA_FAILURE,
+  payload: error,
+});
+
+// Regenerate NDA Link
+export const regenerateNDARequest = (ndaId: string) => ({
+  type: REGENERATE_NDA_REQUEST,
+  payload: ndaId,
+});
+export const regenerateNDASuccess = (response: any) => ({
+  type: REGENERATE_NDA_SUCCESS,
+  payload: response,
+});
+export const regenerateNDAFailure = (error: any) => ({
+  type: REGENERATE_NDA_FAILURE,
   payload: error,
 });
 

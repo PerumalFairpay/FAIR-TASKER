@@ -6,6 +6,7 @@ import {
   GET_NDA_BY_TOKEN_REQUEST,
   UPLOAD_NDA_DOCUMENTS_REQUEST,
   SIGN_NDA_REQUEST,
+  REGENERATE_NDA_REQUEST,
 } from "./actionType";
 import {
   generateNDASuccess,
@@ -18,6 +19,9 @@ import {
   uploadNDADocumentsFailure,
   signNDASuccess,
   signNDAFailure,
+  regenerateNDASuccess,
+  regenerateNDAFailure,
+  getNDAListRequest,
 } from "./action";
 import api, { publicApi } from "../api";
 
@@ -116,10 +120,28 @@ function* onSignNDA({ payload }: any): SagaIterator {
   }
 }
 
+function regenerateNDAApi(ndaId: string) {
+  return api.post(`/nda/regenerate/${ndaId}`, {});
+}
+
+function* onRegenerateNDA({ payload }: any): SagaIterator {
+  try {
+    const response = yield call(regenerateNDAApi, payload);
+    yield put(regenerateNDASuccess(response.data)); 
+  } catch (error: any) {
+    yield put(
+      regenerateNDAFailure(
+        error.response?.data?.message || "Failed to regenerate NDA link",
+      ),
+    );
+  }
+}
+
 export default function* ndaSaga(): SagaIterator {
   yield takeEvery(GENERATE_NDA_REQUEST, onGenerateNDA);
   yield takeEvery(GET_NDA_LIST_REQUEST, onGetNDAList);
   yield takeEvery(GET_NDA_BY_TOKEN_REQUEST, onGetNDAByToken);
   yield takeEvery(UPLOAD_NDA_DOCUMENTS_REQUEST, onUploadNDADocuments);
   yield takeEvery(SIGN_NDA_REQUEST, onSignNDA);
+  yield takeEvery(REGENERATE_NDA_REQUEST, onRegenerateNDA);
 }
