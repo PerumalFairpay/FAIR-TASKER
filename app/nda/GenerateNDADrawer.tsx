@@ -132,9 +132,9 @@ export default function GenerateNDADrawer({
                         <DrawerHeader className="flex flex-col gap-1">
                             {showLink ? "NDA Link Generated" : "Generate NDA Link"}
                         </DrawerHeader>
-                        <DrawerBody className="py-4">
+                        <DrawerBody className="py-6">
                             {showLink ? (
-                                <div className="space-y-4">
+                                <div className="flex flex-col gap-6">
                                     <div className="bg-success-50 dark:bg-success-950/30 p-4 rounded-lg border border-success-200 dark:border-success-800">
                                         <div className="flex items-center gap-2 mb-2">
                                             <CheckCircle2 className="text-success-600" size={20} />
@@ -180,14 +180,12 @@ export default function GenerateNDADrawer({
                                     </div>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    <label className="text-sm font-medium text-foreground">
-                                        Employee Name
-                                    </label>
+                                <div className="flex flex-col gap-6">
                                     <Input
+                                        label="Employee Name"
                                         placeholder="Enter employee full name"
-                                        // labelPlacement="outside"
-                                        variant="faded"
+                                        labelPlacement="outside"
+                                        variant="bordered"
                                         value={formData.employee_name}
                                         onChange={(e) =>
                                             handleChange("employee_name", e.target.value)
@@ -195,57 +193,38 @@ export default function GenerateNDADrawer({
                                         isRequired
                                         isInvalid={!!errors.employee_name}
                                         errorMessage={errors.employee_name}
-                                        startContent={
-                                            <User className="text-default-400" size={18} />
-                                        }
                                     />
-                                    <label className="text-sm font-medium text-foreground">
-                                        Role
-                                    </label>
                                     <Input
+                                        label="Role"
                                         placeholder="Enter employee role/designation"
-                                        // labelPlacement="outside"
-                                        variant="faded"
+                                        labelPlacement="outside"
+                                        variant="bordered"
                                         value={formData.role}
                                         onChange={(e) => handleChange("role", e.target.value)}
                                         isRequired
                                         isInvalid={!!errors.role}
                                         errorMessage={errors.role}
-                                        startContent={
-                                            <Briefcase className="text-default-400" size={18} />
-                                        }
                                     />
-                                    <label className="text-sm font-medium text-foreground">
-                                        Address
-                                    </label>
                                     <Textarea
+                                        label="Address"
                                         placeholder="Enter employee address"
-                                        // labelPlacement="outside"
-                                        variant="faded"
+                                        labelPlacement="outside"
+                                        variant="bordered"
                                         value={formData.address}
                                         onChange={(e) => handleChange("address", e.target.value)}
                                         isRequired
                                         isInvalid={!!errors.address}
                                         errorMessage={errors.address}
                                         minRows={3}
-                                        startContent={
-                                            <MapPin className="text-default-400" size={18} />
-                                        }
                                     />
-                                    <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
-                                        <p className="text-sm text-blue-700 dark:text-blue-300">
-                                            <strong>Note:</strong> The generated link will be valid for the selected duration. Share it with the employee to complete the NDA form.
-                                        </p>
-                                    </div>
-                                    <label className="text-sm font-medium text-foreground">
-                                        Expiry Time
-                                    </label>
+                                  
                                     <Select
+                                        label="Expiry Time"
                                         placeholder="Select expiry time"
-                                        variant="faded"
+                                        labelPlacement="outside"
+                                        variant="bordered"
                                         selectedKeys={[formData.expires_in_hours.toString()]}
                                         onChange={(e) => handleChange("expires_in_hours", Number(e.target.value))}
-                                        startContent={<Clock className="text-default-400" size={18} />}
                                     >
                                         <SelectItem key="1">1 Hour</SelectItem>
                                         <SelectItem key="24">24 Hours</SelectItem>

@@ -406,14 +406,15 @@ export default function NDAPage() {
                         {(onClose) => (
                             <>
                                 <ModalHeader className="flex flex-col gap-1">Regenerate Link</ModalHeader>
-                                <ModalBody>
-                                    <p className="text-sm text-default-500 mb-2">
+                                <ModalBody className="flex flex-col gap-6">
+                                    <p className="text-sm text-default-500">
                                         This will invalidate the previous link and generate a new one. Please select the new expiry time.
                                     </p>
                                     <Select
                                         label="Expiry Time"
                                         placeholder="Select expiry time"
-                                        size="sm"
+                                        labelPlacement="outside"
+                                        variant="bordered"
                                         selectedKeys={[regenerateExpiry.toString()]}
                                         onChange={(e) => setRegenerateExpiry(Number(e.target.value))}
                                     >
