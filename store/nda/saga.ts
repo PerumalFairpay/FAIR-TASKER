@@ -50,8 +50,8 @@ function uploadNDADocumentsApi(token: string, formData: FormData) {
   });
 }
 
-function signNDAApi(token: string, signature: string) {
-  return publicApi.post(`/nda/sign/${token}`, { signature });
+function signNDAApi(token: string, signature: string, deviceDetails?: any) {
+  return publicApi.post(`/nda/sign/${token}`, { signature, ...deviceDetails });
 }
 
 // Sagas
@@ -110,8 +110,8 @@ function* onUploadNDADocuments({ payload }: any): SagaIterator {
 
 function* onSignNDA({ payload }: any): SagaIterator {
   try {
-    const { token, signature } = payload;
-    const response = yield call(signNDAApi, token, signature);
+    const { token, signature, ...deviceDetails } = payload;
+    const response = yield call(signNDAApi, token, signature, deviceDetails);
     yield put(signNDASuccess(response.data));
   } catch (error: any) {
     yield put(
@@ -132,7 +132,7 @@ function regenerateNDAApi(payload: {
 function* onRegenerateNDA({ payload }: any): SagaIterator {
   try {
     const response = yield call(regenerateNDAApi, payload);
-    yield put(regenerateNDASuccess(response.data)); 
+    yield put(regenerateNDASuccess(response.data));
   } catch (error: any) {
     yield put(
       regenerateNDAFailure(

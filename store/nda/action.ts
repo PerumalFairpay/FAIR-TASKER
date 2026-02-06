@@ -83,9 +83,13 @@ export const uploadNDADocumentsFailure = (error: any) => ({
 });
 
 // Sign NDA
-export const signNDARequest = (token: string, signature: string) => ({
+export const signNDARequest = (
+  token: string,
+  signature: string,
+  deviceDetails?: any,
+) => ({
   type: SIGN_NDA_REQUEST,
-  payload: { token, signature },
+  payload: { token, signature, ...deviceDetails },
 });
 export const signNDASuccess = (response: any) => ({
   type: SIGN_NDA_SUCCESS,
