@@ -31,6 +31,7 @@ import { Eye, Download } from "lucide-react";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import DownloadButton, { PDFDownloadButton } from "@/components/common/DownloadButton";
+import { Tooltip } from "@heroui/tooltip";
 
 export default function NDAPage() {
     const dispatch = useDispatch();
@@ -165,6 +166,7 @@ export default function NDAPage() {
                         <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
                         <TableColumn>ROLE</TableColumn>
                         <TableColumn>STATUS</TableColumn>
+                        <TableColumn width={200}>SYSTEM DETAILS</TableColumn>
                         <TableColumn>DOCUMENTS</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
@@ -205,6 +207,50 @@ export default function NDAPage() {
                                     >
                                         {item.status}
                                     </Chip>
+                                </TableCell>
+                                <TableCell>
+                                    {item.status === "Signed" && (item.browser || item.os || item.device_type || item.ip_address) ? (
+                                        <Tooltip
+                                            content={
+                                                <div className="px-1 py-2">
+                                                    <div className="text-small font-bold mb-2">System Details</div>
+                                                    <div className="flex flex-col gap-1.5">
+                                                        {item.browser && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-tiny text-default-400">Browser:</span>
+                                                                <span className="text-tiny font-medium">{item.browser}</span>
+                                                            </div>
+                                                        )}
+                                                        {item.os && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-tiny text-default-400">OS:</span>
+                                                                <span className="text-tiny font-medium">{item.os}</span>
+                                                            </div>
+                                                        )}
+                                                        {item.device_type && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-tiny text-default-400">Device:</span>
+                                                                <span className="text-tiny font-medium">{item.device_type}</span>
+                                                            </div>
+                                                        )}
+                                                        {item.ip_address && (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-tiny text-default-400">IP:</span>
+                                                                <span className="text-tiny font-mono">{item.ip_address}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            }
+                                            placement="top"
+                                        >
+                                            <span className="text-sm font-medium cursor-help underline decoration-dotted">
+                                                {item.device_type || "Desktop"}
+                                            </span>
+                                        </Tooltip>
+                                    ) : (
+                                        <span className="text-default-300 text-sm">-</span>
+                                    )}
                                 </TableCell>
                                 <TableCell>
                                     {item.documents && item.documents.length > 0 ? (
