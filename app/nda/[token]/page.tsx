@@ -95,11 +95,22 @@ export default function NDATokenPage() {
         setSignature(null);
     };
 
-    const getDeviceDetails = () => {
+    const getDeviceDetails = async () => {
         const ua = navigator.userAgent;
         let browser = "Unknown";
         let os = "Unknown";
         let deviceType = "Desktop";
+        let ipAddress = "";
+
+        // Fetch real IP address
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            ipAddress = data.ip;
+        } catch (error) {
+            console.error('Failed to fetch IP address:', error);
+            ipAddress = "Unknown";
+        }
 
         // Browser detection (check Edge before Chrome since Edge UA contains "Chrome")
         if (ua.indexOf("Firefox") > -1) browser = "Firefox";
@@ -128,11 +139,12 @@ export default function NDATokenPage() {
             browser,
             os,
             device_type: deviceType,
-            user_agent: ua
+            user_agent: ua,
+            ip_address: ipAddress
         };
     };
 
-    const handleSaveSignature = () => {
+    const handleSaveSignature = async () => {
         if (sigPad.current?.isEmpty()) {
             addToast({
                 title: "Warning",
@@ -142,7 +154,7 @@ export default function NDATokenPage() {
             return;
         }
         const sigData = sigPad.current?.getTrimmedCanvas().toDataURL("image/png");
-        const deviceDetails = getDeviceDetails();
+        const deviceDetails = await getDeviceDetails();
 
         setSignature(sigData);
         dispatch(signNDARequest(token, sigData, deviceDetails));
