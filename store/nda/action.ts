@@ -97,9 +97,13 @@ export const signNDAFailure = (error: any) => ({
 });
 
 // Regenerate NDA Link
-export const regenerateNDARequest = (ndaId: string) => ({
+// Regenerate NDA Link
+export const regenerateNDARequest = (payload: {
+  ndaId: string;
+  expires_in_hours: number;
+}) => ({
   type: REGENERATE_NDA_REQUEST,
-  payload: ndaId,
+  payload,
 });
 export const regenerateNDASuccess = (response: any) => ({
   type: REGENERATE_NDA_SUCCESS,

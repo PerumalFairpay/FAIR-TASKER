@@ -167,10 +167,7 @@ const ndaReducer = (
       return {
         ...state,
         loading: false,
-        success: action.payload.message || "NDA link regenerated successfully",
-        // We might want to update the specific item in ndaList, but since we refresh the list saga often cleans this up.
-        // Or we can manually update it here if payload returns the updated NDA.
-        // Assuming payload.data.nda is the updated NDA object.
+        success: action.payload.message || "NDA link regenerated successfully", 
         ndaList: state.ndaList.map((item) =>
           item.id === action.payload.data?.nda?.id
             ? action.payload.data.nda

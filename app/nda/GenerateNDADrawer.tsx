@@ -8,7 +8,8 @@ import {
 } from "@heroui/drawer";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
-import { User, Briefcase, MapPin, Copy, CheckCircle2 } from "lucide-react";
+import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock } from "lucide-react";
+import { Select, SelectItem } from "@heroui/select";
 import { addToast } from "@heroui/toast";
 
 interface GenerateNDADrawerProps {
@@ -16,7 +17,7 @@ interface GenerateNDADrawerProps {
     onOpenChange: (open: boolean) => void;
     generatedLink: string | null;
     loading: boolean;
-    onSubmit: (data: { employee_name: string; role: string; address: string }) => void;
+    onSubmit: (data: { employee_name: string; role: string; address: string; expires_in_hours: number }) => void;
 }
 
 export default function GenerateNDADrawer({
@@ -30,6 +31,7 @@ export default function GenerateNDADrawer({
         employee_name: "",
         role: "",
         address: "",
+        expires_in_hours: 1,
     });
 
     const [errors, setErrors] = useState({
@@ -49,6 +51,7 @@ export default function GenerateNDADrawer({
                     employee_name: "",
                     role: "",
                     address: "",
+                    expires_in_hours: 1,
                 });
                 setErrors({
                     employee_name: "",
@@ -67,10 +70,10 @@ export default function GenerateNDADrawer({
         }
     }, [generatedLink]);
 
-    const handleChange = (name: string, value: string) => {
+    const handleChange = (name: string, value: string | number) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
         // Clear error when user starts typing
-        if (errors[name as keyof typeof errors]) {
+        if (name !== 'expires_in_hours' && errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: "" }));
         }
     };
@@ -181,7 +184,7 @@ export default function GenerateNDADrawer({
                                     <label className="text-sm font-medium text-foreground">
                                         Employee Name
                                     </label>
-                                    <Input 
+                                    <Input
                                         placeholder="Enter employee full name"
                                         // labelPlacement="outside"
                                         variant="faded"
@@ -231,10 +234,24 @@ export default function GenerateNDADrawer({
                                     />
                                     <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
                                         <p className="text-sm text-blue-700 dark:text-blue-300">
-                                            <strong>Note:</strong> The generated link will be valid for 1
-                                            hour. Share it with the employee to complete the NDA form.
+                                            <strong>Note:</strong> The generated link will be valid for the selected duration. Share it with the employee to complete the NDA form.
                                         </p>
                                     </div>
+                                    <label className="text-sm font-medium text-foreground">
+                                        Expiry Time
+                                    </label>
+                                    <Select
+                                        placeholder="Select expiry time"
+                                        variant="faded"
+                                        selectedKeys={[formData.expires_in_hours.toString()]}
+                                        onChange={(e) => handleChange("expires_in_hours", Number(e.target.value))}
+                                        startContent={<Clock className="text-default-400" size={18} />}
+                                    >
+                                        <SelectItem key="1">1 Hour</SelectItem>
+                                        <SelectItem key="24">24 Hours</SelectItem>
+                                        <SelectItem key="48">48 Hours</SelectItem>
+                                        <SelectItem key="168">7 Days</SelectItem>
+                                    </Select>
                                 </div>
                             )}
                         </DrawerBody>

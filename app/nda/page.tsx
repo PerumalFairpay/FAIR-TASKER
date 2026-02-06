@@ -11,6 +11,7 @@ import {
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
+import { Select, SelectItem } from "@heroui/select";
 import {
     Table,
     TableHeader,
@@ -43,6 +44,11 @@ export default function NDAPage() {
     const [viewDocs, setViewDocs] = useState<{ docs: any[], title: string } | null>(null);
     const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
+    // Regeneration State
+    const [regenerateId, setRegenerateId] = useState<string | null>(null);
+    const [regenerateExpiry, setRegenerateExpiry] = useState<number>(1);
+    const { isOpen: isRegenerateOpen, onOpen: onRegenerateOpen, onOpenChange: onRegenerateOpenChange, onClose: onRegenerateClose } = useDisclosure();
+
     useEffect(() => {
         dispatch(getNDAListRequest());
     }, [dispatch]);
@@ -65,8 +71,22 @@ export default function NDAPage() {
         }
     }, [success, error, dispatch]);
 
-    const handleGenerate = (data: { employee_name: string; role: string; address: string }) => {
+    const handleGenerate = (data: { employee_name: string; role: string; address: string; expires_in_hours?: number }) => {
         dispatch(generateNDARequest(data));
+    };
+
+    const handleRegenerateClick = (id: string) => {
+        setRegenerateId(id);
+        setRegenerateExpiry(1); // Default to 1 hour
+        onRegenerateOpen();
+    };
+
+    const confirmRegenerate = () => {
+        if (regenerateId) {
+            dispatch(regenerateNDARequest({ ndaId: regenerateId, expires_in_hours: regenerateExpiry }));
+            onRegenerateClose();
+            setRegenerateId(null);
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -219,7 +239,7 @@ export default function NDAPage() {
                                                     size="sm"
                                                     variant="light"
                                                     color="primary"
-                                                    onPress={() => dispatch(regenerateNDARequest(item.id))}
+                                                    onPress={() => handleRegenerateClick(item.id)}
                                                     aria-label="Regenerate Link"
                                                     title="Regenerate Link"
                                                 >
@@ -333,6 +353,42 @@ export default function NDAPage() {
                         fileName={previewData.name}
                     />
                 )}
+
+                {/* Regenerate Confirmation Modal */}
+                <Modal isOpen={isRegenerateOpen} onOpenChange={onRegenerateOpenChange} size="sm">
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">Regenerate Link</ModalHeader>
+                                <ModalBody>
+                                    <p className="text-sm text-default-500 mb-2">
+                                        This will invalidate the previous link and generate a new one. Please select the new expiry time.
+                                    </p>
+                                    <Select
+                                        label="Expiry Time"
+                                        placeholder="Select expiry time"
+                                        size="sm"
+                                        selectedKeys={[regenerateExpiry.toString()]}
+                                        onChange={(e) => setRegenerateExpiry(Number(e.target.value))}
+                                    >
+                                        <SelectItem key="1">1 Hour</SelectItem>
+                                        <SelectItem key="24">24 Hours</SelectItem>
+                                        <SelectItem key="48">48 Hours</SelectItem>
+                                        <SelectItem key="168">7 Days</SelectItem>
+                                    </Select>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button color="primary" onPress={confirmRegenerate}>
+                                        Regenerate
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
             </div>
         </PermissionGuard>
     );
