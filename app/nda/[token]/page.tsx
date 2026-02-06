@@ -10,12 +10,22 @@ import {
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
-import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
-import { Upload, FileText, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
 import FileUpload from "@/components/common/FileUpload";
+
 import { addToast } from "@heroui/toast";
 import SignaturePad from "react-signature-canvas";
+
+const REQUIRED_DOCUMENTS = [
+    "10th Marksheet",
+    "12th Marksheet",
+    "TC",
+    "Degree Certificate",
+    "Cumulative Certificate",
+    "Adhar",
+    "PAN Card"
+];
 
 export default function NDATokenPage() {
     const params = useParams();
@@ -25,7 +35,12 @@ export default function NDATokenPage() {
     // We'll use local state for the fetched data to handle the HTML content directly
     const [ndaData, setNdaData] = useState<any>(null);
     const [htmlContent, setHtmlContent] = useState<string>("");
-    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>([{ name: "", file: null }]);
+
+    // Initialize with required documents
+    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>(
+        REQUIRED_DOCUMENTS.map(name => ({ name, file: null }))
+    );
+
     const [signature, setSignature] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("documents");
 
@@ -39,6 +54,7 @@ export default function NDATokenPage() {
             dispatch(getNDAByTokenRequest(token));
         }
     }, [token, dispatch]);
+
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
 
     useEffect(() => {
@@ -73,10 +89,13 @@ export default function NDATokenPage() {
     }, [success, error]);
 
     const handleUpload = () => {
-        if (uploadedFiles.length === 0) {
+        // Validate that all required documents are uploaded
+        const missingDocs = uploadedFiles.filter(f => !f.file);
+
+        if (missingDocs.length > 0) {
             addToast({
-                title: "Warning",
-                description: "Please select files to upload",
+                title: "Missing Documents",
+                description: `Please upload: ${missingDocs.map(d => d.name).join(", ")}`,
                 color: "warning",
             });
             return;
@@ -231,242 +250,252 @@ export default function NDATokenPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-12">
+            <div className="max-w-8xl mx-auto">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">NDA Submission</h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">Please upload the required documents and sign the agreement.</p>
+                </div>
 
-                <Card className="min-h-[600px]">
-                    <CardBody className="p-0">
-                        <Tabs
-                            aria-label="NDA Steps"
-                            color="primary"
-                            variant="underlined"
-                            classNames={{
-                                tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-                                cursor: "w-full bg-primary",
-                                tab: "max-w-fit px-4 h-12",
-                                tabContent: "group-data-[selected=true]:text-primary font-medium"
-                            }}
-                            selectedKey={activeTab}
-                            onSelectionChange={(key) => setActiveTab(key as string)}
-                        >
-                            <Tab
-                                key="documents"
-                                title={
-                                    <div className="flex items-center space-x-2">
-                                        <Upload size={18} />
-                                        <span>Upload Documents</span>
-                                    </div>
-                                }
-                            >
-                                <div className="p-6">
-                                    <div className="mb-6">
-                                        <h3 className="text-lg font-semibold mb-2">Upload KYC Documents</h3>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Please upload copies of your ID proof, address proof, or any other requested documents.
-                                            Give each document a name (e.g., "Passport", "Utility Bill").
-                                        </p>
+                <Tabs
+                    aria-label="NDA Steps"
+                    color="primary"
+                    variant="underlined"
+                    classNames={{
+                        base: "w-full",
+                        tabList: "gap-8 w-full relative rounded-none p-0 border-b border-divider mb-8",
+                        cursor: "w-full bg-primary h-[2px]",
+                        tab: "max-w-fit px-0 h-12",
+                        tabContent: "group-data-[selected=true]:text-primary font-medium text-base"
+                    }}
+                    selectedKey={activeTab}
+                    onSelectionChange={(key) => setActiveTab(key as string)}
+                >
+                    <Tab
+                        key="documents"
+                        title={
+                            <div className="flex items-center space-x-2">
+                                <Upload size={20} />
+                                <span>Upload Documents</span>
+                            </div>
+                        }
+                    >
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="mb-8 p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl">
+                                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Upload Required Documents</h3>
+                                <p className="text-sm text-blue-700 dark:text-blue-300">
+                                    Please upload clear copies of the following mandatory documents. All files are securely processed.
+                                </p>
+                            </div>
 
-                                        <div className="space-y-4">
-                                            {uploadedFiles.map((doc, index) => (
-                                                <div key={index} className="flex gap-4 items-start bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                    <div className="flex-1 space-y-4">
-                                                        <div className="flex flex-col gap-2">
-                                                            <label className="text-sm font-medium">Document Name</label>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="e.g. Passport, PAN Card"
-                                                                className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                                                value={doc.name}
-                                                                onChange={(e) => {
-                                                                    const newFiles = [...uploadedFiles];
-                                                                    newFiles[index].name = e.target.value;
-                                                                    setUploadedFiles(newFiles);
-                                                                }}
-                                                            />
-                                                        </div>
+                            <div className="flex flex-col gap-4">
+                                {uploadedFiles.map((doc, index) => {
+                                    const isRequired = index < REQUIRED_DOCUMENTS.length;
+                                    return (
+                                        <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-all hover:border-primary/50 hover:shadow-md relative group">
 
-                                                        <div className="flex flex-col gap-2">
-                                                            <label className="text-sm font-medium">File</label>
-                                                            {doc.file ? (
-                                                                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-600">
-                                                                    <div className="flex items-center gap-2 truncate">
-                                                                        <FileText size={16} className="text-primary" />
-                                                                        <span className="text-sm truncate max-w-[200px]">{doc.file.name}</span>
-                                                                        <span className="text-xs text-gray-400">({(doc.file.size / 1024).toFixed(1)} KB)</span>
-                                                                    </div>
-                                                                    <Button
-                                                                        isIconOnly
-                                                                        size="sm"
-                                                                        variant="light"
-                                                                        color="danger"
-                                                                        onPress={() => {
-                                                                            const newFiles = [...uploadedFiles];
-                                                                            newFiles[index].file = null;
-                                                                            setUploadedFiles(newFiles);
-                                                                        }}
-                                                                    >
-                                                                        X
-                                                                    </Button>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="relative group cursor-pointer">
-                                                                    <input
-                                                                        type="file"
-                                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                                        accept=".pdf,.jpg,.jpeg,.png"
-                                                                        onChange={(e) => {
-                                                                            const file = e.target.files?.[0];
-                                                                            if (file) {
-                                                                                const newFiles = [...uploadedFiles];
-                                                                                newFiles[index].file = file;
-                                                                                setUploadedFiles(newFiles);
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 group-hover:bg-gray-50 dark:group-hover:bg-gray-800 transition-colors">
-                                                                        <Upload size={20} className="text-gray-400 mb-2" />
-                                                                        <span className="text-sm text-gray-500">Click or Drag file here</span>
-                                                                    </div>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                            {!isRequired && (
+                                                <button
+                                                    onClick={() => {
+                                                        const newFiles = uploadedFiles.filter((_, i) => i !== index);
+                                                        setUploadedFiles(newFiles);
+                                                    }}
+                                                    className="absolute -top-2 -right-2 md:top-1/2 md:-translate-y-1/2 md:-right-4 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md z-20 opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                                                    title="Remove Document"
+                                                >
+                                                    &times;
+                                                </button>
+                                            )}
 
-                                                    <Button
-                                                        isIconOnly
-                                                        color="danger"
-                                                        variant="light"
-                                                        className="mt-8"
-                                                        onPress={() => {
-                                                            const newFiles = uploadedFiles.filter((_, i) => i !== index);
-                                                            setUploadedFiles(newFiles);
-                                                        }}
-                                                    >
-                                                        <Upload className="rotate-45" size={20} />
-                                                    </Button>
+                                            <div className="w-full md:w-1/3 flex items-center gap-3">
+                                                <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ring-2 ring-offset-2 dark:ring-offset-gray-900 ${doc.file
+                                                    ? "bg-green-100 text-green-700 ring-green-100 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-900/30"
+                                                    : "bg-primary/10 text-primary ring-primary/10"
+                                                    }`}>
+                                                    {doc.file ? <CheckCircle2 size={18} /> : index + 1}
                                                 </div>
-                                            ))}
+                                                <div className="flex-1 min-w-0">
+                                                    {isRequired ? (
+                                                        <span className="font-semibold text-gray-800 dark:text-gray-100 text-base block truncate" title={doc.name}>
+                                                            {doc.name} <span className="text-danger ml-0.5">*</span>
+                                                        </span>
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Document Name"
+                                                            className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-primary focus:outline-none text-base font-semibold px-0 py-1 transition-colors"
+                                                            value={doc.name}
+                                                            onChange={(e) => {
+                                                                const newFiles = [...uploadedFiles];
+                                                                newFiles[index].name = e.target.value;
+                                                                setUploadedFiles(newFiles);
+                                                            }}
+                                                        />
+                                                    )}
+                                                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                                        {doc.file ? doc.file.name : "No file selected"}
+                                                    </p>
+                                                </div>
+                                            </div>
 
-                                            <Button
-                                                variant="bordered"
-                                                className="w-full border-2 border-dashed py-6"
-                                                onPress={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
-                                            >
-                                                + Add Another Document
-                                            </Button>
+                                            <div className="w-full md:w-2/3 relative">
+                                                <FileUpload
+                                                    files={doc.file ? [doc.file] : []}
+                                                    setFiles={(fileItems) => {
+                                                        const file = fileItems[0]?.file as File || null;
+                                                        const newFiles = [...uploadedFiles];
+                                                        newFiles[index].file = file;
+                                                        setUploadedFiles(newFiles);
+                                                    }}
+                                                    name={`file-${index}`}
+                                                    acceptedFileTypes={['image/png', 'image/jpeg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+                                                    labelIdle='<span class="text-sm flex items-center gap-2 justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg> Drag & Drop or <span class="text-primary hover:underline cursor-pointer">Browse</span></span>'
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    );
+                                })}
 
-                                    <div className="flex justify-end mt-8">
-                                        <Button
-                                            color="primary"
-                                            onPress={() => {
-                                                const validDocs = uploadedFiles.filter(d => d.name && d.file);
-                                                if (validDocs.length !== uploadedFiles.length || validDocs.length === 0) {
-                                                    addToast({
-                                                        title: "Validation Error",
-                                                        description: "Please provide both name and file for all entries, and at least one document.",
-                                                        color: "warning",
-                                                    });
-                                                    return;
-                                                }
-                                                handleUpload();
-                                            }}
-                                            isLoading={loading}
-                                            isDisabled={uploadedFiles.length === 0}
-                                        >
-                                            Upload {uploadedFiles.length > 0 && `(${uploadedFiles.length})`} Documents
-                                        </Button>
+                                {/* Add Document Button */}
+                                <button
+                                    className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 hover:border-primary/50 hover:bg-white dark:hover:bg-gray-900 transition-all cursor-pointer group w-full"
+                                    onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
+                                >
+                                    <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                                        <Upload size={18} className="text-gray-400 group-hover:text-primary transition-colors" />
                                     </div>
+                                    <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm group-hover:text-primary transition-colors">Add Another Document</span>
+                                </button>
+                            </div>
+
+                            <div className="flex justify-end mt-10">
+                                <Button
+                                    color="primary"
+                                    size="lg"
+                                    onPress={handleUpload}
+                                    isLoading={loading}
+                                    className="font-semibold px-8 shadow-lg shadow-primary/20"
+                                    endContent={<CheckCircle2 size={18} />}
+                                >
+                                    Upload & Proceed
+                                </Button>
+                            </div>
+                        </div>
+                    </Tab>
+
+                    <Tab
+                        key="review"
+                        title={
+                            <div className="flex items-center space-x-2">
+                                <FileText size={20} />
+                                <span>Review & Sign</span>
+                            </div>
+                        }
+                    >
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {ndaData?.status === "Signed" ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                                    <div className="w-20 h-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mb-6">
+                                        <CheckCircle2 size={40} className="text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">NDA Signed Successfully</h2>
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-md text-lg mb-8">
+                                        Thank you for signing the Non-Disclosure Agreement. A copy has been sent to the administration.
+                                    </p>
+                                    <Button
+                                        size="lg"
+                                        variant="flat"
+                                        onClick={() => window.location.reload()}
+                                    >
+                                        Refresh Status
+                                    </Button>
                                 </div>
-                            </Tab>
-
-                            <Tab
-                                key="review"
-                                title={
-                                    <div className="flex items-center space-x-2">
-                                        <FileText size={18} />
-                                        <span>Review & Sign</span>
-                                    </div>
-                                }
-                            >
-                                <div className="p-6">
-                                    {ndaData?.status === "Signed" ? (
-                                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                                            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
-                                                <CheckCircle2 size={32} className="text-green-600 dark:text-green-400" />
+                            ) : (
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    <div className="lg:col-span-2 space-y-6">
+                                        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden shadow-sm">
+                                            <div className="bg-gray-50/50 dark:bg-gray-800/50 p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center backdrop-blur-sm">
+                                                <span className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-200">
+                                                    <FileText size={18} className="text-primary" />
+                                                    Document Preview
+                                                </span>
+                                                <span className="bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-mono border border-gray-100 dark:border-gray-700 shadow-sm">
+                                                    {ndaData?.employee_name}
+                                                </span>
                                             </div>
-                                            <h2 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-2">NDA Signed Successfully</h2>
-                                            <p className="text-gray-600 dark:text-gray-400 max-w-md">
-                                                Thank you for signing the Non-Disclosure Agreement. A copy has been sent to the administration.
-                                            </p>
-                                            <Button
-                                                className="mt-6"
-                                                variant="bordered"
-                                                onClick={() => window.location.reload()}
-                                            >
-                                                Refresh Status
-                                            </Button>
+                                            <div className="w-full h-[700px] bg-white relative">
+                                                <iframe
+                                                    srcDoc={htmlContent}
+                                                    className="w-full h-full border-0"
+                                                    title="NDA Document"
+                                                    style={{ display: 'block' }}
+                                                />
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <>
-                                            <div className="mb-6 border rounded-lg overflow-hidden shadow-inner bg-gray-100">
-                                                <div className="bg-white p-3 border-b text-sm font-medium text-gray-600 flex justify-between items-center">
-                                                    <span className="flex items-center gap-2"><FileText size={16} /> Document Preview</span>
-                                                    <span className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">{ndaData?.employee_name}</span>
-                                                </div>
-                                                <div className="w-full h-[600px] bg-white overflow-hidden relative">
-                                                    <iframe
-                                                        srcDoc={htmlContent}
-                                                        className="w-full h-full border-0"
-                                                        title="NDA Document"
-                                                        style={{ display: 'block' }}
-                                                    />
-                                                </div>
-                                            </div>
+                                    </div>
 
-                                            <div className="border-t pt-6">
-                                                <h3 className="text-lg font-semibold mb-4">Sign Document</h3>
-                                                <div className="border rounded-lg p-4 bg-white dark:bg-gray-800">
-                                                    <p className="text-sm text-gray-500 mb-2">Please sign in the box below:</p>
-                                                    <div className="border border-gray-300 rounded bg-white touch-none">
+                                    <div className="lg:col-span-1">
+                                        <div className="sticky top-8 space-y-6">
+                                            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+                                                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                                    <div className="w-1 h-6 bg-primary rounded-full"></div>
+                                                    Sign Document
+                                                </h3>
+
+                                                <div className="space-y-4">
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                        By signing below, you acknowledge that you have read and understood the terms of this agreement.
+                                                    </p>
+
+                                                    <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white overflow-hidden touch-none hover:border-primary/30 transition-colors">
                                                         <SignaturePad
                                                             ref={sigPad}
                                                             canvasProps={{
-                                                                className: "w-full h-40",
+                                                                className: "w-full h-48",
                                                             }}
                                                         />
                                                     </div>
-                                                    <div className="flex justify-between mt-2">
-                                                        <Button size="sm" variant="light" color="danger" onPress={handleClearSignature}>
+
+                                                    <div className="flex justify-end">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="light"
+                                                            color="danger"
+                                                            onPress={handleClearSignature}
+                                                            className="text-xs"
+                                                            startContent={<span className="text-lg">&times;</span>}
+                                                        >
                                                             Clear Signature
                                                         </Button>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex justify-end mt-6 gap-4">
-                                                    <Button
-                                                        variant="flat"
-                                                        onPress={() => setActiveTab("documents")}
-                                                    >
-                                                        Back
-                                                    </Button>
+                                                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
                                                     <Button
                                                         color="primary"
+                                                        size="lg"
                                                         onPress={handleSaveSignature}
                                                         isLoading={loading}
+                                                        className="w-full font-semibold shadow-lg shadow-primary/20"
                                                     >
                                                         Submit Signature
                                                     </Button>
+                                                    <Button
+                                                        variant="flat"
+                                                        onPress={() => setActiveTab("documents")}
+                                                        className="w-full"
+                                                    >
+                                                        Back to Documents
+                                                    </Button>
                                                 </div>
                                             </div>
-                                        </>
-                                    )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </Tab>
-                        </Tabs>
-                    </CardBody>
-                </Card>
+                            )}
+                        </div>
+                    </Tab>
+                </Tabs>
             </div>
         </div>
     );
