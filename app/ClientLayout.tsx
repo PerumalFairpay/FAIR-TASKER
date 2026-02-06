@@ -53,7 +53,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     // If it's the login page or NDA token page, render full width without sidebar
     if (isLoginPage || isNDATokenPage) {
         return (
-            <div className="relative flex flex-col h-screen overflow-hidden">
+            <div className="relative flex flex-col min-h-screen">
                 <main className="flex-grow">
                     {children}
                 </main>

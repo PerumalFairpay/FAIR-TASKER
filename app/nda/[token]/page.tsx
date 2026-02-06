@@ -39,34 +39,19 @@ export default function NDATokenPage() {
             dispatch(getNDAByTokenRequest(token));
         }
     }, [token, dispatch]);
-
-    // Listen for Redux success actions to update local state
-    // Note: Since we modified the backend to return { html_content, nda }, we need to handle that
-    // The reducer updates 'currentNDA' with the payload.data. 
-    // We might need to adjust how we access the data depending on how the saga/reducer handles the new response structure.
-
-    // Let's assume the saga puts the response.data into the payload.
-    // response.data from backend is { success: true, message: "...", data: { html_content: "...", nda: {...} } }
-
-    // However, looking at the reducer, it expects 'currentNDA' to be action.payload.data.
-    // So currentNDA will be { html_content: "...", nda: {...} }
-
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
 
     useEffect(() => {
         if (currentNDA) {
-            // Check if it's the new structure
             if (currentNDA.html_content) {
                 setHtmlContent(currentNDA.html_content);
                 setNdaData(currentNDA.nda);
             } else {
-                // Fallback for old structure or if reducer mapping is different
                 setNdaData(currentNDA);
             }
         }
     }, [currentNDA]);
 
-    // Handle success messages for upload/sign
     useEffect(() => {
         if (success) {
             addToast({
@@ -75,8 +60,7 @@ export default function NDATokenPage() {
                 color: "success",
             });
             if (success.includes("signed")) {
-                // Determine next steps if needed
-                setActiveTab("review"); // Stay on review tab to show completion
+                setActiveTab("review");
             }
         }
         if (error) {
@@ -195,12 +179,6 @@ export default function NDATokenPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Non-Disclosure Agreement</h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Please upload required documents and sign the NDA.
-                    </p>
-                </div>
 
                 <Card className="min-h-[600px]">
                     <CardBody className="p-0">
