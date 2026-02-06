@@ -203,23 +203,38 @@ export default function NDAPage() {
                                 <TableCell>
                                     <div className="flex items-center justify-center gap-2">
                                         {item.status !== "Signed" &&
-                                        <Button
-                                            isIconOnly
-                                            size="sm"
-                                            variant="light"
-                                            onPress={() => handleCopyLink(item.token)}
-                                            aria-label="Copy NDA link"
-                                        >
-                                            <Copy size={16} />
-                                        </Button>
+                                            <Button
+                                                isIconOnly
+                                                size="sm"
+                                                variant="light"
+                                                onPress={() => handleCopyLink(item.token)}
+                                                aria-label="Copy NDA link"
+                                            >
+                                                <Copy size={16} />
+                                            </Button>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
-                                            <PDFDownloadButton
-                                                fileUrl={item.signed_pdf_path}
-                                                baseName={item.employee_name}
-                                                prefix="Signed_NDA"
-                                                ariaLabel="Download Signed PDF"
-                                            />
+                                            <div className="flex gap-1">
+                                                <Button
+                                                    isIconOnly
+                                                    size="sm"
+                                                    variant="light"
+                                                    onPress={() => setPreviewData({
+                                                        url: item.signed_pdf_path?.document_proof,
+                                                        type: 'application/pdf',
+                                                        name: `Signed_NDA_${item.employee_name}.pdf`,
+                                                    })}
+                                                    aria-label="View Signed PDF"
+                                                >
+                                                    <Eye size={18} className="text-default-500" />
+                                                </Button>
+                                                <PDFDownloadButton
+                                                    fileUrl={item.signed_pdf_path?.document_proof}
+                                                    baseName={item.employee_name}
+                                                    prefix="Signed_NDA"
+                                                    ariaLabel="Download Signed PDF"
+                                                />
+                                            </div>
                                         )}
                                     </div>
                                 </TableCell>
