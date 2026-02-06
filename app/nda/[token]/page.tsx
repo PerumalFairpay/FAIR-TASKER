@@ -25,7 +25,7 @@ export default function NDATokenPage() {
     // We'll use local state for the fetched data to handle the HTML content directly
     const [ndaData, setNdaData] = useState<any>(null);
     const [htmlContent, setHtmlContent] = useState<string>("");
-    const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>([{ name: "", file: null }]);
     const [signature, setSignature] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("documents");
 
@@ -84,7 +84,10 @@ export default function NDATokenPage() {
 
         const formData = new FormData();
         uploadedFiles.forEach((fileItem) => {
-            formData.append("files", fileItem.file);
+            if (fileItem.file && fileItem.name) {
+                formData.append("files", fileItem.file);
+                formData.append("names", fileItem.name);
+            }
         });
 
         dispatch(uploadNDADocumentsRequest(token, formData));
@@ -260,17 +263,97 @@ export default function NDATokenPage() {
                                         <h3 className="text-lg font-semibold mb-2">Upload KYC Documents</h3>
                                         <p className="text-sm text-gray-500 mb-4">
                                             Please upload copies of your ID proof, address proof, or any other requested documents.
+                                            Give each document a name (e.g., "Passport", "Utility Bill").
                                         </p>
 
-                                        <div className="max-w-xl mx-auto border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 dark:bg-gray-800/50">
-                                            <FileUpload
-                                                files={uploadedFiles}
-                                                setFiles={setUploadedFiles}
-                                                name="nda_documents"
-                                                labelIdle="Drag & Drop your files or <span class='filepond--label-action'>Browse</span>"
-                                                acceptedFileTypes={['application/pdf', 'image/jpeg', 'image/png']}
-                                                allowMultiple={true}
-                                            />
+                                        <div className="space-y-4">
+                                            {uploadedFiles.map((doc, index) => (
+                                                <div key={index} className="flex gap-4 items-start bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                    <div className="flex-1 space-y-4">
+                                                        <div className="flex flex-col gap-2">
+                                                            <label className="text-sm font-medium">Document Name</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="e.g. Passport, PAN Card"
+                                                                className="w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                                                value={doc.name}
+                                                                onChange={(e) => {
+                                                                    const newFiles = [...uploadedFiles];
+                                                                    newFiles[index].name = e.target.value;
+                                                                    setUploadedFiles(newFiles);
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        <div className="flex flex-col gap-2">
+                                                            <label className="text-sm font-medium">File</label>
+                                                            {doc.file ? (
+                                                                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-600">
+                                                                    <div className="flex items-center gap-2 truncate">
+                                                                        <FileText size={16} className="text-primary" />
+                                                                        <span className="text-sm truncate max-w-[200px]">{doc.file.name}</span>
+                                                                        <span className="text-xs text-gray-400">({(doc.file.size / 1024).toFixed(1)} KB)</span>
+                                                                    </div>
+                                                                    <Button
+                                                                        isIconOnly
+                                                                        size="sm"
+                                                                        variant="light"
+                                                                        color="danger"
+                                                                        onPress={() => {
+                                                                            const newFiles = [...uploadedFiles];
+                                                                            newFiles[index].file = null;
+                                                                            setUploadedFiles(newFiles);
+                                                                        }}
+                                                                    >
+                                                                        X
+                                                                    </Button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="relative group cursor-pointer">
+                                                                    <input
+                                                                        type="file"
+                                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                                        onChange={(e) => {
+                                                                            const file = e.target.files?.[0];
+                                                                            if (file) {
+                                                                                const newFiles = [...uploadedFiles];
+                                                                                newFiles[index].file = file;
+                                                                                setUploadedFiles(newFiles);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 group-hover:bg-gray-50 dark:group-hover:bg-gray-800 transition-colors">
+                                                                        <Upload size={20} className="text-gray-400 mb-2" />
+                                                                        <span className="text-sm text-gray-500">Click or Drag file here</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <Button
+                                                        isIconOnly
+                                                        color="danger"
+                                                        variant="light"
+                                                        className="mt-8"
+                                                        onPress={() => {
+                                                            const newFiles = uploadedFiles.filter((_, i) => i !== index);
+                                                            setUploadedFiles(newFiles);
+                                                        }}
+                                                    >
+                                                        <Upload className="rotate-45" size={20} />
+                                                    </Button>
+                                                </div>
+                                            ))}
+
+                                            <Button
+                                                variant="bordered"
+                                                className="w-full border-2 border-dashed py-6"
+                                                onPress={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
+                                            >
+                                                + Add Another Document
+                                            </Button>
                                         </div>
                                     </div>
 
@@ -278,11 +361,21 @@ export default function NDATokenPage() {
                                         <Button
                                             color="primary"
                                             onPress={() => {
+                                                const validDocs = uploadedFiles.filter(d => d.name && d.file);
+                                                if (validDocs.length !== uploadedFiles.length || validDocs.length === 0) {
+                                                    addToast({
+                                                        title: "Validation Error",
+                                                        description: "Please provide both name and file for all entries, and at least one document.",
+                                                        color: "warning",
+                                                    });
+                                                    return;
+                                                }
                                                 handleUpload();
                                             }}
                                             isLoading={loading}
+                                            isDisabled={uploadedFiles.length === 0}
                                         >
-                                            Upload
+                                            Upload {uploadedFiles.length > 0 && `(${uploadedFiles.length})`} Documents
                                         </Button>
                                     </div>
                                 </div>
