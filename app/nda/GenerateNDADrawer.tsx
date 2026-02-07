@@ -8,7 +8,7 @@ import {
 } from "@heroui/drawer";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
-import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock } from "lucide-react";
+import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock, Plus, X } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { addToast } from "@heroui/toast";
 
@@ -34,6 +34,7 @@ export default function GenerateNDADrawer({
     onSubmit,
     generatedLink,
 }: GenerateNDADrawerProps) {
+    const [newDoc, setNewDoc] = useState("");
     const [formData, setFormData] = useState({
         employee_name: "",
         role: "",
@@ -157,19 +158,23 @@ export default function GenerateNDADrawer({
         onOpenChange(false);
     };
 
-    const handleAddDocument = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const val = e.currentTarget.value.trim();
-            if (val && !formData.required_documents.includes(val)) {
-                setFormData(prev => ({
-                    ...prev,
-                    required_documents: [...prev.required_documents, val]
-                }));
-                e.currentTarget.value = '';
-            }
+    const handleAddDocument = () => {
+        const val = newDoc.trim();
+        if (val && !formData.required_documents.includes(val)) {
+            setFormData(prev => ({
+                ...prev,
+                required_documents: [...prev.required_documents, val]
+            }));
+            setNewDoc("");
         }
     };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddDocument();
+        }
+    }
 
     const handleRemoveDocument = (docToRemove: string) => {
         setFormData(prev => ({
@@ -284,32 +289,51 @@ export default function GenerateNDADrawer({
                                         minRows={3}
                                     />
 
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-medium text-foreground">Required Documents</label>
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {formData.required_documents.map((doc, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex items-center gap-1 bg-default-100 hover:bg-default-200 text-default-700 px-3 py-1 rounded-full text-sm transition-colors border border-default-200"
-                                                >
-                                                    <span>{doc}</span>
-                                                    <button
-                                                        onClick={() => handleRemoveDocument(doc)}
-                                                        className="ml-1 text-default-400 hover:text-danger focus:outline-none"
-                                                    >
-                                                        &times;
-                                                    </button>
-                                                </div>
-                                            ))}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between items-end">
+                                            <label className="text-sm font-medium text-foreground">Required Documents</label>
+                                            <span className="text-tiny text-default-400">{formData.required_documents.length} selected</span>
                                         </div>
-                                        <Input
-                                            placeholder="Type document name and press Enter to add"
-                                            labelPlacement="outside"
-                                            variant="bordered"
-                                            onKeyDown={handleAddDocument}
-                                            description="Press Enter to add a document"
-                                            endContent={<span className="text-default-400 text-xs">↵</span>}
-                                        />
+
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Type document name"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={newDoc}
+                                                onValueChange={setNewDoc}
+                                                onKeyDown={handleKeyDown}
+                                                className="flex-1"
+                                                size="sm"
+                                            />
+                                            <Button isIconOnly size="sm" color="primary" variant="flat" onPress={handleAddDocument}>
+                                                <Plus size={18} />
+                                            </Button>
+                                        </div>
+
+                                        <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-default-50 rounded-lg border border-dashed border-default-200">
+                                            {formData.required_documents.length > 0 ? (
+                                                formData.required_documents.map((doc, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="group flex items-center gap-1.5 bg-background border border-default-200 pl-3 pr-1.5 py-1 rounded-full text-small shadow-sm transition-all hover:border-default-300 hover:shadow-md"
+                                                    >
+                                                        <span className="font-medium text-foreground-600">{doc}</span>
+                                                        <button
+                                                            onClick={() => handleRemoveDocument(doc)}
+                                                            className="text-default-400 hover:text-danger hover:bg-danger/10 p-0.5 rounded-full transition-colors"
+                                                            title="Remove"
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-tiny text-default-400 italic">
+                                                    No documents required. Add one above.
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <Select
