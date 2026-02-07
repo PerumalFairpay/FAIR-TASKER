@@ -8,6 +8,7 @@ import {
     getNDAListRequest,
     clearNDAState,
     regenerateNDARequest,
+    deleteNDARequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
@@ -22,7 +23,7 @@ import {
 } from "@heroui/table";
 import { useDisclosure } from "@heroui/modal";
 import { Input } from "@heroui/input";
-import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw, Search, Filter } from "lucide-react";
+import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw, Search, Filter, Trash } from "lucide-react";
 import TablePagination from "@/components/common/TablePagination";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
@@ -51,6 +52,10 @@ export default function NDAPage() {
     const [regenerateId, setRegenerateId] = useState<string | null>(null);
     const [regenerateExpiry, setRegenerateExpiry] = useState<number>(1);
     const { isOpen: isRegenerateOpen, onOpen: onRegenerateOpen, onOpenChange: onRegenerateOpenChange, onClose: onRegenerateClose } = useDisclosure();
+
+    // Delete State
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
 
     // Pagination & Filter State
     const [page, setPage] = useState(1);
@@ -113,6 +118,19 @@ export default function NDAPage() {
             dispatch(regenerateNDARequest({ ndaId: regenerateId, expires_in_hours: regenerateExpiry }));
             onRegenerateClose();
             setRegenerateId(null);
+        }
+    };
+
+    const handleDeleteClick = (id: string) => {
+        setDeleteId(id);
+        onDeleteOpen();
+    };
+
+    const confirmDelete = () => {
+        if (deleteId) {
+            dispatch(deleteNDARequest(deleteId));
+            onDeleteClose();
+            setDeleteId(null);
         }
     };
 
@@ -364,6 +382,17 @@ export default function NDAPage() {
                                                 >
                                                     <RefreshCw size={16} />
                                                 </Button>
+                                                <Button
+                                                    isIconOnly
+                                                    size="sm"
+                                                    variant="light"
+                                                    color="danger"
+                                                    onPress={() => handleDeleteClick(item.id)}
+                                                    aria-label="Delete NDA Request"
+                                                    title="Delete NDA Request"
+                                                >
+                                                    <Trash size={16} />
+                                                </Button>
                                             </>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
@@ -509,7 +538,31 @@ export default function NDAPage() {
                         )}
                     </ModalContent>
                 </Modal>
+
+                {/* Delete Confirmation Modal */}
+                <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">Confirm Deletion</ModalHeader>
+                                <ModalBody>
+                                    <p className="text-sm text-default-500">
+                                        Are you sure you want to delete this NDA request? This action cannot be undone.
+                                    </p>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button color="danger" onPress={confirmDelete}>
+                                        Delete
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
             </div>
-        </PermissionGuard>
+        </PermissionGuard >
     );
 }

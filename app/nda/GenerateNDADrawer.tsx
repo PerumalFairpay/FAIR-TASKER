@@ -10,6 +10,7 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock, Plus, X } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
+import { Checkbox } from "@heroui/checkbox";
 import { addToast } from "@heroui/toast";
 
 interface GenerateNDADrawerProps {
@@ -37,6 +38,7 @@ export default function GenerateNDADrawer({
     generatedLink,
 }: GenerateNDADrawerProps) {
     const [newDoc, setNewDoc] = useState("");
+    const [isExperience, setIsExperience] = useState(false);
     const [formData, setFormData] = useState({
         employee_name: "",
         email: "",
@@ -100,6 +102,7 @@ export default function GenerateNDADrawer({
                 });
                 setShowLink(false);
                 setCopied(false);
+                setIsExperience(false);
             }, 300); // Delay to avoid visual glitch during close animation
         }
     }, [isOpen]);
@@ -201,6 +204,27 @@ export default function GenerateNDADrawer({
             ...prev,
             required_documents: prev.required_documents.filter(doc => doc !== docToRemove)
         }));
+    };
+
+    const experienceDocs = [
+        "last 3months salary slips",
+        "experience certificate",
+        "relieving letter"
+    ];
+
+    const handleExperienceToggle = (checked: boolean) => {
+        setIsExperience(checked);
+        if (checked) {
+            setFormData(prev => ({
+                ...prev,
+                required_documents: Array.from(new Set([...prev.required_documents, ...experienceDocs]))
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                required_documents: prev.required_documents.filter(doc => !experienceDocs.includes(doc))
+            }));
+        }
     };
 
     return (
@@ -347,12 +371,24 @@ export default function GenerateNDADrawer({
                                                 onValueChange={setNewDoc}
                                                 onKeyDown={handleKeyDown}
                                                 className="flex-1"
-                                                size="sm"
+                                                // size="sm"
                                             />
-                                            <Button isIconOnly size="sm" color="primary" variant="flat" onPress={handleAddDocument}>
+                                            <Button isIconOnly color="primary" variant="flat" onPress={handleAddDocument}>
                                                 <Plus size={18} />
                                             </Button>
                                         </div>
+
+                                        <Checkbox
+                                            isSelected={isExperience}
+                                            onValueChange={handleExperienceToggle}
+                                            size="sm"
+                                            classNames={{
+                                                label: "text-small text-default-500"
+                                            }}
+                                            className="mb-2"
+                                        >
+                                            Experience
+                                        </Checkbox>
 
                                         <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-default-50 rounded-lg border border-dashed border-default-200">
                                             {formData.required_documents.length > 0 ? (

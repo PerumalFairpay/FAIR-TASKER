@@ -17,6 +17,9 @@ import {
   REGENERATE_NDA_REQUEST,
   REGENERATE_NDA_SUCCESS,
   REGENERATE_NDA_FAILURE,
+  DELETE_NDA_REQUEST,
+  DELETE_NDA_SUCCESS,
+  DELETE_NDA_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -188,6 +191,27 @@ const ndaReducer = (
         ),
       };
     case REGENERATE_NDA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    // Delete NDA
+    case DELETE_NDA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_NDA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: "NDA request deleted successfully",
+        ndaList: state.ndaList.filter((item) => item.id !== action.payload),
+      };
+    case DELETE_NDA_FAILURE:
       return {
         ...state,
         loading: false,

@@ -7,6 +7,7 @@ import {
   UPLOAD_NDA_DOCUMENTS_REQUEST,
   SIGN_NDA_REQUEST,
   REGENERATE_NDA_REQUEST,
+  DELETE_NDA_REQUEST,
 } from "./actionType";
 import {
   generateNDASuccess,
@@ -22,6 +23,8 @@ import {
   regenerateNDASuccess,
   regenerateNDAFailure,
   getNDAListRequest,
+  deleteNDASuccess,
+  deleteNDAFailure,
 } from "./action";
 import api, { publicApi } from "../api";
 
@@ -61,6 +64,10 @@ function uploadNDADocumentsApi(token: string, formData: FormData) {
 
 function signNDAApi(token: string, signature: string, deviceDetails?: any) {
   return publicApi.post(`/nda/sign/${token}`, { signature, ...deviceDetails });
+}
+
+function deleteNDAApi(id: string) {
+  return api.delete(`/nda/delete/${id}`);
 }
 
 // Sagas
@@ -151,11 +158,25 @@ function* onRegenerateNDA({ payload }: any): SagaIterator {
   }
 }
 
+function* onDeleteNDA({ payload }: any): SagaIterator {
+  try {
+    yield call(deleteNDAApi, payload);
+    yield put(deleteNDASuccess(payload));
+    // Optionally refresh list or manually remove from state (handled in reducer)
+  } catch (error: any) {
+    yield put(
+      deleteNDAFailure(
+        error.response?.data?.message || "Failed to delete NDA request",
+      ),
+    );
+  }
+}
+
 export default function* ndaSaga(): SagaIterator {
   yield takeEvery(GENERATE_NDA_REQUEST, onGenerateNDA);
   yield takeEvery(GET_NDA_LIST_REQUEST, onGetNDAList);
   yield takeEvery(GET_NDA_BY_TOKEN_REQUEST, onGetNDAByToken);
   yield takeEvery(UPLOAD_NDA_DOCUMENTS_REQUEST, onUploadNDADocuments);
-  yield takeEvery(SIGN_NDA_REQUEST, onSignNDA);
   yield takeEvery(REGENERATE_NDA_REQUEST, onRegenerateNDA);
+  yield takeEvery(DELETE_NDA_REQUEST, onDeleteNDA);
 }

@@ -131,6 +131,26 @@ export const regenerateNDAFailure = (error: any) => ({
   payload: error,
 });
 
+// Delete NDA
+import {
+  DELETE_NDA_REQUEST,
+  DELETE_NDA_SUCCESS,
+  DELETE_NDA_FAILURE,
+} from "./actionType";
+
+export const deleteNDARequest = (id: string) => ({
+  type: DELETE_NDA_REQUEST,
+  payload: id,
+});
+export const deleteNDASuccess = (id: string) => ({
+  type: DELETE_NDA_SUCCESS,
+  payload: id,
+});
+export const deleteNDAFailure = (error: any) => ({
+  type: DELETE_NDA_FAILURE,
+  payload: error,
+});
+
 // Clear State
 export const clearNDAState = () => ({
   type: CLEAR_NDA_STATE,
