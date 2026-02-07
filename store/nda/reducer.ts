@@ -191,7 +191,9 @@ const ndaReducer = (
         uploadLoading: false,
         uploadSuccess:
           action.payload.message || "Documents uploaded successfully",
-        currentNDA: action.payload.data,
+        currentNDA: state.currentNDA?.html_content
+          ? { ...state.currentNDA, nda: action.payload.data }
+          : action.payload.data,
       };
     case UPLOAD_NDA_DOCUMENTS_FAILURE:
       return {
@@ -213,7 +215,9 @@ const ndaReducer = (
         ...state,
         signLoading: false,
         signSuccess: action.payload.message || "NDA signed successfully",
-        currentNDA: action.payload.data,
+        currentNDA: state.currentNDA?.html_content
+          ? { ...state.currentNDA, nda: action.payload.data }
+          : action.payload.data,
       };
     case SIGN_NDA_FAILURE:
       return {

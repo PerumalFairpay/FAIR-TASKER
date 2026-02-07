@@ -210,26 +210,25 @@ export default function NDATokenPage() {
     useEffect(() => {
         if (currentNDA) {
             let data = currentNDA;
+ 
             if (currentNDA.html_content) {
                 setHtmlContent(currentNDA.html_content);
                 data = currentNDA.nda;
-                setIsAuthenticated(true); // If HTML content is present, we are authenticated
-            } else if (currentNDA.nda?.requires_auth) {
+                setIsAuthenticated(true);
+            } 
+            else if (currentNDA.requires_auth) {
                 setNdaData(currentNDA.nda);
                 setIsAuthenticated(false);
-                return; // Stop processing until authenticated
-            } else {
-                setHtmlContent(""); // Or handle no content
+                return;
             }
+
             setNdaData(data);
 
             if (data?.required_documents) {
-                setRequiredDocuments(data.required_documents);
-                // Initialize uploaded files based on required documents
+                setRequiredDocuments(data.required_documents); 
                 setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
             }
-
-            // If status is "Document Uploaded", move user to the sign tab automatically
+ 
             if (data?.status === "Document Uploaded") {
                 setActiveTab("review");
             }
@@ -259,8 +258,7 @@ export default function NDATokenPage() {
         }
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
 
-    const handleUpload = () => {
-        // Validate that all required documents are uploaded
+    const handleUpload = () => { 
         const missingDocs = uploadedFiles.filter(f => !f.file);
 
         if (missingDocs.length > 0) {
