@@ -142,6 +142,8 @@ export default function NDAPage() {
                 return "danger";
             case "Pending":
                 return "warning";
+            case "Document Uploaded":
+                return "secondary";
             default:
                 return "default";
         }
@@ -229,6 +231,7 @@ export default function NDAPage() {
                             >
                                 <SelectItem key="All">All Status</SelectItem>
                                 <SelectItem key="Pending">Pending</SelectItem>
+                                <SelectItem key="Document Uploaded">Document Uploaded</SelectItem>
                                 <SelectItem key="Signed">Signed</SelectItem>
                                 <SelectItem key="Expired">Expired</SelectItem>
                             </Select>

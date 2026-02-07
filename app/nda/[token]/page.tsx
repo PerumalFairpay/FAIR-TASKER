@@ -225,6 +225,11 @@ export default function NDATokenPage() {
                 // Initialize uploaded files based on required documents
                 setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
             }
+
+            // If status is "Document Uploaded", move user to the sign tab automatically
+            if (data?.status === "Document Uploaded") {
+                setActiveTab("review");
+            }
         }
     }, [currentNDA]);
 
@@ -770,7 +775,7 @@ export default function NDATokenPage() {
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Document Access</h1>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2">
                                     Please verify your identity to access the Non-Disclosure Agreement for
-                                    <span className="font-semibold text-primary block mt-1">{ndaData?.employee_name}</span>
+                                    <span className="font-semibold text-primary ms-2 mt-1">{ndaData?.employee_name}</span>
                                 </p>
                             </div>
 
