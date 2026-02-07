@@ -35,7 +35,7 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
     ];
 
     useEffect(() => {
-        const duration = 6000;
+        const duration = 4000;
         const interval = 800; // time per status
 
         const statusTimer = setInterval(() => {
@@ -71,10 +71,9 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
             </div>
 
             <motion.div
-                initial={{ scale: 0.8, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
+                layoutId="company-logo"
+                className="mb-12 relative z-10"
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
-                className="mb-12 relative"
             >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
                     <div className="absolute inset-0 bg-primary/5 rounded-full animate-ping" />
@@ -497,7 +496,7 @@ export default function NDATokenPage() {
                             isVertical={isVertical}
                             classNames={{
                                 base: "flex flex-col md:flex-row gap-8 md:gap-16",
-                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-8 z-40 backdrop-blur-md mb-6 md:mb-0",
+                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-12 z-40 backdrop-blur-md mb-6 md:mb-0",
                                 cursor: "rounded-xl bg-white dark:bg-gray-700 shadow-md",
                                 tab: "h-11 md:h-14 px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
                                 tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-xs md:text-sm",
@@ -509,7 +508,10 @@ export default function NDATokenPage() {
                             <Tab
                                 key="logo"
                                 title={
-                                    <div className="flex items-center justify-center w-full py-1">
+                                    <motion.div
+                                        layoutId="company-logo"
+                                        className="flex items-center justify-center w-full py-1"
+                                    >
                                         <Image
                                             src={logo}
                                             alt="FairPay Logo"
@@ -517,7 +519,7 @@ export default function NDATokenPage() {
                                             height={40}
                                             className="object-contain"
                                         />
-                                    </div>
+                                    </motion.div>
                                 }
                                 isDisabled
                                 className="opacity-100 cursor-default mb-4 pointer-events-none data-[disabled=true]:opacity-100"
@@ -748,8 +750,15 @@ export default function NDATokenPage() {
                     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
                         <div className="w-full max-w-md">
                             <div className="text-center mb-8">
-                                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Lock className="text-primary w-8 h-8" />
+                                <div className="mb-6 flex justify-center">
+                                    <Image
+                                        src={logo}
+                                        alt="FairPay Logo"
+                                        width={180}
+                                        height={56}
+                                        className="object-contain drop-shadow-sm"
+                                        priority
+                                    />
                                 </div>
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Document Access</h1>
                                 <p className="text-gray-500 dark:text-gray-400 mt-2">
