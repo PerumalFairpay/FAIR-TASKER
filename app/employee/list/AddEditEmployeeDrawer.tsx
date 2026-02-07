@@ -303,6 +303,16 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("email", e.target.value)}
                                                 isRequired
                                             />
+                                            <Input
+                                                label="Personal Email"
+                                                placeholder="john.doe@gmail.com"
+                                                type="email"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.personal_email || ""}
+                                                onChange={(e) => handleChange("personal_email", e.target.value)}
+                                                description="Used to fetching NDA documents"
+                                            />
                                             {mode === "create" && (
                                                 <>
                                                     <Input

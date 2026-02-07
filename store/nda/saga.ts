@@ -179,4 +179,5 @@ export default function* ndaSaga(): SagaIterator {
   yield takeEvery(UPLOAD_NDA_DOCUMENTS_REQUEST, onUploadNDADocuments);
   yield takeEvery(REGENERATE_NDA_REQUEST, onRegenerateNDA);
   yield takeEvery(DELETE_NDA_REQUEST, onDeleteNDA);
+  yield takeEvery(SIGN_NDA_REQUEST, onSignNDA);
 }
