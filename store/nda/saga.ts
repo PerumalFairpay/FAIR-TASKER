@@ -35,8 +35,12 @@ function generateNDAApi(payload: {
   return api.post("/nda/generate", payload);
 }
 
-function getNDAListApi() {
-  return api.get("/nda/list");
+function getNDAListApi(params: any) {
+  const { page, limit, search, status } = params || {};
+  let query = `/nda/list?page=${page || 1}&limit=${limit || 10}`;
+  if (search) query += `&search=${search}`;
+  if (status && status !== "All") query += `&status=${status}`;
+  return api.get(query);
 }
 
 function getNDAByTokenApi(token: string) {
@@ -69,9 +73,9 @@ function* onGenerateNDA({ payload }: any): SagaIterator {
   }
 }
 
-function* onGetNDAList(): SagaIterator {
+function* onGetNDAList({ payload }: any): SagaIterator {
   try {
-    const response = yield call(getNDAListApi);
+    const response = yield call(getNDAListApi, payload);
     yield put(getNDAListSuccess(response.data));
   } catch (error: any) {
     yield put(

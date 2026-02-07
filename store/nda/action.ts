@@ -42,8 +42,16 @@ export const generateNDAFailure = (error: any) => ({
 });
 
 // Get NDA List
-export const getNDAListRequest = () => ({
+export const getNDAListRequest = (
+  payload: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string | null;
+  } = { page: 1, limit: 10 },
+) => ({
   type: GET_NDA_LIST_REQUEST,
+  payload,
 });
 export const getNDAListSuccess = (response: any) => ({
   type: GET_NDA_LIST_SUCCESS,

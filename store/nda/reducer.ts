@@ -27,6 +27,12 @@ interface NDAState {
   loading: boolean;
   error: string | null;
   success: string | null;
+  meta: {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    limit: number;
+  };
 }
 
 const initialNDAState: NDAState = {
@@ -36,6 +42,12 @@ const initialNDAState: NDAState = {
   loading: false,
   error: null,
   success: null,
+  meta: {
+    current_page: 1,
+    total_pages: 1,
+    total_items: 0,
+    limit: 10,
+  },
 };
 
 const ndaReducer = (
@@ -82,6 +94,7 @@ const ndaReducer = (
         ...state,
         loading: false,
         ndaList: action.payload.data || [],
+        meta: action.payload.meta || state.meta,
       };
     case GET_NDA_LIST_FAILURE:
       return {
@@ -167,7 +180,7 @@ const ndaReducer = (
       return {
         ...state,
         loading: false,
-        success: action.payload.message || "NDA link regenerated successfully", 
+        success: action.payload.message || "NDA link regenerated successfully",
         ndaList: state.ndaList.map((item) =>
           item.id === action.payload.data?.nda?.id
             ? action.payload.data.nda

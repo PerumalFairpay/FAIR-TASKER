@@ -21,7 +21,9 @@ import {
     TableCell,
 } from "@heroui/table";
 import { useDisclosure } from "@heroui/modal";
-import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw } from "lucide-react";
+import { Input } from "@heroui/input";
+import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw, Search, Filter } from "lucide-react";
+import TablePagination from "@/components/common/TablePagination";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { PermissionGuard } from "@/components/PermissionGuard";
@@ -35,7 +37,7 @@ import { Tooltip } from "@heroui/tooltip";
 
 export default function NDAPage() {
     const dispatch = useDispatch();
-    const { ndaList, generatedLink, loading, success, error } = useSelector(
+    const { ndaList, generatedLink, loading, success, error, meta } = useSelector(
         (state: RootState) => state.NDA
     );
 
@@ -50,9 +52,24 @@ export default function NDAPage() {
     const [regenerateExpiry, setRegenerateExpiry] = useState<number>(1);
     const { isOpen: isRegenerateOpen, onOpen: onRegenerateOpen, onOpenChange: onRegenerateOpenChange, onClose: onRegenerateClose } = useDisclosure();
 
+    // Pagination & Filter State
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [limit, setLimit] = useState(10);
+
+    // Fetch NDA List with Filters
     useEffect(() => {
-        dispatch(getNDAListRequest());
-    }, [dispatch]);
+        const timer = setTimeout(() => {
+            dispatch(getNDAListRequest({
+                page,
+                limit,
+                search,
+                status: statusFilter
+            }));
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [dispatch, page, limit, search, statusFilter]);
 
     useEffect(() => {
         if (success) {
@@ -156,11 +173,58 @@ export default function NDAPage() {
                 </div>
 
 
+                <div className="flex flex-col gap-4 mb-4">
+                    <div className="flex justify-between items-center gap-3">
+                        <Input
+                            isClearable
+                            className="w-full sm:max-w-[44%]"
+                            placeholder="Search by name, email..."
+                            startContent={<Search size={16} />}
+                            value={search}
+                            onClear={() => setSearch("")}
+                            onValueChange={(val) => {
+                                setSearch(val);
+                                setPage(1);
+                            }}
+                            variant="bordered"
+                        />
+                        <div className="flex gap-3">
+                            <Select
+                                className="w-full sm:min-w-[150px]"
+                                defaultSelectedKeys={["All"]}
+                                selectedKeys={[statusFilter]}
+                                onChange={(e) => {
+                                    setStatusFilter(e.target.value);
+                                    setPage(1);
+                                }}
+                                startContent={<Filter size={16} />}
+                                variant="bordered"
+                            >
+                                <SelectItem key="All">All Status</SelectItem>
+                                <SelectItem key="Pending">Pending</SelectItem>
+                                <SelectItem key="Signed">Signed</SelectItem>
+                                <SelectItem key="Expired">Expired</SelectItem>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+
                 {/* NDA List */}
                 <Table
                     aria-label="NDA requests table"
                     removeWrapper
                     isHeaderSticky
+                    bottomContent={
+                        meta && meta.total_items > 0 ? (
+                            <TablePagination
+                                page={page}
+                                total={meta.total_pages}
+                                onChange={(p) => setPage(p)}
+                                limit={limit}
+                                onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                            />
+                        ) : null
+                    }
                 >
                     <TableHeader>
                         <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
