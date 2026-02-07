@@ -268,7 +268,7 @@ export default function NDATokenPage() {
                     isVertical={isVertical}
                     classNames={{
                         base: "flex flex-col md:flex-row gap-8 md:gap-16",
-                        tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-80 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-8 z-40 backdrop-blur-md",
+                        tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-8 z-40 backdrop-blur-md",
                         cursor: "rounded-xl bg-white dark:bg-gray-700 shadow-md",
                         tab: "h-11 md:h-14 px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
                         tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-base",
