@@ -192,7 +192,11 @@ export default function NDATokenPage() {
     const [showIntroAnimation, setShowIntroAnimation] = useState(false);
 
     // Using Redux for loading/error states and actions
-    const { loading, error, success } = useSelector((state: RootState) => state.NDA);
+    const {
+        getByTokenLoading, getByTokenError,
+        uploadLoading, uploadSuccess, uploadError,
+        signLoading, signSuccess, signError
+    } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
 
     // Fetch NDA data
@@ -202,7 +206,7 @@ export default function NDATokenPage() {
         }
     }, [token, dispatch]);
 
-    const { currentNDA } = useSelector((state: RootState) => state.NDA); 
+    const { currentNDA } = useSelector((state: RootState) => state.NDA);
     useEffect(() => {
         if (currentNDA) {
             let data = currentNDA;
@@ -233,24 +237,27 @@ export default function NDATokenPage() {
     }, [currentNDA]);
 
     useEffect(() => {
-        if (success) {
+        const successMessage = uploadSuccess || signSuccess;
+        const errorMessage = getByTokenError || uploadError || signError;
+
+        if (successMessage) {
             addToast({
                 title: "Success",
-                description: success,
+                description: successMessage,
                 color: "success",
             });
-            if (success.includes("signed")) {
+            if (successMessage.includes("signed")) {
                 setActiveTab("review");
             }
         }
-        if (error) {
+        if (errorMessage) {
             addToast({
                 title: "Error",
-                description: typeof error === "string" ? error : "An error occurred",
+                description: typeof errorMessage === "string" ? errorMessage : "An error occurred",
                 color: "danger",
             });
         }
-    }, [success, error]);
+    }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
 
     const handleUpload = () => {
         // Validate that all required documents are uploaded
@@ -434,7 +441,7 @@ export default function NDATokenPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    if (error && error.includes("expired")) {
+    if (getByTokenError && getByTokenError.includes("expired")) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <AlertTriangle size={48} className="text-danger mb-4" />
@@ -444,7 +451,7 @@ export default function NDATokenPage() {
         );
     }
 
-    if (!ndaData && loading) {
+    if (!ndaData && getByTokenLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -469,7 +476,7 @@ export default function NDATokenPage() {
                 </Button>
             </div>
         );
-    } 
+    }
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
             <AnimatePresence>
@@ -630,7 +637,7 @@ export default function NDATokenPage() {
                                             color="primary"
                                             size="lg"
                                             onPress={handleUpload}
-                                            isLoading={loading}
+                                            isLoading={uploadLoading}
                                             // isDisabled={currentNDA?.nda?.status === "Document Uploaded"}
                                             className="font-semibold px-8 shadow-lg shadow-primary/20"
                                             endContent={<CheckCircle2 size={18} />}
@@ -733,7 +740,7 @@ export default function NDATokenPage() {
                                                                 color="primary"
                                                                 size="lg"
                                                                 onPress={handleSaveSignature}
-                                                                isLoading={loading}
+                                                                isLoading={signLoading}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
                                                             >
                                                                 Submit Signature

@@ -38,7 +38,13 @@ import { Tooltip } from "@heroui/tooltip";
 
 export default function NDAPage() {
     const dispatch = useDispatch();
-    const { ndaList, generatedLink, loading, success, error, meta } = useSelector(
+    const {
+        ndaList, generatedLink, meta,
+        getListLoading, getListError,
+        generateLoading, generateSuccess, generateError,
+        regenerateLoading, regenerateSuccess, regenerateError,
+        deleteLoading, deleteSuccess, deleteError
+    } = useSelector(
         (state: RootState) => state.NDA
     );
 
@@ -77,22 +83,26 @@ export default function NDAPage() {
     }, [dispatch, page, limit, search, statusFilter]);
 
     useEffect(() => {
-        if (success) {
+        const successMessage = generateSuccess || regenerateSuccess || deleteSuccess;
+        const errorMessage = getListError || generateError || regenerateError || deleteError;
+
+        if (successMessage) {
             addToast({
                 title: "Success",
-                description: success,
+                description: successMessage,
                 color: "success",
             });
+            // We don't clear state here to keep currentNDA/generatedLink available if needed
         }
-        if (error) {
+        if (errorMessage) {
             addToast({
                 title: "Error",
-                description: typeof error === "string" ? error : "Something went wrong",
+                description: typeof errorMessage === "string" ? errorMessage : "Something went wrong",
                 color: "danger",
             });
             dispatch(clearNDAState());
         }
-    }, [success, error, dispatch]);
+    }, [generateSuccess, regenerateSuccess, deleteSuccess, getListError, generateError, regenerateError, deleteError, dispatch]);
 
     const handleGenerate = (data: {
         employee_name: string;
@@ -267,7 +277,7 @@ export default function NDAPage() {
                     <TableBody
                         items={ndaList || []}
                         emptyContent={"No NDA requests found"}
-                        isLoading={loading}
+                        isLoading={getListLoading}
                     >
                         {(item: any) => (
                             <TableRow key={item.id}>
@@ -432,7 +442,7 @@ export default function NDAPage() {
                 <GenerateNDADrawer
                     isOpen={isDrawerOpen}
                     onOpenChange={onDrawerOpenChange}
-                    loading={loading}
+                    loading={generateLoading}
                     onSubmit={handleGenerate}
                     generatedLink={generatedLink}
                 />

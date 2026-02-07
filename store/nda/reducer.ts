@@ -27,9 +27,34 @@ interface NDAState {
   ndaList: any[];
   currentNDA: any | null;
   generatedLink: string | null;
-  loading: boolean;
-  error: string | null;
-  success: string | null;
+
+  // Action-specific states
+  generateLoading: boolean;
+  generateError: string | null;
+  generateSuccess: string | null;
+
+  getListLoading: boolean;
+  getListError: string | null;
+
+  getByTokenLoading: boolean;
+  getByTokenError: string | null;
+
+  uploadLoading: boolean;
+  uploadError: string | null;
+  uploadSuccess: string | null;
+
+  signLoading: boolean;
+  signError: string | null;
+  signSuccess: string | null;
+
+  regenerateLoading: boolean;
+  regenerateError: string | null;
+  regenerateSuccess: string | null;
+
+  deleteLoading: boolean;
+  deleteError: string | null;
+  deleteSuccess: string | null;
+
   meta: {
     current_page: number;
     total_pages: number;
@@ -42,9 +67,33 @@ const initialNDAState: NDAState = {
   ndaList: [],
   currentNDA: null,
   generatedLink: null,
-  loading: false,
-  error: null,
-  success: null,
+
+  generateLoading: false,
+  generateError: null,
+  generateSuccess: null,
+
+  getListLoading: false,
+  getListError: null,
+
+  getByTokenLoading: false,
+  getByTokenError: null,
+
+  uploadLoading: false,
+  uploadError: null,
+  uploadSuccess: null,
+
+  signLoading: false,
+  signError: null,
+  signSuccess: null,
+
+  regenerateLoading: false,
+  regenerateError: null,
+  regenerateSuccess: null,
+
+  deleteLoading: false,
+  deleteError: null,
+  deleteSuccess: null,
+
   meta: {
     current_page: 1,
     total_pages: 1,
@@ -62,16 +111,17 @@ const ndaReducer = (
     case GENERATE_NDA_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        generateLoading: true,
+        generateError: null,
+        generateSuccess: null,
         generatedLink: null,
       };
     case GENERATE_NDA_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "NDA link generated successfully",
+        generateLoading: false,
+        generateSuccess:
+          action.payload.message || "NDA link generated successfully",
         generatedLink: action.payload.data?.link || null,
         currentNDA: action.payload.data?.nda || null,
         ndaList: action.payload.data?.nda
@@ -81,109 +131,111 @@ const ndaReducer = (
     case GENERATE_NDA_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        generateLoading: false,
+        generateError: action.payload,
       };
 
     // Get NDA List
     case GET_NDA_LIST_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getListLoading: true,
+        getListError: null,
       };
     case GET_NDA_LIST_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getListLoading: false,
         ndaList: action.payload.data || [],
         meta: action.payload.meta || state.meta,
       };
     case GET_NDA_LIST_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getListLoading: false,
+        getListError: action.payload,
       };
 
     // Get NDA by Token
     case GET_NDA_BY_TOKEN_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getByTokenLoading: true,
+        getByTokenError: null,
         currentNDA: null,
       };
     case GET_NDA_BY_TOKEN_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getByTokenLoading: false,
         currentNDA: action.payload.data,
       };
     case GET_NDA_BY_TOKEN_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getByTokenLoading: false,
+        getByTokenError: action.payload,
       };
 
     // Upload Documents
     case UPLOAD_NDA_DOCUMENTS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        uploadLoading: true,
+        uploadError: null,
+        uploadSuccess: null,
       };
     case UPLOAD_NDA_DOCUMENTS_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Documents uploaded successfully",
+        uploadLoading: false,
+        uploadSuccess:
+          action.payload.message || "Documents uploaded successfully",
         currentNDA: action.payload.data,
       };
     case UPLOAD_NDA_DOCUMENTS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        uploadLoading: false,
+        uploadError: action.payload,
       };
 
     // Sign NDA
     case SIGN_NDA_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        signLoading: true,
+        signError: null,
+        signSuccess: null,
       };
     case SIGN_NDA_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "NDA signed successfully",
+        signLoading: false,
+        signSuccess: action.payload.message || "NDA signed successfully",
         currentNDA: action.payload.data,
       };
     case SIGN_NDA_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        signLoading: false,
+        signError: action.payload,
       };
 
     // Regenerate NDA
     case REGENERATE_NDA_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        regenerateLoading: true,
+        regenerateError: null,
+        regenerateSuccess: null,
       };
     case REGENERATE_NDA_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "NDA link regenerated successfully",
+        regenerateLoading: false,
+        regenerateSuccess:
+          action.payload.message || "NDA link regenerated successfully",
         ndaList: state.ndaList.map((item) =>
           item.id === action.payload.data?.nda?.id
             ? action.payload.data.nda
@@ -193,37 +245,48 @@ const ndaReducer = (
     case REGENERATE_NDA_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        regenerateLoading: false,
+        regenerateError: action.payload,
       };
 
     // Delete NDA
     case DELETE_NDA_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        deleteLoading: true,
+        deleteError: null,
+        deleteSuccess: null,
       };
     case DELETE_NDA_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: "NDA request deleted successfully",
+        deleteLoading: false,
+        deleteSuccess: "NDA request deleted successfully",
         ndaList: state.ndaList.filter((item) => item.id !== action.payload),
       };
     case DELETE_NDA_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        deleteLoading: false,
+        deleteError: action.payload,
       };
 
     // Clear State
     case CLEAR_NDA_STATE:
       return {
         ...state,
-        error: null,
-        success: null,
+        generateError: null,
+        generateSuccess: null,
+        getListError: null,
+        getByTokenError: null,
+        uploadError: null,
+        uploadSuccess: null,
+        signError: null,
+        signSuccess: null,
+        regenerateError: null,
+        regenerateSuccess: null,
+        deleteError: null,
+        deleteSuccess: null,
         currentNDA: null,
         generatedLink: null,
       };
