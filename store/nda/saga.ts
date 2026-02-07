@@ -30,6 +30,7 @@ function generateNDAApi(payload: {
   employee_name: string;
   role: string;
   address: string;
+  residential_address: string;
 }) {
   return api.post("/nda/generate", payload);
 }

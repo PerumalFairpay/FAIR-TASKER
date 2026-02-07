@@ -25,6 +25,7 @@ export const generateNDARequest = (payload: {
   employee_name: string;
   role: string;
   address: string;
+  residential_address : string
 }) => ({
   type: GENERATE_NDA_REQUEST,
   payload,

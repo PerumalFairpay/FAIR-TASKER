@@ -17,7 +17,7 @@ interface GenerateNDADrawerProps {
     onOpenChange: (open: boolean) => void;
     generatedLink: string | null;
     loading: boolean;
-    onSubmit: (data: { employee_name: string; role: string; address: string; expires_in_hours: number }) => void;
+    onSubmit: (data: { employee_name: string; role: string; address: string; residential_address: string; expires_in_hours: number }) => void;
 }
 
 export default function GenerateNDADrawer({
@@ -31,6 +31,7 @@ export default function GenerateNDADrawer({
         employee_name: "",
         role: "",
         address: "",
+        residential_address: "",
         expires_in_hours: 1,
     });
 
@@ -38,6 +39,7 @@ export default function GenerateNDADrawer({
         employee_name: "",
         role: "",
         address: "",
+        residential_address: "",
     });
 
     const [copied, setCopied] = useState(false);
@@ -51,12 +53,14 @@ export default function GenerateNDADrawer({
                     employee_name: "",
                     role: "",
                     address: "",
+                    residential_address: "",
                     expires_in_hours: 1,
                 });
                 setErrors({
                     employee_name: "",
                     role: "",
                     address: "",
+                    residential_address: "",
                 });
                 setShowLink(false);
                 setCopied(false);
@@ -83,6 +87,7 @@ export default function GenerateNDADrawer({
             employee_name: "",
             role: "",
             address: "",
+            residential_address: "",
         };
 
         if (!formData.employee_name.trim()) {
@@ -93,6 +98,9 @@ export default function GenerateNDADrawer({
         }
         if (!formData.address.trim()) {
             newErrors.address = "Address is required";
+        }
+        if (!formData.residential_address.trim()) {
+            newErrors.residential_address = "Residential Address is required";
         }
 
         setErrors(newErrors);
@@ -217,7 +225,19 @@ export default function GenerateNDADrawer({
                                         errorMessage={errors.address}
                                         minRows={3}
                                     />
-                                  
+                                    <Textarea
+                                        label="Residential Address"
+                                        placeholder="Enter employee address"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.residential_address}
+                                        onChange={(e) => handleChange("residential_address", e.target.value)}
+                                        isRequired
+                                        isInvalid={!!errors.residential_address}
+                                        errorMessage={errors.residential_address}
+                                        minRows={3}
+                                    />
+
                                     <Select
                                         label="Expiry Time"
                                         placeholder="Select expiry time"
