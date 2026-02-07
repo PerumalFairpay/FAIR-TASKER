@@ -202,8 +202,7 @@ export default function NDATokenPage() {
         }
     }, [token, dispatch]);
 
-    const { currentNDA } = useSelector((state: RootState) => state.NDA);
-
+    const { currentNDA } = useSelector((state: RootState) => state.NDA); 
     useEffect(() => {
         if (currentNDA) {
             let data = currentNDA;
@@ -470,8 +469,7 @@ export default function NDATokenPage() {
                 </Button>
             </div>
         );
-    }
-
+    } 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
             <AnimatePresence>
@@ -633,10 +631,11 @@ export default function NDATokenPage() {
                                             size="lg"
                                             onPress={handleUpload}
                                             isLoading={loading}
+                                            // isDisabled={currentNDA?.nda?.status === "Document Uploaded"}
                                             className="font-semibold px-8 shadow-lg shadow-primary/20"
                                             endContent={<CheckCircle2 size={18} />}
                                         >
-                                            Upload & Proceed
+                                            {currentNDA?.nda?.status === "Document Uploaded" ? "Uploaded" : "Upload & Proceed"}
                                         </Button>
                                     </div>
                                 </div>
