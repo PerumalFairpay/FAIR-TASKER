@@ -278,6 +278,15 @@ export default function NDATokenPage() {
         }
     };
 
+    const [isVertical, setIsVertical] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsVertical(window.innerWidth >= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     if (error && error.includes("expired")) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -287,15 +296,6 @@ export default function NDATokenPage() {
             </div>
         );
     }
-
-    const [isVertical, setIsVertical] = useState(false);
-
-    useEffect(() => {
-        const handleResize = () => setIsVertical(window.innerWidth >= 768);
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     if (!ndaData && loading) {
         return (
