@@ -423,7 +423,7 @@ export default function NDATokenPage() {
                                                     {ndaData?.employee_name}
                                                 </span>
                                             </div>
-                                            <div className="w-full h-[700px] bg-white relative">
+                                            <div className="w-full h-[60vh] md:h-[700px] bg-white relative">
                                                 <iframe
                                                     srcDoc={htmlContent}
                                                     className="w-full h-full border-0"
