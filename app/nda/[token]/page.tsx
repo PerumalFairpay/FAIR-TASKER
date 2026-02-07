@@ -11,10 +11,11 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { addToast } from "@heroui/toast";
@@ -190,6 +191,7 @@ export default function NDATokenPage() {
     const [authLoading, setAuthLoading] = useState(false);
     const [authError, setAuthError] = useState("");
     const [showIntroAnimation, setShowIntroAnimation] = useState(false);
+    const [previewFile, setPreviewFile] = useState<{ url: string, type: string, name: string } | null>(null);
 
     // Using Redux for loading/error states and actions
     const {
@@ -210,12 +212,12 @@ export default function NDATokenPage() {
     useEffect(() => {
         if (currentNDA) {
             let data = currentNDA;
- 
+
             if (currentNDA.html_content) {
                 setHtmlContent(currentNDA.html_content);
                 data = currentNDA.nda;
                 setIsAuthenticated(true);
-            } 
+            }
             else if (currentNDA.requires_auth) {
                 setNdaData(currentNDA.nda);
                 setIsAuthenticated(false);
@@ -225,10 +227,10 @@ export default function NDATokenPage() {
             setNdaData(data);
 
             if (data?.required_documents) {
-                setRequiredDocuments(data.required_documents); 
+                setRequiredDocuments(data.required_documents);
                 setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
             }
- 
+
             if (data?.status === "Document Uploaded") {
                 setActiveTab("review");
             }
@@ -258,7 +260,7 @@ export default function NDATokenPage() {
         }
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
 
-    const handleUpload = () => { 
+    const handleUpload = () => {
         const missingDocs = uploadedFiles.filter(f => !f.file);
 
         if (missingDocs.length > 0) {
@@ -594,31 +596,61 @@ export default function NDATokenPage() {
                                                                     }}
                                                                 />
                                                             )}
-                                                            <p className="text-xs text-gray-400 mt-0.5 truncate">
+                                                            {/* <p className="text-xs text-gray-400 mt-0.5 truncate">
                                                                 {doc.file ? doc.file.name : "No file selected"}
-                                                            </p>
+                                                            </p> */}
                                                         </div>
                                                     </div>
 
                                                     <div className="w-full md:w-2/3 relative">
-                                                        <FileUpload
-                                                            files={doc.file ? [doc.file] : []}
-                                                            setFiles={(fileItems) => {
-                                                                const file = fileItems[0]?.file as File || null;
-                                                                const newFiles = [...uploadedFiles];
-                                                                newFiles[index].file = file;
-                                                                setUploadedFiles(newFiles);
-                                                            }}
-                                                            name={`file-${index}`}
-                                                            acceptedFileTypes={['image/png', 'image/jpeg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
-                                                            labelIdle='<span class="text-sm flex items-center gap-2 justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg> Drag & Drop or <span class="text-primary hover:underline cursor-pointer">Browse</span></span>'
-                                                        />
+                                                        {ndaData?.documents?.find((d: any) => d.document_name === doc.name) ? (
+                                                            <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/30 rounded-xl">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
+                                                                        <CheckCircle2 size={16} />
+                                                                    </div>
+                                                                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Document Uploaded</span>
+                                                                </div>
+                                                                <Button
+                                                                    size="sm"
+                                                                    color="primary"
+                                                                    variant="flat"
+                                                                    className="font-semibold"
+                                                                    startContent={<Eye size={14} />}
+                                                                    onPress={() => {
+                                                                        const uploadedDoc = ndaData.documents.find((d: any) => d.document_name === doc.name);
+                                                                        if (uploadedDoc) {
+                                                                            setPreviewFile({
+                                                                                url: uploadedDoc.document_proof,
+                                                                                type: uploadedDoc.file_type || "application/pdf",
+                                                                                name: uploadedDoc.document_name
+                                                                            });
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    View Preview
+                                                                </Button>
+                                                            </div>
+                                                        ) : (
+                                                            <FileUpload
+                                                                files={doc.file ? [doc.file] : []}
+                                                                setFiles={(fileItems) => {
+                                                                    const file = fileItems[0]?.file as File || null;
+                                                                    const newFiles = [...uploadedFiles];
+                                                                    newFiles[index].file = file;
+                                                                    setUploadedFiles(newFiles);
+                                                                }}
+                                                                name={`file-${index}`}
+                                                                acceptedFileTypes={['image/png', 'image/jpeg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+                                                                labelIdle='<span class="text-sm flex items-center gap-2 justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg> Drag & Drop or <span class="text-primary hover:underline cursor-pointer">Browse</span></span>'
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
                                             );
                                         })}
-
-                                        {/* Add Document Button */}
+ 
+                                        {ndaData?.status !== "Document Uploaded" && (
                                         <button
                                             className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 cursor-pointer w-full"
                                             onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
@@ -628,6 +660,7 @@ export default function NDATokenPage() {
                                             </div>
                                             <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm">Add Another Document</span>
                                         </button>
+                                        )}
                                     </div>
 
                                     <div className="flex justify-end mt-10">
@@ -734,7 +767,7 @@ export default function NDATokenPage() {
                                                         </div>
 
                                                         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-                                                            
+
                                                             <Button
                                                                 color="primary"
                                                                 size="lg"
@@ -839,6 +872,14 @@ export default function NDATokenPage() {
                     </div>
                 )
             )}
+
+            <FilePreviewModal
+                isOpen={!!previewFile}
+                onClose={() => setPreviewFile(null)}
+                fileUrl={previewFile?.url || null}
+                fileType={previewFile?.type || null}
+                fileName={previewFile?.name || ""}
+            />
         </div>
     );
 }

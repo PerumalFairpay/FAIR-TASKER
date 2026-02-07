@@ -46,7 +46,7 @@ export default function GenerateNDADrawer({
         role: "",
         address: "",
         residential_address: "",
-        expires_in_hours: 1,
+        expires_in_hours: 48,
         required_documents: [
             "10th Marksheet",
             "12th Marksheet",
@@ -81,7 +81,7 @@ export default function GenerateNDADrawer({
                     role: "",
                     address: "",
                     residential_address: "",
-                    expires_in_hours: 1,
+                    expires_in_hours: 48,
                     required_documents: [
                         "10th Marksheet",
                         "12th Marksheet",
@@ -425,7 +425,7 @@ export default function GenerateNDADrawer({
                                     >
                                         <SelectItem key="1">1 Hour</SelectItem>
                                         <SelectItem key="24">24 Hours</SelectItem>
-                                        <SelectItem key="48">48 Hours</SelectItem>
+                                        <SelectItem key="48">2 Days</SelectItem>
                                         <SelectItem key="168">7 Days</SelectItem>
                                     </Select>
                                 </div>

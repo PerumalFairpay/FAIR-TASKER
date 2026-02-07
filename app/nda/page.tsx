@@ -119,7 +119,7 @@ export default function NDAPage() {
 
     const handleRegenerateClick = (id: string) => {
         setRegenerateId(id);
-        setRegenerateExpiry(1); // Default to 1 hour
+        setRegenerateExpiry(48); // Default to 1 hour
         onRegenerateOpen();
     };
 
@@ -384,6 +384,7 @@ export default function NDAPage() {
                                                 >
                                                     <Copy size={16} />
                                                 </Button>
+                                                {item.status !== "Document Uploaded" && (
                                                 <Button
                                                     isIconOnly
                                                     size="sm"
@@ -395,7 +396,7 @@ export default function NDAPage() {
                                                 >
                                                     <RefreshCw size={16} />
                                                 </Button>
-                                                {item.status !== "Document Uploaded" && (
+                                                )}
                                                 <Button
                                                     isIconOnly
                                                     size="sm"
@@ -406,8 +407,7 @@ export default function NDAPage() {
                                                     title="Delete NDA Request"
                                                 >
                                                     <Trash size={16} />
-                                                </Button>
-                                                )}
+                                                </Button> 
                                             </>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
@@ -537,7 +537,7 @@ export default function NDAPage() {
                                     >
                                         <SelectItem key="1">1 Hour</SelectItem>
                                         <SelectItem key="24">24 Hours</SelectItem>
-                                        <SelectItem key="48">48 Hours</SelectItem>
+                                        <SelectItem key="48">2 Days</SelectItem>
                                         <SelectItem key="168">7 Days</SelectItem>
                                     </Select>
                                 </ModalBody>
