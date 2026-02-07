@@ -505,25 +505,27 @@ export default function NDATokenPage() {
                             selectedKey={activeTab}
                             onSelectionChange={(key) => setActiveTab(key as string)}
                         >
-                            <Tab
-                                key="logo"
-                                title={
-                                    <motion.div
-                                        layoutId="company-logo"
-                                        className="flex items-center justify-center w-full py-1"
-                                    >
-                                        <Image
-                                            src={logo}
-                                            alt="FairPay Logo"
-                                            width={140}
-                                            height={40}
-                                            className="object-contain"
-                                        />
-                                    </motion.div>
-                                }
-                                isDisabled
-                                className="opacity-100 cursor-default mb-4 pointer-events-none data-[disabled=true]:opacity-100"
-                            />
+                            {isVertical && (
+                                <Tab
+                                    key="logo"
+                                    title={
+                                        <motion.div
+                                            layoutId="company-logo"
+                                            className="flex items-center justify-center w-full py-1"
+                                        >
+                                            <Image
+                                                src={logo}
+                                                alt="FairPay Logo"
+                                                width={140}
+                                                height={40}
+                                                className="object-contain"
+                                            />
+                                        </motion.div>
+                                    }
+                                    isDisabled
+                                    className="opacity-100 cursor-default mb-4 pointer-events-none data-[disabled=true]:opacity-100"
+                                />
+                            )}
                             <Tab
                                 key="documents"
                                 title={
