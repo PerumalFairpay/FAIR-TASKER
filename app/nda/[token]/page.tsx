@@ -222,6 +222,15 @@ export default function NDATokenPage() {
         );
     }
 
+    const [isVertical, setIsVertical] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsVertical(window.innerWidth >= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     if (!ndaData && loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -252,21 +261,18 @@ export default function NDATokenPage() {
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 p-6 md:p-12">
             <div className="max-w-8xl mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">NDA Submission</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2">Please upload the required documents and sign the agreement.</p>
-                </div>
-
                 <Tabs
                     aria-label="NDA Steps"
                     color="primary"
                     variant="solid"
+                    isVertical={isVertical}
                     classNames={{
-                        base: "w-full mb-8",
-                        tabList: "bg-default-100 p-1 rounded-xl w-full flex justify-between",
-                        cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
-                        tab: "h-10",
-                        tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
+                        base: "flex flex-col md:flex-row gap-6 md:gap-10",
+                        tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-1.5 rounded-2xl w-full md:w-72 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-2 z-40 backdrop-blur-md",
+                        cursor: "rounded-xl bg-white dark:bg-gray-700 shadow-md",
+                        tab: "h-11 md:h-14 px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
+                        tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-base",
+                        panel: "flex-1 p-0 w-full"
                     }}
                     selectedKey={activeTab}
                     onSelectionChange={(key) => setActiveTab(key as string)}
@@ -281,12 +287,6 @@ export default function NDATokenPage() {
                         }
                     >
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="mb-8 p-6 bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl">
-                                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">Upload Required Documents</h3>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
-                                    Please upload clear copies of the following mandatory documents. All files are securely processed.
-                                </p>
-                            </div>
 
                             <div className="flex flex-col gap-4">
                                 {uploadedFiles.map((doc, index) => {
