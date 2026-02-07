@@ -260,13 +260,13 @@ export default function NDATokenPage() {
                 <Tabs
                     aria-label="NDA Steps"
                     color="primary"
-                    variant="underlined"
+                    variant="solid"
                     classNames={{
-                        base: "w-full",
-                        tabList: "gap-8 w-full relative rounded-none p-0 border-b border-divider mb-8",
-                        cursor: "w-full bg-primary h-[2px]",
-                        tab: "max-w-fit px-0 h-12",
-                        tabContent: "group-data-[selected=true]:text-primary font-medium text-base"
+                        base: "w-full mb-8",
+                        tabList: "bg-default-100 p-1 rounded-xl w-full flex justify-between",
+                        cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
+                        tab: "h-10",
+                        tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
                     }}
                     selectedKey={activeTab}
                     onSelectionChange={(key) => setActiveTab(key as string)}
