@@ -649,17 +649,17 @@ export default function NDATokenPage() {
                                                 </div>
                                             );
                                         })}
- 
+
                                         {ndaData?.status !== "Document Uploaded" && (
-                                        <button
-                                            className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 cursor-pointer w-full"
-                                            onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
-                                        >
-                                            <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
-                                                <Upload size={18} className="text-gray-400" />
-                                            </div>
-                                            <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm">Add Another Document</span>
-                                        </button>
+                                            <button
+                                                className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 cursor-pointer w-full"
+                                                onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
+                                            >
+                                                <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                                                    <Upload size={18} className="text-gray-400" />
+                                                </div>
+                                                <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm">Add Another Document</span>
+                                            </button>
                                         )}
                                     </div>
 

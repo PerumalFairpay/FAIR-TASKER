@@ -385,17 +385,17 @@ export default function NDAPage() {
                                                     <Copy size={16} />
                                                 </Button>
                                                 {item.status !== "Document Uploaded" && (
-                                                <Button
-                                                    isIconOnly
-                                                    size="sm"
-                                                    variant="light"
-                                                    color="primary"
-                                                    onPress={() => handleRegenerateClick(item.id)}
-                                                    aria-label="Regenerate Link"
-                                                    title="Regenerate Link"
-                                                >
-                                                    <RefreshCw size={16} />
-                                                </Button>
+                                                    <Button
+                                                        isIconOnly
+                                                        size="sm"
+                                                        variant="light"
+                                                        color="primary"
+                                                        onPress={() => handleRegenerateClick(item.id)}
+                                                        aria-label="Regenerate Link"
+                                                        title="Regenerate Link"
+                                                    >
+                                                        <RefreshCw size={16} />
+                                                    </Button>
                                                 )}
                                                 <Button
                                                     isIconOnly
@@ -407,7 +407,7 @@ export default function NDAPage() {
                                                     title="Delete NDA Request"
                                                 >
                                                     <Trash size={16} />
-                                                </Button> 
+                                                </Button>
                                             </>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
