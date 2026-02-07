@@ -17,15 +17,7 @@ import FileUpload from "@/components/common/FileUpload";
 import { addToast } from "@heroui/toast";
 import SignaturePad from "react-signature-canvas";
 
-const REQUIRED_DOCUMENTS = [
-    "10th Marksheet",
-    "12th Marksheet",
-    "TC",
-    "Degree Certificate",
-    "Cumulative Certificate",
-    "Adhar",
-    "PAN Card"
-];
+
 
 export default function NDATokenPage() {
     const params = useParams();
@@ -37,9 +29,9 @@ export default function NDATokenPage() {
     const [htmlContent, setHtmlContent] = useState<string>("");
 
     // Initialize with required documents
-    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>(
-        REQUIRED_DOCUMENTS.map(name => ({ name, file: null }))
-    );
+    const [requiredDocuments, setRequiredDocuments] = useState<string[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>([]);
+
 
     const [signature, setSignature] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("documents");
@@ -59,11 +51,19 @@ export default function NDATokenPage() {
 
     useEffect(() => {
         if (currentNDA) {
+            let data = currentNDA;
             if (currentNDA.html_content) {
                 setHtmlContent(currentNDA.html_content);
-                setNdaData(currentNDA.nda);
+                data = currentNDA.nda;
             } else {
-                setNdaData(currentNDA);
+                setHtmlContent(""); // Or handle no content
+            }
+            setNdaData(data);
+
+            if (data?.required_documents) {
+                setRequiredDocuments(data.required_documents);
+                // Initialize uploaded files based on required documents
+                setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
             }
         }
     }, [currentNDA]);
@@ -290,7 +290,7 @@ export default function NDATokenPage() {
 
                             <div className="flex flex-col gap-4">
                                 {uploadedFiles.map((doc, index) => {
-                                    const isRequired = index < REQUIRED_DOCUMENTS.length;
+                                    const isRequired = index < requiredDocuments.length;
                                     return (
                                         <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 relative group">
 

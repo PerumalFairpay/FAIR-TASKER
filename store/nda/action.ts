@@ -25,7 +25,9 @@ export const generateNDARequest = (payload: {
   employee_name: string;
   role: string;
   address: string;
-  residential_address : string
+  residential_address: string;
+  expires_in_hours: number;
+  required_documents: string[];
 }) => ({
   type: GENERATE_NDA_REQUEST,
   payload,

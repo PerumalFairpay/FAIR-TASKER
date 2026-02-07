@@ -17,7 +17,14 @@ interface GenerateNDADrawerProps {
     onOpenChange: (open: boolean) => void;
     generatedLink: string | null;
     loading: boolean;
-    onSubmit: (data: { employee_name: string; role: string; address: string; residential_address: string; expires_in_hours: number }) => void;
+    onSubmit: (data: {
+        employee_name: string;
+        role: string;
+        address: string;
+        residential_address: string;
+        expires_in_hours: number;
+        required_documents: string[];
+    }) => void;
 }
 
 export default function GenerateNDADrawer({
@@ -33,6 +40,15 @@ export default function GenerateNDADrawer({
         address: "",
         residential_address: "",
         expires_in_hours: 1,
+        required_documents: [
+            "10th Marksheet",
+            "12th Marksheet",
+            "TC",
+            "Degree Certificate",
+            "Cumulative Certificate",
+            "Adhar",
+            "PAN Card"
+        ],
     });
 
     const [errors, setErrors] = useState({
@@ -55,6 +71,15 @@ export default function GenerateNDADrawer({
                     address: "",
                     residential_address: "",
                     expires_in_hours: 1,
+                    required_documents: [
+                        "10th Marksheet",
+                        "12th Marksheet",
+                        "TC",
+                        "Degree Certificate",
+                        "Cumulative Certificate",
+                        "Adhar",
+                        "PAN Card"
+                    ],
                 });
                 setErrors({
                     employee_name: "",
@@ -130,6 +155,27 @@ export default function GenerateNDADrawer({
     const handleClose = () => {
         setShowLink(false);
         onOpenChange(false);
+    };
+
+    const handleAddDocument = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = e.currentTarget.value.trim();
+            if (val && !formData.required_documents.includes(val)) {
+                setFormData(prev => ({
+                    ...prev,
+                    required_documents: [...prev.required_documents, val]
+                }));
+                e.currentTarget.value = '';
+            }
+        }
+    };
+
+    const handleRemoveDocument = (docToRemove: string) => {
+        setFormData(prev => ({
+            ...prev,
+            required_documents: prev.required_documents.filter(doc => doc !== docToRemove)
+        }));
     };
 
     return (
@@ -237,6 +283,34 @@ export default function GenerateNDADrawer({
                                         errorMessage={errors.residential_address}
                                         minRows={3}
                                     />
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-foreground">Required Documents</label>
+                                        <div className="flex flex-wrap gap-2 mb-2">
+                                            {formData.required_documents.map((doc, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center gap-1 bg-default-100 hover:bg-default-200 text-default-700 px-3 py-1 rounded-full text-sm transition-colors border border-default-200"
+                                                >
+                                                    <span>{doc}</span>
+                                                    <button
+                                                        onClick={() => handleRemoveDocument(doc)}
+                                                        className="ml-1 text-default-400 hover:text-danger focus:outline-none"
+                                                    >
+                                                        &times;
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <Input
+                                            placeholder="Type document name and press Enter to add"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            onKeyDown={handleAddDocument}
+                                            description="Press Enter to add a document"
+                                            endContent={<span className="text-default-400 text-xs">↵</span>}
+                                        />
+                                    </div>
 
                                     <Select
                                         label="Expiry Time"
