@@ -292,7 +292,7 @@ export default function NDATokenPage() {
                                 {uploadedFiles.map((doc, index) => {
                                     const isRequired = index < REQUIRED_DOCUMENTS.length;
                                     return (
-                                        <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-all hover:border-primary/50 hover:shadow-md relative group">
+                                        <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 relative group">
 
                                             {!isRequired && (
                                                 <button
@@ -358,13 +358,13 @@ export default function NDATokenPage() {
 
                                 {/* Add Document Button */}
                                 <button
-                                    className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 hover:border-primary/50 hover:bg-white dark:hover:bg-gray-900 transition-all cursor-pointer group w-full"
+                                    className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 cursor-pointer w-full"
                                     onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
                                 >
-                                    <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm group-hover:scale-110 transition-transform">
-                                        <Upload size={18} className="text-gray-400 group-hover:text-primary transition-colors" />
+                                    <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                                        <Upload size={18} className="text-gray-400" />
                                     </div>
-                                    <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm group-hover:text-primary transition-colors">Add Another Document</span>
+                                    <span className="font-semibold text-gray-500 dark:text-gray-400 text-sm">Add Another Document</span>
                                 </button>
                             </div>
 
@@ -447,7 +447,7 @@ export default function NDATokenPage() {
                                                         By signing below, you acknowledge that you have read and understood the terms of this agreement.
                                                     </p>
 
-                                                    <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white overflow-hidden touch-none hover:border-primary/30 transition-colors">
+                                                    <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white overflow-hidden touch-none">
                                                         <SignaturePad
                                                             ref={sigPad}
                                                             canvasProps={{
