@@ -636,11 +636,11 @@ export default function NDATokenPage() {
                                             size="lg"
                                             onPress={handleUpload}
                                             isLoading={uploadLoading}
-                                            // isDisabled={currentNDA?.nda?.status === "Document Uploaded"}
+                                            isDisabled={ndaData?.status === "Document Uploaded"}
                                             className="font-semibold px-8 shadow-lg shadow-primary/20"
                                             endContent={<CheckCircle2 size={18} />}
                                         >
-                                            {currentNDA?.nda?.status === "Document Uploaded" ? "Uploaded" : "Upload & Proceed"}
+                                            {ndaData?.status === "Document Uploaded" ? "Uploaded" : "Upload & Proceed"}
                                         </Button>
                                     </div>
                                 </div>
@@ -734,14 +734,16 @@ export default function NDATokenPage() {
                                                         </div>
 
                                                         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                                                            
                                                             <Button
                                                                 color="primary"
                                                                 size="lg"
                                                                 onPress={handleSaveSignature}
                                                                 isLoading={signLoading}
+                                                                isDisabled={ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
                                                             >
-                                                                Submit Signature
+                                                                {ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
                                                             <Button
                                                                 variant="flat"

@@ -395,6 +395,7 @@ export default function NDAPage() {
                                                 >
                                                     <RefreshCw size={16} />
                                                 </Button>
+                                                {item.status !== "Document Uploaded" && (
                                                 <Button
                                                     isIconOnly
                                                     size="sm"
@@ -406,6 +407,7 @@ export default function NDAPage() {
                                                 >
                                                     <Trash size={16} />
                                                 </Button>
+                                                )}
                                             </>
                                         }
                                         {item.status === "Signed" && item.signed_pdf_path && (
