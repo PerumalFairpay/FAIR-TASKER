@@ -128,26 +128,31 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="p-6 bg-gray-50/50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 backdrop-blur-sm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="flex flex-col items-center gap-8 py-4"
                 >
-                    <p className="text-xs text-gray-400 uppercase tracking-[0.2em] font-bold mb-2">Authenticated User</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{employeeName}</p>
+                    <div className="space-y-1">
+                        <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">Authenticated Recipient</p>
+                        <p className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
+                    </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-left">
-                        <div className="space-y-1">
-                            <p className="text-[10px] text-gray-400 uppercase font-bold">Organization</p>
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                                <FileText size={14} />
+                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+                        <div className="flex flex-col items-center md:items-start gap-1">
+                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Organization</p>
+                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
+                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><FileText size={14} /></span>
                                 FairPay HRM
                             </div>
                         </div>
-                        <div className="space-y-1 text-right md:text-left">
-                            <p className="text-[10px] text-gray-400 uppercase font-bold">Document Type</p>
-                            <div className="flex items-center justify-end md:justify-start gap-1.5 text-xs font-semibold text-primary">
-                                <ShieldCheck size={14} />
+
+                        <div className="w-px h-8 bg-gray-200 dark:bg-gray-800 hidden md:block" />
+
+                        <div className="flex flex-col items-center md:items-start gap-1">
+                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Registry</p>
+                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
+                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><ShieldCheck size={14} /></span>
                                 Legal NDA Form
                             </div>
                         </div>
