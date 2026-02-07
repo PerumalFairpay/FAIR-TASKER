@@ -11,7 +11,9 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock } from "lucide-react";
+import { Input } from "@heroui/input";
+import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
 
 import { addToast } from "@heroui/toast";
@@ -36,6 +38,12 @@ export default function NDATokenPage() {
     const [signature, setSignature] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("documents");
 
+    // Auth State
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loginEmail, setLoginEmail] = useState("");
+    const [authLoading, setAuthLoading] = useState(false);
+    const [authError, setAuthError] = useState("");
+
     // Using Redux for loading/error states and actions
     const { loading, error, success } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
@@ -55,6 +63,11 @@ export default function NDATokenPage() {
             if (currentNDA.html_content) {
                 setHtmlContent(currentNDA.html_content);
                 data = currentNDA.nda;
+                setIsAuthenticated(true); // If HTML content is present, we are authenticated
+            } else if (currentNDA.nda?.requires_auth) {
+                setNdaData(currentNDA.nda);
+                setIsAuthenticated(false);
+                return; // Stop processing until authenticated
             } else {
                 setHtmlContent(""); // Or handle no content
             }
@@ -182,6 +195,59 @@ export default function NDATokenPage() {
         dispatch(signNDARequest(token, sigData, deviceDetails));
     };
 
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setAuthError("");
+        setAuthLoading(true);
+
+        if (!loginEmail) {
+            setAuthError("Email is required");
+            setAuthLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nda/access/${token}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email: loginEmail }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setHtmlContent(data.data.html_content);
+                setNdaData(data.data.nda);
+
+                if (data.data.nda?.required_documents) {
+                    setRequiredDocuments(data.data.nda.required_documents);
+                    setUploadedFiles(data.data.nda.required_documents.map((name: string) => ({ name, file: null })));
+                }
+
+                setIsAuthenticated(true);
+                addToast({
+                    title: "Access Granted",
+                    description: "You can now view and sign the document.",
+                    color: "success",
+                });
+            } else {
+                setAuthError(data.message || "Invalid Email");
+                addToast({
+                    title: "Access Denied",
+                    description: data.message || "Invalid Email Address",
+                    color: "danger",
+                });
+            }
+        } catch (err) {
+            console.error("Login Check Error:", err);
+            setAuthError("An error occurred. Please try again.");
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
     const downloadNDA = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/nda/download/${token}`);
@@ -254,6 +320,76 @@ export default function NDATokenPage() {
                 >
                     Close Window
                 </Button>
+            </div>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
+                <div className="w-full max-w-md">
+                    <div className="text-center mb-8">
+                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Lock className="text-primary w-8 h-8" />
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Document Access</h1>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2">
+                            Please verify your identity to access the Non-Disclosure Agreement for
+                            <span className="font-semibold text-primary block mt-1">{ndaData?.employee_name}</span>
+                        </p>
+                    </div>
+
+                    <Card className="shadow-lg border border-gray-100 dark:border-gray-800">
+                        <form onSubmit={handleLogin}>
+                            <CardBody className="gap-4 p-6">
+                                {authError && (
+                                    <div className="bg-danger-50 text-danger-600 p-3 rounded-lg text-sm flex items-center gap-2">
+                                        <AlertTriangle size={16} />
+                                        {authError}
+                                    </div>
+                                )}
+                                <div className="space-y-2">
+                                    <Input
+                                        label="Email Address"
+                                        placeholder="Enter your email"
+                                        type="email"
+                                        variant="bordered"
+                                        labelPlacement="outside"
+                                        value={loginEmail}
+                                        onValueChange={(val) => {
+                                            setLoginEmail(val);
+                                            setAuthError("");
+                                        }}
+                                        isRequired
+                                        classNames={{
+                                            inputWrapper: "h-12"
+                                        }}
+                                        startContent={<span className="text-gray-400">@</span>}
+                                    />
+                                    <p className="text-xs text-gray-400 px-1">
+                                        Enter the email address provided during the request generation.
+                                    </p>
+                                </div>
+                            </CardBody>
+                            <CardFooter className="px-6 pb-6 pt-0">
+                                <Button
+                                    type="submit"
+                                    color="primary"
+                                    fullWidth
+                                    size="lg"
+                                    isLoading={authLoading}
+                                    className="font-semibold"
+                                >
+                                    Verify & Access
+                                </Button>
+                            </CardFooter>
+                        </form>
+                    </Card>
+
+                    <p className="text-center text-xs text-gray-400 mt-8">
+                        This document is secure and intended only for the specified recipient.
+                    </p>
+                </div>
             </div>
         );
     }

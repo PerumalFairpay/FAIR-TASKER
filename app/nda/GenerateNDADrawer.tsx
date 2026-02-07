@@ -19,6 +19,8 @@ interface GenerateNDADrawerProps {
     loading: boolean;
     onSubmit: (data: {
         employee_name: string;
+        email: string;
+        mobile: string;
         role: string;
         address: string;
         residential_address: string;
@@ -37,6 +39,8 @@ export default function GenerateNDADrawer({
     const [newDoc, setNewDoc] = useState("");
     const [formData, setFormData] = useState({
         employee_name: "",
+        email: "",
+        mobile: "",
         role: "",
         address: "",
         residential_address: "",
@@ -54,6 +58,8 @@ export default function GenerateNDADrawer({
 
     const [errors, setErrors] = useState({
         employee_name: "",
+        email: "",
+        mobile: "",
         role: "",
         address: "",
         residential_address: "",
@@ -68,6 +74,8 @@ export default function GenerateNDADrawer({
             setTimeout(() => {
                 setFormData({
                     employee_name: "",
+                    email: "",
+                    mobile: "",
                     role: "",
                     address: "",
                     residential_address: "",
@@ -84,6 +92,8 @@ export default function GenerateNDADrawer({
                 });
                 setErrors({
                     employee_name: "",
+                    email: "",
+                    mobile: "",
                     role: "",
                     address: "",
                     residential_address: "",
@@ -111,6 +121,8 @@ export default function GenerateNDADrawer({
     const validate = () => {
         const newErrors = {
             employee_name: "",
+            email: "",
+            mobile: "",
             role: "",
             address: "",
             residential_address: "",
@@ -118,6 +130,14 @@ export default function GenerateNDADrawer({
 
         if (!formData.employee_name.trim()) {
             newErrors.employee_name = "Employee name is required";
+        }
+        if (!formData.email.trim()) {
+            newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Email is invalid";
+        }
+        if (!formData.mobile.trim()) {
+            newErrors.mobile = "Mobile number is required";
         }
         if (!formData.role.trim()) {
             newErrors.role = "Role is required";
@@ -252,6 +272,29 @@ export default function GenerateNDADrawer({
                                         isRequired
                                         isInvalid={!!errors.employee_name}
                                         errorMessage={errors.employee_name}
+                                    />
+                                    <Input
+                                        label="Email"
+                                        type="email"
+                                        placeholder="Enter employee email"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.email}
+                                        onChange={(e) => handleChange("email", e.target.value)}
+                                        isRequired
+                                        isInvalid={!!errors.email}
+                                        errorMessage={errors.email}
+                                    />
+                                    <Input
+                                        label="Mobile"
+                                        placeholder="Enter employee mobile number"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.mobile}
+                                        onChange={(e) => handleChange("mobile", e.target.value)}
+                                        isRequired
+                                        isInvalid={!!errors.mobile}
+                                        errorMessage={errors.mobile}
                                     />
                                     <Input
                                         label="Role"
