@@ -28,9 +28,13 @@ import api, { publicApi } from "../api";
 // API Functions
 function generateNDAApi(payload: {
   employee_name: string;
+  email: string;
+  mobile: string;
   role: string;
   address: string;
   residential_address: string;
+  expires_in_hours: number;
+  required_documents: string[];
 }) {
   return api.post("/nda/generate", payload);
 }

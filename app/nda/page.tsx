@@ -89,7 +89,16 @@ export default function NDAPage() {
         }
     }, [success, error, dispatch]);
 
-    const handleGenerate = (data: { employee_name: string; role: string; address: string; expires_in_hours?: number }) => {
+    const handleGenerate = (data: {
+        employee_name: string;
+        email: string;
+        mobile: string;
+        role: string;
+        address: string;
+        residential_address: string;
+        expires_in_hours: number;
+        required_documents: string[];
+    }) => {
         dispatch(generateNDARequest(data));
     };
 

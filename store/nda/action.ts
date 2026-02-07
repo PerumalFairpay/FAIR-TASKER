@@ -23,6 +23,8 @@ import {
 // Generate NDA Link
 export const generateNDARequest = (payload: {
   employee_name: string;
+  email: string;
+  mobile: string;
   role: string;
   address: string;
   residential_address: string;
