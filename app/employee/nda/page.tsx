@@ -176,7 +176,7 @@ export default function NDAPage() {
     };
 
     const handleCopyLink = (token: string) => {
-        const fullLink = `${window.location.origin}/nda/${token}`;
+        const fullLink = `${window.location.origin}/employee/nda/${token}`;
         navigator.clipboard.writeText(fullLink).then(() => {
             addToast({
                 title: "Copied!",

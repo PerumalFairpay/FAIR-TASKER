@@ -46,7 +46,12 @@ export const siteConfig: SiteConfig = {
           icon: "Contact",
           allowedRoles: ["admin"],
         },
-        
+        {
+          label: "NDA",
+          href: "/employee/nda",
+          icon: "FileText",
+          allowedRoles: ["admin"],
+        },
         {
           label: "Onboarding",
           href: "/employee/onboarding",
@@ -79,12 +84,6 @@ export const siteConfig: SiteConfig = {
         },
       ],
     },
-    {
-          label: "NDA",
-          href: "/nda",
-          icon: "FileText",
-          allowedRoles: ["admin"],
-        },
     {
       label: "Attendance",
       href: "/attendance",

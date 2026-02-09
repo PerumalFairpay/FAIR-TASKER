@@ -21,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { addToast } from "@heroui/toast";
 import SignaturePad from "react-signature-canvas";
 import Image from "next/image";
-import logo from "../../../app/assets/FairPay.png";
+import logo from "@/app/assets/FairPay.png";
 
 const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: string, onComplete: () => void }) => {
     const [progress, setProgress] = useState(0);
