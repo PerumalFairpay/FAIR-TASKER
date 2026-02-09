@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { getDepartmentsRequest } from "@/store/department/action";
 import {
     Drawer,
     DrawerContent,
@@ -37,12 +40,16 @@ export default function GenerateNDADrawer({
     onSubmit,
     generatedLink,
 }: GenerateNDADrawerProps) {
+    const dispatch = useDispatch();
+    const { departments } = useSelector((state: RootState) => state.Department);
+
     const [newDoc, setNewDoc] = useState("");
     const [isExperience, setIsExperience] = useState(false);
     const [formData, setFormData] = useState({
         employee_name: "",
         email: "",
         mobile: "",
+        department: "",
         role: "",
         address: "",
         residential_address: "",
@@ -62,6 +69,7 @@ export default function GenerateNDADrawer({
         employee_name: "",
         email: "",
         mobile: "",
+        department: "",
         role: "",
         address: "",
         residential_address: "",
@@ -69,15 +77,45 @@ export default function GenerateNDADrawer({
 
     const [copied, setCopied] = useState(false);
     const [showLink, setShowLink] = useState(false);
+    const [isSameAddress, setIsSameAddress] = useState(false);
+
+    // Compute root departments
+    const rootDepartments = useMemo(() => {
+        return (departments || []).filter((dept: any) => !dept.parent_id);
+    }, [departments]);
+
+    // Compute designation options (descendants of selected root department)
+    const designationOptions = useMemo(() => {
+        if (!formData.department) return [];
+        const selectedRoot = rootDepartments.find((d: any) => d.name === formData.department);
+        if (!selectedRoot) return [];
+
+        const descendants: any[] = [];
+        const traverse = (parentId: any, level: number) => {
+            const children = (departments || []).filter((d: any) => d.parent_id === parentId);
+            children.forEach((child: any) => {
+                descendants.push({
+                    ...child,
+                    displayName: level > 0 ? `${".".repeat(level * 4)} ${child.name}` : child.name
+                });
+                traverse(child.id, level + 1);
+            });
+        };
+        traverse(selectedRoot.id, 0);
+        return descendants;
+    }, [formData.department, rootDepartments, departments]);
 
     useEffect(() => {
-        if (!isOpen) {
+        if (isOpen) {
+            dispatch(getDepartmentsRequest());
+        } else {
             // Reset form when drawer closes
             setTimeout(() => {
                 setFormData({
                     employee_name: "",
                     email: "",
                     mobile: "",
+                    department: "",
                     role: "",
                     address: "",
                     residential_address: "",
@@ -96,16 +134,30 @@ export default function GenerateNDADrawer({
                     employee_name: "",
                     email: "",
                     mobile: "",
+                    department: "",
                     role: "",
                     address: "",
                     residential_address: "",
                 });
                 setShowLink(false);
                 setCopied(false);
+                setIsSameAddress(false);
                 setIsExperience(false);
             }, 300); // Delay to avoid visual glitch during close animation
         }
-    }, [isOpen]);
+    }, [isOpen, dispatch]);
+
+    useEffect(() => {
+        if (isSameAddress) {
+            setFormData((prev) => ({
+                ...prev,
+                residential_address: prev.address,
+            }));
+            if (errors.residential_address) {
+                setErrors((prev) => ({ ...prev, residential_address: "" }));
+            }
+        }
+    }, [isSameAddress, formData.address, errors.residential_address]);
 
     useEffect(() => {
         if (generatedLink) {
@@ -126,6 +178,7 @@ export default function GenerateNDADrawer({
             employee_name: "",
             email: "",
             mobile: "",
+            department: "",
             role: "",
             address: "",
             residential_address: "",
@@ -141,6 +194,9 @@ export default function GenerateNDADrawer({
         }
         if (!formData.mobile.trim()) {
             newErrors.mobile = "Mobile number is required";
+        }
+        if (!formData.department.trim()) {
+            newErrors.department = "Department is required";
         }
         if (!formData.role.trim()) {
             newErrors.role = "Role is required";
@@ -158,7 +214,8 @@ export default function GenerateNDADrawer({
 
     const handleSubmit = () => {
         if (validate()) {
-            onSubmit(formData);
+            const { department, ...submitData } = formData as any;
+            onSubmit(submitData);
         }
     };
 
@@ -320,17 +377,44 @@ export default function GenerateNDADrawer({
                                         isInvalid={!!errors.mobile}
                                         errorMessage={errors.mobile}
                                     />
-                                    <Input
-                                        label="Role"
-                                        placeholder="Enter employee role/designation"
+                                    <Select
+                                        label="Department"
+                                        placeholder="Select Department"
                                         labelPlacement="outside"
                                         variant="bordered"
-                                        value={formData.role}
+                                        selectedKeys={formData.department ? [formData.department] : []}
+                                        onChange={(e) => {
+                                            handleChange("department", e.target.value);
+                                            handleChange("role", ""); // Reset role when department changes
+                                        }}
+                                        isRequired
+                                        isInvalid={!!errors.department}
+                                        errorMessage={errors.department}
+                                    >
+                                        {rootDepartments.map((dept: any) => (
+                                            <SelectItem key={dept.name} textValue={dept.name}>
+                                                {dept.name}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                    <Select
+                                        label="Role"
+                                        placeholder="Select Role/Designation"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        selectedKeys={formData.role ? [formData.role] : []}
                                         onChange={(e) => handleChange("role", e.target.value)}
                                         isRequired
                                         isInvalid={!!errors.role}
                                         errorMessage={errors.role}
-                                    />
+                                        isDisabled={!formData.department || designationOptions.length === 0}
+                                    >
+                                        {designationOptions.map((desig: any) => (
+                                            <SelectItem key={desig.name} textValue={desig.name}>
+                                                {desig.displayName}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
                                     <Textarea
                                         label="Address"
                                         placeholder="Enter employee address"
@@ -343,17 +427,37 @@ export default function GenerateNDADrawer({
                                         errorMessage={errors.address}
                                         minRows={3}
                                     />
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox
+                                            size="sm"
+                                            isSelected={isSameAddress}
+                                            onValueChange={(isSelected) => {
+                                                setIsSameAddress(isSelected);
+                                                if (isSelected) {
+                                                    setFormData(prev => ({ ...prev, residential_address: prev.address }));
+                                                }
+                                            }}
+                                        >
+                                            Same as Address
+                                        </Checkbox>
+                                    </div>
                                     <Textarea
                                         label="Residential Address"
-                                        placeholder="Enter employee address"
+                                        placeholder="Enter employee residential address"
                                         labelPlacement="outside"
                                         variant="bordered"
                                         value={formData.residential_address}
-                                        onChange={(e) => handleChange("residential_address", e.target.value)}
+                                        onChange={(e) => {
+                                            handleChange("residential_address", e.target.value);
+                                            if (isSameAddress && e.target.value !== formData.address) {
+                                                setIsSameAddress(false);
+                                            }
+                                        }}
                                         isRequired
                                         isInvalid={!!errors.residential_address}
                                         errorMessage={errors.residential_address}
                                         minRows={3}
+                                        isDisabled={isSameAddress}
                                     />
 
                                     <div className="space-y-3">
@@ -371,7 +475,7 @@ export default function GenerateNDADrawer({
                                                 onValueChange={setNewDoc}
                                                 onKeyDown={handleKeyDown}
                                                 className="flex-1"
-                                                // size="sm"
+                                            // size="sm"
                                             />
                                             <Button isIconOnly color="primary" variant="flat" onPress={handleAddDocument}>
                                                 <Plus size={18} />

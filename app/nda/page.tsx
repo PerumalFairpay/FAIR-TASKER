@@ -286,6 +286,9 @@ export default function NDAPage() {
                                         <p className="text-bold text-sm truncate" title={item.employee_name}>
                                             {item.employee_name}
                                         </p>
+                                        <p className="text-tiny text-default-400 truncate" title={item.email}>
+                                            {item.email}
+                                        </p>
                                         <p className="text-tiny text-default-400 truncate" title={item.address}>
                                             {item.address}
                                         </p>
