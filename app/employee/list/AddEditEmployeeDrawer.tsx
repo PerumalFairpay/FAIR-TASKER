@@ -303,6 +303,16 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("email", e.target.value)}
                                                 isRequired
                                             />
+                                            <Input
+                                                label="Personal Email"
+                                                placeholder="john.doe@gmail.com"
+                                                type="email"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.personal_email || ""}
+                                                onChange={(e) => handleChange("personal_email", e.target.value)}
+                                                description="Used to fetching NDA documents"
+                                            />
                                             {mode === "create" && (
                                                 <>
                                                     <Input
@@ -389,6 +399,15 @@ export default function AddEditEmployeeDrawer({
                                                 <SelectItem key="Married" textValue="Married">Married</SelectItem>
                                                 <SelectItem key="Divorced" textValue="Divorced">Divorced</SelectItem>
                                             </Select>
+                                            <Textarea
+                                                label="Address"
+                                                placeholder="Enter employee address"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address || ""}
+                                                onChange={(e) => handleChange("address", e.target.value)}
+                                                className="md:col-span-2"
+                                            />
                                         </div>
                                     </div>
                                 </Tab>

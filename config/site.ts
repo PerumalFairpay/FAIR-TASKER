@@ -47,6 +47,12 @@ export const siteConfig: SiteConfig = {
           allowedRoles: ["admin"],
         },
         {
+          label: "NDA",
+          href: "/employee/nda",
+          icon: "FileText",
+          allowedRoles: ["admin"],
+        },
+        {
           label: "Onboarding",
           href: "/employee/onboarding",
           icon: "UserPlus",

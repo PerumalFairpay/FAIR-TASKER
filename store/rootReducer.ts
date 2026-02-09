@@ -22,32 +22,32 @@ import attendanceReducer from "./attendance/reducer";
 import permissionReducer from "./permission/reducer";
 import dashboardReducer from "./dashboard/reducer";
 import profileReducer from "./profile/reducer";
-
-
+import ndaReducer from "./nda/reducer";
 
 const rootReducer = combineReducers({
-    Blog: blogReducer,
-    Auth: authReducer,
-    Settings: settingsReducer,
-    Department: departmentReducer,
-    Role: roleReducer,
-    Employee: employeeReducer,
-    ExpenseCategory: expenseCategoryReducer,
-    Expense: expenseReducer,
-    DocumentCategory: documentCategoryReducer,
-    Document: documentReducer,
-    Client: clientReducer,
-    Project: projectReducer,
-    Holiday: holidayReducer,
-    AssetCategory: assetCategoryReducer,
-    Asset: assetReducer,
-    LeaveType: leaveTypeReducer,
-    LeaveRequest: leaveRequestReducer,
-    Task: taskReducer,
-    Attendance: attendanceReducer,
-    Permission: permissionReducer,
-    Dashboard: dashboardReducer,
-    Profile: profileReducer,
+  Blog: blogReducer,
+  Auth: authReducer,
+  Settings: settingsReducer,
+  Department: departmentReducer,
+  Role: roleReducer,
+  Employee: employeeReducer,
+  ExpenseCategory: expenseCategoryReducer,
+  Expense: expenseReducer,
+  DocumentCategory: documentCategoryReducer,
+  Document: documentReducer,
+  Client: clientReducer,
+  Project: projectReducer,
+  Holiday: holidayReducer,
+  AssetCategory: assetCategoryReducer,
+  Asset: assetReducer,
+  LeaveType: leaveTypeReducer,
+  LeaveRequest: leaveRequestReducer,
+  Task: taskReducer,
+  Attendance: attendanceReducer,
+  Permission: permissionReducer,
+  Dashboard: dashboardReducer,
+  Profile: profileReducer,
+  NDA: ndaReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

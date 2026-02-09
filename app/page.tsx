@@ -189,6 +189,7 @@ export default function LoginPage() {
               transition={{ delay: 0.2 }}
             >
               <Input
+                suppressHydrationWarning
                 isRequired
                 label="Email"
                 labelPlacement="outside"
@@ -211,6 +212,7 @@ export default function LoginPage() {
               transition={{ delay: 0.3 }}
             >
               <Input
+                suppressHydrationWarning
                 isRequired
                 label="Password"
                 labelPlacement="outside"
@@ -263,7 +265,7 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </motion.div>
-          </form> 
+          </form>
         </motion.div>
       </div>
     </div>
