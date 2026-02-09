@@ -24,7 +24,7 @@ interface EditPayslipDrawerProps {
 
 const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPayslipDrawerProps) => {
     const dispatch = useDispatch();
-    const { generating } = useSelector((state: RootState) => state.Payslip); // Reusing generating state for update as per reducer
+    const { updating, updateError } = useSelector((state: RootState) => state.Payslip);
 
     const [formData, setFormData] = useState<any>({
         month: "",
@@ -224,7 +224,7 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                         </DrawerBody>
                         <DrawerFooter>
                             <Button color="danger" variant="light" onPress={onClose}>Cancel</Button>
-                            <Button color="primary" isLoading={generating} onPress={handleSubmit}>
+                            <Button color="primary" isLoading={updating} onPress={handleSubmit}>
                                 Update Payslip
                             </Button>
                         </DrawerFooter>

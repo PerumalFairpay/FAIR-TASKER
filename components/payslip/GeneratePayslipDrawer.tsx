@@ -26,7 +26,7 @@ interface GeneratePayslipDrawerProps {
 const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePayslipDrawerProps) => {
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
-    const { generating, error } = useSelector((state: RootState) => state.Payslip);
+    const { generating, generateError } = useSelector((state: RootState) => state.Payslip);
 
     const [formData, setFormData] = useState<any>({
         employee_id: "",
