@@ -163,6 +163,26 @@ export const siteConfig: SiteConfig = {
         },
       ],
     },
+    {
+      label: "Payroll",
+      href: "/payroll",
+      icon: "Banknote",
+      allowedRoles: ["admin", "employee"],
+      children: [
+        {
+          label: "Payslip List",
+          href: "/payslip/list",
+          icon: "FileText",
+          allowedRoles: ["admin"],
+        },
+        {
+          label: "My Payslips",
+          href: "/payslip/employee",
+          icon: "Contact",
+          allowedRoles: ["admin", "employee"],
+        },
+      ],
+    },
 
     {
       label: "Categories",

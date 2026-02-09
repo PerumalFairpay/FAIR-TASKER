@@ -23,6 +23,7 @@ import permissionReducer from "./permission/reducer";
 import dashboardReducer from "./dashboard/reducer";
 import profileReducer from "./profile/reducer";
 import ndaReducer from "./nda/reducer";
+import payslipReducer from "./payslip/reducer";
 
 const rootReducer = combineReducers({
   Blog: blogReducer,
@@ -48,6 +49,7 @@ const rootReducer = combineReducers({
   Dashboard: dashboardReducer,
   Profile: profileReducer,
   NDA: ndaReducer,
+  Payslip: payslipReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

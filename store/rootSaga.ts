@@ -22,6 +22,7 @@ import dashboardSaga from "./dashboard/saga";
 import profileSaga from "./profile/saga";
 import settingsSaga from "./settings/saga";
 import ndaSaga from "./nda/saga";
+import payslipSaga from "./payslip/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -48,5 +49,6 @@ export default function* rootSaga() {
     fork(profileSaga),
     fork(settingsSaga),
     fork(ndaSaga),
+    fork(payslipSaga),
   ]);
 }
