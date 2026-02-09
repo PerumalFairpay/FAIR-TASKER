@@ -21,12 +21,12 @@ function generatePayslipApi(payload: any) {
 }
 
 function getPayslipsApi(params: any) {
-  const { page = 1, limit = 10, ...query } = params || {};
-  const queryString = new URLSearchParams({
-    page: page.toString(),
-    limit: limit.toString(),
-    ...query,
-  }).toString();
+  const cleanParams = Object.fromEntries(
+    Object.entries(params || {}).filter(
+      ([_, v]) => v != null && v !== "" && v !== "undefined",
+    ),
+  );
+  const queryString = new URLSearchParams(cleanParams as any).toString();
   return api.get(`/payslip/list?${queryString}`);
 }
 
