@@ -646,6 +646,14 @@ export default function AddEditEmployeeDrawer({
                                                 value={formData.pf_account_number || ""}
                                                 onChange={(e) => handleChange("pf_account_number", e.target.value)}
                                             />
+                                            <Input
+                                                label="ESIC Number"
+                                                placeholder="1234567890"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.esic_number || ""}
+                                                onChange={(e) => handleChange("esic_number", e.target.value)}
+                                            />
                                         </div>
                                     </div>
                                 </Tab>
