@@ -8,6 +8,9 @@ import {
   DOWNLOAD_PAYSLIP_REQUEST,
   DOWNLOAD_PAYSLIP_SUCCESS,
   DOWNLOAD_PAYSLIP_FAILURE,
+  UPDATE_PAYSLIP_REQUEST,
+  UPDATE_PAYSLIP_SUCCESS,
+  UPDATE_PAYSLIP_FAILURE,
 } from "./actionType";
 
 const initialState = {
@@ -75,6 +78,27 @@ const payslipReducer = (state = initialState, action: any) => {
       return {
         ...state,
         loading: false,
+        error: action.payload,
+      };
+    case UPDATE_PAYSLIP_REQUEST:
+      return {
+        ...state,
+        generating: true,
+        error: null,
+      };
+    case UPDATE_PAYSLIP_SUCCESS:
+      return {
+        ...state,
+        generating: false,
+        payslips: state.payslips.map((item: any) =>
+          item.id === action.payload.data.id ? action.payload.data : item,
+        ),
+        error: null,
+      };
+    case UPDATE_PAYSLIP_FAILURE:
+      return {
+        ...state,
+        generating: false,
         error: action.payload,
       };
     default:

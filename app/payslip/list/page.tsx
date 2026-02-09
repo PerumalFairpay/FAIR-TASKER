@@ -9,10 +9,11 @@ import {
     TableCell,
 } from "@heroui/table";
 import { Button } from "@heroui/button";
-import { Download, Plus, Search, Calendar, Filter } from "lucide-react";
+import { Download, Plus, Search, Calendar, Filter, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPayslipsRequest, downloadPayslipRequest } from "../../../store/payslip/action";
 import GeneratePayslipDrawer from "../../../components/payslip/GeneratePayslipDrawer";
+import EditPayslipDrawer from "../../../components/payslip/EditPayslipDrawer";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader";
 import TablePagination from "@/components/common/TablePagination";
@@ -26,6 +27,18 @@ const PayslipList = () => {
     const dispatch = useDispatch();
     const { payslips, loading, meta } = useSelector((state: RootState) => state.Payslip);
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+    const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange, onClose: onEditClose } = useDisclosure();
+    const [selectedPayslip, setSelectedPayslip] = useState<any>(null);
+
+    const handleEdit = (payslip: any) => {
+        setSelectedPayslip(payslip);
+        onEditOpen();
+    };
+
+    const handleEditSuccess = () => {
+        onEditClose();
+        fetchPayslips(page, limit, search, month, year);
+    };
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -121,7 +134,7 @@ const PayslipList = () => {
                             startContent={<Calendar size={14} className="text-default-500" />}
                         >
                             {months.map((m) => (
-                                <SelectItem key={m} value={m}>{m}</SelectItem>
+                                <SelectItem key={m} textValue={m}>{m}</SelectItem>
                             ))}
                         </Select>
                         <Select
@@ -140,7 +153,7 @@ const PayslipList = () => {
                             startContent={<Filter size={14} className="text-default-500" />}
                         >
                             {years.map((y) => (
-                                <SelectItem key={y} value={y}>{y}</SelectItem>
+                                <SelectItem key={y} textValue={y}>{y}</SelectItem>
                             ))}
                         </Select>
                     </div>
@@ -186,7 +199,14 @@ const PayslipList = () => {
                             <TableCell>{`₹ ${item.net_pay.toFixed(2)}`}</TableCell>
                             <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
                             <TableCell>
-                                <div className="flex justify-center">
+                                <div className="flex justify-center gap-2">
+                                    <Button
+                                        isIconOnly
+                                        variant="light"
+                                        onPress={() => handleEdit(item)}
+                                    >
+                                        <Edit size={18} />
+                                    </Button>
                                     <Button
                                         isIconOnly
                                         variant="light"
@@ -205,6 +225,13 @@ const PayslipList = () => {
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
                 onSuccess={handleGenerateSuccess}
+            />
+
+            <EditPayslipDrawer
+                isOpen={isEditOpen}
+                onOpenChange={onEditOpenChange}
+                onSuccess={handleEditSuccess}
+                payslip={selectedPayslip}
             />
         </div>
     );

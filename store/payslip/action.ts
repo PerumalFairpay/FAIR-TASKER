@@ -8,6 +8,9 @@ import {
   DOWNLOAD_PAYSLIP_REQUEST,
   DOWNLOAD_PAYSLIP_SUCCESS,
   DOWNLOAD_PAYSLIP_FAILURE,
+  UPDATE_PAYSLIP_REQUEST,
+  UPDATE_PAYSLIP_SUCCESS,
+  UPDATE_PAYSLIP_FAILURE,
 } from "./actionType";
 
 export const generatePayslipRequest = (payload: any) => ({
@@ -52,5 +55,20 @@ export const downloadPayslipSuccess = (response: any) => ({
 
 export const downloadPayslipFailure = (error: any) => ({
   type: DOWNLOAD_PAYSLIP_FAILURE,
+  payload: error,
+});
+
+export const updatePayslipRequest = (id: string, data: any) => ({
+  type: UPDATE_PAYSLIP_REQUEST,
+  payload: { id, data },
+});
+
+export const updatePayslipSuccess = (response: any) => ({
+  type: UPDATE_PAYSLIP_SUCCESS,
+  payload: response,
+});
+
+export const updatePayslipFailure = (error: any) => ({
+  type: UPDATE_PAYSLIP_FAILURE,
   payload: error,
 });

@@ -4,6 +4,7 @@ import {
   GENERATE_PAYSLIP_REQUEST,
   GET_PAYSLIPS_REQUEST,
   DOWNLOAD_PAYSLIP_REQUEST,
+  UPDATE_PAYSLIP_REQUEST,
 } from "./actionType";
 import {
   generatePayslipSuccess,
@@ -12,6 +13,8 @@ import {
   getPayslipsFailure,
   downloadPayslipSuccess,
   downloadPayslipFailure,
+  updatePayslipSuccess,
+  updatePayslipFailure,
 } from "./action";
 import api from "../api";
 
@@ -79,8 +82,27 @@ function* onDownloadPayslip({ payload }: any): SagaIterator {
   }
 }
 
+function updatePayslipApi(id: string, data: any) {
+  return api.put(`/payslip/update/${id}`, data);
+}
+
+function* onUpdatePayslip({ payload }: any): SagaIterator {
+  try {
+    const { id, data } = payload;
+    const response = yield call(updatePayslipApi, id, data);
+    yield put(updatePayslipSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updatePayslipFailure(
+        error.response?.data?.message || "Failed to update payslip",
+      ),
+    );
+  }
+}
+
 export default function* payslipSaga(): SagaIterator {
   yield takeEvery(GENERATE_PAYSLIP_REQUEST, onGeneratePayslip);
   yield takeEvery(GET_PAYSLIPS_REQUEST, onGetPayslips);
   yield takeEvery(DOWNLOAD_PAYSLIP_REQUEST, onDownloadPayslip);
+  yield takeEvery(UPDATE_PAYSLIP_REQUEST, onUpdatePayslip);
 }
