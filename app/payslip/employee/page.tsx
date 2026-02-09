@@ -11,7 +11,7 @@ import {
 import { Button } from "@heroui/button";
 import { Download, Eye } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPayslips, downloadPayslip } from "../../../store/payslip/action";
+import { getPayslipsRequest, downloadPayslipRequest } from "../../../store/payslip/action";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader";
 import {
@@ -32,7 +32,7 @@ const EmployeePayslipList = () => {
 
     useEffect(() => {
         if (user && user.employee_id) {
-            dispatch(getPayslips({ employee_id: user.employee_id }));
+            dispatch(getPayslipsRequest({ employee_id: user.employee_id }));
         }
     }, [dispatch, user]);
 
@@ -51,7 +51,7 @@ const EmployeePayslipList = () => {
 
     const confirmDownload = () => {
         if (selectedPayslipId) {
-            dispatch(downloadPayslip(selectedPayslipId));
+            dispatch(downloadPayslipRequest(selectedPayslipId));
             onOpenChange();
         }
     };

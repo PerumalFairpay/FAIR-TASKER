@@ -10,14 +10,14 @@ import {
   DOWNLOAD_PAYSLIP_FAILURE,
 } from "./actionType";
 
-export const generatePayslip = (data: any) => ({
+export const generatePayslipRequest = (payload: any) => ({
   type: GENERATE_PAYSLIP_REQUEST,
-  payload: data,
+  payload,
 });
 
-export const generatePayslipSuccess = (data: any) => ({
+export const generatePayslipSuccess = (response: any) => ({
   type: GENERATE_PAYSLIP_SUCCESS,
-  payload: data,
+  payload: response,
 });
 
 export const generatePayslipFailure = (error: any) => ({
@@ -25,14 +25,14 @@ export const generatePayslipFailure = (error: any) => ({
   payload: error,
 });
 
-export const getPayslips = (query: any) => ({
+export const getPayslipsRequest = (payload: any) => ({
   type: GET_PAYSLIPS_REQUEST,
-  payload: query,
+  payload,
 });
 
-export const getPayslipsSuccess = (data: any) => ({
+export const getPayslipsSuccess = (response: any) => ({
   type: GET_PAYSLIPS_SUCCESS,
-  payload: data,
+  payload: response,
 });
 
 export const getPayslipsFailure = (error: any) => ({
@@ -40,14 +40,14 @@ export const getPayslipsFailure = (error: any) => ({
   payload: error,
 });
 
-export const downloadPayslip = (id: string, password?: string) => ({
+export const downloadPayslipRequest = (id: string, password?: string) => ({
   type: DOWNLOAD_PAYSLIP_REQUEST,
   payload: { id, password },
 });
 
-export const downloadPayslipSuccess = (data: any) => ({
+export const downloadPayslipSuccess = (response: any) => ({
   type: DOWNLOAD_PAYSLIP_SUCCESS,
-  payload: data,
+  payload: response,
 });
 
 export const downloadPayslipFailure = (error: any) => ({

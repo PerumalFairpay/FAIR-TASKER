@@ -179,7 +179,7 @@ export const siteConfig: SiteConfig = {
           label: "My Payslips",
           href: "/payslip/employee",
           icon: "Contact",
-          allowedRoles: ["admin", "employee"],
+          allowedRoles: ["employee"],
         },
       ],
     },

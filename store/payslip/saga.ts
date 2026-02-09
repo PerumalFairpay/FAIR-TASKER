@@ -1,4 +1,5 @@
-import { takeLatest, put, call } from "redux-saga/effects";
+import { takeEvery, put, call } from "redux-saga/effects";
+import { SagaIterator } from "redux-saga";
 import {
   GENERATE_PAYSLIP_REQUEST,
   GET_PAYSLIPS_REQUEST,
@@ -14,10 +15,30 @@ import {
 } from "./action";
 import api from "../api";
 
-function* handleGeneratePayslip(action: any): any {
+// API Functions
+function generatePayslipApi(payload: any) {
+  return api.post("/payslip/generate", payload);
+}
+
+function getPayslipsApi(params: any) {
+  const { page = 1, limit = 10, ...query } = params || {};
+  const queryString = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    ...query,
+  }).toString();
+  return api.get(`/payslip/list?${queryString}`);
+}
+
+function downloadPayslipApi(id: string) {
+  return api.get(`/payslip/download/${id}`);
+}
+
+// Sagas
+function* onGeneratePayslip({ payload }: any): SagaIterator {
   try {
-    const response = yield call(api.post, "/payslip/generate", action.payload);
-    yield put(generatePayslipSuccess(response));
+    const response = yield call(generatePayslipApi, payload);
+    yield put(generatePayslipSuccess(response.data));
   } catch (error: any) {
     yield put(
       generatePayslipFailure(
@@ -27,18 +48,9 @@ function* handleGeneratePayslip(action: any): any {
   }
 }
 
-function* handleGetPayslips(action: any): any {
+function* onGetPayslips({ payload }: any): SagaIterator {
   try {
-    const { page = 1, limit = 10, ...query } = action.payload;
-    // Construct query string
-    const params = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-      ...query,
-    }).toString();
-
-    // api.get returns response object
-    const response = yield call(api.get, `/payslip/list?${params}`);
+    const response = yield call(getPayslipsApi, payload);
     yield put(getPayslipsSuccess(response.data));
   } catch (error: any) {
     yield put(
@@ -49,20 +61,13 @@ function* handleGetPayslips(action: any): any {
   }
 }
 
-function* handleDownloadPayslip(action: any): any {
+function* onDownloadPayslip({ payload }: any): SagaIterator {
   try {
-    const { id } = action.payload;
-    const response = yield call(api.get, `/payslip/download/${id}`);
+    const { id } = payload;
+    const response = yield call(downloadPayslipApi, id);
     yield put(downloadPayslipSuccess(response.data));
 
-    // Auto-open in new tab if URL is present in data.data.url
     if (response.data && response.data.data && response.data.data.url) {
-      // If URL is fully qualified, open it.
-      // If relative, prepend API_URL? Assuming api.get returns axios response.
-      // Usually backend returns full relative path or full URL.
-      // If frontend and backend are on different ports/domains, we might need to handle this.
-      // But usually file_handler returns a path that works if prefixed with API Base or correct logic.
-      // Let's assume response.data.data.url is usable.
       window.open(response.data.data.url, "_blank");
     }
   } catch (error: any) {
@@ -74,10 +79,8 @@ function* handleDownloadPayslip(action: any): any {
   }
 }
 
-function* payslipSaga() {
-  yield takeLatest(GENERATE_PAYSLIP_REQUEST, handleGeneratePayslip);
-  yield takeLatest(GET_PAYSLIPS_REQUEST, handleGetPayslips);
-  yield takeLatest(DOWNLOAD_PAYSLIP_REQUEST, handleDownloadPayslip);
+export default function* payslipSaga(): SagaIterator {
+  yield takeEvery(GENERATE_PAYSLIP_REQUEST, onGeneratePayslip);
+  yield takeEvery(GET_PAYSLIPS_REQUEST, onGetPayslips);
+  yield takeEvery(DOWNLOAD_PAYSLIP_REQUEST, onDownloadPayslip);
 }
-
-export default payslipSaga;

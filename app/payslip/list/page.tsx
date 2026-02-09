@@ -11,7 +11,7 @@ import {
 import { Button } from "@heroui/button";
 import { Download, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPayslips, downloadPayslip } from "../../../store/payslip/action";
+import { getPayslipsRequest, downloadPayslipRequest } from "../../../store/payslip/action";
 import GeneratePayslipDrawer from "../../../components/payslip/GeneratePayslipDrawer";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader";
@@ -27,12 +27,12 @@ const PayslipList = () => {
     const [limit, setLimit] = useState(10);
 
     useEffect(() => {
-        dispatch(getPayslips({ page, limit }));
+        dispatch(getPayslipsRequest({ page, limit }));
     }, [dispatch, page, limit]);
 
     const handleGenerateSuccess = () => {
         onClose();
-        dispatch(getPayslips({ page: 1, limit }));
+        // dispatch(getPayslips({ page: 1, limit }));
     };
 
     return (
@@ -78,7 +78,7 @@ const PayslipList = () => {
                                     <Button
                                         isIconOnly
                                         variant="light"
-                                        onPress={() => dispatch(downloadPayslip(item.id))}
+                                        onPress={() => dispatch(downloadPayslipRequest(item.id))}
                                     >
                                         <Download size={18} />
                                     </Button>

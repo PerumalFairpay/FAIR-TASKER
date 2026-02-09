@@ -12,7 +12,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Divider } from "@heroui/divider";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest } from "../../store/employee/action";
-import { generatePayslip } from "../../store/payslip/action";
+import { generatePayslipRequest } from "../../store/payslip/action";
 import { MinusCircle, Plus, X } from "lucide-react";
 import { RootState } from "@/store/store";
 import { addToast } from "@heroui/toast";
@@ -87,7 +87,7 @@ const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePays
             net_pay: netPay
         };
 
-        dispatch(generatePayslip(payload));
+        dispatch(generatePayslipRequest(payload));
         onSuccess();
     };
 

@@ -31,7 +31,8 @@ const payslipReducer = (state = initialState, action: any) => {
       return {
         ...state,
         generating: false,
-        // optionally add to list or let getPayslips handle it
+        payslips: [action.payload.data, ...state.payslips],
+        error: null,
       };
     case GENERATE_PAYSLIP_FAILURE:
       return {
