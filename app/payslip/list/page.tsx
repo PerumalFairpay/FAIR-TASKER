@@ -180,8 +180,8 @@ const PayslipList = () => {
                 }
             >
                 <TableHeader>
-                    <TableColumn>MONTH/YEAR</TableColumn>
                     <TableColumn>EMPLOYEE DETAILS</TableColumn>
+                    <TableColumn>MONTH/YEAR</TableColumn>
                     <TableColumn>NET PAY</TableColumn>
                     <TableColumn>GENERATED AT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
@@ -189,7 +189,6 @@ const PayslipList = () => {
                 <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
-                            <TableCell>{`${item.month} ${item.year}`}</TableCell>
                             <TableCell>
                                 <div className="flex flex-col gap-0.5 py-1">
                                     <span className="font-semibold text-sm">{item.employee_name}</span>
@@ -200,6 +199,7 @@ const PayslipList = () => {
                                     </div>
                                 </div>
                             </TableCell>
+                            <TableCell>{`${item.month} ${item.year}`}</TableCell>
                             <TableCell>{`₹ ${item.net_pay.toFixed(2)}`}</TableCell>
                             <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
                             <TableCell>
