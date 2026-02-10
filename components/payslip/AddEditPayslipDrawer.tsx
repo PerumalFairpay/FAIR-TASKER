@@ -215,6 +215,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                         selectedKeys={formData.month ? [formData.month] : []}
                                         onChange={(e) => handleChange("month", e.target.value)}
                                         isRequired
+                                        isDisabled={mode === "edit"}
                                     >
                                         {months.map((m) => (
                                             <SelectItem key={m} textValue={m}>{m}</SelectItem>
@@ -231,6 +232,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                         value={formData.year.toString()}
                                         onChange={(e) => handleChange("year", e.target.value)}
                                         isRequired
+                                        isDisabled={mode === "edit"}
                                     />
                                 </div>
                             </div>
