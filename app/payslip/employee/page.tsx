@@ -136,6 +136,7 @@ const EmployeePayslipList = () => {
             <Table
                 aria-label="My Payslips Table"
                 removeWrapper
+                isHeaderSticky
                 bottomContent={
                     meta && meta.total_items > 0 && (
                         <TablePagination
