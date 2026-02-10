@@ -14,7 +14,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
     const isLoginPage = pathname === "/";
-    const isNDATokenPage = pathname?.startsWith("/nda/") && pathname !== "/nda";
+    const isNDATokenPage = (pathname?.startsWith("/nda/") && pathname !== "/nda") || pathname?.startsWith("/employee/nda/");
     const [isExpanded, setIsExpanded] = useState(true);
     const dispatch = useDispatch();
 
