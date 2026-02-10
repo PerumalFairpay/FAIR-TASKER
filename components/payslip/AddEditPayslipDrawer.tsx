@@ -11,57 +11,94 @@ import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Divider } from "@heroui/divider";
 import { useDispatch, useSelector } from "react-redux";
-import { updatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
+import { getEmployeesRequest } from "../../store/employee/action";
+import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
 import { MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
 import { addToast } from "@heroui/toast";
 
-interface EditPayslipDrawerProps {
+interface AddEditPayslipDrawerProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
-    payslip: any;
+    mode: "create" | "edit";
+    payslip?: any;
 }
 
-const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPayslipDrawerProps) => {
+const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }: AddEditPayslipDrawerProps) => {
     const dispatch = useDispatch();
-    const { payslipUpdateLoading, payslipUpdateError, payslipUpdateSuccess } = useSelector((state: RootState) => state.Payslip);
+    const { employees } = useSelector((state: RootState) => state.Employee);
+    const {
+        payslipGenerateLoading,
+        payslipGenerateError,
+        payslipGenerateSuccess,
+        payslipUpdateLoading,
+        payslipUpdateError,
+        payslipUpdateSuccess
+    } = useSelector((state: RootState) => state.Payslip);
+
+    const isLoading = mode === "create" ? payslipGenerateLoading : payslipUpdateLoading;
 
     useEffect(() => {
-        if (payslipUpdateSuccess) {
+        if (payslipGenerateSuccess || payslipUpdateSuccess) {
             onSuccess();
+            if (payslipGenerateSuccess) {
+                addToast({ title: "Success", description: "Payslip generated successfully", color: "success" });
+            } else {
+                addToast({ title: "Success", description: "Payslip updated successfully", color: "success" });
+            }
+            dispatch(createPayslipStates());
         }
-    }, [payslipUpdateSuccess, onSuccess]);
+    }, [payslipGenerateSuccess, payslipUpdateSuccess, onSuccess, dispatch]);
+
+    useEffect(() => {
+        const error = mode === "create" ? payslipGenerateError : payslipUpdateError;
+        if (error) {
+            addToast({ title: "Error", description: error, color: "danger" });
+        }
+    }, [payslipGenerateError, payslipUpdateError, mode]);
 
     const [formData, setFormData] = useState<any>({
+        employee_id: "",
         month: "",
         year: new Date().getFullYear(),
-        earnings: [],
-        deductions: []
+        earnings: [{ name: "Basic", amount: 0 }, { name: "HRA", amount: 0 }],
+        deductions: [{ name: "PF", amount: 0 }]
     });
 
     useEffect(() => {
-        if (isOpen && payslip) {
+        if (isOpen) {
             dispatch(createPayslipStates());
-            // Convert earnings and deductions from dict to array format
-            const earningsArray = Object.entries(payslip.earnings || {}).map(([name, amount]) => ({
-                name,
-                amount
-            }));
+            if (mode === "create") {
+                dispatch(getEmployeesRequest(1, 1000));
+                setFormData({
+                    employee_id: "",
+                    month: "",
+                    year: new Date().getFullYear(),
+                    earnings: [{ name: "Basic", amount: 0 }, { name: "HRA", amount: 0 }],
+                    deductions: [{ name: "PF", amount: 0 }]
+                });
+            } else if (mode === "edit" && payslip) {
+                const earningsArray = Object.entries(payslip.earnings || {}).map(([name, amount]) => ({
+                    name,
+                    amount
+                }));
 
-            const deductionsArray = Object.entries(payslip.deductions || {}).map(([name, amount]) => ({
-                name,
-                amount
-            }));
+                const deductionsArray = Object.entries(payslip.deductions || {}).map(([name, amount]) => ({
+                    name,
+                    amount
+                }));
 
-            setFormData({
-                month: payslip.month,
-                year: payslip.year,
-                earnings: earningsArray,
-                deductions: deductionsArray
-            });
+                setFormData({
+                    employee_id: payslip.employee_id,
+                    month: payslip.month,
+                    year: payslip.year,
+                    earnings: earningsArray,
+                    deductions: deductionsArray
+                });
+            }
         }
-    }, [isOpen, payslip]);
+    }, [isOpen, mode, payslip, dispatch]);
 
     const handleChange = (name: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -83,9 +120,9 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
     };
 
     const handleSubmit = () => {
-        const { month, year, earnings, deductions } = formData;
+        const { employee_id, month, year, earnings, deductions } = formData;
 
-        if (!month || !year) {
+        if ((mode === "create" && !employee_id) || !month || !year) {
             addToast({ title: "Validation Error", description: "Please fill all required fields", color: "danger" });
             return;
         }
@@ -97,16 +134,12 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
 
         // Reshape for API
         const earningsDict = earnings.reduce((acc: any, cur: any) => {
-            if (cur.name) {
-                return { ...acc, [cur.name]: parseFloat(cur.amount) || 0 };
-            }
+            if (cur.name) return { ...acc, [cur.name]: parseFloat(cur.amount) || 0 };
             return acc;
         }, {});
 
         const deductionsDict = deductions.reduce((acc: any, cur: any) => {
-            if (cur.name) {
-                return { ...acc, [cur.name]: parseFloat(cur.amount) || 0 };
-            }
+            if (cur.name) return { ...acc, [cur.name]: parseFloat(cur.amount) || 0 };
             return acc;
         }, {});
 
@@ -118,7 +151,11 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
             net_pay: netPay
         };
 
-        dispatch(updatePayslipRequest(payslip.id, payload));
+        if (mode === "create") {
+            dispatch(generatePayslipRequest({ ...payload, employee_id }));
+        } else {
+            dispatch(updatePayslipRequest(payslip.id, payload));
+        }
     };
 
     const months = [
@@ -136,33 +173,66 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                 {(onClose) => (
                     <>
                         <DrawerHeader className="flex flex-col gap-1">
-                            Edit Payslip - {payslip?.employee_name}
+                            {mode === "create" ? "Generate Payslip" : `Edit Payslip - ${payslip?.employee_name}`}
                         </DrawerHeader>
                         <DrawerBody>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                <Select
-                                    label="Month"
-                                    placeholder="Select month"
-                                    labelPlacement="outside"
-                                    variant="bordered"
-                                    selectedKeys={formData.month ? [formData.month] : []}
-                                    onChange={(e) => handleChange("month", e.target.value)}
-                                    isRequired
-                                >
-                                    {months.map((m) => (
-                                        <SelectItem key={m} textValue={m}>{m}</SelectItem>
-                                    ))}
-                                </Select>
-                                <Input
-                                    label="Year"
-                                    placeholder="2024"
-                                    type="number"
-                                    labelPlacement="outside"
-                                    variant="bordered"
-                                    value={formData.year.toString()}
-                                    onChange={(e) => handleChange("year", e.target.value)}
-                                    isRequired
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
+                                {mode === "create" ? (
+                                    <div className="md:col-span-6">
+                                        <Select
+                                            label="Employee"
+                                            placeholder="Select an employee"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            selectedKeys={formData.employee_id ? [formData.employee_id] : []}
+                                            onChange={(e) => handleChange("employee_id", e.target.value)}
+                                            isRequired
+                                        >
+                                            {(employees || []).map((emp: any) => (
+                                                <SelectItem key={emp.id} textValue={`${emp.name} (${emp.employee_no_id})`}>
+                                                    {emp.name} ({emp.employee_no_id})
+                                                </SelectItem>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                ) : (
+                                    <div className="md:col-span-6">
+                                        <Input
+                                            label="Employee"
+                                            value={payslip?.employee_name}
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            isDisabled
+                                        />
+                                    </div>
+                                )}
+                                <div className="md:col-span-3">
+                                    <Select
+                                        label="Month"
+                                        placeholder="Select month"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        selectedKeys={formData.month ? [formData.month] : []}
+                                        onChange={(e) => handleChange("month", e.target.value)}
+                                        isRequired
+                                    >
+                                        {months.map((m) => (
+                                            <SelectItem key={m} textValue={m}>{m}</SelectItem>
+                                        ))}
+                                    </Select>
+                                </div>
+                                <div className="md:col-span-3">
+                                    <Input
+                                        label="Year"
+                                        placeholder="2024"
+                                        type="number"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.year.toString()}
+                                        onChange={(e) => handleChange("year", e.target.value)}
+                                        isRequired
+                                    />
+                                </div>
                             </div>
 
                             <div className="mt-8">
@@ -202,15 +272,14 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                                         <span className="text-small font-medium text-default-500 whitespace-nowrap">Total Earnings:</span>
                                         <Input
                                             value={totalEarnings.toFixed(2)}
-                                            variant="bordered"
-                                            isDisabled
-                                            size="sm"
+                                            variant="flat"
                                             startContent={<span className="text-default-400 text-small">₹</span>}
                                             className="w-32"
                                             classNames={{
-                                                input: "font-bold text-primary opacity-100",
+                                                input: "font-bold text-primary",
                                                 inputWrapper: "bg-default-100"
                                             }}
+                                            isReadOnly
                                         />
                                     </div>
                                 </div>
@@ -253,15 +322,14 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                                         <span className="text-small font-medium text-default-500 whitespace-nowrap">Total Deductions:</span>
                                         <Input
                                             value={totalDeductions.toFixed(2)}
-                                            variant="bordered"
-                                            isDisabled
-                                            size="sm"
+                                            variant="flat"
                                             startContent={<span className="text-default-400 text-small">₹</span>}
                                             className="w-32"
                                             classNames={{
-                                                input: "font-bold text-danger opacity-100",
+                                                input: "font-bold text-danger",
                                                 inputWrapper: "bg-default-100"
                                             }}
+                                            isReadOnly
                                         />
                                     </div>
                                 </div>
@@ -278,8 +346,8 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                         </DrawerBody>
                         <DrawerFooter>
                             <Button color="danger" variant="light" onPress={onClose}>Cancel</Button>
-                            <Button color="primary" isLoading={payslipUpdateLoading} onPress={handleSubmit}>
-                                Update Payslip
+                            <Button color="primary" isLoading={isLoading} onPress={handleSubmit}>
+                                {mode === "create" ? "Generate Payslip" : "Update Payslip"}
                             </Button>
                         </DrawerFooter>
                     </>
@@ -289,4 +357,4 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
     );
 };
 
-export default EditPayslipDrawer;
+export default AddEditPayslipDrawer;

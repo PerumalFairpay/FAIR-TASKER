@@ -58,13 +58,12 @@ const EmployeePayslipList = () => {
 
     useEffect(() => {
         fetchPayslips(page, limit, month, year);
-    }, [fetchPayslips, page, limit]);
+    }, [fetchPayslips, page, limit, month, year]);
 
     const handleFilterChange = (type: 'month' | 'year', value: string) => {
         if (type === 'month') setMonth(value);
         if (type === 'year') setYear(value);
         setPage(1);
-        fetchPayslips(1, limit, type === 'month' ? value : month, type === 'year' ? value : year);
     };
 
     const handleView = (id: string) => {

@@ -12,8 +12,7 @@ import { Button } from "@heroui/button";
 import { Download, Plus, Search, Calendar, Filter, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPayslipsRequest, downloadPayslipRequest, createPayslipStates } from "../../../store/payslip/action";
-import GeneratePayslipDrawer from "../../../components/payslip/GeneratePayslipDrawer";
-import EditPayslipDrawer from "../../../components/payslip/EditPayslipDrawer";
+import AddEditPayslipDrawer from "../../../components/payslip/AddEditPayslipDrawer";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader";
 import TablePagination from "@/components/common/TablePagination";
@@ -27,23 +26,26 @@ const PayslipList = () => {
     const dispatch = useDispatch();
     const { payslips, payslipListLoading, meta } = useSelector((state: RootState) => state.Payslip);
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-    const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange, onClose: onEditClose } = useDisclosure();
     const [selectedPayslip, setSelectedPayslip] = useState<any>(null);
+    const [drawerMode, setDrawerMode] = useState<"create" | "edit">("create");
 
     const handleEdit = (payslip: any) => {
         dispatch(createPayslipStates());
         setSelectedPayslip(payslip);
-        onEditOpen();
+        setDrawerMode("edit");
+        onOpen();
     };
 
     const handleOpen = () => {
         dispatch(createPayslipStates());
+        setSelectedPayslip(null);
+        setDrawerMode("create");
         onOpen();
     };
 
-    const handleEditSuccess = () => {
-        onEditClose();
-    };
+    const handleSuccess = useCallback(() => {
+        onClose();
+    }, [onClose]);
 
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -86,16 +88,11 @@ const PayslipList = () => {
         if (type === 'month') setMonth(value);
         if (type === 'year') setYear(value);
         setPage(1);
-        fetchPayslips(1, limit, search, type === 'month' ? value : month, type === 'year' ? value : year);
     };
 
     useEffect(() => {
         fetchPayslips(page, limit, search, month, year);
-    }, [dispatch, page, limit]); // Re-fetch on page/limit change
-
-    const handleGenerateSuccess = () => {
-        onClose();
-    };
+    }, [fetchPayslips, page, limit, search, month, year]);
 
     return (
         <div className="p-6">
@@ -225,16 +222,11 @@ const PayslipList = () => {
                 </TableBody>
             </Table>
 
-            <GeneratePayslipDrawer
+            <AddEditPayslipDrawer
                 isOpen={isOpen}
                 onOpenChange={onOpenChange}
-                onSuccess={handleGenerateSuccess}
-            />
-
-            <EditPayslipDrawer
-                isOpen={isEditOpen}
-                onOpenChange={onEditOpenChange}
-                onSuccess={handleEditSuccess}
+                onSuccess={handleSuccess}
+                mode={drawerMode}
                 payslip={selectedPayslip}
             />
         </div>
