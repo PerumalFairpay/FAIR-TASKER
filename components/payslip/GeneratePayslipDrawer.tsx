@@ -12,7 +12,7 @@ import { Select, SelectItem } from "@heroui/select";
 import { Divider } from "@heroui/divider";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest } from "../../store/employee/action";
-import { generatePayslipRequest } from "../../store/payslip/action";
+import { generatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
 import { MinusCircle, Plus, X } from "lucide-react";
 import { RootState } from "@/store/store";
 import { addToast } from "@heroui/toast";
@@ -45,6 +45,14 @@ const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePays
     useEffect(() => {
         if (isOpen) {
             dispatch(getEmployeesRequest(1, 1000)); // Fetch all employees for selection
+            dispatch(createPayslipStates());
+            setFormData({
+                employee_id: "",
+                month: "",
+                year: new Date().getFullYear(),
+                earnings: [{ name: "Basic", amount: 0 }, { name: "HRA", amount: 0 }],
+                deductions: [{ name: "PF", amount: 0 }]
+            });
         }
     }, [isOpen, dispatch]);
 

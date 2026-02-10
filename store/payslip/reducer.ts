@@ -11,6 +11,7 @@ import {
   UPDATE_PAYSLIP_REQUEST,
   UPDATE_PAYSLIP_SUCCESS,
   UPDATE_PAYSLIP_FAILURE,
+  CREATE_PAYSLIP_STATES,
 } from "./actionType";
 
 const initialState = {
@@ -126,6 +127,17 @@ const payslipReducer = (state = initialState, action: any) => {
         ...state,
         updating: false,
         updateError: action.payload,
+      };
+
+    case CREATE_PAYSLIP_STATES:
+      return {
+        ...state,
+        generateSuccess: null,
+        generateError: null,
+        updateSuccess: null,
+        updateError: null,
+        downloadSuccess: null,
+        downloadError: null,
       };
 
     default:

@@ -11,7 +11,7 @@ import {
 import { Button } from "@heroui/button";
 import { Download, Plus, Search, Calendar, Filter, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPayslipsRequest, downloadPayslipRequest } from "../../../store/payslip/action";
+import { getPayslipsRequest, downloadPayslipRequest, createPayslipStates } from "../../../store/payslip/action";
 import GeneratePayslipDrawer from "../../../components/payslip/GeneratePayslipDrawer";
 import EditPayslipDrawer from "../../../components/payslip/EditPayslipDrawer";
 import { RootState } from "@/store/store";
@@ -31,8 +31,14 @@ const PayslipList = () => {
     const [selectedPayslip, setSelectedPayslip] = useState<any>(null);
 
     const handleEdit = (payslip: any) => {
+        dispatch(createPayslipStates());
         setSelectedPayslip(payslip);
         onEditOpen();
+    };
+
+    const handleOpen = () => {
+        dispatch(createPayslipStates());
+        onOpen();
     };
 
     const handleEditSuccess = () => {
@@ -96,7 +102,7 @@ const PayslipList = () => {
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between items-center">
                     <PageHeader title="Payslips (Admin)" />
-                    <Button color="primary" endContent={<Plus size={16} />} onPress={onOpen}>
+                    <Button color="primary" endContent={<Plus size={16} />} onPress={handleOpen}>
                         Generate Payslip
                     </Button>
                 </div>

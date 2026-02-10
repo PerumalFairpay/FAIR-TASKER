@@ -11,7 +11,12 @@ import {
   UPDATE_PAYSLIP_REQUEST,
   UPDATE_PAYSLIP_SUCCESS,
   UPDATE_PAYSLIP_FAILURE,
+  CREATE_PAYSLIP_STATES,
 } from "./actionType";
+
+export const createPayslipStates = () => ({
+  type: CREATE_PAYSLIP_STATES,
+});
 
 export const generatePayslipRequest = (payload: any) => ({
   type: GENERATE_PAYSLIP_REQUEST,

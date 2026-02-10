@@ -10,7 +10,7 @@ import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
-import { updatePayslipRequest } from "../../store/payslip/action";
+import { updatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
 import { MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
 import { addToast } from "@heroui/toast";
@@ -41,6 +41,7 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
 
     useEffect(() => {
         if (isOpen && payslip) {
+            dispatch(createPayslipStates());
             // Convert earnings and deductions from dict to array format
             const earningsArray = Object.entries(payslip.earnings || {}).map(([name, amount]) => ({
                 name,
