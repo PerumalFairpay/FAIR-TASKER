@@ -36,12 +36,45 @@ interface EmployeeState {
   };
   employee: any | null;
   userPermissions: { role_permissions: string[]; direct_permissions: string[] };
-  loading: boolean;
-  error: string | null;
-  success: string | null;
+
+  // Create Employee
+  createLoading: boolean;
+  createSuccess: string | null;
+  createError: string | null;
+
+  // List Employees
+  listLoading: boolean;
+  listSuccess: string | null;
+  listError: string | null;
+
+  // Get Single Employee
+  getLoading: boolean;
+  getSuccess: string | null;
+  getError: string | null;
+
+  // Update Employee
+  updateLoading: boolean;
+  updateSuccess: string | null;
+  updateError: string | null;
+
+  // Delete Employee
+  deleteLoading: boolean;
+  deleteSuccess: string | null;
+  deleteError: string | null;
+
+  // Update Permissions
+  updatePermissionsLoading: boolean;
+  updatePermissionsSuccess: string | null;
+  updatePermissionsError: string | null;
+
+  // Get Permissions
+  getPermissionsLoading: boolean;
+  getPermissionsSuccess: string | null;
+  getPermissionsError: string | null;
 
   // Summary Specific
   summaryLoading: boolean;
+  summarySuccess: string | null;
   summaryError: string | null;
 }
 
@@ -55,11 +88,37 @@ const initialEmployeeState: EmployeeState = {
   },
   employee: null,
   userPermissions: { role_permissions: [], direct_permissions: [] },
-  loading: false,
-  error: null,
-  success: null,
+
+  createLoading: false,
+  createSuccess: null,
+  createError: null,
+
+  listLoading: false,
+  listSuccess: null,
+  listError: null,
+
+  getLoading: false,
+  getSuccess: null,
+  getError: null,
+
+  updateLoading: false,
+  updateSuccess: null,
+  updateError: null,
+
+  deleteLoading: false,
+  deleteSuccess: null,
+  deleteError: null,
+
+  updatePermissionsLoading: false,
+  updatePermissionsSuccess: null,
+  updatePermissionsError: null,
+
+  getPermissionsLoading: false,
+  getPermissionsSuccess: null,
+  getPermissionsError: null,
 
   summaryLoading: false,
+  summarySuccess: null,
   summaryError: null,
 };
 
@@ -72,79 +131,81 @@ const employeeReducer = (
     case CREATE_EMPLOYEE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        createLoading: true,
+        createError: null,
+        createSuccess: null,
       };
     case CREATE_EMPLOYEE_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Employee created successfully",
+        createLoading: false,
+        createSuccess:
+          action.payload.message || "Employee created successfully",
         employees: [...state.employees, action.payload.data],
       };
     case CREATE_EMPLOYEE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        createLoading: false,
+        createError: action.payload,
       };
 
     // Get All
     case GET_EMPLOYEES_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        listLoading: true,
+        listError: null,
       };
     case GET_EMPLOYEES_SUCCESS:
       return {
         ...state,
-        loading: false,
+        listLoading: false,
         employees: action.payload.data,
         meta: action.payload.meta || state.meta,
       };
     case GET_EMPLOYEES_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        listLoading: false,
+        listError: action.payload,
       };
 
     // Get Single
     case GET_EMPLOYEE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getLoading: true,
+        getError: null,
         employee: null,
       };
     case GET_EMPLOYEE_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getLoading: false,
         employee: action.payload.data,
       };
     case GET_EMPLOYEE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getLoading: false,
+        getError: action.payload,
       };
 
     // Update
     case UPDATE_EMPLOYEE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        updateLoading: true,
+        updateError: null,
+        updateSuccess: null,
       };
     case UPDATE_EMPLOYEE_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Employee updated successfully",
+        updateLoading: false,
+        updateSuccess:
+          action.payload.message || "Employee updated successfully",
         employees: state.employees.map((emp) =>
           emp.id === action.payload.data.id ? action.payload.data : emp,
         ),
@@ -153,23 +214,24 @@ const employeeReducer = (
     case UPDATE_EMPLOYEE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        updateLoading: false,
+        updateError: action.payload,
       };
 
     // Delete
     case DELETE_EMPLOYEE_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        deleteLoading: true,
+        deleteError: null,
+        deleteSuccess: null,
       };
     case DELETE_EMPLOYEE_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Employee deleted successfully",
+        deleteLoading: false,
+        deleteSuccess:
+          action.payload.message || "Employee deleted successfully",
         employees: state.employees.filter(
           (emp) => emp.id !== action.payload.id,
         ),
@@ -177,43 +239,44 @@ const employeeReducer = (
     case DELETE_EMPLOYEE_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        deleteLoading: false,
+        deleteError: action.payload,
       };
 
     // Update User Permissions
     case UPDATE_USER_PERMISSIONS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        updatePermissionsLoading: true,
+        updatePermissionsError: null,
+        updatePermissionsSuccess: null,
       };
     case UPDATE_USER_PERMISSIONS_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message || "Permissions updated successfully",
+        updatePermissionsLoading: false,
+        updatePermissionsSuccess:
+          action.payload.message || "Permissions updated successfully",
       };
     case UPDATE_USER_PERMISSIONS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        updatePermissionsLoading: false,
+        updatePermissionsError: action.payload,
       };
 
     // Get User Permissions
     case GET_USER_PERMISSIONS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        getPermissionsLoading: true,
+        getPermissionsError: null,
         userPermissions: { role_permissions: [], direct_permissions: [] }, // clear previous
       };
     case GET_USER_PERMISSIONS_SUCCESS:
       return {
         ...state,
-        loading: false,
+        getPermissionsLoading: false,
         userPermissions: {
           role_permissions: action.payload.data.role_permissions,
           direct_permissions: action.payload.data.direct_permissions,
@@ -222,8 +285,8 @@ const employeeReducer = (
     case GET_USER_PERMISSIONS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        getPermissionsLoading: false,
+        getPermissionsError: action.payload,
       };
 
     // Get Employees Summary
@@ -232,12 +295,14 @@ const employeeReducer = (
         ...state,
         summaryLoading: true,
         summaryError: null,
+        summarySuccess: null,
       };
     case GET_EMPLOYEES_SUMMARY_SUCCESS:
       return {
         ...state,
         summaryLoading: false,
         employees: action.payload.data,
+        summarySuccess: "Summary fetched successfully",
       };
     case GET_EMPLOYEES_SUMMARY_FAILURE:
       return {
@@ -249,8 +314,20 @@ const employeeReducer = (
     case CLEAR_EMPLOYEE_DETAILS:
       return {
         ...state,
-        error: null,
-        success: null,
+        createError: null,
+        createSuccess: null,
+        listError: null,
+        listSuccess: null,
+        getError: null,
+        getSuccess: null,
+        updateError: null,
+        updateSuccess: null,
+        deleteError: null,
+        deleteSuccess: null,
+        updatePermissionsError: null,
+        updatePermissionsSuccess: null,
+        getPermissionsError: null,
+        getPermissionsSuccess: null,
         employee: null,
       };
 

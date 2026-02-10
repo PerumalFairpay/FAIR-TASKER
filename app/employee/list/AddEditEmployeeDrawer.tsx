@@ -42,7 +42,7 @@ export default function AddEditEmployeeDrawer({
     const dispatch = useDispatch();
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
-    const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
+    const { employee: fetchedEmployee, getLoading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
     const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
 
     const [formData, setFormData] = useState<any>({});

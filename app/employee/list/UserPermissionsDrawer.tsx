@@ -29,7 +29,11 @@ export default function UserPermissionsDrawer({
     employee,
 }: UserPermissionsDrawerProps) {
     const dispatch = useDispatch();
-    const { userPermissions, loading: empLoading } = useSelector(
+    const {
+        userPermissions,
+        getPermissionsLoading,
+        updatePermissionsLoading
+    } = useSelector(
         (state: RootState) => state.Employee
     );
     const { permissions: allPermissions, loading: permLoading } = useSelector(
@@ -77,7 +81,7 @@ export default function UserPermissionsDrawer({
                             User Permissions: {employee?.name}
                         </DrawerHeader>
                         <DrawerBody className="py-6">
-                            {permLoading || empLoading ? (
+                            {permLoading || getPermissionsLoading ? (
                                 <div className="flex justify-center p-10">Loading...</div>
                             ) : (
                                 <div className="flex flex-col gap-8">
@@ -142,7 +146,7 @@ export default function UserPermissionsDrawer({
                             <Button color="danger" variant="flat" onPress={onClose}>
                                 Cancel
                             </Button>
-                            <Button color="primary" onPress={handleSave} isLoading={empLoading}>
+                            <Button color="primary" onPress={handleSave} isLoading={updatePermissionsLoading}>
                                 Save Permissions
                             </Button>
                         </DrawerFooter>

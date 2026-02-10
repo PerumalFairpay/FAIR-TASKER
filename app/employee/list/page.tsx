@@ -46,9 +46,26 @@ import { debounce } from "lodash";
 
 export default function EmployeeListPage() {
     const dispatch = useDispatch();
-    const { employees, loading, success, error, meta } = useSelector(
+    const {
+        employees,
+        listLoading,
+        createLoading,
+        updateLoading,
+        deleteLoading,
+        createSuccess,
+        updateSuccess,
+        deleteSuccess,
+        createError,
+        updateError,
+        deleteError,
+        meta
+    } = useSelector(
         (state: RootState) => state.Employee
     );
+
+    const success = createSuccess || updateSuccess || deleteSuccess;
+    const error = createError || updateError || deleteError;
+    const loading = listLoading || createLoading || updateLoading || deleteLoading;
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
@@ -311,7 +328,7 @@ export default function EmployeeListPage() {
                         <TableColumn>STATUS</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={employees || []} emptyContent={"No employees found"} isLoading={loading}>
+                    <TableBody items={employees || []} emptyContent={"No employees found"} isLoading={listLoading}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell>
@@ -395,7 +412,7 @@ export default function EmployeeListPage() {
                     onOpenChange={onOpenChange}
                     mode={mode}
                     selectedEmployee={selectedEmployee}
-                    loading={loading}
+                    loading={createLoading || updateLoading}
                     onSubmit={handleSubmit}
                 />
 
@@ -411,7 +428,7 @@ export default function EmployeeListPage() {
                                     <Button color="default" variant="light" onPress={onClose}>
                                         Cancel
                                     </Button>
-                                    <Button color="danger" onPress={confirmDelete} isLoading={loading}>
+                                    <Button color="danger" onPress={confirmDelete} isLoading={deleteLoading}>
                                         Delete
                                     </Button>
                                 </ModalFooter>
