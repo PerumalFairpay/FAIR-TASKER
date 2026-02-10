@@ -12,7 +12,7 @@ import { Button } from "@heroui/button";
 import { Download, Plus, Search, Calendar, Filter, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPayslipsRequest, downloadPayslipRequest, createPayslipStates } from "../../../store/payslip/action";
-import AddEditPayslipDrawer from "../../../components/payslip/AddEditPayslipDrawer";
+import AddEditPayslipDrawer from "./AddEditPayslipDrawer";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader";
 import TablePagination from "@/components/common/TablePagination";

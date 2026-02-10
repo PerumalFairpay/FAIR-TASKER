@@ -9,10 +9,9 @@ import {
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
-import { Divider } from "@heroui/divider";
 import { useDispatch, useSelector } from "react-redux";
-import { getEmployeesRequest } from "../../store/employee/action";
-import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
+import { getEmployeesRequest } from "@/store/employee/action";
+import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "@/store/payslip/action";
 import { MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
 import { addToast } from "@heroui/toast";
@@ -337,20 +336,23 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                             </div>
 
-                            <div className="mt-8 p-4 bg-primary-50/50 rounded-xl border border-primary-100">
-                                <div className="flex justify-between items-center bg-transparent">
-                                    <span className="font-bold text-primary-700">Net Pay:</span>
-                                    <span className="font-bold text-primary text-xl">
-                                        ₹ {netPay.toFixed(2)}
-                                    </span>
-                                </div>
-                            </div>
                         </DrawerBody>
-                        <DrawerFooter>
-                            <Button color="danger" variant="light" onPress={onClose}>Cancel</Button>
-                            <Button color="primary" isLoading={isLoading} onPress={handleSubmit}>
-                                {mode === "create" ? "Generate Payslip" : "Update Payslip"}
-                            </Button>
+                        <DrawerFooter className="flex flex-col gap-4 border-t border-default-100">
+                            <div className="flex justify-between items-center w-full px-2">
+                                <div className="flex flex-col">
+                                    <span className="text-tiny text-default-500 uppercase font-bold tracking-wider">Net Pay</span>
+                                    <span className="text-xl font-bold text-primary">₹ {netPay.toFixed(2)}</span>
+                                </div>
+                                <Button
+                                    color="primary"
+                                    isLoading={isLoading}
+                                    onPress={handleSubmit}
+                                    size="lg"
+                                    className="px-8 font-semibold"
+                                >
+                                    {mode === "create" ? "Generate Payslip" : "Update Payslip"}
+                                </Button>
+                            </div>
                         </DrawerFooter>
                     </>
                 )}
