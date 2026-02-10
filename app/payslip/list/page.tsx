@@ -168,7 +168,7 @@ const PayslipList = () => {
                 aria-label="Payslips Table"
                 removeWrapper
                 bottomContent={
-                    meta && meta.total_items > limit && (
+                    meta && meta.total_items > 0 && (
                         <TablePagination
                             page={page}
                             total={meta.total_pages}
