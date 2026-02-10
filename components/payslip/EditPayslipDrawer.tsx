@@ -24,7 +24,13 @@ interface EditPayslipDrawerProps {
 
 const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPayslipDrawerProps) => {
     const dispatch = useDispatch();
-    const { updating, updateError } = useSelector((state: RootState) => state.Payslip);
+    const { updating, updateError, updateSuccess } = useSelector((state: RootState) => state.Payslip);
+
+    useEffect(() => {
+        if (updateSuccess) {
+            onSuccess();
+        }
+    }, [updateSuccess, onSuccess]);
 
     const [formData, setFormData] = useState<any>({
         month: "",
@@ -111,7 +117,6 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
         };
 
         dispatch(updatePayslipRequest(payslip.id, payload));
-        onSuccess();
     };
 
     const months = [

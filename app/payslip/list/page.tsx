@@ -37,7 +37,6 @@ const PayslipList = () => {
 
     const handleEditSuccess = () => {
         onEditClose();
-        fetchPayslips(page, limit, search, month, year);
     };
 
     const [page, setPage] = useState(1);
@@ -90,7 +89,6 @@ const PayslipList = () => {
 
     const handleGenerateSuccess = () => {
         onClose();
-        fetchPayslips(1, limit, search, month, year);
     };
 
     return (

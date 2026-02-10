@@ -26,7 +26,13 @@ interface GeneratePayslipDrawerProps {
 const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePayslipDrawerProps) => {
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
-    const { generating, generateError } = useSelector((state: RootState) => state.Payslip);
+    const { generating, generateError, generateSuccess } = useSelector((state: RootState) => state.Payslip);
+
+    useEffect(() => {
+        if (generateSuccess) {
+            onSuccess();
+        }
+    }, [generateSuccess, onSuccess]);
 
     const [formData, setFormData] = useState<any>({
         employee_id: "",
@@ -88,7 +94,6 @@ const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePays
         };
 
         dispatch(generatePayslipRequest(payload));
-        onSuccess();
     };
 
     const months = [
