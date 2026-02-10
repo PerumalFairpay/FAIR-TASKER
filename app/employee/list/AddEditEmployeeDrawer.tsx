@@ -54,13 +54,11 @@ export default function AddEditEmployeeDrawer({
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
     const [confirmationPeriod, setConfirmationPeriod] = useState<string>("");
-
-    // Compute root departments
+ 
     const rootDepartments = useMemo(() => {
         return (departments || []).filter((dept: any) => !dept.parent_id);
     }, [departments]);
-
-    // Compute designation options (descendants of selected root department)
+ 
     const designationOptions = useMemo(() => {
         if (!formData.department) return [];
         const selectedRoot = rootDepartments.find((d: any) => d.name === formData.department);
@@ -107,8 +105,7 @@ export default function AddEditEmployeeDrawer({
         if (isOpen && mode === "edit" && fetchedEmployee) {
             const allDepts = departments || [];
             const currentDeptName = fetchedEmployee.department;
-
-            // Set Documents
+ 
             setDocumentList([{ id: Date.now(), name: "", files: [] }]);
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
@@ -190,9 +187,7 @@ export default function AddEditEmployeeDrawer({
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
-        // This is kept for reference or direct usage, but FilePond uses its own state
-    };
+   
 
     const handleSubmit = () => {
         const data = new FormData();
