@@ -18,7 +18,13 @@ import { User } from "@heroui/user";
 
 export default function OnboardingPage() {
     const dispatch = useDispatch();
-    const { employees, loading, success, error } = useSelector((state: RootState) => state.Employee);
+    const {
+        employees,
+        listLoading,
+        updateLoading,
+        updateSuccess,
+        updateError
+    } = useSelector((state: RootState) => state.Employee);
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
@@ -48,10 +54,10 @@ export default function OnboardingPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (success) {
+        if (updateSuccess) {
             addToast({
                 title: "Success",
-                description: success,
+                description: updateSuccess,
                 color: "success"
             });
             dispatch(clearEmployeeDetails());
@@ -63,17 +69,17 @@ export default function OnboardingPage() {
             setIsSaving(false);
             setIsCompletingOnboarding(false);
         }
-        if (error) {
+        if (updateError) {
             addToast({
                 title: "Error",
-                description: typeof error === 'string' ? error : "Something went wrong",
+                description: typeof updateError === 'string' ? updateError : "Something went wrong",
                 color: "danger"
             });
             dispatch(clearEmployeeDetails());
             setIsSaving(false);
             setIsCompletingOnboarding(false);
         }
-    }, [success, error, dispatch]);
+    }, [updateSuccess, updateError, dispatch]);
 
     useEffect(() => {
         if (selectedEmployee) {
@@ -163,7 +169,7 @@ export default function OnboardingPage() {
                     <TableColumn>PROGRESS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={onboardingEmployees} emptyContent="No employees in onboarding phase" isLoading={loading}>
+                <TableBody items={onboardingEmployees} emptyContent="No employees in onboarding phase" isLoading={listLoading}>
                     {(employee: any) => {
                         const progress = calculateProgress(employee.onboarding_checklist || []);
                         return (

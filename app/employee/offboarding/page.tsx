@@ -24,7 +24,13 @@ import { Tabs, Tab } from "@heroui/tabs";
 
 export default function OffboardingPage() {
     const dispatch = useDispatch();
-    const { employees, loading, success, error } = useSelector((state: RootState) => state.Employee);
+    const {
+        employees,
+        listLoading,
+        updateLoading,
+        updateSuccess,
+        updateError
+    } = useSelector((state: RootState) => state.Employee);
     const { employeeAssets } = useSelector((state: RootState) => state.Asset || { employeeAssets: [] });
 
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -69,10 +75,10 @@ export default function OffboardingPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (success) {
+        if (updateSuccess) {
             addToast({
                 title: "Success",
-                description: success,
+                description: updateSuccess,
                 color: "success"
             });
             dispatch(clearEmployeeDetails());
@@ -84,17 +90,17 @@ export default function OffboardingPage() {
             setIsSaving(false);
             setIsCompletingOffboarding(false);
         }
-        if (error) {
+        if (updateError) {
             addToast({
                 title: "Error",
-                description: typeof error === 'string' ? error : "Something went wrong",
+                description: typeof updateError === 'string' ? updateError : "Something went wrong",
                 color: "danger"
             });
             dispatch(clearEmployeeDetails());
             setIsSaving(false);
             setIsCompletingOffboarding(false);
         }
-    }, [success, error, dispatch]);
+    }, [updateSuccess, updateError, dispatch]);
 
     // Add explicit reloading of assets when assignment changes occur
     useEffect(() => {
@@ -240,7 +246,7 @@ export default function OffboardingPage() {
                     <TableColumn>PROGRESS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={offboardingEmployees} emptyContent="No employees in offboarding phase" isLoading={loading}>
+                <TableBody items={offboardingEmployees} emptyContent="No employees in offboarding phase" isLoading={listLoading}>
                     {(employee: any) => {
                         const progress = calculateProgress(employee.offboarding_checklist || []);
 
