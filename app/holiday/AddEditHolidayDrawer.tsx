@@ -37,7 +37,6 @@ export default function AddEditHolidayDrawer({
         date: "",
         description: "",
         holiday_type: "Public",
-        is_restricted: false,
         status: "Active",
     });
 
@@ -48,7 +47,6 @@ export default function AddEditHolidayDrawer({
                 date: selectedHoliday.date || "",
                 description: selectedHoliday.description || "",
                 holiday_type: selectedHoliday.holiday_type || "Public",
-                is_restricted: selectedHoliday.is_restricted || false,
                 status: selectedHoliday.status || "Active",
             });
         } else {
@@ -57,7 +55,6 @@ export default function AddEditHolidayDrawer({
                 date: "",
                 description: "",
                 holiday_type: "Public",
-                is_restricted: false,
                 status: "Active",
             });
         }
@@ -121,17 +118,7 @@ export default function AddEditHolidayDrawer({
                                 ))}
                             </Select>
 
-                            <div className="flex flex-col gap-2 p-2 border rounded-lg border-default-200">
-                                <Checkbox
-                                    isSelected={formData.is_restricted}
-                                    onValueChange={(val) => handleSelectChange("is_restricted", val)}
-                                >
-                                    Is Restricted/Optional Holiday?
-                                </Checkbox>
-                                <p className="text-tiny text-default-400 pl-7">
-                                    Restricted holidays are optional for employees.
-                                </p>
-                            </div>
+
 
                             <Select
                                 label="Status"

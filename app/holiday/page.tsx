@@ -111,7 +111,6 @@ export default function HolidayPage() {
                     <TableColumn>HOLIDAY NAME</TableColumn>
                     <TableColumn>DATE</TableColumn>
                     <TableColumn>TYPE</TableColumn>
-                    <TableColumn>RESTRICTED</TableColumn>
                     <TableColumn>STATUS</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
@@ -144,15 +143,7 @@ export default function HolidayPage() {
                                     {item.holiday_type}
                                 </Chip>
                             </TableCell>
-                            <TableCell>
-                                <Chip
-                                    color={item.is_restricted ? "warning" : "default"}
-                                    size="sm"
-                                    variant="dot"
-                                >
-                                    {item.is_restricted ? "Yes" : "No"}
-                                </Chip>
-                            </TableCell>
+
                             <TableCell>
                                 <Chip
                                     color={item.status === "Active" ? "success" : "default"}
