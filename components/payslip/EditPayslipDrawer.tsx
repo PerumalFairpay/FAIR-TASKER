@@ -9,6 +9,7 @@ import {
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Divider } from "@heroui/divider";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePayslipRequest, createPayslipStates } from "../../store/payslip/action";
 import { MinusCircle, Plus } from "lucide-react";
@@ -125,6 +126,10 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
         "July", "August", "September", "October", "November", "December"
     ];
 
+    const totalEarnings = formData.earnings.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
+    const totalDeductions = formData.deductions.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
+    const netPay = totalEarnings - totalDeductions;
+
     return (
         <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
             <DrawerContent>
@@ -192,6 +197,23 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                                         </div>
                                     ))}
                                 </div>
+                                <div className="flex justify-end mt-4 pr-14">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-small font-medium text-default-500 whitespace-nowrap">Total Earnings:</span>
+                                        <Input
+                                            value={totalEarnings.toFixed(2)}
+                                            variant="bordered"
+                                            isDisabled
+                                            size="sm"
+                                            startContent={<span className="text-default-400 text-small">₹</span>}
+                                            className="w-32"
+                                            classNames={{
+                                                input: "font-bold text-primary opacity-100",
+                                                inputWrapper: "bg-default-100"
+                                            }}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="mt-8">
@@ -225,6 +247,32 @@ const EditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, payslip }: EditPay
                                             </Button>
                                         </div>
                                     ))}
+                                </div>
+                                <div className="flex justify-end mt-4 pr-14">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-small font-medium text-default-500 whitespace-nowrap">Total Deductions:</span>
+                                        <Input
+                                            value={totalDeductions.toFixed(2)}
+                                            variant="bordered"
+                                            isDisabled
+                                            size="sm"
+                                            startContent={<span className="text-default-400 text-small">₹</span>}
+                                            className="w-32"
+                                            classNames={{
+                                                input: "font-bold text-danger opacity-100",
+                                                inputWrapper: "bg-default-100"
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 p-4 bg-primary-50/50 rounded-xl border border-primary-100">
+                                <div className="flex justify-between items-center bg-transparent">
+                                    <span className="font-bold text-primary-700">Net Pay:</span>
+                                    <span className="font-bold text-primary text-xl">
+                                        ₹ {netPay.toFixed(2)}
+                                    </span>
                                 </div>
                             </div>
                         </DrawerBody>
