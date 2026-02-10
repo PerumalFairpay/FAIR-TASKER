@@ -26,13 +26,20 @@ interface GeneratePayslipDrawerProps {
 const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePayslipDrawerProps) => {
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
-    const { generating, generateError, generateSuccess } = useSelector((state: RootState) => state.Payslip);
+    const { payslipGenerateLoading, payslipGenerateError, payslipGenerateSuccess } = useSelector((state: RootState) => state.Payslip);
 
     useEffect(() => {
-        if (generateSuccess) {
+        if (payslipGenerateSuccess) {
             onSuccess();
+            addToast({ title: "Success", description: "Payslip generated successfully", color: "success" });
         }
-    }, [generateSuccess, onSuccess]);
+    }, [payslipGenerateSuccess, onSuccess]);
+
+    useEffect(() => {
+        if (payslipGenerateError) {
+            addToast({ title: "Error", description: payslipGenerateError, color: "danger" });
+        }
+    }, [payslipGenerateError]);
 
     const [formData, setFormData] = useState<any>({
         employee_id: "",
@@ -233,7 +240,7 @@ const GeneratePayslipDrawer = ({ isOpen, onOpenChange, onSuccess }: GeneratePays
                         </DrawerBody>
                         <DrawerFooter>
                             <Button color="danger" variant="light" onPress={onClose}>Cancel</Button>
-                            <Button color="primary" isLoading={generating} onPress={handleSubmit}>
+                            <Button color="primary" isLoading={payslipGenerateLoading} onPress={handleSubmit}>
                                 Generate Payslip
                             </Button>
                         </DrawerFooter>

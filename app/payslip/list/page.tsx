@@ -25,7 +25,7 @@ import { useCallback } from "react";
 
 const PayslipList = () => {
     const dispatch = useDispatch();
-    const { payslips, loading, meta } = useSelector((state: RootState) => state.Payslip);
+    const { payslips, payslipListLoading, meta } = useSelector((state: RootState) => state.Payslip);
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange, onClose: onEditClose } = useDisclosure();
     const [selectedPayslip, setSelectedPayslip] = useState<any>(null);
@@ -186,7 +186,7 @@ const PayslipList = () => {
                     <TableColumn>GENERATED AT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={loading}>
+                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>{`${item.month} ${item.year}`}</TableCell>

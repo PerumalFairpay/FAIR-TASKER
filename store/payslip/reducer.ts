@@ -17,20 +17,20 @@ import {
 const initialState = {
   payslips: [],
   meta: {},
-  loading: false,
-  error: null,
+  payslipListLoading: false,
+  payslipListError: null,
 
-  generating: false,
-  generateError: null,
-  generateSuccess: null,
+  payslipGenerateLoading: false,
+  payslipGenerateError: null,
+  payslipGenerateSuccess: null,
 
-  updating: false,
-  updateError: null,
-  updateSuccess: null,
+  payslipUpdateLoading: false,
+  payslipUpdateError: null,
+  payslipUpdateSuccess: null,
 
-  downloading: false,
-  downloadError: null,
-  downloadSuccess: null,
+  payslipDownloadLoading: false,
+  payslipDownloadError: null,
+  payslipDownloadSuccess: null,
 
   currentPayslip: null,
 };
@@ -41,103 +41,107 @@ const payslipReducer = (state = initialState, action: any) => {
     case GENERATE_PAYSLIP_REQUEST:
       return {
         ...state,
-        generating: true,
-        generateError: null,
-        generateSuccess: null,
+        payslipGenerateLoading: true,
+        payslipGenerateError: null,
+        payslipGenerateSuccess: null,
       };
     case GENERATE_PAYSLIP_SUCCESS:
       return {
         ...state,
-        generating: false,
+        payslipGenerateLoading: false,
         payslips: [action.payload.data, ...state.payslips],
-        generateError: null,
-        generateSuccess:
+        payslipGenerateError: null,
+        payslipGenerateSuccess:
           action.payload.message || "Payslip generated successfully",
       };
     case GENERATE_PAYSLIP_FAILURE:
       return {
         ...state,
-        generating: false,
-        generateError: action.payload,
+        payslipGenerateLoading: false,
+        payslipGenerateError: action.payload,
       };
 
     // Get List
     case GET_PAYSLIPS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        payslipListLoading: true,
+        payslipListError: null,
       };
     case GET_PAYSLIPS_SUCCESS:
       return {
         ...state,
-        loading: false,
+        payslipListLoading: false,
         payslips: action.payload.data,
         meta: action.payload.meta,
       };
     case GET_PAYSLIPS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        payslipListLoading: false,
+        payslipListError: action.payload,
       };
 
     // Download
     case DOWNLOAD_PAYSLIP_REQUEST:
       return {
         ...state,
-        downloading: true,
-        downloadError: null,
-        downloadSuccess: null,
+        payslipDownloadLoading: true,
+        payslipDownloadError: null,
+        payslipDownloadSuccess: null,
       };
     case DOWNLOAD_PAYSLIP_SUCCESS:
       return {
         ...state,
-        downloading: false,
-        downloadError: null,
-        downloadSuccess: action.payload.message || "Download initiated",
+        payslipDownloadLoading: false,
+        payslipDownloadError: null,
+        payslipDownloadSuccess: action.payload.message || "Download initiated",
       };
     case DOWNLOAD_PAYSLIP_FAILURE:
       return {
         ...state,
-        downloading: false,
-        downloadError: action.payload,
+        payslipDownloadLoading: false,
+        payslipDownloadError: action.payload,
       };
 
     // Update
     case UPDATE_PAYSLIP_REQUEST:
       return {
         ...state,
-        updating: true,
-        updateError: null,
-        updateSuccess: null,
+        payslipUpdateLoading: true,
+        payslipUpdateError: null,
+        payslipUpdateSuccess: null,
       };
     case UPDATE_PAYSLIP_SUCCESS:
       return {
         ...state,
-        updating: false,
+        payslipUpdateLoading: false,
         payslips: state.payslips.map((item: any) =>
           item.id === action.payload.data.id ? action.payload.data : item,
         ),
-        updateError: null,
-        updateSuccess: action.payload.message || "Payslip updated successfully",
+        payslipUpdateError: null,
+        payslipUpdateSuccess:
+          action.payload.message || "Payslip updated successfully",
       };
     case UPDATE_PAYSLIP_FAILURE:
       return {
         ...state,
-        updating: false,
-        updateError: action.payload,
+        payslipUpdateLoading: false,
+        payslipUpdateError: action.payload,
       };
 
     case CREATE_PAYSLIP_STATES:
       return {
         ...state,
-        generateSuccess: null,
-        generateError: null,
-        updateSuccess: null,
-        updateError: null,
-        downloadSuccess: null,
-        downloadError: null,
+        payslipGenerateLoading: false,
+        payslipGenerateSuccess: null,
+        payslipGenerateError: null,
+        payslipUpdateLoading: false,
+        payslipUpdateSuccess: null,
+        payslipUpdateError: null,
+        payslipDownloadLoading: false,
+        payslipDownloadSuccess: null,
+        payslipDownloadError: null,
       };
 
     default:

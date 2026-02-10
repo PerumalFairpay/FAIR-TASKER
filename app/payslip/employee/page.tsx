@@ -25,7 +25,7 @@ import {
 
 const EmployeePayslipList = () => {
     const dispatch = useDispatch();
-    const { payslips, loading } = useSelector((state: RootState) => state.Payslip);
+    const { payslips, payslipListLoading } = useSelector((state: RootState) => state.Payslip);
     const { user } = useSelector((state: RootState) => state.Auth);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [selectedPayslipId, setSelectedPayslipId] = React.useState<string | null>(null);
@@ -70,7 +70,7 @@ const EmployeePayslipList = () => {
                     <TableColumn>GENERATED AT</TableColumn>
                     <TableColumn align="center">ACTIONS</TableColumn>
                 </TableHeader>
-                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={loading}>
+                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
                     {(item: any) => (
                         <TableRow key={item.id}>
                             <TableCell>{item.month}</TableCell>
