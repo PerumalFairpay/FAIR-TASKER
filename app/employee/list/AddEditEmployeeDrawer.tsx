@@ -54,11 +54,11 @@ export default function AddEditEmployeeDrawer({
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
     const [confirmationPeriod, setConfirmationPeriod] = useState<string>("");
- 
+
     const rootDepartments = useMemo(() => {
         return (departments || []).filter((dept: any) => !dept.parent_id);
     }, [departments]);
- 
+
     const designationOptions = useMemo(() => {
         if (!formData.department) return [];
         const selectedRoot = rootDepartments.find((d: any) => d.name === formData.department);
@@ -105,7 +105,7 @@ export default function AddEditEmployeeDrawer({
         if (isOpen && mode === "edit" && fetchedEmployee) {
             const allDepts = departments || [];
             const currentDeptName = fetchedEmployee.department;
- 
+
             setDocumentList([{ id: Date.now(), name: "", files: [] }]);
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
@@ -187,7 +187,7 @@ export default function AddEditEmployeeDrawer({
         }
     };
 
-   
+
 
     const handleSubmit = () => {
         const data = new FormData();
@@ -367,6 +367,8 @@ export default function AddEditEmployeeDrawer({
                                                     showMonthAndYearPickers
                                                     value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
                                                     onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
+                                                    isRequired
+                                                    description="Required for payslip generation"
                                                 />
                                             </I18nProvider>
                                             <Select
