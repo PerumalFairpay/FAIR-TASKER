@@ -20,7 +20,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
-import { getProjectsRequest } from "@/store/project/action";
+import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
 import AddEditTaskDrawer from "../board/AddEditTaskDrawer";
@@ -65,7 +65,7 @@ const RoadmapBoard = () => {
             date: filterDate,
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
-        dispatch(getProjectsRequest());
+        dispatch(getProjectsSummaryRequest());
         dispatch(getEmployeesSummaryRequest());
         setEnabled(true);
     }, [dispatch, filterDate, filterEmployee, user]);
