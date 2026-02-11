@@ -33,7 +33,18 @@ import { usePermissions, PermissionGuard } from "@/components/PermissionGuard";
 
 export default function ProjectListPage() {
     const dispatch = useDispatch();
-    const { projects, project, loading, success } = useSelector((state: RootState) => state.Project);
+    const {
+        projects,
+        project,
+        getProjectsLoading,
+        createProjectSuccess,
+        updateProjectSuccess,
+        deleteProjectSuccess,
+        deleteProjectLoading,
+        createProjectLoading,
+        updateProjectLoading,
+        getProjectLoading
+    } = useSelector((state: RootState) => state.Project);
     const { clients } = useSelector((state: RootState) => state.Client);
     const { hasPermission } = usePermissions();
 
@@ -57,12 +68,12 @@ export default function ProjectListPage() {
     }, [isAddEditOpen, dispatch]);
 
     useEffect(() => {
-        if (success) {
+        if (createProjectSuccess || updateProjectSuccess || deleteProjectSuccess) {
             onAddEditClose();
             onDeleteClose();
             dispatch(clearProjectDetails());
         }
-    }, [success, onAddEditClose, onDeleteClose, dispatch]);
+    }, [createProjectSuccess, updateProjectSuccess, deleteProjectSuccess, onAddEditClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -161,7 +172,7 @@ export default function ProjectListPage() {
                         <TableColumn>PRIORITY</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={projects || []} emptyContent={"No projects found"} isLoading={loading}>
+                    <TableBody items={projects || []} emptyContent={"No projects found"} isLoading={getProjectsLoading}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell>
@@ -279,7 +290,7 @@ export default function ProjectListPage() {
                     onOpenChange={onAddEditOpenChange}
                     mode={mode}
                     selectedProject={mode === 'edit' && project && selectedProject && project.id === selectedProject.id ? project : selectedProject}
-                    loading={loading}
+                    loading={mode === "create" ? createProjectLoading : updateProjectLoading}
                     onSubmit={handleAddEditSubmit}
                 />
 
@@ -287,7 +298,7 @@ export default function ProjectListPage() {
                     isOpen={isDeleteOpen}
                     onOpenChange={onDeleteOpenChange}
                     onConfirm={handleDeleteConfirm}
-                    loading={loading}
+                    loading={deleteProjectLoading}
                 />
             </div>
         </PermissionGuard>
