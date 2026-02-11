@@ -32,7 +32,16 @@ import { usePermissions, PermissionGuard } from "@/components/PermissionGuard";
 
 export default function ExpenseListPage() {
     const dispatch = useDispatch();
-    const { expenses, loading, success } = useSelector((state: RootState) => state.Expense);
+    const {
+        expenses,
+        getExpensesLoading,
+        createExpenseLoading,
+        updateExpenseLoading,
+        deleteExpenseLoading,
+        createExpenseSuccessMessage,
+        updateExpenseSuccessMessage,
+        deleteExpenseSuccessMessage
+    } = useSelector((state: RootState) => state.Expense);
     const { expenseCategories } = useSelector((state: RootState) => state.ExpenseCategory);
     const { hasPermission } = usePermissions();
 
@@ -49,12 +58,15 @@ export default function ExpenseListPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (success) {
+        if (createExpenseSuccessMessage || updateExpenseSuccessMessage) {
             onAddEditClose();
+            dispatch(clearExpenseDetails());
+        }
+        if (deleteExpenseSuccessMessage) {
             onDeleteClose();
             dispatch(clearExpenseDetails());
         }
-    }, [success, onAddEditClose, onDeleteClose, dispatch]);
+    }, [createExpenseSuccessMessage, updateExpenseSuccessMessage, deleteExpenseSuccessMessage, onAddEditClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -86,8 +98,7 @@ export default function ExpenseListPage() {
             dispatch(deleteExpenseRequest(selectedExpense.id));
         }
     };
-
-    // Helper to get category name
+ 
     const getCategoryName = (id: string) => {
         const cat = expenseCategories.find((c: any) => c.id === id);
         return cat ? cat.name : "Unknown";
@@ -122,7 +133,7 @@ export default function ExpenseListPage() {
                         <TableColumn align="center">ATTACHMENT</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={expenses || []} emptyContent={"No expenses found"} isLoading={loading}>
+                    <TableBody items={expenses || []} emptyContent={"No expenses found"} isLoading={getExpensesLoading}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell className="font-medium">{item.date}</TableCell>
@@ -182,7 +193,7 @@ export default function ExpenseListPage() {
                     onOpenChange={onAddEditOpenChange}
                     mode={mode}
                     selectedExpense={selectedExpense}
-                    loading={loading}
+                    loading={mode === "create" ? createExpenseLoading : updateExpenseLoading}
                     onSubmit={handleAddEditSubmit}
                 />
 
@@ -190,7 +201,7 @@ export default function ExpenseListPage() {
                     isOpen={isDeleteOpen}
                     onOpenChange={onDeleteOpenChange}
                     onConfirm={handleDeleteConfirm}
-                    loading={loading}
+                    loading={deleteExpenseLoading}
                 />
 
                 {previewData && (
