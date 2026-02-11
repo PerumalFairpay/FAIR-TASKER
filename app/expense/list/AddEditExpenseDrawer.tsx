@@ -87,11 +87,7 @@ export default function AddEditExpenseDrawer({
         return (expenseCategories || []).filter((cat: any) => cat.parent_id === formData.expense_category_id);
     }, [expenseCategories, formData.expense_category_id]);
 
-    useEffect(() => {
-        if (isOpen) {
-            dispatch(getExpenseCategoriesRequest());
-        }
-    }, [isOpen, dispatch]);
+
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedExpense) {
@@ -109,13 +105,13 @@ export default function AddEditExpenseDrawer({
         setFormData((prev: any) => {
             const newData = { ...prev, [name]: value };
             if (name === "expense_category_id") {
-                newData.expense_subcategory_id = "";  
+                newData.expense_subcategory_id = "";
             }
             return newData;
         });
     };
 
- 
+
     const handleSubmit = () => {
         const data = new FormData();
 

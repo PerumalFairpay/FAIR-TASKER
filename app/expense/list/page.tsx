@@ -59,8 +59,13 @@ export default function ExpenseListPage() {
 
     useEffect(() => {
         dispatch(getExpensesRequest());
-        dispatch(getExpenseCategoriesRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (isAddEditOpen) {
+            dispatch(getExpenseCategoriesRequest());
+        }
+    }, [isAddEditOpen, dispatch]);
 
     useEffect(() => {
         if (createExpenseSuccessMessage || updateExpenseSuccessMessage) {
