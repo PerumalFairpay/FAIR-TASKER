@@ -168,12 +168,12 @@ export default function ExpenseListPage() {
                                 <TableCell className="font-medium">{item.date}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <p className="text-bold text-sm capitalize">{getCategoryName(item.expense_category_id)}</p>
+                                        <p className="text-bold text-sm capitalize">{item.category_name || "Unknown"}</p>
                                     </div>
                                 </TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <p className="text-sm text-default-500 capitalize">{item.expense_subcategory_id ? getCategoryName(item.expense_subcategory_id) : "-"}</p>
+                                        <p className="text-sm text-default-500 capitalize">{item.subcategory_name || "-"}</p>
                                     </div>
                                 </TableCell>
                                 <TableCell className="max-w-[200px] truncate">{item.purpose}</TableCell>
