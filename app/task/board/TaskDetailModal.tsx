@@ -24,6 +24,7 @@ interface TaskDetailModalProps {
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task: initialTask }) => {
     const dispatch = useDispatch();
     const { currentTask } = useSelector((state: AppState) => state.Task);
+    const { employees } = useSelector((state: AppState) => state.Employee);
     const [previewFile, setPreviewFile] = React.useState<{ url: string; type: string; name: string } | null>(null);
 
     useEffect(() => {
@@ -309,16 +310,20 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({ isOpen, onClose, task
                                     <div className="flex flex-col gap-3">
                                         <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider">Assigned To</h4>
                                         <div className="flex flex-wrap gap-2">
-                                            {task.assigned_to?.map((userId: string) => (
-                                                <div key={userId} className="flex items-center gap-2 bg-default-100 pr-3 rounded-full">
-                                                    <Avatar
-                                                        size="sm"
-                                                        name={userId} // In a real app, map ID to name/avatar
-                                                        className="w-6 h-6"
-                                                    />
-                                                    <span className="text-xs font-medium">User {userId}</span>
-                                                </div>
-                                            ))}
+                                            {task.assigned_to?.map((userId: string) => {
+                                                const emp = (employees || []).find((e: any) => e.id === userId);
+                                                return (
+                                                    <div key={userId} className="flex items-center gap-2 bg-default-100 pr-3 rounded-full">
+                                                        <Avatar
+                                                            size="sm"
+                                                            src={emp?.profile_picture}
+                                                            name={emp?.name || "?"}
+                                                            className="w-6 h-6"
+                                                        />
+                                                        <span className="text-xs font-medium">{emp?.name || "Unknown"}</span>
+                                                    </div>
+                                                );
+                                            })}
                                             {(!task.assigned_to || task.assigned_to.length === 0) && (
                                                 <span className="text-sm text-default-400">Unassigned</span>
                                             )}

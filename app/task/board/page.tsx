@@ -348,7 +348,7 @@ const TaskBoard = () => {
                             onChange={(e) => setFilterEmployee(e.target.value)}
                         >
                             {employees.map((emp: any) => (
-                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                <SelectItem key={emp.id} textValue={emp.name}>
                                     <div className="flex items-center gap-2">
                                         <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
                                         <span>{emp.name}</span>
@@ -526,7 +526,7 @@ const TaskBoard = () => {
                                                                         )}
                                                                     >
                                                                         {task.assigned_to?.map((empId: string) => {
-                                                                            const emp = employees.find((e: any) => e.employee_no_id === empId);
+                                                                            const emp = employees.find((e: any) => e.id === empId);
                                                                             return (
                                                                                 <Avatar
                                                                                     key={empId}
