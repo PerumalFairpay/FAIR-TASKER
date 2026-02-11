@@ -34,9 +34,7 @@ export default function RolePage() {
     const { roles, loading, error, success } = useSelector(
         (state: RootState) => state.Role
     );
-    const { permissions } = useSelector(
-        (state: RootState) => state.Permission
-    );
+
 
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -53,8 +51,13 @@ export default function RolePage() {
 
     useEffect(() => {
         dispatch(getRolesRequest());
-        dispatch(getPermissionsRequest());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (isOpen) {
+            dispatch(getPermissionsRequest());
+        }
+    }, [dispatch, isOpen]);
 
     useEffect(() => {
         if (success) {
