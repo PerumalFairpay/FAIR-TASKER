@@ -159,6 +159,14 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             newErrors.assigned_to = "At least one assignee is required";
         }
 
+        if (formData.start_date === todayStr && formData.start_time < currentTime) {
+            newErrors.start_time = "Start time cannot be in the past";
+        }
+
+        if (formData.start_date === formData.end_date && formData.end_time <= formData.start_time) {
+            newErrors.end_time = "End time must be after start time";
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -326,9 +334,24 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     type="time"
                                     label="Start Time"
                                     value={formData.start_time}
-                                    onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                                    min={formData.start_date === todayStr ? currentTime : undefined}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFormData({ ...formData, start_time: val });
+                                        if (formData.start_date === todayStr && val < currentTime) {
+                                            setErrors(prev => ({ ...prev, start_time: "Start time cannot be in the past" }));
+                                        } else {
+                                            setErrors(prev => {
+                                                const newErrs = { ...prev };
+                                                delete newErrs.start_time;
+                                                return newErrs;
+                                            });
+                                        }
+                                    }}
+                                    isInvalid={!!errors.start_time}
+                                    errorMessage={errors.start_time}
                                     className="w-[150px]"
-                                    isDisabled={anyLoading} // Always disabled in some cases, but logicwise should follow
+                                    isDisabled={anyLoading}
                                 />
                             </div>
                             <div className="flex gap-4">
@@ -345,7 +368,22 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     type="time"
                                     label="End Time"
                                     value={formData.end_time}
-                                    onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                                    min={formData.start_date === formData.end_date ? formData.start_time : undefined}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFormData({ ...formData, end_time: val });
+                                        if (formData.start_date === formData.end_date && val <= formData.start_time) {
+                                            setErrors(prev => ({ ...prev, end_time: "End time must be after start time" }));
+                                        } else {
+                                            setErrors(prev => {
+                                                const newErrs = { ...prev };
+                                                delete newErrs.end_time;
+                                                return newErrs;
+                                            });
+                                        }
+                                    }}
+                                    isInvalid={!!errors.end_time}
+                                    errorMessage={errors.end_time}
                                     className="w-[150px]"
                                     isDisabled={anyLoading}
                                 />
