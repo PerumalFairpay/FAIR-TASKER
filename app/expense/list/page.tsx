@@ -23,6 +23,7 @@ import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
+import { addToast } from "@heroui/toast";
 import AddEditExpenseDrawer from "./AddEditExpenseDrawer";
 import DeleteExpenseModal from "./DeleteExpenseModal";
 import { PageHeader } from "@/components/PageHeader";
@@ -40,7 +41,11 @@ export default function ExpenseListPage() {
         deleteExpenseLoading,
         createExpenseSuccessMessage,
         updateExpenseSuccessMessage,
-        deleteExpenseSuccessMessage
+        deleteExpenseSuccessMessage,
+        createExpenseError,
+        updateExpenseError,
+        deleteExpenseError,
+        getExpensesError
     } = useSelector((state: RootState) => state.Expense);
     const { expenseCategories } = useSelector((state: RootState) => state.ExpenseCategory);
     const { hasPermission } = usePermissions();
@@ -59,14 +64,32 @@ export default function ExpenseListPage() {
 
     useEffect(() => {
         if (createExpenseSuccessMessage || updateExpenseSuccessMessage) {
+            addToast({
+                title: "Success",
+                description: createExpenseSuccessMessage || updateExpenseSuccessMessage,
+                color: "success"
+            });
             onAddEditClose();
             dispatch(clearExpenseDetails());
         }
         if (deleteExpenseSuccessMessage) {
+            addToast({
+                title: "Success",
+                description: deleteExpenseSuccessMessage,
+                color: "success"
+            });
             onDeleteClose();
             dispatch(clearExpenseDetails());
         }
-    }, [createExpenseSuccessMessage, updateExpenseSuccessMessage, deleteExpenseSuccessMessage, onAddEditClose, onDeleteClose, dispatch]);
+        if (createExpenseError || updateExpenseError || deleteExpenseError || getExpensesError) {
+            addToast({
+                title: "Error",
+                description: createExpenseError || updateExpenseError || deleteExpenseError || getExpensesError,
+                color: "danger"
+            });
+            dispatch(clearExpenseDetails());
+        }
+    }, [createExpenseSuccessMessage, updateExpenseSuccessMessage, deleteExpenseSuccessMessage, createExpenseError, updateExpenseError, deleteExpenseError, getExpensesError, onAddEditClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -98,7 +121,7 @@ export default function ExpenseListPage() {
             dispatch(deleteExpenseRequest(selectedExpense.id));
         }
     };
- 
+
     const getCategoryName = (id: string) => {
         const cat = expenseCategories.find((c: any) => c.id === id);
         return cat ? cat.name : "Unknown";
@@ -127,6 +150,7 @@ export default function ExpenseListPage() {
                     <TableHeader>
                         <TableColumn>DATE</TableColumn>
                         <TableColumn>CATEGORY</TableColumn>
+                        <TableColumn>SUB CATEGORY</TableColumn>
                         <TableColumn>PURPOSE</TableColumn>
                         <TableColumn>AMOUNT</TableColumn>
                         <TableColumn>MODE</TableColumn>
@@ -140,6 +164,11 @@ export default function ExpenseListPage() {
                                 <TableCell>
                                     <div className="flex flex-col">
                                         <p className="text-bold text-sm capitalize">{getCategoryName(item.expense_category_id)}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <p className="text-sm text-default-500 capitalize">{item.expense_subcategory_id ? getCategoryName(item.expense_subcategory_id) : "-"}</p>
                                     </div>
                                 </TableCell>
                                 <TableCell className="max-w-[200px] truncate">{item.purpose}</TableCell>

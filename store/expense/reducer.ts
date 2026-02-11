@@ -58,13 +58,13 @@ const expenseReducer = (state = initialState, action: any) => {
         createExpenseSuccessMessage: null,
       };
     case CREATE_EXPENSE_SUCCESS:
-      return {
-        ...state,
+        return {
+            ...state,
         createExpenseLoading: false,
         createExpenseSuccessMessage: action.payload.message,
         expenses: [...state.expenses, action.payload.data],
-      };
-    case CREATE_EXPENSE_FAILURE:
+    };
+    case CREATE_EXPENSE_FAILURE: 
       return {
         ...state,
         createExpenseLoading: false,
