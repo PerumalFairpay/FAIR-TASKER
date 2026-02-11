@@ -21,7 +21,7 @@ import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
 import { getProjectsRequest } from "@/store/project/action";
-import { getEmployeesRequest } from "@/store/employee/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
 import AddEditTaskDrawer from "../board/AddEditTaskDrawer";
 import TaskDetailModal from "../board/TaskDetailModal";
@@ -66,7 +66,7 @@ const RoadmapBoard = () => {
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
         dispatch(getProjectsRequest());
-        dispatch(getEmployeesRequest());
+        dispatch(getEmployeesSummaryRequest());
         setEnabled(true);
     }, [dispatch, filterDate, filterEmployee, user]);
 
@@ -202,7 +202,7 @@ const RoadmapBoard = () => {
                             onChange={(e) => setFilterEmployee(e.target.value)}
                         >
                             {employees.map((emp: any) => (
-                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                <SelectItem key={emp.id} textValue={emp.name}>
                                     <div className="flex items-center gap-2">
                                         <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
                                         <span>{emp.name}</span>
@@ -337,7 +337,7 @@ const RoadmapBoard = () => {
                                                                         )}
                                                                     >
                                                                         {task.assigned_to?.map((empId: string) => {
-                                                                            const emp = employees.find((e: any) => e.employee_no_id === empId);
+                                                                            const emp = employees.find((e: any) => e.id === empId);
                                                                             return (
                                                                                 <Avatar
                                                                                     key={empId}
