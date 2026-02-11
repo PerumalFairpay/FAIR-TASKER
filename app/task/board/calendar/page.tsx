@@ -212,7 +212,7 @@ export default function CalendarPage() {
 
         // map IDs to employee objects
         const assignedEmployees = Array.isArray(assigned_to) && employees.length > 0
-            ? employees.filter((emp: any) => assigned_to.includes(emp.employee_no_id))
+            ? employees.filter((emp: any) => assigned_to.includes(emp.id))
             : [];
 
         return (
@@ -254,7 +254,7 @@ export default function CalendarPage() {
                         <div className="flex -space-x-1.5 overflow-hidden">
                             {assignedEmployees.slice(0, 3).map((emp: any) => (
                                 <Avatar
-                                    key={emp.employee_no_id}
+                                    key={emp.id}
                                     src={emp.profile_picture}
                                     name={emp.name}
                                     className="w-4 h-4 min-w-4 min-h-4 text-[8px] border-[1.5px] border-white dark:border-gray-900"
@@ -539,7 +539,7 @@ export default function CalendarPage() {
                                             <div className="flex flex-wrap gap-2">
                                                 {selectedTask.assigned_to && selectedTask.assigned_to.length > 0 ? (
                                                     selectedTask.assigned_to.map((id: string) => {
-                                                        const emp = employees.find((e: any) => e.employee_no_id === id);
+                                                        const emp = employees.find((e: any) => e.id === id);
                                                         if (!emp) return null;
                                                         return (
                                                             <div key={id} className="flex items-center gap-3 p-2 pr-4 rounded-full bg-default-50 border border-default-100">
