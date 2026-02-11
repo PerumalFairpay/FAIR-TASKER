@@ -23,13 +23,14 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, SearchIcon, Filter, FolderOpen } from "lucide-react";
 import { getProjectsRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import ShowMoreText from "react-show-more-text";
 import parse from "html-react-parser";
+import { debounce } from "lodash";
 import EodReportDetailDrawer from "./EodReportDetailDrawer";
 
 const EODReportsPage = () => {
@@ -43,6 +44,7 @@ const EODReportsPage = () => {
     const [filterEmployee, setFilterEmployee] = useState<string>("");
     const [filterProject, setFilterProject] = useState<string>("");
     const [filterPriority, setFilterPriority] = useState<string>("");
+    const [search, setSearch] = useState("");
     const [previewFile, setPreviewFile] = useState<{ url: string; type: string; name: string } | null>(null);
     const [selectedReport, setSelectedReport] = useState<any | null>(null);
 
@@ -60,21 +62,35 @@ const EODReportsPage = () => {
         }
     }, [dispatch, employees]);
 
+    // Debounce search to avoid too many API calls
+    const debouncedSearch = React.useCallback(
+        debounce((value, date, project, priority, employee) => {
+            const payload: any = {};
+            if (date) payload.date = date;
+            if (project) payload.project_id = project;
+            if (priority) payload.priority = priority;
+            if (value) payload.search = value;
+
+            const isAdmin = user?.role?.toLowerCase() === "admin";
+            if (isAdmin) {
+                if (employee) payload.assigned_to = employee;
+            } else {
+                if (user?.employee_id) payload.assigned_to = user.employee_id;
+            }
+
+            dispatch(getEodReportsRequest(payload));
+        }, 500),
+        [dispatch, user]
+    );
+
     useEffect(() => {
-        const payload: any = {};
-        if (filterDate) payload.date = filterDate;
-        if (filterProject) payload.project_id = filterProject;
-        if (filterPriority) payload.priority = filterPriority;
+        debouncedSearch(search, filterDate, filterProject, filterPriority, filterEmployee);
 
-        const isAdmin = user?.role?.toLowerCase() === "admin";
-        if (isAdmin) {
-            if (filterEmployee) payload.assigned_to = filterEmployee;
-        } else {
-            if (user?.employee_id) payload.assigned_to = user.employee_id;
-        }
-
-        dispatch(getEodReportsRequest(payload));
-    }, [dispatch, filterDate, filterProject, filterPriority, filterEmployee, user]);
+        // Cleanup debounce on unmount
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [search, filterDate, filterProject, filterPriority, filterEmployee, debouncedSearch]);
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -108,125 +124,152 @@ const EODReportsPage = () => {
 
     return (
         <div className="p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-4 mb-6">
+                <div className="flex justify-between items-center">
                     <PageHeader
                         title="EOD Reports"
                         description="Track daily progress and task summaries."
                     />
                 </div>
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <Input
+                        classNames={{
+                            base: "w-full md:w-[25%]",
+                            mainWrapper: "h-full",
+                            input: "text-small",
+                            inputWrapper: "h-10 font-normal text-default-500 bg-default-100 data-[hover=true]:bg-default-200 group-data-[focus=true]:bg-default-100",
+                        }}
+                        placeholder="Search reports..."
+                        size="sm"
+                        startContent={<SearchIcon size={18} />}
+                        value={search}
+                        onValueChange={setSearch}
+                    />
+                    <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide items-center">
+                        <div className="flex items-center bg-default-100 rounded-lg p-1 gap-0" style={{marginTop:"20px"}}>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                onPress={() => {
+                                    try {
+                                        const current = filterDate ? parseDate(filterDate) : parseDate(new Date().toISOString().split('T')[0]);
+                                        const newDate = current.add({ days: -1 });
+                                        setFilterDate(newDate.toString());
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }}
+                                size="sm"
+                                className="min-w-8 w-8 h-8 text-default-600 hover:text-primary rounded-md"
+                            >
+                                <ChevronLeft size={16} />
+                            </Button>
+                            <DatePicker
+                                size="sm"
+                                variant="flat"
+                                className="w-[130px]"
+                                classNames={{
+                                    base: "min-w-[130px]",
+                                    inputWrapper: "bg-transparent shadow-none hover:bg-transparent data-[hover=true]:bg-transparent px-2",
+                                    input: "text-small font-medium text-center",
+                                    innerWrapper: "justify-center",
+                                }}
+                                value={filterDate ? parseDate(filterDate) : undefined}
+                                onChange={(date) => setFilterDate(date ? date.toString() : "")}
+                                aria-label="Select Date"
+                                showMonthAndYearPickers
+                            />
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                onPress={() => {
+                                    try {
+                                        const current = filterDate ? parseDate(filterDate) : parseDate(new Date().toISOString().split('T')[0]);
+                                        const newDate = current.add({ days: 1 });
+                                        setFilterDate(newDate.toString());
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }}
+                                size="sm"
+                                className="min-w-8 w-8 h-8 text-default-600 hover:text-primary rounded-md"
+                            >
+                                <ChevronRight size={16} />
+                            </Button>
+                        </div>
 
-                <div className="flex flex-wrap gap-2 items-center">
-                    <div className="flex items-center bg-default-50 rounded-lg border border-default-200 p-0.5">
-                        <Button
-                            isIconOnly
-                            variant="light"
-                            onPress={() => {
-                                try {
-                                    const current = filterDate ? parseDate(filterDate) : parseDate(new Date().toISOString().split('T')[0]);
-                                    const newDate = current.add({ days: -1 });
-                                    setFilterDate(newDate.toString());
-                                } catch (e) { console.error(e); }
-                            }}
-                            size="sm"
-                            className="min-w-8 w-8 h-8 text-default-600 hover:text-primary"
-                        >
-                            <ChevronLeft size={16} />
-                        </Button>
-                        <DatePicker
-                            size="sm"
-                            variant="flat"
-                            className="w-32"
-                            classNames={{
-                                inputWrapper: "bg-transparent shadow-none hover:bg-transparent data-[hover=true]:bg-transparent",
-                            }}
-                            value={filterDate ? parseDate(filterDate) : undefined}
-                            onChange={(date) => setFilterDate(date ? date.toString() : "")}
-                            aria-label="Select Date"
-                            showMonthAndYearPickers
-                        />
-                        <Button
-                            isIconOnly
-                            variant="light"
-                            onPress={() => {
-                                try {
-                                    const current = filterDate ? parseDate(filterDate) : parseDate(new Date().toISOString().split('T')[0]);
-                                    const newDate = current.add({ days: 1 });
-                                    setFilterDate(newDate.toString());
-                                } catch (e) { console.error(e); }
-                            }}
-                            size="sm"
-                            className="min-w-8 w-8 h-8 text-default-600 hover:text-primary"
-                        >
-                            <ChevronRight size={16} />
-                        </Button>
-                    </div>
+                        {user?.role?.toLowerCase() === "admin" && (
+                            <Select
+                                className="w-[150px]"
+                                label="Employee"
+                                placeholder="Filter by employee"
+                                labelPlacement="outside"
+                                size="sm"
+                                classNames={{
+                                    trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                    value: "text-small",
+                                }}
+                                selectedKeys={filterEmployee ? [filterEmployee] : []}
+                                onChange={(e) => setFilterEmployee(e.target.value)}
+                                radius="sm"
+                            >
+                                {employees.map((emp: any) => (
+                                    <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                        <div className="flex items-center gap-2">
+                                            <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                            <span>{emp.name}</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
 
-                    {user?.role?.toLowerCase() === "admin" && (
                         <Select
-                            className="w-40"
-                            placeholder="Employee"
-                            variant="bordered"
+                            className="w-[150px]"
+                            label="Project"
+                            placeholder="Filter by project"
+                            labelPlacement="outside"
                             size="sm"
-                            selectedKeys={filterEmployee ? [filterEmployee] : []}
-                            onChange={(e) => setFilterEmployee(e.target.value)}
+                            classNames={{
+                                trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                value: "text-small",
+                            }}
+                            selectedKeys={filterProject ? [filterProject] : []}
+                            onChange={(e) => setFilterProject(e.target.value)}
+                            radius="sm"
+                            startContent={<FolderOpen size={14} className="text-default-500" />}
                         >
-                            {employees.map((emp: any) => (
-                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                    <div className="flex items-center gap-2">
-                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                        <span>{emp.name}</span>
-                                    </div>
+                            {projects.map((proj: any) => (
+                                <SelectItem key={proj.id} textValue={proj.name}>
+                                    {proj.name}
                                 </SelectItem>
                             ))}
                         </Select>
-                    )}
 
-                    <Select
-                        className="w-40"
-                        placeholder="Project"
-                        variant="bordered"
-                        size="sm"
-                        selectedKeys={filterProject ? [filterProject] : []}
-                        onChange={(e) => setFilterProject(e.target.value)}
-                    >
-                        {projects.map((proj: any) => (
-                            <SelectItem key={proj.id} textValue={proj.name}>
-                                {proj.name}
-                            </SelectItem>
-                        ))}
-                    </Select>
-
-                    <Select
-                        className="w-32"
-                        placeholder="Priority"
-                        variant="bordered"
-                        size="sm"
-                        selectedKeys={filterPriority ? [filterPriority] : []}
-                        onChange={(e) => setFilterPriority(e.target.value)}
-                    >
-                        {["Low", "Medium", "High"].map((p) => (
-                            <SelectItem key={p}>
-                                {p}
-                            </SelectItem>
-                        ))}
-                    </Select>
-
-                    {(filterDate || filterEmployee || filterProject || filterPriority) && (
-                        <Button
-                            isIconOnly
-                            variant="light"
-                            color="danger"
-                            onPress={() => {
-                                setFilterDate("");
-                                setFilterEmployee("");
-                                setFilterProject("");
-                                setFilterPriority("");
+                        <Select
+                            className="w-[120px]"
+                            label="Priority"
+                            placeholder="Filter by priority"
+                            labelPlacement="outside"
+                            size="sm"
+                            classNames={{
+                                trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                                value: "text-small",
                             }}
+                            selectedKeys={filterPriority ? [filterPriority] : []}
+                            onChange={(e) => setFilterPriority(e.target.value)}
+                            radius="sm"
+                            startContent={<Filter size={14} className="text-default-500" />}
                         >
-                            <X size={18} />
-                        </Button>
-                    )}
+                            {["Low", "Medium", "High"].map((p) => (
+                                <SelectItem key={p}>
+                                    {p}
+                                </SelectItem>
+                            ))}
+                        </Select>
+
+
+                    </div>
                 </div>
             </div>
 

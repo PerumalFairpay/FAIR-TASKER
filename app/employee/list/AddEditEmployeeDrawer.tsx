@@ -15,7 +15,7 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Tabs, Tab } from "@heroui/tabs";
-import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X } from "lucide-react";
+import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landmark } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
@@ -42,7 +42,7 @@ export default function AddEditEmployeeDrawer({
     const dispatch = useDispatch();
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
-    const { employee: fetchedEmployee, loading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
+    const { employee: fetchedEmployee, getLoading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
     const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
 
     const [formData, setFormData] = useState<any>({});
@@ -54,13 +54,11 @@ export default function AddEditEmployeeDrawer({
     const [isConfirmVisible, setIsConfirmVisible] = useState(false);
     const [selectedTab, setSelectedTab] = useState<string>("personal");
     const [confirmationPeriod, setConfirmationPeriod] = useState<string>("");
-
-    // Compute root departments
+ 
     const rootDepartments = useMemo(() => {
         return (departments || []).filter((dept: any) => !dept.parent_id);
     }, [departments]);
-
-    // Compute designation options (descendants of selected root department)
+ 
     const designationOptions = useMemo(() => {
         if (!formData.department) return [];
         const selectedRoot = rootDepartments.find((d: any) => d.name === formData.department);
@@ -107,8 +105,7 @@ export default function AddEditEmployeeDrawer({
         if (isOpen && mode === "edit" && fetchedEmployee) {
             const allDepts = departments || [];
             const currentDeptName = fetchedEmployee.department;
-
-            // Set Documents
+ 
             setDocumentList([{ id: Date.now(), name: "", files: [] }]);
 
             const isRoot = rootDepartments.some((d: any) => d.name === currentDeptName);
@@ -190,9 +187,7 @@ export default function AddEditEmployeeDrawer({
         }
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, name: string) => {
-        // This is kept for reference or direct usage, but FilePond uses its own state
-    };
+   
 
     const handleSubmit = () => {
         const data = new FormData();
@@ -408,6 +403,22 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("address", e.target.value)}
                                                 className="md:col-span-2"
                                             />
+                                            <Input
+                                                label="Emergency Contact Name"
+                                                placeholder="Jane Doe"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.emergency_contact_name || ""}
+                                                onChange={(e) => handleChange("emergency_contact_name", e.target.value)}
+                                            />
+                                            <Input
+                                                label="Emergency Contact Number"
+                                                placeholder="+1234567890"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.emergency_contact_number || ""}
+                                                onChange={(e) => handleChange("emergency_contact_number", e.target.value)}
+                                            />
                                         </div>
                                     </div>
                                 </Tab>
@@ -572,29 +583,71 @@ export default function AddEditEmployeeDrawer({
                                     </div>
                                 </Tab>
 
-                                <Tab key="emergency" title={
+
+
+                                <Tab key="bank" title={
                                     <div className="flex items-center space-x-2">
-                                        <PhoneCall size={16} />
-                                        <span>Emergency</span>
+                                        <Landmark size={16} />
+                                        <span>Bank Details</span>
                                     </div>
                                 }>
                                     <div className="space-y-6 pt-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <Input
-                                                label="Contact Name"
-                                                placeholder="Jane Doe"
+                                                label="Account Holder Name"
+                                                placeholder="John Doe"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                value={formData.emergency_contact_name || ""}
-                                                onChange={(e) => handleChange("emergency_contact_name", e.target.value)}
+                                                value={formData.account_name || ""}
+                                                onChange={(e) => handleChange("account_name", e.target.value)}
                                             />
                                             <Input
-                                                label="Contact Number"
-                                                placeholder="+1234567890"
+                                                label="Bank Name"
+                                                placeholder="State Bank of India"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                value={formData.emergency_contact_number || ""}
-                                                onChange={(e) => handleChange("emergency_contact_number", e.target.value)}
+                                                value={formData.bank_name || ""}
+                                                onChange={(e) => handleChange("bank_name", e.target.value)}
+                                            />
+                                            <Input
+                                                label="Account Number"
+                                                placeholder="1234567890"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.account_number || ""}
+                                                onChange={(e) => handleChange("account_number", e.target.value)}
+                                            />
+                                            <Input
+                                                label="IFSC Code"
+                                                placeholder="SBIN0001234"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.ifsc_code || ""}
+                                                onChange={(e) => handleChange("ifsc_code", e.target.value)}
+                                            />
+                                            <Input
+                                                label="PAN Number"
+                                                placeholder="ABCDE1234F"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.pan_number || ""}
+                                                onChange={(e) => handleChange("pan_number", e.target.value)}
+                                            />
+                                            <Input
+                                                label="PF Account Number"
+                                                placeholder="PF/KN/12345/000/1234567"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.pf_account_number || ""}
+                                                onChange={(e) => handleChange("pf_account_number", e.target.value)}
+                                            />
+                                            <Input
+                                                label="ESIC Number"
+                                                placeholder="1234567890"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.esic_number || ""}
+                                                onChange={(e) => handleChange("esic_number", e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -692,7 +745,7 @@ export default function AddEditEmployeeDrawer({
                                 </Button>
                             ) : (
                                 <Button color="primary" onPress={() => {
-                                    const tabs = ["personal", "professional", "emergency", "documents"];
+                                    const tabs = ["personal", "professional", "bank", "documents"];
                                     const currentIndex = tabs.indexOf(selectedTab);
                                     if (currentIndex < tabs.length - 1) {
                                         setSelectedTab(tabs[currentIndex + 1]);

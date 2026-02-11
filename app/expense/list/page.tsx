@@ -23,6 +23,7 @@ import { Button } from "@heroui/button";
 import { useDisclosure } from "@heroui/modal";
 import { PlusIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { Chip } from "@heroui/chip";
+import { addToast } from "@heroui/toast";
 import AddEditExpenseDrawer from "./AddEditExpenseDrawer";
 import DeleteExpenseModal from "./DeleteExpenseModal";
 import { PageHeader } from "@/components/PageHeader";
@@ -32,7 +33,20 @@ import { usePermissions, PermissionGuard } from "@/components/PermissionGuard";
 
 export default function ExpenseListPage() {
     const dispatch = useDispatch();
-    const { expenses, loading, success } = useSelector((state: RootState) => state.Expense);
+    const {
+        expenses,
+        getExpensesLoading,
+        createExpenseLoading,
+        updateExpenseLoading,
+        deleteExpenseLoading,
+        createExpenseSuccessMessage,
+        updateExpenseSuccessMessage,
+        deleteExpenseSuccessMessage,
+        createExpenseError,
+        updateExpenseError,
+        deleteExpenseError,
+        getExpensesError
+    } = useSelector((state: RootState) => state.Expense);
     const { expenseCategories } = useSelector((state: RootState) => state.ExpenseCategory);
     const { hasPermission } = usePermissions();
 
@@ -45,16 +59,42 @@ export default function ExpenseListPage() {
 
     useEffect(() => {
         dispatch(getExpensesRequest());
-        dispatch(getExpenseCategoriesRequest());
     }, [dispatch]);
 
     useEffect(() => {
-        if (success) {
+        if (isAddEditOpen) {
+            dispatch(getExpenseCategoriesRequest());
+        }
+    }, [isAddEditOpen, dispatch]);
+
+    useEffect(() => {
+        if (createExpenseSuccessMessage || updateExpenseSuccessMessage) {
+            addToast({
+                title: "Success",
+                description: createExpenseSuccessMessage || updateExpenseSuccessMessage,
+                color: "success"
+            });
             onAddEditClose();
+            dispatch(clearExpenseDetails());
+        }
+        if (deleteExpenseSuccessMessage) {
+            addToast({
+                title: "Success",
+                description: deleteExpenseSuccessMessage,
+                color: "success"
+            });
             onDeleteClose();
             dispatch(clearExpenseDetails());
         }
-    }, [success, onAddEditClose, onDeleteClose, dispatch]);
+        if (createExpenseError || updateExpenseError || deleteExpenseError || getExpensesError) {
+            addToast({
+                title: "Error",
+                description: createExpenseError || updateExpenseError || deleteExpenseError || getExpensesError,
+                color: "danger"
+            });
+            dispatch(clearExpenseDetails());
+        }
+    }, [createExpenseSuccessMessage, updateExpenseSuccessMessage, deleteExpenseSuccessMessage, createExpenseError, updateExpenseError, deleteExpenseError, getExpensesError, onAddEditClose, onDeleteClose, dispatch]);
 
     const handleCreate = () => {
         setMode("create");
@@ -87,7 +127,6 @@ export default function ExpenseListPage() {
         }
     };
 
-    // Helper to get category name
     const getCategoryName = (id: string) => {
         const cat = expenseCategories.find((c: any) => c.id === id);
         return cat ? cat.name : "Unknown";
@@ -116,19 +155,25 @@ export default function ExpenseListPage() {
                     <TableHeader>
                         <TableColumn>DATE</TableColumn>
                         <TableColumn>CATEGORY</TableColumn>
+                        <TableColumn>SUB CATEGORY</TableColumn>
                         <TableColumn>PURPOSE</TableColumn>
                         <TableColumn>AMOUNT</TableColumn>
                         <TableColumn>MODE</TableColumn>
                         <TableColumn align="center">ATTACHMENT</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={expenses || []} emptyContent={"No expenses found"} isLoading={loading}>
+                    <TableBody items={expenses || []} emptyContent={"No expenses found"} isLoading={getExpensesLoading}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell className="font-medium">{item.date}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
-                                        <p className="text-bold text-sm capitalize">{getCategoryName(item.expense_category_id)}</p>
+                                        <p className="text-bold text-sm capitalize">{item.category_name || "Unknown"}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <p className="text-sm text-default-500 capitalize">{item.subcategory_name || "-"}</p>
                                     </div>
                                 </TableCell>
                                 <TableCell className="max-w-[200px] truncate">{item.purpose}</TableCell>
@@ -182,7 +227,7 @@ export default function ExpenseListPage() {
                     onOpenChange={onAddEditOpenChange}
                     mode={mode}
                     selectedExpense={selectedExpense}
-                    loading={loading}
+                    loading={mode === "create" ? createExpenseLoading : updateExpenseLoading}
                     onSubmit={handleAddEditSubmit}
                 />
 
@@ -190,7 +235,7 @@ export default function ExpenseListPage() {
                     isOpen={isDeleteOpen}
                     onOpenChange={onDeleteOpenChange}
                     onConfirm={handleDeleteConfirm}
-                    loading={loading}
+                    loading={deleteExpenseLoading}
                 />
 
                 {previewData && (

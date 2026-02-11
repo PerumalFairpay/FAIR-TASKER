@@ -77,16 +77,17 @@ export default function AddEditExpenseDrawer({
     const dispatch = useDispatch();
     const { expenseCategories } = useSelector((state: RootState) => state.ExpenseCategory);
 
-    const categoryOptions = useMemo(() => buildDropdownOptions(expenseCategories || []), [expenseCategories]);
+    const rootCategories = useMemo(() => (expenseCategories || []).filter((cat: any) => !cat.parent_id), [expenseCategories]);
 
     const [formData, setFormData] = useState<any>({});
     const [attachmentFiles, setAttachmentFiles] = useState<any[]>([]);
 
-    useEffect(() => {
-        if (isOpen) {
-            dispatch(getExpenseCategoriesRequest());
-        }
-    }, [isOpen, dispatch]);
+    const subCategories = useMemo(() => {
+        if (!formData.expense_category_id) return [];
+        return (expenseCategories || []).filter((cat: any) => cat.parent_id === formData.expense_category_id);
+    }, [expenseCategories, formData.expense_category_id]);
+
+
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedExpense) {
@@ -101,18 +102,21 @@ export default function AddEditExpenseDrawer({
     }, [isOpen, mode, selectedExpense]);
 
     const handleChange = (name: string, value: string) => {
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        setFormData((prev: any) => {
+            const newData = { ...prev, [name]: value };
+            if (name === "expense_category_id") {
+                newData.expense_subcategory_id = "";
+            }
+            return newData;
+        });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Handled by FileUpload
-    };
 
     const handleSubmit = () => {
         const data = new FormData();
 
         // Fields to append
-        const fields = ["expense_category_id", "amount", "purpose", "payment_mode", "date"];
+        const fields = ["expense_category_id", "expense_subcategory_id", "amount", "purpose", "payment_mode", "date"];
 
         fields.forEach(field => {
             if (formData[field] !== undefined && formData[field] !== null) {
@@ -145,9 +149,25 @@ export default function AddEditExpenseDrawer({
                                 isRequired
                                 variant="bordered"
                             >
-                                {categoryOptions.map((cat: any) => (
+                                {rootCategories.map((cat: any) => (
                                     <SelectItem key={cat.id} textValue={cat.name}>
-                                        {cat.displayName}
+                                        {cat.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+
+                            <Select
+                                label="Sub Category"
+                                placeholder="Select Sub Category"
+                                labelPlacement="outside"
+                                selectedKeys={formData.expense_subcategory_id ? [formData.expense_subcategory_id] : []}
+                                onChange={(e) => handleChange("expense_subcategory_id", e.target.value)}
+                                variant="bordered"
+                                isDisabled={subCategories.length === 0}
+                            >
+                                {subCategories.map((cat: any) => (
+                                    <SelectItem key={cat.id} textValue={cat.name}>
+                                        {cat.name}
                                     </SelectItem>
                                 ))}
                             </Select>

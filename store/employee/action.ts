@@ -1,128 +1,141 @@
 import {
-    CREATE_EMPLOYEE_REQUEST, CREATE_EMPLOYEE_SUCCESS, CREATE_EMPLOYEE_FAILURE,
-    GET_EMPLOYEES_REQUEST, GET_EMPLOYEES_SUCCESS, GET_EMPLOYEES_FAILURE,
-    GET_EMPLOYEE_REQUEST, GET_EMPLOYEE_SUCCESS, GET_EMPLOYEE_FAILURE,
-    UPDATE_EMPLOYEE_REQUEST, UPDATE_EMPLOYEE_SUCCESS, UPDATE_EMPLOYEE_FAILURE,
-    DELETE_EMPLOYEE_REQUEST, DELETE_EMPLOYEE_SUCCESS, DELETE_EMPLOYEE_FAILURE,
-    UPDATE_USER_PERMISSIONS_REQUEST, UPDATE_USER_PERMISSIONS_SUCCESS, UPDATE_USER_PERMISSIONS_FAILURE,
-    GET_USER_PERMISSIONS_REQUEST, GET_USER_PERMISSIONS_SUCCESS, GET_USER_PERMISSIONS_FAILURE,
-    GET_EMPLOYEES_SUMMARY_REQUEST, GET_EMPLOYEES_SUMMARY_SUCCESS, GET_EMPLOYEES_SUMMARY_FAILURE,
-    CLEAR_EMPLOYEE_DETAILS
+  CREATE_EMPLOYEE_REQUEST,
+  CREATE_EMPLOYEE_SUCCESS,
+  CREATE_EMPLOYEE_FAILURE,
+  GET_EMPLOYEES_REQUEST,
+  GET_EMPLOYEES_SUCCESS,
+  GET_EMPLOYEES_FAILURE,
+  GET_EMPLOYEE_REQUEST,
+  GET_EMPLOYEE_SUCCESS,
+  GET_EMPLOYEE_FAILURE,
+  UPDATE_EMPLOYEE_REQUEST,
+  UPDATE_EMPLOYEE_SUCCESS,
+  UPDATE_EMPLOYEE_FAILURE,
+  DELETE_EMPLOYEE_REQUEST,
+  DELETE_EMPLOYEE_SUCCESS,
+  DELETE_EMPLOYEE_FAILURE,
+  UPDATE_USER_PERMISSIONS_REQUEST,
+  UPDATE_USER_PERMISSIONS_SUCCESS,
+  UPDATE_USER_PERMISSIONS_FAILURE,
+  GET_USER_PERMISSIONS_REQUEST,
+  GET_USER_PERMISSIONS_SUCCESS,
+  GET_USER_PERMISSIONS_FAILURE,
+  GET_EMPLOYEES_SUMMARY_REQUEST,
+  GET_EMPLOYEES_SUMMARY_SUCCESS,
+  GET_EMPLOYEES_SUMMARY_FAILURE,
+  CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
-
-// Create Employee
+ 
 export const createEmployeeRequest = (payload: FormData) => ({
-    type: CREATE_EMPLOYEE_REQUEST,
-    payload,
+  type: CREATE_EMPLOYEE_REQUEST,
+  payload,
 });
 export const createEmployeeSuccess = (response: any) => ({
-    type: CREATE_EMPLOYEE_SUCCESS,
-    payload: response,
+  type: CREATE_EMPLOYEE_SUCCESS,
+  payload: response,
 });
 export const createEmployeeFailure = (error: any) => ({
-    type: CREATE_EMPLOYEE_FAILURE,
-    payload: error,
+  type: CREATE_EMPLOYEE_FAILURE,
+  payload: error,
 });
-
-// Get All Employees
-// Get All Employees
-export const getEmployeesRequest = (page: number = 1, limit: number = 10, query: any = {}) => ({
-    type: GET_EMPLOYEES_REQUEST,
-    payload: { page, limit, ...query }
+ 
+export const getEmployeesRequest = (
+  page: number = 1,
+  limit: number = 10,
+  query: any = {},
+) => ({
+  type: GET_EMPLOYEES_REQUEST,
+  payload: { page, limit, ...query },
 });
 export const getEmployeesSuccess = (response: any) => ({
-    type: GET_EMPLOYEES_SUCCESS,
-    payload: response,
+  type: GET_EMPLOYEES_SUCCESS,
+  payload: response,
 });
 export const getEmployeesFailure = (error: any) => ({
-    type: GET_EMPLOYEES_FAILURE,
-    payload: error,
+  type: GET_EMPLOYEES_FAILURE,
+  payload: error,
 });
-
-// Get Single Employee
+ 
 export const getEmployeeRequest = (id: string) => ({
-    type: GET_EMPLOYEE_REQUEST,
-    payload: id,
+  type: GET_EMPLOYEE_REQUEST,
+  payload: id,
 });
 export const getEmployeeSuccess = (response: any) => ({
-    type: GET_EMPLOYEE_SUCCESS,
-    payload: response,
+  type: GET_EMPLOYEE_SUCCESS,
+  payload: response,
 });
 export const getEmployeeFailure = (error: any) => ({
-    type: GET_EMPLOYEE_FAILURE,
-    payload: error,
+  type: GET_EMPLOYEE_FAILURE,
+  payload: error,
 });
-
-// Update Employee
+ 
 export const updateEmployeeRequest = (id: string, payload: FormData) => ({
-    type: UPDATE_EMPLOYEE_REQUEST,
-    payload: { id, payload },
+  type: UPDATE_EMPLOYEE_REQUEST,
+  payload: { id, payload },
 });
 export const updateEmployeeSuccess = (response: any) => ({
-    type: UPDATE_EMPLOYEE_SUCCESS,
-    payload: response,
+  type: UPDATE_EMPLOYEE_SUCCESS,
+  payload: response,
 });
 export const updateEmployeeFailure = (error: any) => ({
-    type: UPDATE_EMPLOYEE_FAILURE,
-    payload: error,
+  type: UPDATE_EMPLOYEE_FAILURE,
+  payload: error,
 });
-
-// Delete Employee
+ 
 export const deleteEmployeeRequest = (id: string) => ({
-    type: DELETE_EMPLOYEE_REQUEST,
-    payload: id,
+  type: DELETE_EMPLOYEE_REQUEST,
+  payload: id,
 });
 export const deleteEmployeeSuccess = (response: any) => ({
-    type: DELETE_EMPLOYEE_SUCCESS,
-    payload: response,
+  type: DELETE_EMPLOYEE_SUCCESS,
+  payload: response,
 });
 export const deleteEmployeeFailure = (error: any) => ({
-    type: DELETE_EMPLOYEE_FAILURE,
-    payload: error,
+  type: DELETE_EMPLOYEE_FAILURE,
+  payload: error,
 });
-
-// Update User Permissions
-export const updateUserPermissionsRequest = (id: string, permissions: string[]) => ({
-    type: UPDATE_USER_PERMISSIONS_REQUEST,
-    payload: { id, permissions },
+ 
+export const updateUserPermissionsRequest = (
+  id: string,
+  permissions: string[],
+) => ({
+  type: UPDATE_USER_PERMISSIONS_REQUEST,
+  payload: { id, permissions },
 });
 export const updateUserPermissionsSuccess = (response: any) => ({
-    type: UPDATE_USER_PERMISSIONS_SUCCESS,
-    payload: response,
+  type: UPDATE_USER_PERMISSIONS_SUCCESS,
+  payload: response,
 });
 export const updateUserPermissionsFailure = (error: any) => ({
-    type: UPDATE_USER_PERMISSIONS_FAILURE,
-    payload: error,
+  type: UPDATE_USER_PERMISSIONS_FAILURE,
+  payload: error,
 });
-
-// Get User Permissions
+ 
 export const getUserPermissionsRequest = (id: string) => ({
-    type: GET_USER_PERMISSIONS_REQUEST,
-    payload: id,
+  type: GET_USER_PERMISSIONS_REQUEST,
+  payload: id,
 });
 export const getUserPermissionsSuccess = (response: any) => ({
-    type: GET_USER_PERMISSIONS_SUCCESS,
-    payload: response,
+  type: GET_USER_PERMISSIONS_SUCCESS,
+  payload: response,
 });
 export const getUserPermissionsFailure = (error: any) => ({
-    type: GET_USER_PERMISSIONS_FAILURE,
-    payload: error,
+  type: GET_USER_PERMISSIONS_FAILURE,
+  payload: error,
 });
-
-// Get Employees Summary
+ 
 export const getEmployeesSummaryRequest = () => ({
-    type: GET_EMPLOYEES_SUMMARY_REQUEST,
+  type: GET_EMPLOYEES_SUMMARY_REQUEST,
 });
 export const getEmployeesSummarySuccess = (response: any) => ({
-    type: GET_EMPLOYEES_SUMMARY_SUCCESS,
-    payload: response,
+  type: GET_EMPLOYEES_SUMMARY_SUCCESS,
+  payload: response,
 });
 export const getEmployeesSummaryFailure = (error: any) => ({
-    type: GET_EMPLOYEES_SUMMARY_FAILURE,
-    payload: error,
+  type: GET_EMPLOYEES_SUMMARY_FAILURE,
+  payload: error,
 });
-
-// Clear Details
+ 
 export const clearEmployeeDetails = () => ({
-    type: CLEAR_EMPLOYEE_DETAILS,
+  type: CLEAR_EMPLOYEE_DETAILS,
 });
