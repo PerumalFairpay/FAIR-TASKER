@@ -76,7 +76,8 @@ export default function RolePage() {
         setFormData({
             name: role.name,
             description: role.description || "",
-            permissions: role.permissions || [],
+            // Extract IDs from permission objects
+            permissions: role.permissions ? role.permissions.map((p: any) => p.id) : [],
         });
         onOpen();
     };
@@ -125,7 +126,7 @@ export default function RolePage() {
                         <TableColumn>PERMISSIONS</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={roles || []} emptyContent={"No roles found"} isLoading={loading}>
+                    <TableBody items={Array.isArray(roles) ? roles : []} emptyContent={"No roles found"} isLoading={loading}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 <TableCell>
@@ -141,14 +142,11 @@ export default function RolePage() {
                                 <TableCell>
                                     <div className="flex gap-1 flex-wrap max-w-xs">
                                         {item.permissions && item.permissions.length > 0 ? (
-                                            item.permissions.slice(0, 3).map((permId: string) => {
-                                                const perm = permissions.find((p: any) => p.id === permId);
-                                                return (
-                                                    <Chip key={permId} size="sm" variant="flat">
-                                                        {perm ? perm.slug : permId}
-                                                    </Chip>
-                                                );
-                                            })
+                                            item.permissions.slice(0, 3).map((perm: any) => (
+                                                <Chip key={perm.id} size="sm" variant="flat">
+                                                    {perm.name}
+                                                </Chip>
+                                            ))
                                         ) : (
                                             <span className="text-default-400 text-sm">-</span>
                                         )}
