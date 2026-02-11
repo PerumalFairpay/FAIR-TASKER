@@ -88,11 +88,9 @@ export default function AddEditAssetDrawer({
     useEffect(() => {
         if (isOpen) {
             dispatch(getAssetCategoriesRequest());
-            if (!employees || employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
+            dispatch(getEmployeesSummaryRequest());
         }
-    }, [isOpen, dispatch, employees]);
+    }, [isOpen, dispatch]);
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedAsset) {

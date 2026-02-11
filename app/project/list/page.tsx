@@ -51,10 +51,10 @@ export default function ProjectListPage() {
     }, [dispatch]);
 
     useEffect(() => {
-        if (isAddEditOpen && (!employees || employees.length === 0)) {
+        if (isAddEditOpen) {
             dispatch(getEmployeesSummaryRequest());
         }
-    }, [isAddEditOpen, employees, dispatch]);
+    }, [isAddEditOpen, dispatch]);
 
     useEffect(() => {
         if (success) {
