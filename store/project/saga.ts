@@ -54,7 +54,7 @@ function deleteProjectApi(id: string) {
 }
 
 function getProjectsSummaryApi() {
-  return api.get("/projects/list");
+  return api.get("/projects/project_summary");
 }
 
 // Sagas

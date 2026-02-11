@@ -146,7 +146,7 @@ const EODReportsPage = () => {
                         onValueChange={setSearch}
                     />
                     <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide items-center">
-                        <div className="flex items-center bg-default-100 rounded-lg p-1 gap-0" style={{marginTop:"20px"}}>
+                        <div className="flex items-center bg-default-100 rounded-lg p-1 gap-0" style={{ marginTop: "20px" }}>
                             <Button
                                 isIconOnly
                                 variant="light"
