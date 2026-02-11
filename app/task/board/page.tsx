@@ -104,11 +104,10 @@ const TaskBoard = () => {
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
         dispatch(getProjectsRequest());
-        if (!employees || employees.length === 0) {
-            dispatch(getEmployeesSummaryRequest());
-        }
+        dispatch(getEmployeesSummaryRequest());
+
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee, user, employees]);
+    }, [dispatch, filterDate, filterEmployee, user]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
