@@ -83,9 +83,7 @@ const RoadmapBoard = () => {
 
     const getTasksByStatus = (status: string) => {
         return tasks.filter((task: any) => {
-            if (task.status !== status) return false;
-            // Additional filtering (e.g. date) can be kept or removed depending on requirement.
-            // Keeping it consistent with data being fetched which is for `filterDate`.
+            if (task.status !== status) return false; 
             return true;
         });
     };
