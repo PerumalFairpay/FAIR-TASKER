@@ -380,13 +380,13 @@ export default function AttendancePage() {
 
 
 
-    // Helper stats
-    const todayStats = metrics?.today || { present: 0, absent: 0, late: 0 };
-    const monthStats = metrics?.month || { present: 0, absent: 0, leave: 0 };
-    const yearStats = metrics?.year || { present: 0 };
+    // Helper stats - Updated to use new hierarchical structure
+    const todayStats = metrics?.today || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const monthStats = metrics?.month || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const yearStats = metrics?.year || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
 
-    // Calculate total headcount for today (Present + Absent + Leave + Late) - simplistic
-    const todayTotal = (todayStats.present || 0) + (todayStats.absent || 0) + (todayStats.late || 0) + (todayStats.leave || 0);
+    // Calculate total headcount for today (Total Present + Absent + Leave + Holiday)
+    const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
 
     // Filter columns based on role
@@ -631,18 +631,24 @@ export default function AttendancePage() {
                         <Card className="shadow-sm border-l-4 border-primary">
                             <CardBody className="py-4">
                                 <p className="text-small text-default-500 uppercase font-bold mb-2">Today's Overview</p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Present</span>
-                                        <span className="text-xl font-bold text-success">{todayStats.present || 0}</span>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-default-400 text-sm">Total Present</span>
+                                        <span className="text-2xl font-bold text-primary">{todayStats.total_present || 0}</span>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Late</span>
-                                        <span className="text-xl font-bold text-warning">{todayStats.late || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Absent</span>
-                                        <span className="text-xl font-bold text-danger">{todayStats.absent || 0}</span>
+                                    <div className="flex justify-between items-center text-sm border-t pt-2">
+                                        <div className="flex flex-col">
+                                            <span className="text-default-400">On Time</span>
+                                            <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-default-400">Late</span>
+                                            <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-default-400">Absent</span>
+                                            <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </CardBody>
@@ -654,8 +660,8 @@ export default function AttendancePage() {
                                 <p className="text-small text-default-500 uppercase font-bold mb-2">This Month</p>
                                 <div className="flex justify-between items-center text-sm">
                                     <div className="flex flex-col">
-                                        <span className="text-default-400">Present</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.present || 0}</span>
+                                        <span className="text-default-400">Total Present</span>
+                                        <span className="text-xl font-bold text-default-700">{monthStats.total_present || 0}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-default-400">Leaves</span>
@@ -674,7 +680,7 @@ export default function AttendancePage() {
                             <CardBody className="py-4">
                                 <p className="text-small text-default-500 uppercase font-bold mb-2">Yearly Attendance</p>
                                 <div className="flex items-end gap-2">
-                                    <h4 className="text-3xl font-bold text-success">{yearStats.present || 0}</h4>
+                                    <h4 className="text-3xl font-bold text-success">{yearStats.total_present || 0}</h4>
                                     <span className="text-small text-default-400 mb-1">Total Days Present</span>
                                 </div>
                             </CardBody>
