@@ -628,33 +628,175 @@ export default function AttendancePage() {
                         <Card className="shadow-md transition-all duration-300 border border-primary/20 bg-gradient-to-br from-primary-50/50 via-background to-background dark:from-primary-950/20 dark:via-background dark:to-background">
                             <CardBody className="py-3 px-4">
                                 <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">Today</p>
-                                    <Chip size="sm" variant="shadow" color="primary" className="h-5 font-semibold">
-                                        {todayStats.total_present || 0} Present
-                                    </Chip>
+                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">
+                                        {isAdmin ? "Today's Overview" : "Today's Status"}
+                                    </p>
+                                    {isAdmin && (
+                                        <Chip size="sm" variant="shadow" color="primary" className="h-5 font-semibold">
+                                            {todayStats.total_present || 0} Present
+                                        </Chip>
+                                    )}
                                 </div>
-                                <div className="grid grid-cols-5 gap-2 text-center">
-                                    <div className="flex flex-col">
-                                        <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
-                                        <span className="text-[10px] text-default-400 uppercase">On Time</span>
+
+                                {isAdmin ? (
+                                    // Admin View - Show aggregate statistics
+                                    <>
+                                        <div className="grid grid-cols-5 gap-2 text-center mb-3">
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
+                                                <span className="text-[10px] text-default-400 uppercase">On Time</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
+                                                <span className="text-[10px] text-default-400 uppercase">Late</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
+                                                <span className="text-[10px] text-default-400 uppercase">Absent</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold text-secondary">{todayStats.leave || 0}</span>
+                                                <span className="text-[10px] text-default-400 uppercase">Leave</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-lg font-bold text-primary">{todayStats.holiday || 0}</span>
+                                                <span className="text-[10px] text-default-400 uppercase">Holiday</span>
+                                            </div>
+                                        </div>
+                                        {/* Progress Bar */}
+                                        <div className="relative h-6 bg-default-100 rounded-full overflow-hidden shadow-inner flex">
+                                            {(() => {
+                                                const total = (todayStats.on_time || 0) + (todayStats.late || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
+                                                if (total === 0) return <div className="w-full bg-default-200"></div>;
+
+                                                const onTimePercent = ((todayStats.on_time || 0) / total) * 100;
+                                                const latePercent = ((todayStats.late || 0) / total) * 100;
+                                                const absentPercent = ((todayStats.absent || 0) / total) * 100;
+                                                const leavePercent = ((todayStats.leave || 0) / total) * 100;
+                                                const holidayPercent = ((todayStats.holiday || 0) / total) * 100;
+
+                                                return (
+                                                    <>
+                                                        {onTimePercent > 0 && (
+                                                            <div
+                                                                className="h-full bg-success transition-all duration-700 ease-out flex items-center justify-center relative"
+                                                                style={{ width: `${onTimePercent}%` }}
+                                                            >
+                                                                {onTimePercent > 8 && (
+                                                                    <span className="text-[10px] font-semibold text-white absolute">
+                                                                        {Math.round(onTimePercent)}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {latePercent > 0 && (
+                                                            <div
+                                                                className="h-full bg-warning transition-all duration-700 ease-out flex items-center justify-center relative"
+                                                                style={{ width: `${latePercent}%` }}
+                                                            >
+                                                                {latePercent > 8 && (
+                                                                    <span className="text-[10px] font-semibold text-white absolute">
+                                                                        {Math.round(latePercent)}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {absentPercent > 0 && (
+                                                            <div
+                                                                className="h-full bg-danger transition-all duration-700 ease-out flex items-center justify-center relative"
+                                                                style={{ width: `${absentPercent}%` }}
+                                                            >
+                                                                {absentPercent > 8 && (
+                                                                    <span className="text-[10px] font-semibold text-white absolute">
+                                                                        {Math.round(absentPercent)}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {leavePercent > 0 && (
+                                                            <div
+                                                                className="h-full bg-secondary transition-all duration-700 ease-out flex items-center justify-center relative"
+                                                                style={{ width: `${leavePercent}%` }}
+                                                            >
+                                                                {leavePercent > 8 && (
+                                                                    <span className="text-[10px] font-semibold text-white absolute">
+                                                                        {Math.round(leavePercent)}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {holidayPercent > 0 && (
+                                                            <div
+                                                                className="h-full bg-primary transition-all duration-700 ease-out flex items-center justify-center relative"
+                                                                style={{ width: `${holidayPercent}%` }}
+                                                            >
+                                                                {holidayPercent > 8 && (
+                                                                    <span className="text-[10px] font-semibold text-white absolute">
+                                                                        {Math.round(holidayPercent)}%
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()}
+                                        </div>
+                                    </>
+                                ) : (
+                                    // User View - Show personal status
+                                    <div className="flex flex-col items-center justify-center py-4">
+                                        {todayStats.on_time > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-success animate-pulse"></div>
+                                                    <span className="text-2xl font-bold text-success">On Time</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">You're on time today</p>
+                                            </>
+                                        ) : todayStats.late > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-warning animate-pulse"></div>
+                                                    <span className="text-2xl font-bold text-warning">Late</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">You arrived late today</p>
+                                            </>
+                                        ) : todayStats.absent > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-danger"></div>
+                                                    <span className="text-2xl font-bold text-danger">Absent</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">Marked as absent</p>
+                                            </>
+                                        ) : todayStats.leave > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-secondary"></div>
+                                                    <span className="text-2xl font-bold text-secondary">On Leave</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">You're on leave today</p>
+                                            </>
+                                        ) : todayStats.holiday > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-primary"></div>
+                                                    <span className="text-2xl font-bold text-primary">Holiday</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">It's a holiday today</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="w-3 h-3 rounded-full bg-default-300"></div>
+                                                    <span className="text-2xl font-bold text-default-400">No Record</span>
+                                                </div>
+                                                <p className="text-xs text-default-400">No attendance recorded yet</p>
+                                            </>
+                                        )}
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
-                                        <span className="text-[10px] text-default-400 uppercase">Late</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
-                                        <span className="text-[10px] text-default-400 uppercase">Absent</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-lg font-bold text-secondary">{todayStats.leave || 0}</span>
-                                        <span className="text-[10px] text-default-400 uppercase">Leave</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-lg font-bold text-primary">{todayStats.holiday || 0}</span>
-                                        <span className="text-[10px] text-default-400 uppercase">Holiday</span>
-                                    </div>
-                                </div>
+                                )}
+
                                 {todayStats.overtime > 0 && (
                                     <div className="mt-2 pt-2 border-t border-divider animate-in fade-in slide-in-from-bottom-2 duration-500">
                                         <div className="flex items-center justify-between bg-warning-50/50 dark:bg-warning-950/20 rounded-lg px-2 py-1">
@@ -665,6 +807,7 @@ export default function AttendancePage() {
                                 )}
                             </CardBody>
                         </Card>
+
 
                         {/* This Month - Compact with Progress */}
                         <Card className="shadow-md transition-all duration-300 border border-secondary/20 bg-gradient-to-br from-secondary-50/50 via-background to-background dark:from-secondary-950/20 dark:via-background dark:to-background">
