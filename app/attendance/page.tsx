@@ -526,7 +526,7 @@ export default function AttendancePage() {
                                 >
                                     On Leave
                                 </Button>
-                            ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
+                            ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                                 <Button
                                     color="primary"
                                     size="lg"
@@ -537,7 +537,7 @@ export default function AttendancePage() {
                                 >
                                     Clock In
                                 </Button>
-                            ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
+                            ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
@@ -721,7 +721,7 @@ export default function AttendancePage() {
                     <ModalBody>
                         <p className="text-small text-default-500 mb-4">
                             Upload an Excel file containing attendance data. The file should have columns:
-                            <span className="font-semibold"> Employee ID, Date, Clock In, Clock Out, Status.</span>
+                            <span className="font-semibold"> Employee ID (Biometric ID), Date, Clock In, Clock Out, Status.</span>
                         </p>
                         <FileUpload
                             files={importFile}

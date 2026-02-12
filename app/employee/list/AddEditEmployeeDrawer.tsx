@@ -572,6 +572,18 @@ export default function AddEditEmployeeDrawer({
                                                 <SelectItem key="Remote" textValue="Remote">Remote</SelectItem>
                                                 <SelectItem key="Hybrid" textValue="Hybrid">Hybrid</SelectItem>
                                             </Select>
+
+                                            <Input
+                                                label="Biometric ID"
+                                                placeholder="e.g., 101"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.biometric_id || ""}
+                                                onChange={(e) => handleChange("biometric_id", e.target.value)}
+                                                description="Unique integer ID from the biometric device"
+                                                type="number"
+                                            />
+
                                             <Input
                                                 label="Notice Period"
                                                 placeholder="e.g., 30 days"
@@ -579,7 +591,7 @@ export default function AddEditEmployeeDrawer({
                                                 variant="bordered"
                                                 value={formData.notice_period || ""}
                                                 onChange={(e) => handleChange("notice_period", e.target.value)}
-                                                className="md:col-span-2"
+                                                className={formData.work_mode === "Remote" ? "md:col-span-2" : ""}
                                             />
                                         </div>
                                     </div>
