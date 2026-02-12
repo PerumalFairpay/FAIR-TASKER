@@ -380,16 +380,13 @@ export default function AttendancePage() {
 
 
 
-    // Helper stats - Updated to use new hierarchical structure
     const todayStats = metrics?.today || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
     const monthStats = metrics?.month || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
     const yearStats = metrics?.year || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
 
-    // Calculate total headcount for today (Total Present + Absent + Leave + Holiday)
     const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
 
-    // Filter columns based on role
     const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
 
     return (
@@ -625,63 +622,132 @@ export default function AttendancePage() {
                 />
             ) : (
                 <>
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {/* Today's Overview */}
-                        <Card className="shadow-sm border-l-4 border-primary">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">Today's Overview</p>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-default-400 text-sm">Total Present</span>
-                                        <span className="text-2xl font-bold text-primary">{todayStats.total_present || 0}</span>
+                    {/* Compact Stats Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+                        {/* Today's Overview - Compact */}
+                        <Card className="shadow-md transition-all duration-300 border border-primary/20 bg-gradient-to-br from-primary-50/50 via-background to-background dark:from-primary-950/20 dark:via-background dark:to-background">
+                            <CardBody className="py-3 px-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">Today</p>
+                                    <Chip size="sm" variant="shadow" color="primary" className="h-5 font-semibold">
+                                        {todayStats.total_present || 0} Present
+                                    </Chip>
+                                </div>
+                                <div className="grid grid-cols-5 gap-2 text-center">
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
+                                        <span className="text-[10px] text-default-400 uppercase">On Time</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-sm border-t pt-2">
-                                        <div className="flex flex-col">
-                                            <span className="text-default-400">On Time</span>
-                                            <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
+                                        <span className="text-[10px] text-default-400 uppercase">Late</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
+                                        <span className="text-[10px] text-default-400 uppercase">Absent</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-secondary">{todayStats.leave || 0}</span>
+                                        <span className="text-[10px] text-default-400 uppercase">Leave</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-lg font-bold text-primary">{todayStats.holiday || 0}</span>
+                                        <span className="text-[10px] text-default-400 uppercase">Holiday</span>
+                                    </div>
+                                </div>
+                                {todayStats.overtime > 0 && (
+                                    <div className="mt-2 pt-2 border-t border-divider animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                        <div className="flex items-center justify-between bg-warning-50/50 dark:bg-warning-950/20 rounded-lg px-2 py-1">
+                                            <span className="text-xs text-default-400">Overtime</span>
+                                            <span className="text-sm font-semibold text-warning">{todayStats.overtime} hrs</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-default-400">Late</span>
-                                            <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
+
+                        {/* This Month - Compact with Progress */}
+                        <Card className="shadow-md transition-all duration-300 border border-secondary/20 bg-gradient-to-br from-secondary-50/50 via-background to-background dark:from-secondary-950/20 dark:via-background dark:to-background">
+                            <CardBody className="py-3 px-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">This Month</p>
+                                    <Chip size="sm" variant="shadow" color="secondary" className="h-5 font-semibold">
+                                        {monthStats.total_present || 0} Days
+                                    </Chip>
+                                </div>
+                                <div className="space-y-2">
+                                    {/* Present Progress */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-xs text-default-500 font-medium">Present</span>
+                                            <span className="text-xs font-semibold">{monthStats.total_present || 0}</span>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-default-400">Absent</span>
-                                            <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
+                                        <div className="h-2 bg-default-100 rounded-full overflow-hidden shadow-inner">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-success-400 to-success-600 rounded-full transition-all duration-700 ease-out shadow-sm"
+                                                style={{ width: `${Math.min(((monthStats.total_present || 0) / Math.max(monthStats.total_present + monthStats.absent + monthStats.leave, 1)) * 100, 100)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* Leave & Absent */}
+                                    <div className="grid grid-cols-3 gap-2 text-center pt-1">
+                                        <div className="flex flex-col bg-warning-50/30 dark:bg-warning-950/10 rounded-lg py-1.5">
+                                            <span className="text-sm font-semibold text-warning">{monthStats.leave || 0}</span>
+                                            <span className="text-[10px] text-default-400">Leave</span>
+                                        </div>
+                                        <div className="flex flex-col bg-danger-50/30 dark:bg-danger-950/10 rounded-lg py-1.5">
+                                            <span className="text-sm font-semibold text-danger">{monthStats.absent || 0}</span>
+                                            <span className="text-[10px] text-default-400">Absent</span>
+                                        </div>
+                                        <div className="flex flex-col bg-primary-50/30 dark:bg-primary-950/10 rounded-lg py-1.5">
+                                            <span className="text-sm font-semibold text-primary">{monthStats.holiday || 0}</span>
+                                            <span className="text-[10px] text-default-400">Holiday</span>
                                         </div>
                                     </div>
                                 </div>
                             </CardBody>
                         </Card>
 
-                        {/* This Month */}
-                        <Card className="shadow-sm border-l-4 border-secondary">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">This Month</p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Total Present</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.total_present || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Leaves</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.leave || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Absent</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.absent || 0}</span>
-                                    </div>
+                        {/* Year Summary - Compact */}
+                        <Card className="shadow-md transition-all duration-300 border border-success/20 bg-gradient-to-br from-success-50/50 via-background to-background dark:from-success-950/20 dark:via-background dark:to-background">
+                            <CardBody className="py-3 px-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">Year {new Date().getFullYear()}</p>
+                                    <Chip size="sm" variant="shadow" color="success" className="h-5 font-semibold">
+                                        {yearStats.total_present || 0} Days
+                                    </Chip>
                                 </div>
-                            </CardBody>
-                        </Card>
-
-                        {/* Year Total */}
-                        <Card className="shadow-sm border-l-4 border-success">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">Yearly Attendance</p>
-                                <div className="flex items-end gap-2">
-                                    <h4 className="text-3xl font-bold text-success">{yearStats.total_present || 0}</h4>
-                                    <span className="text-small text-default-400 mb-1">Total Days Present</span>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-default-400">On Time</span>
+                                            <span className="text-sm font-semibold text-success">{yearStats.on_time || 0}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-default-400">Late</span>
+                                            <span className="text-sm font-semibold text-warning">{yearStats.late || 0}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-default-400">Absent</span>
+                                            <span className="text-sm font-semibold text-danger">{yearStats.absent || 0}</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-default-400">Leave</span>
+                                            <span className="text-sm font-semibold text-secondary">{yearStats.leave || 0}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-default-400">Holiday</span>
+                                            <span className="text-sm font-semibold text-primary">{yearStats.holiday || 0}</span>
+                                        </div>
+                                        {yearStats.overtime > 0 && (
+                                            <div className="flex justify-between items-center bg-warning-50/50 dark:bg-warning-950/20 rounded px-1.5 py-0.5 animate-in fade-in slide-in-from-right-2 duration-500">
+                                                <span className="text-xs text-default-400">Overtime</span>
+                                                <span className="text-sm font-semibold text-warning">{yearStats.overtime}h</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </CardBody>
                         </Card>
