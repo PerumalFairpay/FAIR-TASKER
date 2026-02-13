@@ -364,14 +364,15 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   const isChildActive = pathname === child.href;
 
                                   return (
-                                    <NextLink
+                                    <Button
                                       key={child.href}
+                                      as={NextLink}
                                       href={child.href}
                                       className={clsx(
-                                        "relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                        "w-full justify-start relative flex items-center gap-2 px-4 h-10 text-sm font-medium rounded-lg transition-colors",
                                         isChildActive
                                           ? "bg-primary/10 text-primary"
-                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
+                                          : "bg-transparent text-default-500 hover:bg-default-50 hover:text-default-900"
                                       )}
                                     >
                                       {isChildActive && (
@@ -389,7 +390,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                         <ChildIcon size={18} strokeWidth={1.5} className={isChildActive ? "text-primary" : "text-default-500"} />
                                       </motion.div>
                                       <span>{child.label}</span>
-                                    </NextLink>
+                                    </Button>
                                   );
                                 })}
                               </div>
@@ -402,15 +403,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
                   if (isExpanded) {
                     return (
-                      <NextLink
+                      <Button
                         key={item.href}
-                        className={clsx(
-                          linkStyles({ color: "foreground" }),
-                          "data-[active=true]:text-primary data-[active=true]:font-medium",
-                          "relative p-2 rounded-lg flex items-center transition-colors h-10 justify-start gap-2",
-                          pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
-                        )}
+                        as={NextLink}
                         href={item.href}
+                        className={clsx(
+                          "w-full justify-start gap-2 h-10 px-2",
+                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600"
+                        )}
                       >
                         {pathname === item.href && (
                           <motion.div
@@ -427,7 +427,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                           <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
                         </motion.div>
                         <span className="text-sm font-medium">{item.label}</span>
-                      </NextLink>
+                      </Button>
                     );
                   }
 
