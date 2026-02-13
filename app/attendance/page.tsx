@@ -175,7 +175,6 @@ export default function AttendancePage() {
         }
     }
 
-    // Timer Logic for Today's Work
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     useEffect(() => {
