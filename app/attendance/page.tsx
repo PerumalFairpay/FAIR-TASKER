@@ -179,12 +179,7 @@ export default function AttendancePage() {
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     useEffect(() => {
-        const calculateElapsed = () => {
-            // Check if user is clocked in and active
-            // We use todayRecord found from history or fallback to the relevantRecord check
-            // Note: relevantRecord is defined below, so we might need to move this effect or adjust dependencies.
-            // Let's rely on `attendanceHistory` to find today's active record for calculation.
-
+        const calculateElapsed = () => { 
             const todayStr = format(new Date(), "yyyy-MM-dd");
             const todayRec = attendanceHistory?.find((r: any) => r.date === todayStr);
 
@@ -194,7 +189,6 @@ export default function AttendancePage() {
                 const diffSeconds = Math.floor((now - clockInTime) / 1000);
                 setElapsedSeconds(diffSeconds > 0 ? diffSeconds : 0);
             } else if (todayRec && todayRec.clock_in && todayRec.clock_out) {
-                // Even if clocked out, we might want to show the total duration calculated
                 const clockInTime = new Date(todayRec.clock_in).getTime();
                 const clockOutTime = new Date(todayRec.clock_out).getTime();
                 const diffSeconds = Math.floor((clockOutTime - clockInTime) / 1000);
@@ -204,12 +198,11 @@ export default function AttendancePage() {
             }
         };
 
-        calculateElapsed(); // Initial calculation
+        calculateElapsed(); 
         const timer = setInterval(calculateElapsed, 1000);
         return () => clearInterval(timer);
     }, [attendanceHistory]);
-
-    // Helper to format seconds to HH:MM:SS
+ 
     const formatDuration = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
