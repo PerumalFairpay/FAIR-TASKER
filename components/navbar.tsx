@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@heroui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 
 import NextLink from "next/link";
@@ -109,21 +110,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const isSSR = useIsSSR();
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
-  useEffect(() => {
-    siteConfig.navItems.forEach((item: any) => {
-      if (item.children?.some((child: any) => child.href === pathname)) {
-        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
-      }
-    });
-  }, [pathname]);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
@@ -139,6 +125,23 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       setHoveredItem(null);
     }, 200);
   };
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isSSR = useIsSSR();
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  useEffect(() => {
+    siteConfig.navItems.forEach((item: any) => {
+      if (item.children?.some((child: any) => child.href === pathname)) {
+        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
+      }
+    });
+  }, [pathname]);
+
 
   const toggleSidebar = () => {
     if (onToggle) onToggle();
@@ -266,12 +269,12 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                     return (
                       <div key={item.label} className="relative">
                         {!isExpanded ? (
-                          <Popover
+                          <Dropdown
                             isOpen={hoveredItem === item.label}
                             placement="right-start"
                             offset={10}
                           >
-                            <PopoverTrigger>
+                            <DropdownTrigger>
                               <div
                                 onMouseEnter={() => handleMouseEnter(item.label)}
                                 onMouseLeave={handleMouseLeave}
@@ -289,40 +292,32 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
                                 </Button>
                               </div>
-                            </PopoverTrigger>
-                            <PopoverContent
+                            </DropdownTrigger>
+                            <DropdownMenu
                               onMouseEnter={() => handleMouseEnter(item.label)}
                               onMouseLeave={handleMouseLeave}
-                              className="p-2 min-w-[200px]"
+                              aria-label={item.label}
                             >
-                              <div className="space-y-1">
-                                <div className="px-2 py-1.5 border-b border-default-100 mb-1">
-                                  <span className="font-semibold text-small text-default-700">{item.label}</span>
-                                </div>
-                                {filteredChildren.map((child: any) => {
-                                  const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
-                                  const isChildActive = pathname === child.href;
+                              {filteredChildren.map((child: any) => {
+                                const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                const isChildActive = pathname === child.href;
 
-                                  return (
-                                    <NextLink
-                                      key={child.href}
-                                      href={child.href}
-                                      className={clsx(
-                                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                        isChildActive
-                                          ? "bg-primary/10 text-primary"
-                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
-                                      )}
-                                      onClick={() => setHoveredItem(null)}
-                                    >
-                                      <ChildIcon size={16} strokeWidth={2} />
-                                      <span>{child.label}</span>
-                                    </NextLink>
-                                  );
-                                })}
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                                return (
+                                  <DropdownItem
+                                    key={child.href}
+                                    href={child.href}
+                                    as={NextLink}
+                                    startContent={<ChildIcon size={16} />}
+                                    className={clsx(
+                                      isChildActive ? "text-primary bg-primary/10" : "text-default-500"
+                                    )}
+                                  >
+                                    {child.label}
+                                  </DropdownItem>
+                                );
+                              })}
+                            </DropdownMenu>
+                          </Dropdown>
                         ) : (
                           <>
                             <Button
