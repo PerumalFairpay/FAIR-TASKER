@@ -264,6 +264,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   });
                   const hasChildren = filteredChildren && filteredChildren.length > 0;
                   const isOpen = openMenus[item.label];
+                  const isSectionActive = filteredChildren?.some((child: any) => child.href === pathname);
 
                   if (hasChildren) {
                     return (
@@ -289,7 +290,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   disableRipple
                                   isIconOnly
                                 >
-                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isSectionActive ? "text-primary" : "text-default-500")} />
                                 </Button>
                               </div>
                             </DropdownTrigger>
@@ -297,6 +298,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                               onMouseEnter={() => handleMouseEnter(item.label)}
                               onMouseLeave={handleMouseLeave}
                               aria-label={item.label}
+                              closeOnSelect={true}
+                              onAction={() => setHoveredItem(null)}
                             >
                               {filteredChildren.map((child: any) => {
                                 const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
@@ -397,35 +400,85 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                     );
                   }
 
-                  return (
-                    <NextLink
-                      key={item.href}
-                      className={clsx(
-                        linkStyles({ color: "foreground" }),
-                        "data-[active=true]:text-primary data-[active=true]:font-medium",
-                        "relative p-2 rounded-lg flex items-center transition-colors h-10",
-                        isExpanded ? "justify-start gap-2" : "justify-center",
-                        pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
-                      )}
-                      href={item.href}
-                    >
-                      {pathname === item.href && (
-                        <motion.div
-                          layoutId="active-indicator"
-                          className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                      )}
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center justify-center"
+                  if (isExpanded) {
+                    return (
+                      <NextLink
+                        key={item.href}
+                        className={clsx(
+                          linkStyles({ color: "foreground" }),
+                          "data-[active=true]:text-primary data-[active=true]:font-medium",
+                          "relative p-2 rounded-lg flex items-center transition-colors h-10 justify-start gap-2",
+                          pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
+                        )}
+                        href={item.href}
                       >
-                        <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
-                      </motion.div>
-                      {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
-                    </NextLink>
-                  )
+                        {pathname === item.href && (
+                          <motion.div
+                            layoutId="active-indicator"
+                            className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center justify-center"
+                        >
+                          <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                        </motion.div>
+                        <span className="text-sm font-medium">{item.label}</span>
+                      </NextLink>
+                    );
+                  }
+
+                  return (
+                    <Dropdown
+                      key={item.href}
+                      isOpen={hoveredItem === item.label}
+                      placement="right-start"
+                      offset={10}
+                    >
+                      <DropdownTrigger>
+                        <div
+                          onMouseEnter={() => handleMouseEnter(item.label)}
+                          onMouseLeave={handleMouseLeave}
+                          className="w-full flex justify-center h-10 items-center"
+                        >
+                          <Button
+                            onPress={() => router.push(item.href)}
+                            className={clsx(
+                              "bg-transparent h-10 px-0 min-w-10 w-10 justify-center",
+                              "hover:bg-default-50 text-default-600",
+                              pathname === item.href && "text-primary bg-primary/10"
+                            )}
+                            disableRipple
+                            isIconOnly
+                          >
+                            <Icon className={clsx("w-5 h-5 flex-shrink-0", pathname === item.href ? "text-primary" : "text-default-500")} />
+                          </Button>
+                        </div>
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        onMouseEnter={() => handleMouseEnter(item.label)}
+                        onMouseLeave={handleMouseLeave}
+                        aria-label={item.label}
+                        closeOnSelect={true}
+                        onAction={() => setHoveredItem(null)}
+                      >
+                        <DropdownItem
+                          key={item.href}
+                          href={item.href}
+                          as={NextLink}
+                          startContent={<Icon size={16} />}
+                          className={clsx(
+                            pathname === item.href ? "text-primary bg-primary/10" : "text-default-500"
+                          )}
+                        >
+                          {item.label}
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  );
                 })}
             </nav>
           </div>
