@@ -175,6 +175,48 @@ export default function AttendancePage() {
         }
     }
 
+    // Timer Logic for Today's Work
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+    useEffect(() => {
+        const calculateElapsed = () => {
+            // Check if user is clocked in and active
+            // We use todayRecord found from history or fallback to the relevantRecord check
+            // Note: relevantRecord is defined below, so we might need to move this effect or adjust dependencies.
+            // Let's rely on `attendanceHistory` to find today's active record for calculation.
+
+            const todayStr = format(new Date(), "yyyy-MM-dd");
+            const todayRec = attendanceHistory?.find((r: any) => r.date === todayStr);
+
+            if (todayRec && todayRec.clock_in && !todayRec.clock_out) {
+                const clockInTime = new Date(todayRec.clock_in).getTime();
+                const now = new Date().getTime();
+                const diffSeconds = Math.floor((now - clockInTime) / 1000);
+                setElapsedSeconds(diffSeconds > 0 ? diffSeconds : 0);
+            } else if (todayRec && todayRec.clock_in && todayRec.clock_out) {
+                // Even if clocked out, we might want to show the total duration calculated
+                const clockInTime = new Date(todayRec.clock_in).getTime();
+                const clockOutTime = new Date(todayRec.clock_out).getTime();
+                const diffSeconds = Math.floor((clockOutTime - clockInTime) / 1000);
+                setElapsedSeconds(diffSeconds > 0 ? diffSeconds : 0);
+            } else {
+                setElapsedSeconds(0);
+            }
+        };
+
+        calculateElapsed(); // Initial calculation
+        const timer = setInterval(calculateElapsed, 1000);
+        return () => clearInterval(timer);
+    }, [attendanceHistory]);
+
+    // Helper to format seconds to HH:MM:SS
+    const formatDuration = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
 
     // Handle Clock In/Out Toasts
     useEffect(() => {
@@ -746,21 +788,57 @@ export default function AttendancePage() {
                                     // User View - Show personal status
                                     <div className="flex flex-col items-center justify-center py-4">
                                         {todayStats.on_time > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-success animate-pulse"></div>
-                                                    <span className="text-2xl font-bold text-success">On Time</span>
+                                            <div className="flex items-center justify-between w-full px-4 py-1">
+                                                <div className="flex flex-col items-start">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                                                        <span className="text-lg font-bold text-success">On Time</span>
+                                                    </div>
+                                                    <p className="text-[10px] text-default-400">You're on time today</p>
                                                 </div>
-                                                <p className="text-xs text-default-400">You're on time today</p>
-                                            </>
+                                                <div className="relative flex items-center justify-center w-14 h-14">
+                                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
+                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none" className="text-success-100 dark:text-success-900/20" />
+                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none"
+                                                            strokeDasharray={351}
+                                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 32400, 1)))}
+                                                            strokeLinecap="round"
+                                                            className="text-success transition-all duration-1000 ease-linear"
+                                                        />
+                                                    </svg>
+                                                    <div className="absolute flex flex-col items-center">
+                                                        <span className="text-[10px] font-bold text-success tabular-nums tracking-tight leading-none">
+                                                            {formatDuration(elapsedSeconds)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ) : todayStats.late > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-warning animate-pulse"></div>
-                                                    <span className="text-2xl font-bold text-warning">Late</span>
+                                            <div className="flex items-center justify-between w-full px-4 py-1">
+                                                <div className="flex flex-col items-start">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        <div className="w-2 h-2 rounded-full bg-warning animate-pulse"></div>
+                                                        <span className="text-lg font-bold text-warning">Late</span>
+                                                    </div>
+                                                    <p className="text-[10px] text-default-400">You arrived late today</p>
                                                 </div>
-                                                <p className="text-xs text-default-400">You arrived late today</p>
-                                            </>
+                                                <div className="relative flex items-center justify-center w-14 h-14">
+                                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
+                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none" className="text-warning-100 dark:text-warning-900/20" />
+                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none"
+                                                            strokeDasharray={351}
+                                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 32400, 1)))}
+                                                            strokeLinecap="round"
+                                                            className="text-warning transition-all duration-1000 ease-linear"
+                                                        />
+                                                    </svg>
+                                                    <div className="absolute flex flex-col items-center">
+                                                        <span className="text-[10px] font-bold text-warning tabular-nums tracking-tight leading-none">
+                                                            {formatDuration(elapsedSeconds)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         ) : todayStats.absent > 0 ? (
                                             <>
                                                 <div className="flex items-center gap-2 mb-2">
