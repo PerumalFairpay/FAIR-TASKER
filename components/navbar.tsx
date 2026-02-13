@@ -58,6 +58,8 @@ import { AppState } from "@/store/rootReducer";
 
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
+import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
+import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
 
 interface NavbarProps {
@@ -108,7 +110,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const isSSR = useIsSSR();
 
   const toggleTheme = () => {
@@ -229,11 +231,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               href="/dashboard"
             >
               <Image
-                src={FairPayLogo}
+                src={isExpanded ? FairPayLogo : (resolvedTheme === "dark" ? FairPayMiniDarkLogo : FairPayMiniLogo)}
                 alt="FairPay"
                 className={clsx(
                   "object-contain transition-all duration-300",
-                  isExpanded ? "h-10 w-auto" : "h-8 w-8"
+                  isExpanded ? "h-10 w-auto" : "h-13 w-auto"
                 )}
               />
             </NextLink>
