@@ -209,6 +209,7 @@ export default function LeaveRequestPage() {
                     </Select>
                     <Button
                         color="primary"
+                        variant="shadow"
                         endContent={<PlusIcon size={16} />}
                         onPress={handleCreate}
                     >

@@ -133,6 +133,7 @@ export default function AssetListPage() {
                     <PermissionGuard permission="asset:submit">
                         <Button
                             color="primary"
+                            variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
                         >

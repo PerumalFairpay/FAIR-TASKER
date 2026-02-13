@@ -154,6 +154,7 @@ export default function ProjectListPage() {
                     <PermissionGuard permission="project:submit">
                         <Button
                             color="primary"
+                            variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
                         >

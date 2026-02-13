@@ -214,7 +214,7 @@ export default function EmployeeListPage() {
                     <div className="flex justify-between items-center">
                         <PageHeader title="Employees" />
                         <PermissionGuard permission="employee:submit">
-                            <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                            <Button color="primary" variant="shadow" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                                 Add New Employee
                             </Button>
                         </PermissionGuard>

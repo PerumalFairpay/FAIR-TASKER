@@ -116,7 +116,7 @@ export default function RolePage() {
                 <div className="flex justify-between items-center mb-6">
                     <PageHeader title="Roles" />
                     <PermissionGuard permission="role:submit">
-                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                        <Button color="primary" variant="shadow" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                             Add New Role
                         </Button>
                     </PermissionGuard>

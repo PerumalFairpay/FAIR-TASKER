@@ -101,7 +101,7 @@ export default function DocumentListPage() {
                         description="Manage and track your documents"
                     />
                     <PermissionGuard permission="document:submit">
-                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                        <Button color="primary" variant="shadow" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                             Upload Document
                         </Button>
                     </PermissionGuard>
