@@ -16,7 +16,6 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     attendance,
     currentMonth,
 }) => {
-    console.log("attendance", attendance);
     const daysInMonth = getDaysInMonth(currentMonth);
     const startDate = startOfMonth(currentMonth);
     const days = Array.from({ length: daysInMonth }, (_, i) => {
