@@ -358,7 +358,7 @@ export default function AttendancePage() {
                 let color: "success" | "danger" | "warning" | "primary" | "default" = "default";
                 if (cellValue === "Present") color = "success";
                 else if (cellValue === "Absent") color = "danger";
-                else if (cellValue === "Leave") color = "secondary";
+                else if (cellValue === "Leave") color = "warning";
                 else if (cellValue === "Holiday") color = "primary";
 
                 if (isAdmin) {

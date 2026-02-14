@@ -119,7 +119,7 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                                             <Avatar src={emp.profile_picture} name={emp.name} size="sm" />
                                             <div>
                                                 <p className="text-sm font-semibold text-default-900 line-clamp-1">{emp.name}</p>
-                                                <p className="text-xs text-primary font-mono">{emp.employee_id || emp.id}</p>
+                                                <p className="text-xs text-primary font-mono">{emp.email || emp.id}</p>
                                             </div>
                                         </div>
                                     </TableCell>
