@@ -466,6 +466,13 @@ const TaskBoard = () => {
                                                                                 </Button>
                                                                             )}
                                                                         </div>
+                                                                        {task.is_overdue_moved && (
+                                                                            <Tooltip content="Moved from Overdue" color="danger">
+                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
+                                                                                    <Clock size={14} />
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )}
                                                                         <Tooltip content={task.priority || "Medium"} size="sm">
                                                                             <div className="flex items-center justify-center">
                                                                                 {getPriorityIcon(task.priority)}
@@ -505,14 +512,6 @@ const TaskBoard = () => {
                                                                                 {task.attachments?.length || 0}
                                                                             </span>
                                                                         </div>
-
-                                                                        {task.is_overdue_moved && (
-                                                                            <Tooltip content="Moved from Overdue" color="danger">
-                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
-                                                                                    <Clock size={14} />
-                                                                                </div>
-                                                                            </Tooltip>
-                                                                        )}
                                                                     </div>
 
                                                                     <AvatarGroup
