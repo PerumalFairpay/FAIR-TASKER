@@ -560,7 +560,7 @@ export default function AttendancePage() {
                             ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                                 <Button
                                     color="primary"
-                                    size="lg"
+                                    size="md"
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
                                     isLoading={clockInLoading}
@@ -578,7 +578,7 @@ export default function AttendancePage() {
                                     <PopoverTrigger>
                                         <Button
                                             color="warning"
-                                            size="lg"
+                                            size="md"
                                             variant="flat"
                                             startContent={<LogOut size={20} />}
                                             isLoading={clockOutLoading}
@@ -593,14 +593,14 @@ export default function AttendancePage() {
                                             <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
                                             <div className="flex gap-2 mt-3 justify-end">
                                                 <Button
-                                                    size="sm"
+                                                    size="md"
                                                     variant="light"
                                                     onPress={() => setIsClockOutPopoverOpen(false)}
                                                 >
                                                     Cancel
                                                 </Button>
                                                 <Button
-                                                    size="sm"
+                                                    size="md"
                                                     color="warning"
                                                     onPress={() => {
                                                         handleClockOut();
@@ -655,10 +655,8 @@ export default function AttendancePage() {
                     currentMonth={currentMonth}
                 />
             ) : (
-                <>
-                    {/* Compact Stats Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                        {/* Today's Overview - Compact */}
+                <> 
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6"> 
                         <Card className="shadow-md transition-all duration-300 border border-primary/20 bg-gradient-to-br from-primary-50/50 via-background to-background dark:from-primary-950/20 dark:via-background dark:to-background">
                             <CardBody className="py-3 px-4">
                                 <div className="flex items-center justify-between mb-3">
@@ -673,7 +671,6 @@ export default function AttendancePage() {
                                 </div>
 
                                 {isAdmin ? (
-                                    // Admin View - Show aggregate statistics
                                     <>
                                         <div className="grid grid-cols-5 gap-2 text-center mb-3">
                                             <div className="flex flex-col">
@@ -697,7 +694,6 @@ export default function AttendancePage() {
                                                 <span className="text-[10px] text-default-400 uppercase">Holiday</span>
                                             </div>
                                         </div>
-                                        {/* Progress Bar */}
                                         <div className="relative h-6 bg-default-100 rounded-full overflow-hidden shadow-inner flex">
                                             {(() => {
                                                 const total = (todayStats.on_time || 0) + (todayStats.late || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
