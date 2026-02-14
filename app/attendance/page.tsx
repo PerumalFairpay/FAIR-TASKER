@@ -178,7 +178,7 @@ export default function AttendancePage() {
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
     useEffect(() => {
-        const calculateElapsed = () => { 
+        const calculateElapsed = () => {
             const todayStr = format(new Date(), "yyyy-MM-dd");
             const todayRec = attendanceHistory?.find((r: any) => r.date === todayStr);
 
@@ -197,11 +197,11 @@ export default function AttendancePage() {
             }
         };
 
-        calculateElapsed(); 
+        calculateElapsed();
         const timer = setInterval(calculateElapsed, 1000);
         return () => clearInterval(timer);
     }, [attendanceHistory]);
- 
+
     const formatDuration = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -405,6 +405,12 @@ export default function AttendancePage() {
                 );
             case "total_work_hours":
                 return cellValue ? `${cellValue} hrs` : "-";
+            case "location":
+                return (
+                    <div className="max-w-[300px] truncate text-small" title={cellValue as string}>
+                        {cellValue as string || "-"}
+                    </div>
+                );
             default:
                 return cellValue as React.ReactNode;
         }
@@ -655,8 +661,8 @@ export default function AttendancePage() {
                     currentMonth={currentMonth}
                 />
             ) : (
-                <> 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6"> 
+                <>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                         <Card className="shadow-md transition-all duration-300 border border-primary/20 bg-gradient-to-br from-primary-50/50 via-background to-background dark:from-primary-950/20 dark:via-background dark:to-background">
                             <CardBody className="py-3 px-4">
                                 <div className="flex items-center justify-between mb-3">
@@ -966,7 +972,11 @@ export default function AttendancePage() {
                     <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
                         <TableHeader columns={displayColumns}>
                             {(column: any) => (
-                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                                <TableColumn
+                                    key={column.uid}
+                                    align={column.uid === "actions" ? "center" : "start"}
+                                    className={column.uid === "location" ? "max-w-[200px]" : ""}
+                                >
                                     {column.name}
                                 </TableColumn>
                             )}
