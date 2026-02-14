@@ -109,7 +109,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                     start_date: todayStr,
                     end_date: todayStr,
                     status: allowedStatuses?.[0] || "Todo",
-                    assigned_to: user?.employee_id ? [user.employee_id] : []
+                    assigned_to: (user?.role?.toLowerCase() === "admin") ? [] : (user?.employee_id ? [user.employee_id] : [])
                 });
                 setExistingAttachments([]);
                 setNewAttachments([]);
