@@ -21,7 +21,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { addToast } from "@heroui/toast";
@@ -52,6 +52,7 @@ interface AttendanceRecord {
 import { getHolidaysRequest } from "@/store/holiday/action";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import AttendanceCalendar from "./AttendanceCalendar";
+import AttendanceMetrics from "./AttendanceMetrics";
 
 const columns = [
     { name: "DATE", uid: "date" },
@@ -357,7 +358,7 @@ export default function AttendancePage() {
                 let color: "success" | "danger" | "warning" | "primary" | "default" = "default";
                 if (cellValue === "Present") color = "success";
                 else if (cellValue === "Absent") color = "danger";
-                else if (cellValue === "Leave") color = "warning";
+                else if (cellValue === "Leave") color = "secondary";
                 else if (cellValue === "Holiday") color = "primary";
 
                 if (isAdmin) {
@@ -450,6 +451,42 @@ export default function AttendancePage() {
 
                     {/* Controls Section - View Toggle & Filters */}
                     <div className="flex gap-2 items-center">
+                        {/* List Filters - Date Range */}
+                        {viewMode === "list" && (
+                            <>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
+                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
+                                    aria-label="Start Date"
+                                />
+                                <span className="text-default-400">-</span>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
+                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
+                                    aria-label="End Date"
+                                />
+                            </>
+                        )}
+
+                        {/* Calendar Month Picker */}
+                        {viewMode === "calendar" && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="month"
+                                    aria-label="Select Month"
+                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
+                                    value={format(currentMonth, "yyyy-MM")}
+                                    onChange={handleMonthChange}
+                                />
+                            </div>
+                        )}
+
                         {/* View Toggle */}
                         <div className="flex bg-default-100 p-1 rounded-lg">
                             <Button
@@ -474,80 +511,45 @@ export default function AttendancePage() {
                             </Button>
                         </div>
 
-                        {/* List Filters */}
-                        {viewMode === "list" && (
+                        {/* List Filters - Admin Options */}
+                        {viewMode === "list" && isAdmin && (
                             <>
-                                <DatePicker
+                                <Select
                                     size="sm"
                                     variant="bordered"
-                                    className="w-36"
-                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
-                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
-                                    aria-label="Start Date"
-                                />
-                                <span className="text-default-400">-</span>
-                                <DatePicker
+                                    placeholder="Status"
+                                    aria-label="Filter by Status"
+                                    className="w-32"
+                                    selectedKeys={filters.status ? [filters.status] : []}
+                                    onChange={(e) => handleFilterChange("status", e.target.value)}
+                                >
+                                    <SelectItem key="Present">Present</SelectItem>
+                                </Select>
+
+                                <Select
                                     size="sm"
                                     variant="bordered"
-                                    className="w-36"
-                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
-                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
-                                    aria-label="End Date"
-                                />
-
-                                {isAdmin && (
-                                    <>
-                                        <Select
-                                            size="sm"
-                                            variant="bordered"
-                                            placeholder="Status"
-                                            aria-label="Filter by Status"
-                                            className="w-32"
-                                            selectedKeys={filters.status ? [filters.status] : []}
-                                            onChange={(e) => handleFilterChange("status", e.target.value)}
-                                        >
-                                            <SelectItem key="Present">Present</SelectItem>
-                                        </Select>
-
-                                        <Select
-                                            size="sm"
-                                            variant="bordered"
-                                            placeholder="Employee"
-                                            aria-label="Filter by Employee"
-                                            className="w-40"
-                                            selectedKeys={filters.employee_id ? [filters.employee_id] : []}
-                                            onChange={(e) => handleFilterChange("employee_id", e.target.value)}
-                                            onOpenChange={(isOpen) => {
-                                                if (isOpen && (!employees || employees.length === 0)) {
-                                                    dispatch(getEmployeesSummaryRequest());
-                                                }
-                                            }}
-                                        >
-                                            {employees?.map((emp: any) => (
-                                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                                    <div className="flex items-center gap-2">
-                                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                                        <span>{emp.name}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
-                                    </>
-                                )}
+                                    placeholder="Employee"
+                                    aria-label="Filter by Employee"
+                                    className="w-40"
+                                    selectedKeys={filters.employee_id ? [filters.employee_id] : []}
+                                    onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                    onOpenChange={(isOpen) => {
+                                        if (isOpen && (!employees || employees.length === 0)) {
+                                            dispatch(getEmployeesSummaryRequest());
+                                        }
+                                    }}
+                                >
+                                    {employees?.map((emp: any) => (
+                                        <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                                <span>{emp.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
                             </>
-                        )}
-
-                        {/* Calendar Month Picker - For All Users */}
-                        {viewMode === "calendar" && (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="month"
-                                    aria-label="Select Month"
-                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
-                                    value={format(currentMonth, "yyyy-MM")}
-                                    onChange={handleMonthChange}
-                                />
-                            </div>
                         )}
                     </div>
 
@@ -557,8 +559,8 @@ export default function AttendancePage() {
                                 <Button
                                     className="cursor-default opacity-100 font-semibold"
                                     variant="flat"
-                                    color="warning"
-                                    startContent={<CalendarIcon size={20} />}
+                                    color="secondary"
+                                    startContent={<Plane size={20} />}
                                     disableAnimation
                                 >
                                     On Leave
@@ -646,6 +648,14 @@ export default function AttendancePage() {
 
 
 
+            <AttendanceMetrics
+                isAdmin={isAdmin}
+                todayStats={todayStats}
+                monthStats={monthStats}
+                yearStats={yearStats}
+                elapsedSeconds={elapsedSeconds}
+            />
+
             {viewMode === "calendar" ? (
                 <AttendanceCalendar
                     employees={isAdmin ? employees : [{
@@ -662,311 +672,6 @@ export default function AttendancePage() {
                 />
             ) : (
                 <>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                        <Card className="shadow-md transition-all duration-300 border border-primary/20 bg-gradient-to-br from-primary-50/50 via-background to-background dark:from-primary-950/20 dark:via-background dark:to-background">
-                            <CardBody className="py-3 px-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">
-                                        {isAdmin ? "Today's Overview" : "Today's Status"}
-                                    </p>
-                                    {isAdmin && (
-                                        <Chip size="sm" variant="shadow" color="primary" className="h-5 font-semibold">
-                                            {todayStats.total_present || 0} Present
-                                        </Chip>
-                                    )}
-                                </div>
-
-                                {isAdmin ? (
-                                    <>
-                                        <div className="grid grid-cols-5 gap-2 text-center mb-3">
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-bold text-success">{todayStats.on_time || 0}</span>
-                                                <span className="text-[10px] text-default-400 uppercase">On Time</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-bold text-warning">{todayStats.late || 0}</span>
-                                                <span className="text-[10px] text-default-400 uppercase">Late</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-bold text-danger">{todayStats.absent || 0}</span>
-                                                <span className="text-[10px] text-default-400 uppercase">Absent</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-bold text-secondary">{todayStats.leave || 0}</span>
-                                                <span className="text-[10px] text-default-400 uppercase">Leave</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-lg font-bold text-primary">{todayStats.holiday || 0}</span>
-                                                <span className="text-[10px] text-default-400 uppercase">Holiday</span>
-                                            </div>
-                                        </div>
-                                        <div className="relative h-6 bg-default-100 rounded-full overflow-hidden shadow-inner flex">
-                                            {(() => {
-                                                const total = (todayStats.on_time || 0) + (todayStats.late || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
-                                                if (total === 0) return <div className="w-full bg-default-200"></div>;
-
-                                                const onTimePercent = ((todayStats.on_time || 0) / total) * 100;
-                                                const latePercent = ((todayStats.late || 0) / total) * 100;
-                                                const absentPercent = ((todayStats.absent || 0) / total) * 100;
-                                                const leavePercent = ((todayStats.leave || 0) / total) * 100;
-                                                const holidayPercent = ((todayStats.holiday || 0) / total) * 100;
-
-                                                return (
-                                                    <>
-                                                        {onTimePercent > 0 && (
-                                                            <div
-                                                                className="h-full bg-success transition-all duration-700 ease-out flex items-center justify-center relative"
-                                                                style={{ width: `${onTimePercent}%` }}
-                                                            >
-                                                                {onTimePercent > 8 && (
-                                                                    <span className="text-[10px] font-semibold text-white absolute">
-                                                                        {Math.round(onTimePercent)}%
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {latePercent > 0 && (
-                                                            <div
-                                                                className="h-full bg-warning transition-all duration-700 ease-out flex items-center justify-center relative"
-                                                                style={{ width: `${latePercent}%` }}
-                                                            >
-                                                                {latePercent > 8 && (
-                                                                    <span className="text-[10px] font-semibold text-white absolute">
-                                                                        {Math.round(latePercent)}%
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {absentPercent > 0 && (
-                                                            <div
-                                                                className="h-full bg-danger transition-all duration-700 ease-out flex items-center justify-center relative"
-                                                                style={{ width: `${absentPercent}%` }}
-                                                            >
-                                                                {absentPercent > 8 && (
-                                                                    <span className="text-[10px] font-semibold text-white absolute">
-                                                                        {Math.round(absentPercent)}%
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {leavePercent > 0 && (
-                                                            <div
-                                                                className="h-full bg-secondary transition-all duration-700 ease-out flex items-center justify-center relative"
-                                                                style={{ width: `${leavePercent}%` }}
-                                                            >
-                                                                {leavePercent > 8 && (
-                                                                    <span className="text-[10px] font-semibold text-white absolute">
-                                                                        {Math.round(leavePercent)}%
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {holidayPercent > 0 && (
-                                                            <div
-                                                                className="h-full bg-primary transition-all duration-700 ease-out flex items-center justify-center relative"
-                                                                style={{ width: `${holidayPercent}%` }}
-                                                            >
-                                                                {holidayPercent > 8 && (
-                                                                    <span className="text-[10px] font-semibold text-white absolute">
-                                                                        {Math.round(holidayPercent)}%
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                );
-                                            })()}
-                                        </div>
-                                    </>
-                                ) : (
-                                    // User View - Show personal status
-                                    <div className="flex flex-col items-center justify-center py-4">
-                                        {todayStats.on_time > 0 ? (
-                                            <div className="flex items-center justify-between w-full px-4 py-1">
-                                                <div className="flex flex-col items-start">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                                                        <span className="text-lg font-bold text-success">On Time</span>
-                                                    </div>
-                                                    <p className="text-[10px] text-default-400">You're on time today</p>
-                                                </div>
-                                                <div className="relative flex items-center justify-center w-14 h-14">
-                                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
-                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none" className="text-success-100 dark:text-success-900/20" />
-                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none"
-                                                            strokeDasharray={351}
-                                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 32400, 1)))}
-                                                            strokeLinecap="round"
-                                                            className="text-success transition-all duration-1000 ease-linear"
-                                                        />
-                                                    </svg>
-                                                    <div className="absolute flex flex-col items-center">
-                                                        <span className="text-[10px] font-bold text-success tabular-nums tracking-tight leading-none">
-                                                            {formatDuration(elapsedSeconds)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : todayStats.late > 0 ? (
-                                            <div className="flex items-center justify-between w-full px-4 py-1">
-                                                <div className="flex flex-col items-start">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <div className="w-2 h-2 rounded-full bg-warning animate-pulse"></div>
-                                                        <span className="text-lg font-bold text-warning">Late</span>
-                                                    </div>
-                                                    <p className="text-[10px] text-default-400">You arrived late today</p>
-                                                </div>
-                                                <div className="relative flex items-center justify-center w-14 h-14">
-                                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 128 128">
-                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none" className="text-warning-100 dark:text-warning-900/20" />
-                                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="10" fill="none"
-                                                            strokeDasharray={351}
-                                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 32400, 1)))}
-                                                            strokeLinecap="round"
-                                                            className="text-warning transition-all duration-1000 ease-linear"
-                                                        />
-                                                    </svg>
-                                                    <div className="absolute flex flex-col items-center">
-                                                        <span className="text-[10px] font-bold text-warning tabular-nums tracking-tight leading-none">
-                                                            {formatDuration(elapsedSeconds)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : todayStats.absent > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-danger"></div>
-                                                    <span className="text-2xl font-bold text-danger">Absent</span>
-                                                </div>
-                                                <p className="text-xs text-default-400">Marked as absent</p>
-                                            </>
-                                        ) : todayStats.leave > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-secondary"></div>
-                                                    <span className="text-2xl font-bold text-secondary">On Leave</span>
-                                                </div>
-                                                <p className="text-xs text-default-400">You're on leave today</p>
-                                            </>
-                                        ) : todayStats.holiday > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-primary"></div>
-                                                    <span className="text-2xl font-bold text-primary">Holiday</span>
-                                                </div>
-                                                <p className="text-xs text-default-400">It's a holiday today</p>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="w-3 h-3 rounded-full bg-default-300"></div>
-                                                    <span className="text-2xl font-bold text-default-400">No Record</span>
-                                                </div>
-                                                <p className="text-xs text-default-400">No attendance recorded yet</p>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-
-                                {todayStats.overtime > 0 && (
-                                    <div className="mt-2 pt-2 border-t border-divider animate-in fade-in slide-in-from-bottom-2 duration-500">
-                                        <div className="flex items-center justify-between bg-warning-50/50 dark:bg-warning-950/20 rounded-lg px-2 py-1">
-                                            <span className="text-xs text-default-400">Overtime</span>
-                                            <span className="text-sm font-semibold text-warning">{todayStats.overtime} hrs</span>
-                                        </div>
-                                    </div>
-                                )}
-                            </CardBody>
-                        </Card>
-
-
-                        {/* This Month - Compact with Progress */}
-                        <Card className="shadow-md transition-all duration-300 border border-secondary/20 bg-gradient-to-br from-secondary-50/50 via-background to-background dark:from-secondary-950/20 dark:via-background dark:to-background">
-                            <CardBody className="py-3 px-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">This Month</p>
-                                    <Chip size="sm" variant="shadow" color="secondary" className="h-5 font-semibold">
-                                        {monthStats.total_present || 0} Days
-                                    </Chip>
-                                </div>
-                                <div className="space-y-2">
-                                    {/* Present Progress */}
-                                    <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs text-default-500 font-medium">Present</span>
-                                            <span className="text-xs font-semibold">{monthStats.total_present || 0}</span>
-                                        </div>
-                                        <div className="h-2 bg-default-100 rounded-full overflow-hidden shadow-inner">
-                                            <div
-                                                className="h-full bg-gradient-to-r from-success-400 to-success-600 rounded-full transition-all duration-700 ease-out shadow-sm"
-                                                style={{ width: `${Math.min(((monthStats.total_present || 0) / Math.max(monthStats.total_present + monthStats.absent + monthStats.leave, 1)) * 100, 100)}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Leave & Absent */}
-                                    <div className="grid grid-cols-3 gap-2 text-center pt-1">
-                                        <div className="flex flex-col bg-warning-50/30 dark:bg-warning-950/10 rounded-lg py-1.5">
-                                            <span className="text-sm font-semibold text-warning">{monthStats.leave || 0}</span>
-                                            <span className="text-[10px] text-default-400">Leave</span>
-                                        </div>
-                                        <div className="flex flex-col bg-danger-50/30 dark:bg-danger-950/10 rounded-lg py-1.5">
-                                            <span className="text-sm font-semibold text-danger">{monthStats.absent || 0}</span>
-                                            <span className="text-[10px] text-default-400">Absent</span>
-                                        </div>
-                                        <div className="flex flex-col bg-primary-50/30 dark:bg-primary-950/10 rounded-lg py-1.5">
-                                            <span className="text-sm font-semibold text-primary">{monthStats.holiday || 0}</span>
-                                            <span className="text-[10px] text-default-400">Holiday</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-
-                        {/* Year Summary - Compact */}
-                        <Card className="shadow-md transition-all duration-300 border border-success/20 bg-gradient-to-br from-success-50/50 via-background to-background dark:from-success-950/20 dark:via-background dark:to-background">
-                            <CardBody className="py-3 px-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs text-default-500 uppercase font-semibold tracking-wide">Year {new Date().getFullYear()}</p>
-                                    <Chip size="sm" variant="shadow" color="success" className="h-5 font-semibold">
-                                        {yearStats.total_present || 0} Days
-                                    </Chip>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1.5">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-default-400">On Time</span>
-                                            <span className="text-sm font-semibold text-success">{yearStats.on_time || 0}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-default-400">Late</span>
-                                            <span className="text-sm font-semibold text-warning">{yearStats.late || 0}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-default-400">Absent</span>
-                                            <span className="text-sm font-semibold text-danger">{yearStats.absent || 0}</span>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-default-400">Leave</span>
-                                            <span className="text-sm font-semibold text-secondary">{yearStats.leave || 0}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-default-400">Holiday</span>
-                                            <span className="text-sm font-semibold text-primary">{yearStats.holiday || 0}</span>
-                                        </div>
-                                        {yearStats.overtime > 0 && (
-                                            <div className="flex justify-between items-center bg-warning-50/50 dark:bg-warning-950/20 rounded px-1.5 py-0.5 animate-in fade-in slide-in-from-right-2 duration-500">
-                                                <span className="text-xs text-default-400">Overtime</span>
-                                                <span className="text-sm font-semibold text-warning">{yearStats.overtime}h</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    </div>
 
                     {/* Data Table */}
                     <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
