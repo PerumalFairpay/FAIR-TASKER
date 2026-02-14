@@ -327,7 +327,8 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                         setFormData({ ...formData, start_date: newStartStr, end_date: newEndStr });
                                     }}
                                     isRequired
-                                    isDisabled={!task || anyLoading}
+                                    minValue={parseDate(todayStr)}
+                                    isDisabled={anyLoading}
                                     className="flex-1"
                                 />
                                 <Input
