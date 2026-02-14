@@ -49,7 +49,6 @@ interface AttendanceRecord {
     date: string;
 }
 
-import { getHolidaysRequest } from "@/store/holiday/action";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import AttendanceCalendar from "./AttendanceCalendar";
 import AttendanceMetrics from "./AttendanceMetrics";
@@ -85,7 +84,6 @@ export default function AttendancePage() {
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
-    const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
     const isAdmin = user?.role === 'admin';
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
@@ -156,10 +154,6 @@ export default function AttendancePage() {
                     end_date: filters.end_date
                 }));
             }
-        }
-
-        if (viewMode === "calendar") {
-            dispatch(getHolidaysRequest());
         }
 
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
@@ -667,7 +661,6 @@ export default function AttendancePage() {
                         profile_picture: user?.profile_picture
                     }]}
                     attendance={isAdmin ? allAttendance : attendanceHistory}
-                    holidays={holidays || []}
                     currentMonth={currentMonth}
                 />
             ) : (

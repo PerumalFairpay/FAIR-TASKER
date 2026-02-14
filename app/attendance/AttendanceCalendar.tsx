@@ -8,16 +8,15 @@ import { X, Check, Calendar, Coffee, AlertCircle, Clock, Plane } from "lucide-re
 interface AttendanceCalendarProps {
     employees: any[];
     attendance: any[];
-    holidays: any[];
     currentMonth: Date;
 }
 
 const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     employees,
     attendance,
-    holidays,
     currentMonth,
 }) => {
+    console.log("attendance", attendance);
     const daysInMonth = getDaysInMonth(currentMonth);
     const startDate = startOfMonth(currentMonth);
     const days = Array.from({ length: daysInMonth }, (_, i) => {
@@ -28,10 +27,6 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     const getStatus = (emp: any, date: Date): any => {
         const dateStr = format(date, "yyyy-MM-dd");
 
-        const holiday = holidays.find((h) => h.date === dateStr);
-        if (holiday) {
-            return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white", name: holiday.name };
-        }
         const record = attendance.find((a) => {
             const empIds = [emp.id, emp._id, emp.employee_id, emp.employee_no_id].filter(Boolean);
             let isMatch = empIds.includes(a.employee_id);
@@ -52,6 +47,8 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                 return { type: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
             } else if (record.status === "Leave") {
                 return { type: "Leave", label: <Plane size={14} />, color: "bg-purple-500 text-white" };
+            } else if (record.status === "Holiday") {
+                return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white" };
             }
             return { type: record.status, label: <AlertCircle size={14} />, color: "bg-primary text-white" };
         }
