@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -23,7 +23,7 @@ import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
-import { getEmployeesSummaryRequest } from "@/store/employee/action";
+
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Pagination } from "@heroui/pagination";
@@ -36,9 +36,11 @@ import { FileDown, Upload } from "lucide-react";
 interface AttendanceRecord {
     id: string;
     employee_details: {
+        id: string;
         profile_picture?: string;
         email: string;
         name: string;
+        employee_no_id?: string;
     };
     clock_in: string;
     clock_out?: string;
@@ -83,7 +85,7 @@ export default function AttendancePage() {
         pagination
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
-    const { employees } = useSelector((state: AppState) => state.Employee);
+
     const isAdmin = user?.role === 'admin';
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
@@ -104,7 +106,7 @@ export default function AttendancePage() {
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
-    const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+    const [viewMode, setViewMode] = useState<"list" | "calendar">("calendar");
     const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
     // Filters
@@ -142,9 +144,7 @@ export default function AttendancePage() {
                 dispatch(getAllAttendanceRequest({ ...filters, page, limit }));
             }
 
-            if (employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
+
         } else {
             if (viewMode === "calendar") {
                 dispatch(getMyAttendanceHistoryRequest({ start_date: start, end_date: end }));
@@ -159,6 +159,27 @@ export default function AttendancePage() {
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
     }, [dispatch, isAdmin, filters, viewMode, currentMonth]);
+
+    // Derive unique employees from allAttendance for Calendar Rows and Filters
+    const uniqueEmployees = useMemo(() => {
+        const sourceData = isAdmin ? allAttendance : attendanceHistory;
+        if (!sourceData || sourceData.length === 0) return [];
+
+        const empMap = new Map();
+        sourceData.forEach((record: AttendanceRecord) => {
+            if (record.employee_details && record.employee_details.id) {
+                if (!empMap.has(record.employee_details.id)) {
+                    empMap.set(record.employee_details.id, {
+                        ...record.employee_details,
+                        // Mapping fields to ensure compatibility
+                        id: record.employee_details.id,
+                        employee_id: record.employee_details.id,
+                    });
+                }
+            }
+        });
+        return Array.from(empMap.values());
+    }, [allAttendance, attendanceHistory, isAdmin]);
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters(prev => ({ ...prev, [key]: value }));
@@ -528,13 +549,8 @@ export default function AttendancePage() {
                                     className="w-40"
                                     selectedKeys={filters.employee_id ? [filters.employee_id] : []}
                                     onChange={(e) => handleFilterChange("employee_id", e.target.value)}
-                                    onOpenChange={(isOpen) => {
-                                        if (isOpen && (!employees || employees.length === 0)) {
-                                            dispatch(getEmployeesSummaryRequest());
-                                        }
-                                    }}
                                 >
-                                    {employees?.map((emp: any) => (
+                                    {uniqueEmployees?.map((emp: any) => (
                                         <SelectItem key={emp.employee_no_id} textValue={emp.name}>
                                             <div className="flex items-center gap-2">
                                                 <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
@@ -652,7 +668,7 @@ export default function AttendancePage() {
 
             {viewMode === "calendar" ? (
                 <AttendanceCalendar
-                    employees={isAdmin ? employees : [{
+                    employees={isAdmin ? uniqueEmployees : [{
                         id: user?.id,
                         name: user?.name,
                         email: user?.email,

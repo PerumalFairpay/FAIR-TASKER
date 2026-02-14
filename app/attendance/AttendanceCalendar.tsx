@@ -27,14 +27,10 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
         const dateStr = format(date, "yyyy-MM-dd");
 
         const record = attendance.find((a) => {
-            const empIds = [emp.id, emp._id, emp.employee_id, emp.employee_no_id].filter(Boolean);
-            let isMatch = empIds.includes(a.employee_id);
-            if (!isMatch && a.employee_details) {
-                if (a.employee_details.id && empIds.includes(a.employee_details.id)) isMatch = true;
-                if (a.employee_details.employee_no_id && empIds.includes(a.employee_details.employee_no_id)) isMatch = true;
-            }
-
-            return isMatch && a.date === dateStr;
+            // Since we derived the employee list from attendance records, 
+            // we can match strictly on the specific ID field we set (id).
+            // We check both root employee_id and flattened employee_details.id for safety.
+            return (a.employee_id === emp.id || a.employee_details?.id === emp.id) && a.date === dateStr;
         });
 
         if (record) {
