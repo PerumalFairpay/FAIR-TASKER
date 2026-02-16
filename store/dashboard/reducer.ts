@@ -9,6 +9,9 @@ const INIT_STATE = {
     dashboardData: null,
     loading: false,
     error: null,
+    dashboardLoading: false,
+    dashboardSuccessMessage: null,
+    dashboardErrorMessage: null,
 };
 
 const dashboardReducer = (state = INIT_STATE, action: any) => {
