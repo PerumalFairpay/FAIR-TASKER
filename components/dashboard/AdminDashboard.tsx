@@ -54,9 +54,11 @@ interface AdminDashboardData {
             date: string;
             total_employees: number;
             present: number;
+            on_time: number;
             absent: number;
             on_leave: number;
             late: number;
+            holiday: number;
             present_percentage: number;
             avg_work_hours: number;
         };
@@ -241,67 +243,171 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-6">
                             {/* Today's Stats Row - Visual Graph */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-6 border-b border-slate-50">
-                                {/* Rings Chart */}
-                                <div className="relative w-40 h-40 flex-shrink-0">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-6 border-b border-slate-50 dark:border-white/5">
+                                {/* Rings Chart - Gauge Style */}
+                                {/* Rings Chart - Gauge Style - Enhanced Premium Look */}
+                                <div className="relative w-52 h-52 flex-shrink-0 group">
                                     <svg className="w-full h-full transform -rotate-90">
-                                        {/* Present - Outer */}
-                                        <circle cx="80" cy="80" r="70" stroke="#ecfdf5" strokeWidth="10" fill="none" className="dark:stroke-emerald-500/10" />
-                                        <circle cx="80" cy="80" r="70" stroke="#10b981" strokeWidth="10" fill="none"
-                                            strokeDasharray={440}
-                                            strokeDashoffset={440 - (440 * (data.attendance_analytics.today.present_percentage / 100))}
-                                            strokeLinecap="round"
+                                        <defs>
+                                            <linearGradient id="presentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#10b981" />
+                                                <stop offset="100%" stopColor="#059669" />
+                                            </linearGradient>
+                                            <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="rgba(255, 255, 255, 0.1)" />
+                                                <stop offset="100%" stopColor="rgba(255, 255, 255, 0.05)" />
+                                            </linearGradient>
+                                        </defs>
+
+                                        {/* Background Outer Ring */}
+                                        <circle
+                                            cx="104" cy="104" r="92"
+                                            strokeWidth="14" fill="none"
+                                            className="stroke-slate-100 dark:stroke-white/5"
                                         />
-                                        {/* Absent - Middle */}
-                                        <circle cx="80" cy="80" r="54" stroke="#fff1f2" strokeWidth="10" fill="none" className="dark:stroke-rose-500/10" />
-                                        <circle cx="80" cy="80" r="54" stroke="#f43f5e" strokeWidth="10" fill="none"
-                                            strokeDasharray={339}
-                                            strokeDashoffset={339 - (339 * ((data.attendance_analytics.today.absent / data.attendance_analytics.today.total_employees) || 0))}
+
+                                        {/* Present Progress Ring */}
+                                        <circle
+                                            cx="104" cy="104" r="92"
+                                            strokeWidth="14" fill="none"
+                                            stroke="url(#presentGradient)"
+                                            className="transition-all duration-1500 ease-out"
+                                            strokeDasharray={578}
+                                            strokeDashoffset={578 - (578 * (data.attendance_analytics.today.present_percentage / 100))}
                                             strokeLinecap="round"
+                                            style={{ filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))" }}
                                         />
-                                        {/* Late - Inner */}
-                                        <circle cx="80" cy="80" r="38" stroke="#fff7ed" strokeWidth="10" fill="none" className="dark:stroke-orange-500/10" />
-                                        <circle cx="80" cy="80" r="38" stroke="#f97316" strokeWidth="10" fill="none"
-                                            strokeDasharray={239}
-                                            strokeDashoffset={239 - (239 * ((data.attendance_analytics.today.late / data.attendance_analytics.today.total_employees) || 0))}
-                                            strokeLinecap="round"
+
+                                        {/* Inner subtle decorative ring */}
+                                        <circle
+                                            cx="104" cy="104" r="78"
+                                            strokeWidth="1" fill="none"
+                                            className="stroke-slate-200 dark:stroke-white/10"
+                                            strokeDasharray="4 4"
                                         />
                                     </svg>
+
+                                    {/* Central Information Widget */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">{Math.round(data.attendance_analytics.today.present_percentage)}%</span>
-                                        <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">Present</span>
+                                        <div className="relative flex flex-col items-center justify-center w-36 h-36 rounded-full bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-[0_15px_35px_rgba(0,0,0,0.1),inset_0_0_20px_rgba(255,255,255,0.1)] border border-white/50 dark:border-white/5">
+                                            <div className="flex items-baseline gap-0.5">
+                                                <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                                    {Math.round(data.attendance_analytics.today.present_percentage)}
+                                                </span>
+                                                <span className="text-xl font-bold text-emerald-500">%</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 mt-1 px-3 py-1 bg-emerald-50/50 dark:bg-emerald-500/10 rounded-full border border-emerald-100/50 dark:border-emerald-500/20">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Present</span>
+                                            </div>
+
+                                            {/* Sub-text for on-time ratio */}
+                                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-emerald-600 text-[8px] font-black text-white px-2 py-0.5 rounded-full shadow-lg border border-white/10 whitespace-nowrap">
+                                                {data.attendance_analytics.today.on_time} ON TIME
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Animated Marker Dot on the progress edge */}
+                                    <div
+                                        className="absolute top-1/2 left-1/2 w-4 h-4 -ml-2 -mt-2 transition-all duration-1500 ease-out z-10"
+                                        style={{
+                                            transform: `rotate(${(3.6 * data.attendance_analytics.today.present_percentage) - 90}deg) translate(92px) rotate(${90 - (3.6 * data.attendance_analytics.today.present_percentage)}deg)`
+                                        }}
+                                    >
+                                        <div className="w-full h-full bg-white dark:bg-emerald-500 border-2 border-emerald-500 dark:border-white rounded-full shadow-[0_0_15px_rgba(16,185,129,0.8)]"></div>
                                     </div>
                                 </div>
 
-                                {/* Legend/Stats List */}
-                                <div className="flex-1 grid grid-cols-2 gap-4 w-full">
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Present</span>
+                                {/* Detailed Stats List */}
+                                <div className="flex-1 w-full flex flex-col gap-4 pl-0 sm:pl-4">
+                                    {/* On Time */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">On Time</span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{data.attendance_analytics.today.on_time}</span>
+                                                <span className="text-[10px] text-slate-400">/ {data.attendance_analytics.today.total_employees}</span>
+                                            </div>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.present}</span>
+                                        <Progress
+                                            size="sm"
+                                            radius="sm"
+                                            classNames={{
+                                                base: "h-1.5",
+                                                track: "bg-emerald-50 dark:bg-emerald-500/10",
+                                                indicator: "bg-emerald-500"
+                                            }}
+                                            value={(data.attendance_analytics.today.on_time / data.attendance_analytics.today.total_employees) * 100 || 0}
+                                        />
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-rose-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Absent</span>
+
+                                    {/* Late */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Late</span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{data.attendance_analytics.today.late}</span>
+                                                <span className="text-[10px] text-slate-400">
+                                                    ({Math.round((data.attendance_analytics.today.late / data.attendance_analytics.today.total_employees) * 100 || 0)}%)
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.absent}</span>
+                                        <Progress
+                                            size="sm"
+                                            radius="sm"
+                                            classNames={{
+                                                base: "h-1.5",
+                                                track: "bg-orange-50 dark:bg-orange-500/10",
+                                                indicator: "bg-orange-500"
+                                            }}
+                                            value={(data.attendance_analytics.today.late / data.attendance_analytics.today.total_employees) * 100 || 0}
+                                        />
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Late</span>
+
+                                    {/* Absent */}
+                                    <div className="flex flex-col gap-1.5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Absent</span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{data.attendance_analytics.today.absent}</span>
+                                                <span className="text-[10px] text-slate-400">
+                                                    ({Math.round((data.attendance_analytics.today.absent / data.attendance_analytics.today.total_employees) * 100 || 0)}%)
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.late}</span>
+                                        <Progress
+                                            size="sm"
+                                            radius="sm"
+                                            classNames={{
+                                                base: "h-1.5",
+                                                track: "bg-rose-50 dark:bg-rose-500/10",
+                                                indicator: "bg-rose-500"
+                                            }}
+                                            value={(data.attendance_analytics.today.absent / data.attendance_analytics.today.total_employees) * 100 || 0}
+                                        />
                                     </div>
-                                    <div className="flex flex-col p-2.5 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100/60 dark:border-white/5">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">On Leave</span>
+
+                                    {/* On Leave & Holiday (Compact Row) */}
+                                    <div className="grid grid-cols-2 gap-4 mt-2">
+                                        <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">On Leave</span>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.on_leave}</span>
+                                            </div>
+                                            <div className="w-full bg-amber-200/50 dark:bg-amber-500/20 h-1 rounded-full overflow-hidden">
+                                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(data.attendance_analytics.today.on_leave / data.attendance_analytics.today.total_employees) * 100}%` }}></div>
+                                            </div>
                                         </div>
-                                        <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.on_leave}</span>
+                                        <div className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wide">Holiday</span>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.holiday}</span>
+                                            </div>
+                                            <div className="w-full bg-purple-200/50 dark:bg-purple-500/20 h-1 rounded-full overflow-hidden">
+                                                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${(data.attendance_analytics.today.holiday / data.attendance_analytics.today.total_employees) * 100}%` }}></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
