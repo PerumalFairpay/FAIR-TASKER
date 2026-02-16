@@ -12,6 +12,7 @@ import {
     importAttendanceRequest,
     updateAttendanceStatusRequest
 } from "@/store/attendance/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { AppState } from "@/store/rootReducer";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { User } from "@heroui/user";
@@ -85,6 +86,7 @@ export default function AttendancePage() {
         pagination
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
+    const { employees } = useSelector((state: AppState) => state.Employee);
 
     const isAdmin = user?.role === 'admin';
 
@@ -106,7 +108,7 @@ export default function AttendancePage() {
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
-    const [viewMode, setViewMode] = useState<"list" | "calendar">("calendar");
+    const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
     const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
     // Filters
@@ -178,6 +180,13 @@ export default function AttendancePage() {
         });
         return Array.from(empMap.values());
     }, [allAttendance, attendanceHistory, isAdmin]);
+
+    const employeesList = useMemo(() => {
+        if (isAdmin && employees && employees.length > 0) {
+            return employees;
+        }
+        return uniqueEmployees;
+    }, [isAdmin, employees, uniqueEmployees]);
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters(prev => ({ ...prev, [key]: value }));
@@ -537,6 +546,11 @@ export default function AttendancePage() {
                                     onChange={(e) => handleFilterChange("status", e.target.value)}
                                 >
                                     <SelectItem key="Present">Present</SelectItem>
+                                    <SelectItem key="Late">Late</SelectItem>
+                                    <SelectItem key="Absent">Absent</SelectItem>
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
+                                    <SelectItem key="Leave">Leave</SelectItem>
+
                                 </Select>
 
                                 <Select
@@ -547,8 +561,13 @@ export default function AttendancePage() {
                                     className="w-40"
                                     selectedKeys={filters.employee_id ? [filters.employee_id] : []}
                                     onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                    onOpenChange={(isOpen) => {
+                                        if (isOpen) {
+                                            dispatch(getEmployeesSummaryRequest());
+                                        }
+                                    }}
                                 >
-                                    {uniqueEmployees?.map((emp: any) => (
+                                    {employeesList?.map((emp: any) => (
                                         <SelectItem key={emp.employee_no_id} textValue={emp.name}>
                                             <div className="flex items-center gap-2">
                                                 <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
@@ -666,7 +685,7 @@ export default function AttendancePage() {
 
             {viewMode === "calendar" ? (
                 <AttendanceCalendar
-                    employees={isAdmin ? uniqueEmployees : [{
+                    employees={isAdmin ? employeesList : [{
                         id: user?.id,
                         name: user?.name,
                         email: user?.email,
