@@ -115,7 +115,7 @@ interface DashboardData {
 
 // --- Component ---
 
-export default function EmployeeDashboard({ data, blogs }: { data: DashboardData; blogs: any[] }) {
+export default function EmployeeDashboard({ data, blogs, isViewOnly = false }: { data: DashboardData; blogs: any[]; isViewOnly?: boolean }) {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isClockOutPopoverOpen, setIsClockOutPopoverOpen] = useState(false);
@@ -140,8 +140,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     const { user } = useSelector((state: AppState) => state.Auth);
 
     useEffect(() => {
-        dispatch(getMyAttendanceHistoryRequest());
-    }, [dispatch]);
+        if (!isViewOnly) {
+            dispatch(getMyAttendanceHistoryRequest());
+        }
+    }, [dispatch, isViewOnly]);
 
     // Handle Clock In/Out Toasts
     useEffect(() => {
@@ -206,9 +208,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     };
 
     // Check if already clocked in today
-    const relevantRecord = attendanceHistory?.find((record: any) =>
+    const relevantRecord = !isViewOnly ? attendanceHistory?.find((record: any) =>
         record.date === format(new Date(), "yyyy-MM-dd")
-    );
+    ) : null;
 
     const isTodayClockIn = !!relevantRecord && !!relevantRecord.clock_in;
     const isTodayClockOut = !!relevantRecord?.clock_out;
@@ -267,87 +269,89 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                 <div className="hidden sm:flex items-center gap-6">
                     {/* Buttons Section */}
-                    <div>
-                        {relevantRecord?.status === 'Leave' ? (
-                            <Button
-                                className="cursor-default opacity-100 font-semibold"
-                                variant="flat"
-                                color="warning"
-                                size="lg"
-                                startContent={<Calendar size={20} />}
-                                disableAnimation
-                            >
-                                On Leave
-                            </Button>
-                        ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
-                            <Button
-                                color="primary"
-                                size="lg"
-                                startContent={<Clock size={20} />}
-                                onPress={handleClockIn}
-                                isLoading={clockInLoading}
-                                className="shadow-lg shadow-primary/40 font-semibold"
-                            >
-                                Clock In
-                            </Button>
-                        ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
-                            <Popover
-                                isOpen={isClockOutPopoverOpen}
-                                onOpenChange={setIsClockOutPopoverOpen}
-                                placement="bottom"
-                                showArrow
-                            >
-                                <PopoverTrigger>
-                                    <Button
-                                        color="warning"
-                                        size="lg"
-                                        variant="flat"
-                                        startContent={<LogOut size={20} />}
-                                        isLoading={clockOutLoading}
-                                        className="font-semibold"
-                                    >
-                                        Clock Out
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent>
-                                    <div className="px-1 py-2 w-56">
-                                        <div className="text-small font-bold">Confirmation</div>
-                                        <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
-                                        <div className="flex gap-2 mt-3 justify-end">
-                                            <Button
-                                                size="sm"
-                                                variant="light"
-                                                onPress={() => setIsClockOutPopoverOpen(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                color="warning"
-                                                onPress={() => {
-                                                    handleClockOut();
-                                                    setIsClockOutPopoverOpen(false);
-                                                }}
-                                            >
-                                                Yes, Clock Out
-                                            </Button>
+                    {!isViewOnly && (
+                        <div>
+                            {relevantRecord?.status === 'Leave' ? (
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold"
+                                    variant="flat"
+                                    color="warning"
+                                    size="lg"
+                                    startContent={<Calendar size={20} />}
+                                    disableAnimation
+                                >
+                                    On Leave
+                                </Button>
+                            ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
+                                <Button
+                                    color="primary"
+                                    size="lg"
+                                    startContent={<Clock size={20} />}
+                                    onPress={handleClockIn}
+                                    isLoading={clockInLoading}
+                                    className="shadow-lg shadow-primary/40 font-semibold"
+                                >
+                                    Clock In
+                                </Button>
+                            ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
+                                <Popover
+                                    isOpen={isClockOutPopoverOpen}
+                                    onOpenChange={setIsClockOutPopoverOpen}
+                                    placement="bottom"
+                                    showArrow
+                                >
+                                    <PopoverTrigger>
+                                        <Button
+                                            color="warning"
+                                            size="lg"
+                                            variant="flat"
+                                            startContent={<LogOut size={20} />}
+                                            isLoading={clockOutLoading}
+                                            className="font-semibold"
+                                        >
+                                            Clock Out
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <div className="px-1 py-2 w-56">
+                                            <div className="text-small font-bold">Confirmation</div>
+                                            <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
+                                            <div className="flex gap-2 mt-3 justify-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="light"
+                                                    onPress={() => setIsClockOutPopoverOpen(false)}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    color="warning"
+                                                    onPress={() => {
+                                                        handleClockOut();
+                                                        setIsClockOutPopoverOpen(false);
+                                                    }}
+                                                >
+                                                    Yes, Clock Out
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
-                            <Button
-                                className="cursor-default opacity-100 font-semibold"
-                                variant="flat"
-                                color="success"
-                                size="lg"
-                                startContent={<CheckCircle size={20} />}
-                                disableAnimation
-                            >
-                                Done for Today
-                            </Button>
-                        ) : null}
-                    </div>
+                                    </PopoverContent>
+                                </Popover>
+                            ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold"
+                                    variant="flat"
+                                    color="success"
+                                    size="lg"
+                                    startContent={<CheckCircle size={20} />}
+                                    disableAnimation
+                                >
+                                    Done for Today
+                                </Button>
+                            ) : null}
+                        </div>
+                    )}
 
                     {/* Clock Section */}
                     <div className="text-right border-l pl-6 border-slate-200 dark:border-white/10">
@@ -452,8 +456,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardHeader>
                         <CardBody className="px-5 py-4">
                             <div className="space-y-4">
-                                {data.projects.map((project, i) => (
+                                {(data.projects || []).map((project, i) => (
                                     <div key={i} className="flex items-center justify-between">
+
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">
                                                 {project.name.charAt(0)}
@@ -471,7 +476,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         </div>
                                     </div>
                                 ))}
-                                {data.projects.length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
+                                {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
                             </div>
                         </CardBody>
                     </Card>
@@ -487,8 +492,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
                         </CardHeader>
                         <CardBody className="px-5 pb-5 pt-2 space-y-4">
-                            {data.upcoming_holidays.length > 0 ? (
-                                data.upcoming_holidays.slice(0, 3).map((holiday, idx) => (
+                            {(data.upcoming_holidays || []).length > 0 ? (
+                                (data.upcoming_holidays || []).slice(0, 3).map((holiday, idx) => (
                                     <div key={idx} className="flex items-center gap-4 group cursor-default">
                                         <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
                                             <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>

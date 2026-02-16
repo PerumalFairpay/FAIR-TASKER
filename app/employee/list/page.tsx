@@ -29,7 +29,7 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { User } from "@heroui/user";
-import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, ShieldCheck, Filter } from "lucide-react";
+import { PlusIcon, PencilIcon, TrashIcon, FolderOpen, Eye, Download, X, ShieldCheck, Filter, LayoutDashboard } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import AddEditEmployeeDrawer from "./AddEditEmployeeDrawer";
@@ -43,8 +43,10 @@ import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { SearchIcon } from "lucide-react";
 import { debounce } from "lodash";
+import { useRouter } from "next/navigation";
 
 export default function EmployeeListPage() {
+    const router = useRouter();
     const dispatch = useDispatch();
     const {
         employees,
@@ -398,6 +400,11 @@ export default function EmployeeListPage() {
                                         <PermissionGuard permission="permission:submit">
                                             <span className="text-lg text-secondary cursor-pointer active:opacity-50" onClick={() => handlePermissions(item)}>
                                                 <ShieldCheck size={16} />
+                                            </span>
+                                        </PermissionGuard>
+                                        <PermissionGuard permission="employee:view">
+                                            <span className="text-lg text-primary cursor-pointer active:opacity-50" onClick={() => router.push(`/employee/${item.id}/summary`)} title="View Summary">
+                                                <LayoutDashboard size={16} />
                                             </span>
                                         </PermissionGuard>
                                     </div>

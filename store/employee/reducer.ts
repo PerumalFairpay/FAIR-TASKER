@@ -23,6 +23,9 @@ import {
   GET_EMPLOYEES_SUMMARY_REQUEST,
   GET_EMPLOYEES_SUMMARY_SUCCESS,
   GET_EMPLOYEES_SUMMARY_FAILURE,
+  GET_EMPLOYEE_DASHBOARD_SUMMARY_REQUEST,
+  GET_EMPLOYEE_DASHBOARD_SUMMARY_SUCCESS,
+  GET_EMPLOYEE_DASHBOARD_SUMMARY_FAILURE,
   CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
 
@@ -76,6 +79,12 @@ interface EmployeeState {
   summaryLoading: boolean;
   summarySuccess: string | null;
   summaryError: string | null;
+
+  // Single Employee Dashboard Summary
+  employeeDashboard: any | null;
+  dashboardLoading: boolean;
+  dashboardSuccess: string | null;
+  dashboardError: string | null;
 }
 
 const initialEmployeeState: EmployeeState = {
@@ -120,6 +129,11 @@ const initialEmployeeState: EmployeeState = {
   summaryLoading: false,
   summarySuccess: null,
   summaryError: null,
+
+  employeeDashboard: null,
+  dashboardLoading: false,
+  dashboardSuccess: null,
+  dashboardError: null,
 };
 
 const employeeReducer = (
@@ -309,6 +323,26 @@ const employeeReducer = (
         ...state,
         summaryLoading: false,
         summaryError: action.payload,
+      };
+
+    // Get Single Employee Dashboard Summary
+    case GET_EMPLOYEE_DASHBOARD_SUMMARY_REQUEST:
+      return {
+        ...state,
+        dashboardLoading: true,
+        dashboardError: null,
+      };
+    case GET_EMPLOYEE_DASHBOARD_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        dashboardLoading: false,
+        employeeDashboard: action.payload.data,
+      };
+    case GET_EMPLOYEE_DASHBOARD_SUMMARY_FAILURE:
+      return {
+        ...state,
+        dashboardLoading: false,
+        dashboardError: action.payload,
       };
 
     case CLEAR_EMPLOYEE_DETAILS:
