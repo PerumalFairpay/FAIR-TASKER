@@ -33,6 +33,8 @@ import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
 import FileUpload from "@/components/common/FileUpload";
 import { FileDown, Upload } from "lucide-react";
+import Lottie from "lottie-react";
+import HRMLoading from "@/app/assets/HRMLoading.json";
 
 interface AttendanceRecord {
     id: string;
@@ -79,6 +81,7 @@ export default function AttendancePage() {
         clockOutLoading,
         clockOutSuccess,
         clockOutError,
+        getMyHistoryLoading,
         getAllAttendanceLoading,
         importAttendanceLoading,
         importAttendanceSuccess,
@@ -683,7 +686,13 @@ export default function AttendancePage() {
                 elapsedSeconds={elapsedSeconds}
             />
 
-            {viewMode === "calendar" ? (
+            {(getAllAttendanceLoading || getMyHistoryLoading) ? (
+                <div className="flex h-[60vh] items-center justify-center">
+                    <div className="w-64 h-64">
+                        <Lottie animationData={HRMLoading} loop={true} />
+                    </div>
+                </div>
+            ) : viewMode === "calendar" ? (
                 <AttendanceCalendar
                     employees={isAdmin ? employeesList : [{
                         id: user?.id,
