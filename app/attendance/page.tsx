@@ -160,7 +160,6 @@ export default function AttendancePage() {
         return () => clearInterval(timer);
     }, [dispatch, isAdmin, filters, viewMode, currentMonth]);
 
-    // Derive unique employees from allAttendance for Calendar Rows and Filters
     const uniqueEmployees = useMemo(() => {
         const sourceData = isAdmin ? allAttendance : attendanceHistory;
         if (!sourceData || sourceData.length === 0) return [];
@@ -171,7 +170,6 @@ export default function AttendancePage() {
                 if (!empMap.has(record.employee_details.id)) {
                     empMap.set(record.employee_details.id, {
                         ...record.employee_details,
-                        // Mapping fields to ensure compatibility
                         id: record.employee_details.id,
                         employee_id: record.employee_details.id,
                     });
