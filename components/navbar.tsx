@@ -262,7 +262,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const toggleMenu = (label: string) => {
     if (!isExpanded && onToggle) {
       onToggle();
-      // If we are expanding, we also want to open this menu
       setOpenMenus(prev => ({
         ...prev,
         [label]: true
