@@ -110,6 +110,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [isAltPressed, setIsAltPressed] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
@@ -141,6 +142,109 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       }
     });
   }, [pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        setIsAltPressed(true);
+      }
+
+      // Check if Alt key is pressed
+      if (!event.altKey) return;
+
+      const key = event.key.toLowerCase();
+      // Default shortcuts
+      let targetPath = '';
+
+      switch (key) {
+        case 'd': targetPath = '/dashboard'; break;
+        case 'e': targetPath = '/employee/list'; break;
+        case 'a': targetPath = '/attendance'; break;
+        case 'l': targetPath = '/leave-management/request'; break;
+        case 'h': targetPath = '/holiday'; break;
+        case 'p': targetPath = '/project/list'; break;
+        case 't': targetPath = '/task/board'; break;
+        case 'y':
+          // Role-based logic for Payroll
+          const role = user?.role?.toLowerCase();
+          targetPath = role === 'admin' ? '/payslip/list' : '/payslip/employee';
+          break;
+        case 'c': targetPath = '/asset/category'; break;
+        case 'r': targetPath = '/asset/list'; break;
+        case 'b': targetPath = '/blog'; break;
+        case 'f': targetPath = '/feeds'; break;
+        case 's': targetPath = '/settings'; break;
+        default: return;
+      }
+
+      if (targetPath) {
+        event.preventDefault();
+        router.push(targetPath);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        setIsAltPressed(false);
+      }
+    };
+
+    const handleBlur = () => {
+      setIsAltPressed(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [router, user]);
+
+  const getShortcutKey = (label: string) => {
+    const map: Record<string, string> = {
+      'Dashboard': 'D',
+      'Employee': 'E',
+      'Attendance': 'A',
+      'Leave Management': 'L',
+      'Holiday': 'H',
+      'Projects & Clients': 'P',
+      'Task Management': 'T',
+      'Payroll': 'Y',
+      'Categories': 'C',
+      'Resources': 'R',
+      'Blog': 'B',
+      'Feeds': 'F',
+      'Settings': 'S'
+    };
+    return map[label];
+  };
+
+  const ShortcutBadge = ({ label }: { label: string }) => {
+    const key = getShortcutKey(label);
+    if (!key || !isAltPressed) return null;
+    return (
+      <motion.span
+        initial={{ scale: 0.8, opacity: 0, y: 5 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 5 }}
+        className={clsx(
+          "flex items-center justify-center font-sans font-bold pointer-events-none z-[60]",
+          "bg-default-100 dark:bg-default-50/50 backdrop-blur-sm",
+          "border-b-2 border-default-300 dark:border-default-100",
+          "text-default-700 dark:text-default-200 shadow-sm",
+          isExpanded
+            ? "ml-auto text-[10px] px-1.5 h-5 min-w-[20px] rounded-md border"
+            : "absolute bottom-0 right-0 text-[9px] px-1 h-4 min-w-[16px] rounded-sm border"
+        )}
+      >
+        {key}
+      </motion.span>
+    );
+  };
 
 
   const toggleSidebar = () => {
@@ -284,13 +388,14 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                 <Button
                                   onPress={() => toggleMenu(item.label)}
                                   className={clsx(
-                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center",
+                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
                                     "hover:bg-default-50 text-default-600"
                                   )}
                                   disableRipple
                                   isIconOnly
                                 >
                                   <Icon className={clsx("w-5 h-5 flex-shrink-0", isSectionActive ? "text-primary" : "text-default-500")} />
+                                  <ShortcutBadge label={item.label} />
                                 </Button>
                               </div>
                             </DropdownTrigger>
@@ -326,7 +431,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                             <Button
                               onPress={() => toggleMenu(item.label)}
                               className={clsx(
-                                "w-full bg-transparent justify-start gap-2 h-10 px-2",
+                                "w-full bg-transparent justify-start gap-2 h-10 px-2 relative",
                                 "hover:bg-default-50 text-default-600",
                                 !isExpanded && "justify-center px-0"
                               )}
@@ -340,10 +445,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                     animate={{ rotate: isOpen ? 90 : 0 }}
                                     transition={{ duration: 0.2 }}
                                   >
-                                    <ChevronRight size={16} />
+                                    <ChevronDown size={16} />
                                   </motion.div>
                                 </>
                               )}
+                              <ShortcutBadge label={item.label} />
                             </Button>
                           </>
                         )}
@@ -408,7 +514,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         as={NextLink}
                         href={item.href}
                         className={clsx(
-                          "w-full justify-start gap-2 h-10 px-2",
+                          "w-full justify-start gap-2 h-10 px-2 relative",
                           pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600"
                         )}
                       >
@@ -427,6 +533,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                           <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
                         </motion.div>
                         <span className="text-sm font-medium">{item.label}</span>
+                        <ShortcutBadge label={item.label} />
                       </Button>
                     );
                   }
@@ -447,7 +554,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                           <Button
                             onPress={() => router.push(item.href)}
                             className={clsx(
-                              "bg-transparent h-10 px-0 min-w-10 w-10 justify-center",
+                              "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
                               "hover:bg-default-50 text-default-600",
                               pathname === item.href && "text-primary bg-primary/10"
                             )}
@@ -455,6 +562,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                             isIconOnly
                           >
                             <Icon className={clsx("w-5 h-5 flex-shrink-0", pathname === item.href ? "text-primary" : "text-default-500")} />
+                            <ShortcutBadge label={item.label} />
                           </Button>
                         </div>
                       </DropdownTrigger>
