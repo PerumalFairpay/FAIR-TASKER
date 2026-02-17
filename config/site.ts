@@ -181,6 +181,12 @@ export const siteConfig: SiteConfig = {
           icon: "Contact",
           allowedRoles: ["employee"],
         },
+        {
+          label: "Payslip Components",
+          href: "/payslip/components",
+          icon: "Layers",
+          allowedRoles: ["admin"],
+        },
       ],
     },
 
