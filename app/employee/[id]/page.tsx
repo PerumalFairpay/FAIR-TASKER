@@ -14,7 +14,7 @@ import { Button } from "@heroui/button";
 import { Tabs, Tab } from "@heroui/tabs";
 import { CircularProgress } from "@heroui/progress";
 import { PermissionGuard } from "@/components/PermissionGuard";
-import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye } from "lucide-react";
+import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye, Layers } from "lucide-react";
 import Lottie from "lottie-react";
 import HRMLoading from "@/app/assets/HRMLoading.json";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
@@ -282,6 +282,83 @@ export default function EmployeeSummaryPage() {
                                 </CardBody>
                             </Card>
 
+                            {/* Task Metrics */}
+                            <Card className="border-none shadow-sm">
+                                <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                                    <h3 className="text-lg font-bold flex items-center gap-2">
+                                        <Briefcase size={20} className="text-primary" /> Task Performance
+                                    </h3>
+                                    <Chip size="sm" variant="flat" color="primary" className="font-bold">
+                                        Overall
+                                    </Chip>
+                                </CardHeader>
+                                <Divider className="opacity-50 my-2" />
+                                <CardBody className="p-6">
+                                    <div className="flex flex-col md:flex-row items-center gap-6">
+                                        {/* Completion Circle */}
+                                        <div className="flex flex-col items-center justify-center p-4">
+                                            <CircularProgress
+                                                classNames={{
+                                                    svg: "w-32 h-32 drop-shadow-md",
+                                                    indicator: "stroke-primary",
+                                                    track: "stroke-default-100",
+                                                    value: "text-2xl font-black text-default-800",
+                                                    label: "text-[10px] font-bold text-default-400 uppercase mt-1"
+                                                }}
+                                                value={task_metrics?.completion_rate || 0}
+                                                size="lg"
+                                                showValueLabel={true}
+                                                label="Completion"
+                                            />
+                                        </div>
+
+                                        {/* Stats Grid */}
+                                        <div className="grid grid-cols-2 gap-4 w-full">
+                                            {[
+                                                {
+                                                    label: "Assigned",
+                                                    value: task_metrics?.total_assigned || 0,
+                                                    icon: <Layers size={18} />,
+                                                    bg: "bg-default-100",
+                                                    text: "text-default-600"
+                                                },
+                                                {
+                                                    label: "In Progress",
+                                                    value: task_metrics?.in_progress || 0,
+                                                    icon: <Clock size={18} />,
+                                                    bg: "bg-warning-50",
+                                                    text: "text-warning-600"
+                                                },
+                                                {
+                                                    label: "Completed",
+                                                    value: task_metrics?.completed || 0,
+                                                    icon: <CheckCircle size={18} />,
+                                                    bg: "bg-success-50",
+                                                    text: "text-success-600"
+                                                },
+                                                {
+                                                    label: "Overdue",
+                                                    value: task_metrics?.overdue || 0,
+                                                    icon: <AlertCircle size={18} />,
+                                                    bg: "bg-danger-50",
+                                                    text: "text-danger-600"
+                                                }
+                                            ].map((stat, idx) => (
+                                                <div key={idx} className={`flex flex-col p-3 rounded-xl border border-transparent hover:border-default-200 transition-colors ${stat.bg} bg-opacity-50`}>
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className={`p-1.5 rounded-lg bg-white shadow-sm ${stat.text}`}>
+                                                            {stat.icon}
+                                                        </div>
+                                                        <span className={`text-xl font-black ${stat.text}`}>{stat.value}</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-default-500 uppercase tracking-wider">{stat.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </CardBody>
+                            </Card>
+
                             {/* Detailed Information Tabs */}
                             <Card className="border-none shadow-sm overflow-hidden">
                                 <CardBody className="p-0">
@@ -416,37 +493,6 @@ export default function EmployeeSummaryPage() {
                                 </CardBody>
                             </Card>
 
-                            {/* Task Metrics */}
-                            <Card className="border-none shadow-sm">
-                                <CardHeader className="px-6 pt-6 pb-0">
-                                    <h3 className="text-lg font-bold flex items-center gap-2">
-                                        <CheckCircle size={20} className="text-success" /> Task Performance
-                                    </h3>
-                                </CardHeader>
-                                <CardBody className="p-6">
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        {[
-                                            { label: "Total Tasks", value: task_metrics?.total, color: "primary", icon: <FileText size={20} /> },
-                                            { label: "Completed", value: task_metrics?.completed, color: "success", icon: <CheckCircle size={20} /> },
-                                            { label: "In Progress", value: task_metrics?.in_progress, color: "warning", icon: <Clock size={20} /> },
-                                            { label: "Overdue", value: task_metrics?.overdue, color: "danger", icon: <AlertCircle size={20} /> }
-                                        ].map((stat, idx) => (
-                                            <div
-                                                key={idx}
-                                                className="flex flex-col items-center justify-center p-6 rounded-2xl bg-default-50/50 hover:bg-white hover:shadow-sm border border-transparent transition-all duration-300"
-                                            >
-                                                <div className={`mb-4 p-3 rounded-2xl bg-${stat.color}/10 text-${stat.color}`}>
-                                                    {stat.icon}
-                                                </div>
-                                                <span className="text-[10px] font-bold text-default-400 uppercase tracking-widest mb-1">{stat.label}</span>
-                                                <span className={`text-3xl font-black text-default-800`}>
-                                                    {stat.value || 0}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardBody>
-                            </Card>
                         </div>
                     </div>
                 </div>
