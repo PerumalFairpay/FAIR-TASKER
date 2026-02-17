@@ -148,44 +148,52 @@ export default function EmployeeSummaryPage() {
                                 </CardBody>
                             </Card>
 
-                            {/* Leave summary integration */}
                             <Card className="border-none shadow-sm">
-                                <CardHeader className="flex justify-between items-center px-6 pt-6">
+                                <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                                     <h3 className="text-lg font-bold flex items-center gap-2">
                                         <Calendar size={20} className="text-secondary" /> Leave Balances
                                     </h3>
                                 </CardHeader>
-                                <CardBody className="px-6 pb-6 pt-2">
-                                    <div className="space-y-4">
-                                        {leave_summary?.map((leave: any, idx: number) => {
-                                            const percent = leave.total_allowed > 0 ? Math.round((leave.used / leave.total_allowed) * 100) : 0;
-                                            const color = percent > 80 ? "danger" : percent > 50 ? "warning" : "success";
+                                <Divider className="opacity-50 my-2" />
+                                <CardBody className="p-6">
+                                    {leave_summary && leave_summary.length > 0 ? (
+                                        <div className="grid grid-cols-2 gap-6">
+                                            {leave_summary.map((leave: any, idx: number) => {
+                                                const percentUsed = leave.total_allowed > 0 ? (leave.used / leave.total_allowed) * 100 : 0;
+                                                const percentAvailable = 100 - percentUsed;
+                                                const color = percentAvailable < 20 ? "danger" : percentAvailable < 50 ? "warning" : "success";
 
-                                            return (
-                                                <div key={idx} className="space-y-2">
-                                                    <div className="flex justify-between items-end">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sm font-bold text-default-700">{leave.leave_type}</span>
-                                                            <span className="text-[10px] text-default-400 font-bold uppercase tracking-wider">{leave.code}</span>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <span className={`text-sm font-bold text-${color}`}>{leave.available}</span>
-                                                            <span className="text-[10px] text-default-400 font-bold ml-1">/ {leave.total_allowed}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="h-1.5 w-full bg-default-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full bg-${color} transition-all duration-1000`}
-                                                            style={{ width: `${100 - (leave.available / leave.total_allowed * 100)}%` }}
+                                                return (
+                                                    <div key={idx} className="flex flex-col items-center justify-center p-4 rounded-2xl bg-default-50/50 border border-transparent hover:border-default-200 transition-colors">
+                                                        <CircularProgress
+                                                            classNames={{
+                                                                svg: "w-20 h-20 drop-shadow-sm",
+                                                                indicator: "stroke-current",
+                                                                track: "stroke-default-200/30",
+                                                                value: "text-lg font-black text-default-800",
+                                                            }}
+                                                            value={percentAvailable}
+                                                            color={color}
+                                                            showValueLabel={true}
+                                                            formatOptions={{ style: "decimal", maximumFractionDigits: 0 }}
+                                                            valueLabel={`${leave.available}`}
                                                         />
+                                                        <div className="text-center mt-3">
+                                                            <p className="text-xs font-bold text-default-700 truncate max-w-[100px]">{leave.leave_type}</p>
+                                                            <p className="text-[10px] font-bold text-default-400 uppercase">
+                                                                {leave.available} / {leave.total_allowed} Days
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-                                        {(!leave_summary || leave_summary.length === 0) && (
-                                            <div className="text-center text-default-400 py-6 text-sm">No leave data available</div>
-                                        )}
-                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center py-8 text-default-400">
+                                            <Calendar size={40} className="mb-3 opacity-20" />
+                                            <p className="text-sm font-bold">No leave data available</p>
+                                        </div>
+                                    )}
                                 </CardBody>
                             </Card>
                         </div>
@@ -427,7 +435,7 @@ export default function EmployeeSummaryPage() {
                                             key="financial"
                                             title={
                                                 <div className="flex items-center gap-2">
-                                                    <X size={18} className="rotate-45" /> {/* Using X as a placeholder for a financial icon */}
+                                                    <Briefcase size={18} />
                                                     <span>Financial & IDs</span>
                                                 </div>
                                             }
@@ -440,6 +448,100 @@ export default function EmployeeSummaryPage() {
                                                 <InfoItem label="PAN Number" value={employee?.pan_number} />
                                                 <InfoItem label="PF Account Number" value={employee?.pf_account_number} />
                                                 <InfoItem label="ESIC Number" value={employee?.esic_number} />
+                                            </div>
+                                        </Tab>
+                                        <Tab
+                                            key="projects"
+                                            title={
+                                                <div className="flex items-center gap-2">
+                                                    <Layers size={18} />
+                                                    <span>Projects</span>
+                                                </div>
+                                            }
+                                        >
+                                            <div className="p-6">
+                                                {employeeSummaryData?.assigned_projects?.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {employeeSummaryData.assigned_projects.map((project: any, idx: number) => (
+                                                            <div key={idx} className="flex flex-col p-4 rounded-2xl border border-default-200 bg-white hover:border-primary/50 transition-colors shadow-sm">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <div>
+                                                                        <h4 className="text-sm font-bold text-default-900">{project.name}</h4>
+                                                                        <p className="text-[10px] uppercase font-bold text-default-400 mt-1">{project.client_company || project.client_name || "Internal Project"}</p>
+                                                                    </div>
+                                                                    <Chip size="sm" variant="flat" color={project.status === "Completed" ? "success" : project.status === "In Progress" ? "primary" : "default"} className="font-bold text-[10px] h-6">
+                                                                        {project.status}
+                                                                    </Chip>
+                                                                </div>
+                                                                <Divider className="my-2 opacity-50" />
+                                                                <div className="flex gap-4 mt-1">
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[9px] font-bold text-default-400 uppercase">Start Date</span>
+                                                                        <span className="text-xs font-semibold text-default-700">{project.start_date || "N/A"}</span>
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[9px] font-bold text-default-400 uppercase">End Date</span>
+                                                                        <span className="text-xs font-semibold text-default-700">{project.end_date || "N/A"}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-12 text-default-400">
+                                                        <Layers size={40} className="mb-3 opacity-20" />
+                                                        <p className="text-sm font-bold">No assigned projects</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </Tab>
+                                        <Tab
+                                            key="assets"
+                                            title={
+                                                <div className="flex items-center gap-2">
+                                                    <Briefcase size={18} />
+                                                    <span>Assets</span>
+                                                </div>
+                                            }
+                                        >
+                                            <div className="p-6">
+                                                {employeeSummaryData?.assigned_assets?.length > 0 ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {employeeSummaryData.assigned_assets.map((asset: any, idx: number) => (
+                                                            <div key={idx} className="flex flex-col p-4 rounded-2xl border border-default-200 bg-white hover:border-secondary/50 transition-colors shadow-sm">
+                                                                <div className="flex justify-between items-start mb-2">
+                                                                    <div>
+                                                                        <h4 className="text-sm font-bold text-default-900">{asset.asset_name}</h4>
+                                                                        <p className="text-[10px] uppercase font-bold text-default-400 mt-1">{asset.category?.name || "Uncategorized"}</p>
+                                                                    </div>
+                                                                    <Chip size="sm" variant="flat" color="secondary" className="font-bold text-[10px] h-6">
+                                                                        {asset.status}
+                                                                    </Chip>
+                                                                </div>
+                                                                <Divider className="my-2 opacity-50" />
+                                                                <div className="grid grid-cols-2 gap-2 mt-1">
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[9px] font-bold text-default-400 uppercase">Serial No</span>
+                                                                        <span className="text-xs font-semibold text-default-700 truncate">{asset.serial_no || "N/A"}</span>
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[9px] font-bold text-default-400 uppercase">Model No</span>
+                                                                        <span className="text-xs font-semibold text-default-700 truncate">{asset.model_no || "N/A"}</span>
+                                                                    </div>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[9px] font-bold text-default-400 uppercase">Assigned Date</span>
+                                                                        <span className="text-xs font-semibold text-default-700 truncate">{asset.created_at ? new Date(asset.created_at).toLocaleDateString() : "N/A"}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center justify-center py-12 text-default-400">
+                                                        <Briefcase size={40} className="mb-3 opacity-20" />
+                                                        <p className="text-sm font-bold">No assigned assets</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </Tab>
                                         <Tab
