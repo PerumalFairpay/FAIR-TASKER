@@ -55,6 +55,8 @@ interface TaskState {
   getEodReportsLoading: boolean;
   getEodReportsSuccess: boolean;
   getEodReportsError: string | null;
+
+  previousTasks: any[] | null; // For optimistic update rollbacks
 }
 
 const initialState: TaskState = {
@@ -89,6 +91,8 @@ const initialState: TaskState = {
   getEodReportsLoading: false,
   getEodReportsSuccess: false,
   getEodReportsError: null,
+
+  previousTasks: null,
 };
 
 const taskReducer = (state = initialState, action: any) => {
@@ -163,12 +167,18 @@ const taskReducer = (state = initialState, action: any) => {
       };
 
     // --- Update Task ---
-    case UPDATE_TASK_REQUEST:
+    case UPDATE_TASK_REQUEST: 
       return {
         ...state,
         updateTaskLoading: true,
         updateTaskSuccess: false,
         updateTaskError: null,
+        previousTasks: state.tasks,
+        tasks: state.tasks.map((task) =>
+          task.id === action.payload.id
+            ? { ...task, ...action.payload.payload }
+            : task,
+        ),
       };
     case UPDATE_TASK_SUCCESS:
       return {
@@ -179,6 +189,7 @@ const taskReducer = (state = initialState, action: any) => {
           task.id === action.payload.id ? action.payload : task,
         ),
         currentTask: action.payload,
+        previousTasks: null,
       };
     case UPDATE_TASK_FAILURE:
       return {
@@ -186,6 +197,8 @@ const taskReducer = (state = initialState, action: any) => {
         updateTaskLoading: false,
         updateTaskError: action.payload,
         updateTaskSuccess: false,
+        tasks: state.previousTasks || state.tasks,
+        previousTasks: null,
       };
 
     // --- Delete Task ---

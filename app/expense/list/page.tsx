@@ -143,6 +143,7 @@ export default function ExpenseListPage() {
                     <PermissionGuard permission="expense:submit">
                         <Button
                             color="primary"
+                            variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
                         >

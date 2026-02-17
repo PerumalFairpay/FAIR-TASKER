@@ -23,9 +23,12 @@ import {
   GET_EMPLOYEES_SUMMARY_REQUEST,
   GET_EMPLOYEES_SUMMARY_SUCCESS,
   GET_EMPLOYEES_SUMMARY_FAILURE,
+  GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
+  GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS,
+  GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
   CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
- 
+
 export const createEmployeeRequest = (payload: FormData) => ({
   type: CREATE_EMPLOYEE_REQUEST,
   payload,
@@ -38,7 +41,7 @@ export const createEmployeeFailure = (error: any) => ({
   type: CREATE_EMPLOYEE_FAILURE,
   payload: error,
 });
- 
+
 export const getEmployeesRequest = (
   page: number = 1,
   limit: number = 10,
@@ -55,7 +58,7 @@ export const getEmployeesFailure = (error: any) => ({
   type: GET_EMPLOYEES_FAILURE,
   payload: error,
 });
- 
+
 export const getEmployeeRequest = (id: string) => ({
   type: GET_EMPLOYEE_REQUEST,
   payload: id,
@@ -68,7 +71,7 @@ export const getEmployeeFailure = (error: any) => ({
   type: GET_EMPLOYEE_FAILURE,
   payload: error,
 });
- 
+
 export const updateEmployeeRequest = (id: string, payload: FormData) => ({
   type: UPDATE_EMPLOYEE_REQUEST,
   payload: { id, payload },
@@ -81,7 +84,7 @@ export const updateEmployeeFailure = (error: any) => ({
   type: UPDATE_EMPLOYEE_FAILURE,
   payload: error,
 });
- 
+
 export const deleteEmployeeRequest = (id: string) => ({
   type: DELETE_EMPLOYEE_REQUEST,
   payload: id,
@@ -94,7 +97,7 @@ export const deleteEmployeeFailure = (error: any) => ({
   type: DELETE_EMPLOYEE_FAILURE,
   payload: error,
 });
- 
+
 export const updateUserPermissionsRequest = (
   id: string,
   permissions: string[],
@@ -110,7 +113,7 @@ export const updateUserPermissionsFailure = (error: any) => ({
   type: UPDATE_USER_PERMISSIONS_FAILURE,
   payload: error,
 });
- 
+
 export const getUserPermissionsRequest = (id: string) => ({
   type: GET_USER_PERMISSIONS_REQUEST,
   payload: id,
@@ -123,7 +126,7 @@ export const getUserPermissionsFailure = (error: any) => ({
   type: GET_USER_PERMISSIONS_FAILURE,
   payload: error,
 });
- 
+
 export const getEmployeesSummaryRequest = () => ({
   type: GET_EMPLOYEES_SUMMARY_REQUEST,
 });
@@ -135,7 +138,20 @@ export const getEmployeesSummaryFailure = (error: any) => ({
   type: GET_EMPLOYEES_SUMMARY_FAILURE,
   payload: error,
 });
- 
+
+export const getEmployeeSummaryDetailsRequest = (id: string) => ({
+  type: GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
+  payload: id,
+});
+export const getEmployeeSummaryDetailsSuccess = (response: any) => ({
+  type: GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS,
+  payload: response,
+});
+export const getEmployeeSummaryDetailsFailure = (error: any) => ({
+  type: GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
+  payload: error,
+});
+
 export const clearEmployeeDetails = () => ({
   type: CLEAR_EMPLOYEE_DETAILS,
 });

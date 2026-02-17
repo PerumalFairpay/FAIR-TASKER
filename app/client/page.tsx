@@ -90,6 +90,7 @@ export default function ClientListPage() {
                 />
                 <Button
                     color="primary"
+                    variant="shadow"
                     endContent={<PlusIcon size={16} />}
                     onPress={handleCreate}
                 >

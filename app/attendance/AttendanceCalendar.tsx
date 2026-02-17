@@ -3,19 +3,17 @@ import { format, getDaysInMonth, startOfMonth, endOfMonth, isSameDay, parseISO }
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Avatar } from "@heroui/avatar";
 import { Tooltip } from "@heroui/tooltip";
-import { X, Check, Calendar, Coffee, AlertCircle, Clock } from "lucide-react";
+import { X, Check, Calendar, Coffee, AlertCircle, Clock, Plane } from "lucide-react";
 
 interface AttendanceCalendarProps {
     employees: any[];
     attendance: any[];
-    holidays: any[];
     currentMonth: Date;
 }
 
 const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     employees,
     attendance,
-    holidays,
     currentMonth,
 }) => {
     const daysInMonth = getDaysInMonth(currentMonth);
@@ -28,19 +26,11 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
     const getStatus = (emp: any, date: Date): any => {
         const dateStr = format(date, "yyyy-MM-dd");
 
-        const holiday = holidays.find((h) => h.date === dateStr);
-        if (holiday) {
-            return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white", name: holiday.name };
-        }
         const record = attendance.find((a) => {
-            const empIds = [emp.id, emp._id, emp.employee_id, emp.employee_no_id].filter(Boolean);
-            let isMatch = empIds.includes(a.employee_id);
-            if (!isMatch && a.employee_details) {
-                if (a.employee_details.id && empIds.includes(a.employee_details.id)) isMatch = true;
-                if (a.employee_details.employee_no_id && empIds.includes(a.employee_details.employee_no_id)) isMatch = true;
-            }
-
-            return isMatch && a.date === dateStr;
+            // Since we derived the employee list from attendance records, 
+            // we can match strictly on the specific ID field we set (id).
+            // We check both root employee_id and flattened employee_details.id for safety.
+            return (a.employee_id === emp.id || a.employee_details?.id === emp.id) && a.date === dateStr;
         });
 
         if (record) {
@@ -51,7 +41,9 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
             } else if (record.status === "Absent") {
                 return { type: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
             } else if (record.status === "Leave") {
-                return { type: "Leave", label: <Calendar size={14} />, color: "bg-warning text-white" };
+                return { type: "Leave", label: <Plane size={14} />, color: "bg-purple-500 text-white" };
+            } else if (record.status === "Holiday") {
+                return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white" };
             }
             return { type: record.status, label: <AlertCircle size={14} />, color: "bg-primary text-white" };
         }
@@ -119,7 +111,7 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                                             <Avatar src={emp.profile_picture} name={emp.name} size="sm" />
                                             <div>
                                                 <p className="text-sm font-semibold text-default-900 line-clamp-1">{emp.name}</p>
-                                                <p className="text-xs text-primary font-mono">{emp.employee_id || emp.id}</p>
+                                                <p className="text-xs text-primary font-mono">{emp.email || emp.id}</p>
                                             </div>
                                         </div>
                                     </TableCell>

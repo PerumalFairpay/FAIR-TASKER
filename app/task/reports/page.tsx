@@ -24,7 +24,7 @@ import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
 import { Button } from "@heroui/button";
 import { ChevronLeft, ChevronRight, SearchIcon, Filter, FolderOpen } from "lucide-react";
-import { getProjectsRequest } from "@/store/project/action";
+import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
@@ -56,12 +56,14 @@ const EODReportsPage = () => {
     };
 
     useEffect(() => {
-        dispatch(getProjectsRequest());
         if (!employees || employees.length === 0) {
             dispatch(getEmployeesSummaryRequest());
         }
     }, [dispatch, employees]);
 
+    useEffect(() => {
+        dispatch(getProjectsSummaryRequest());
+    }, [dispatch]);
     // Debounce search to avoid too many API calls
     const debouncedSearch = React.useCallback(
         debounce((value, date, project, priority, employee) => {
@@ -146,7 +148,7 @@ const EODReportsPage = () => {
                         onValueChange={setSearch}
                     />
                     <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide items-center">
-                        <div className="flex items-center bg-default-100 rounded-lg p-1 gap-0" style={{marginTop:"20px"}}>
+                        <div className="flex items-center bg-default-100 rounded-lg p-1 gap-0" style={{ marginTop: "20px" }}>
                             <Button
                                 isIconOnly
                                 variant="light"

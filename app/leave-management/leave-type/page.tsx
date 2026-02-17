@@ -98,6 +98,7 @@ export default function LeaveTypePage() {
                 />
                 <Button
                     color="primary"
+                    variant="shadow"
                     endContent={<PlusIcon size={16} />}
                     onPress={handleCreate}
                 >

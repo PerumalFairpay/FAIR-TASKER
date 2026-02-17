@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,6 +12,7 @@ import {
     importAttendanceRequest,
     updateAttendanceStatusRequest
 } from "@/store/attendance/action";
+import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { AppState } from "@/store/rootReducer";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { User } from "@heroui/user";
@@ -21,9 +22,9 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
-import { getEmployeesSummaryRequest } from "@/store/employee/action";
+
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Pagination } from "@heroui/pagination";
@@ -32,13 +33,17 @@ import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
 import FileUpload from "@/components/common/FileUpload";
 import { FileDown, Upload } from "lucide-react";
+import Lottie from "lottie-react";
+import HRMLoading from "@/app/assets/HRMLoading.json";
 
 interface AttendanceRecord {
     id: string;
     employee_details: {
+        id: string;
         profile_picture?: string;
         email: string;
         name: string;
+        employee_no_id?: string;
     };
     clock_in: string;
     clock_out?: string;
@@ -49,9 +54,9 @@ interface AttendanceRecord {
     date: string;
 }
 
-import { getHolidaysRequest } from "@/store/holiday/action";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 import AttendanceCalendar from "./AttendanceCalendar";
+import AttendanceMetrics from "./AttendanceMetrics";
 
 const columns = [
     { name: "DATE", uid: "date" },
@@ -76,6 +81,7 @@ export default function AttendancePage() {
         clockOutLoading,
         clockOutSuccess,
         clockOutError,
+        getMyHistoryLoading,
         getAllAttendanceLoading,
         importAttendanceLoading,
         importAttendanceSuccess,
@@ -84,7 +90,7 @@ export default function AttendancePage() {
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
     const { employees } = useSelector((state: AppState) => state.Employee);
-    const { holidays } = useSelector((state: AppState) => state.Holiday); // Fetch holidays state
+
     const isAdmin = user?.role === 'admin';
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
@@ -143,9 +149,7 @@ export default function AttendancePage() {
                 dispatch(getAllAttendanceRequest({ ...filters, page, limit }));
             }
 
-            if (employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
+
         } else {
             if (viewMode === "calendar") {
                 dispatch(getMyAttendanceHistoryRequest({ start_date: start, end_date: end }));
@@ -157,13 +161,35 @@ export default function AttendancePage() {
             }
         }
 
-        if (viewMode === "calendar") {
-            dispatch(getHolidaysRequest());
-        }
-
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
     }, [dispatch, isAdmin, filters, viewMode, currentMonth]);
+
+    const uniqueEmployees = useMemo(() => {
+        const sourceData = isAdmin ? allAttendance : attendanceHistory;
+        if (!sourceData || sourceData.length === 0) return [];
+
+        const empMap = new Map();
+        sourceData.forEach((record: AttendanceRecord) => {
+            if (record.employee_details && record.employee_details.id) {
+                if (!empMap.has(record.employee_details.id)) {
+                    empMap.set(record.employee_details.id, {
+                        ...record.employee_details,
+                        id: record.employee_details.id,
+                        employee_id: record.employee_details.id,
+                    });
+                }
+            }
+        });
+        return Array.from(empMap.values());
+    }, [allAttendance, attendanceHistory, isAdmin]);
+
+    const employeesList = useMemo(() => {
+        if (isAdmin && employees && employees.length > 0) {
+            return employees;
+        }
+        return uniqueEmployees;
+    }, [isAdmin, employees, uniqueEmployees]);
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters(prev => ({ ...prev, [key]: value }));
@@ -174,6 +200,40 @@ export default function AttendancePage() {
             setCurrentMonth(new Date(e.target.value));
         }
     }
+
+    const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+    useEffect(() => {
+        const calculateElapsed = () => {
+            const todayStr = format(new Date(), "yyyy-MM-dd");
+            const todayRec = attendanceHistory?.find((r: any) => r.date === todayStr);
+
+            if (todayRec && todayRec.clock_in && !todayRec.clock_out) {
+                const clockInTime = new Date(todayRec.clock_in).getTime();
+                const now = new Date().getTime();
+                const diffSeconds = Math.floor((now - clockInTime) / 1000);
+                setElapsedSeconds(diffSeconds > 0 ? diffSeconds : 0);
+            } else if (todayRec && todayRec.clock_in && todayRec.clock_out) {
+                const clockInTime = new Date(todayRec.clock_in).getTime();
+                const clockOutTime = new Date(todayRec.clock_out).getTime();
+                const diffSeconds = Math.floor((clockOutTime - clockInTime) / 1000);
+                setElapsedSeconds(diffSeconds > 0 ? diffSeconds : 0);
+            } else {
+                setElapsedSeconds(0);
+            }
+        };
+
+        calculateElapsed();
+        const timer = setInterval(calculateElapsed, 1000);
+        return () => clearInterval(timer);
+    }, [attendanceHistory]);
+
+    const formatDuration = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
 
     // Handle Clock In/Out Toasts
@@ -371,6 +431,12 @@ export default function AttendancePage() {
                 );
             case "total_work_hours":
                 return cellValue ? `${cellValue} hrs` : "-";
+            case "location":
+                return (
+                    <div className="max-w-[300px] truncate text-small" title={cellValue as string}>
+                        {cellValue as string || "-"}
+                    </div>
+                );
             default:
                 return cellValue as React.ReactNode;
         }
@@ -380,16 +446,13 @@ export default function AttendancePage() {
 
 
 
-    // Helper stats
-    const todayStats = metrics?.today || { present: 0, absent: 0, late: 0 };
-    const monthStats = metrics?.month || { present: 0, absent: 0, leave: 0 };
-    const yearStats = metrics?.year || { present: 0 };
+    const todayStats = metrics?.today || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const monthStats = metrics?.month || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const yearStats = metrics?.year || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
 
-    // Calculate total headcount for today (Present + Absent + Leave + Late) - simplistic
-    const todayTotal = (todayStats.present || 0) + (todayStats.absent || 0) + (todayStats.late || 0) + (todayStats.leave || 0);
+    const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
 
-    // Filter columns based on role
     const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
 
     return (
@@ -413,6 +476,42 @@ export default function AttendancePage() {
 
                     {/* Controls Section - View Toggle & Filters */}
                     <div className="flex gap-2 items-center">
+                        {/* List Filters - Date Range */}
+                        {viewMode === "list" && (
+                            <>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
+                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
+                                    aria-label="Start Date"
+                                />
+                                <span className="text-default-400">-</span>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="w-36"
+                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
+                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
+                                    aria-label="End Date"
+                                />
+                            </>
+                        )}
+
+                        {/* Calendar Month Picker */}
+                        {viewMode === "calendar" && (
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="month"
+                                    aria-label="Select Month"
+                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
+                                    value={format(currentMonth, "yyyy-MM")}
+                                    onChange={handleMonthChange}
+                                />
+                            </div>
+                        )}
+
                         {/* View Toggle */}
                         <div className="flex bg-default-100 p-1 rounded-lg">
                             <Button
@@ -437,80 +536,50 @@ export default function AttendancePage() {
                             </Button>
                         </div>
 
-                        {/* List Filters */}
-                        {viewMode === "list" && (
+                        {/* List Filters - Admin Options */}
+                        {viewMode === "list" && isAdmin && (
                             <>
-                                <DatePicker
+                                <Select
                                     size="sm"
                                     variant="bordered"
-                                    className="w-36"
-                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
-                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
-                                    aria-label="Start Date"
-                                />
-                                <span className="text-default-400">-</span>
-                                <DatePicker
+                                    placeholder="Status"
+                                    aria-label="Filter by Status"
+                                    className="w-32"
+                                    selectedKeys={filters.status ? [filters.status] : []}
+                                    onChange={(e) => handleFilterChange("status", e.target.value)}
+                                >
+                                    <SelectItem key="Present">Present</SelectItem>
+                                    <SelectItem key="Late">Late</SelectItem>
+                                    <SelectItem key="Absent">Absent</SelectItem>
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
+                                    <SelectItem key="Leave">Leave</SelectItem>
+
+                                </Select>
+
+                                <Select
                                     size="sm"
                                     variant="bordered"
-                                    className="w-36"
-                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
-                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
-                                    aria-label="End Date"
-                                />
-
-                                {isAdmin && (
-                                    <>
-                                        <Select
-                                            size="sm"
-                                            variant="bordered"
-                                            placeholder="Status"
-                                            aria-label="Filter by Status"
-                                            className="w-32"
-                                            selectedKeys={filters.status ? [filters.status] : []}
-                                            onChange={(e) => handleFilterChange("status", e.target.value)}
-                                        >
-                                            <SelectItem key="Present">Present</SelectItem>
-                                        </Select>
-
-                                        <Select
-                                            size="sm"
-                                            variant="bordered"
-                                            placeholder="Employee"
-                                            aria-label="Filter by Employee"
-                                            className="w-40"
-                                            selectedKeys={filters.employee_id ? [filters.employee_id] : []}
-                                            onChange={(e) => handleFilterChange("employee_id", e.target.value)}
-                                            onOpenChange={(isOpen) => {
-                                                if (isOpen && (!employees || employees.length === 0)) {
-                                                    dispatch(getEmployeesSummaryRequest());
-                                                }
-                                            }}
-                                        >
-                                            {employees?.map((emp: any) => (
-                                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
-                                                    <div className="flex items-center gap-2">
-                                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                                        <span>{emp.name}</span>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
-                                        </Select>
-                                    </>
-                                )}
+                                    placeholder="Employee"
+                                    aria-label="Filter by Employee"
+                                    className="w-40"
+                                    selectedKeys={filters.employee_id ? [filters.employee_id] : []}
+                                    onChange={(e) => handleFilterChange("employee_id", e.target.value)}
+                                    onOpenChange={(isOpen) => {
+                                        if (isOpen) {
+                                            dispatch(getEmployeesSummaryRequest());
+                                        }
+                                    }}
+                                >
+                                    {employeesList?.map((emp: any) => (
+                                        <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                            <div className="flex items-center gap-2">
+                                                <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                                <span>{emp.name}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
                             </>
-                        )}
-
-                        {/* Calendar Month Picker - For All Users */}
-                        {viewMode === "calendar" && (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="month"
-                                    aria-label="Select Month"
-                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
-                                    value={format(currentMonth, "yyyy-MM")}
-                                    onChange={handleMonthChange}
-                                />
-                            </div>
                         )}
                     </div>
 
@@ -520,16 +589,16 @@ export default function AttendancePage() {
                                 <Button
                                     className="cursor-default opacity-100 font-semibold"
                                     variant="flat"
-                                    color="warning"
-                                    startContent={<CalendarIcon size={20} />}
+                                    color="secondary"
+                                    startContent={<Plane size={20} />}
                                     disableAnimation
                                 >
                                     On Leave
                                 </Button>
-                            ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
+                            ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                                 <Button
                                     color="primary"
-                                    size="lg"
+                                    size="md"
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
                                     isLoading={clockInLoading}
@@ -537,7 +606,7 @@ export default function AttendancePage() {
                                 >
                                     Clock In
                                 </Button>
-                            ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
+                            ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
@@ -547,7 +616,7 @@ export default function AttendancePage() {
                                     <PopoverTrigger>
                                         <Button
                                             color="warning"
-                                            size="lg"
+                                            size="md"
                                             variant="flat"
                                             startContent={<LogOut size={20} />}
                                             isLoading={clockOutLoading}
@@ -562,14 +631,14 @@ export default function AttendancePage() {
                                             <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
                                             <div className="flex gap-2 mt-3 justify-end">
                                                 <Button
-                                                    size="sm"
+                                                    size="md"
                                                     variant="light"
                                                     onPress={() => setIsClockOutPopoverOpen(false)}
                                                 >
                                                     Cancel
                                                 </Button>
                                                 <Button
-                                                    size="sm"
+                                                    size="md"
                                                     color="warning"
                                                     onPress={() => {
                                                         handleClockOut();
@@ -609,9 +678,23 @@ export default function AttendancePage() {
 
 
 
-            {viewMode === "calendar" ? (
+            <AttendanceMetrics
+                isAdmin={isAdmin}
+                todayStats={todayStats}
+                monthStats={monthStats}
+                yearStats={yearStats}
+                elapsedSeconds={elapsedSeconds}
+            />
+
+            {(getAllAttendanceLoading || getMyHistoryLoading) ? (
+                <div className="flex h-[60vh] items-center justify-center">
+                    <div className="w-64 h-64">
+                        <Lottie animationData={HRMLoading} loop={true} />
+                    </div>
+                </div>
+            ) : viewMode === "calendar" ? (
                 <AttendanceCalendar
-                    employees={isAdmin ? employees : [{
+                    employees={isAdmin ? employeesList : [{
                         id: user?.id,
                         name: user?.name,
                         email: user?.email,
@@ -620,72 +703,20 @@ export default function AttendancePage() {
                         profile_picture: user?.profile_picture
                     }]}
                     attendance={isAdmin ? allAttendance : attendanceHistory}
-                    holidays={holidays || []}
                     currentMonth={currentMonth}
                 />
             ) : (
                 <>
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        {/* Today's Overview */}
-                        <Card className="shadow-sm border-l-4 border-primary">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">Today's Overview</p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Present</span>
-                                        <span className="text-xl font-bold text-success">{todayStats.present || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Late</span>
-                                        <span className="text-xl font-bold text-warning">{todayStats.late || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Absent</span>
-                                        <span className="text-xl font-bold text-danger">{todayStats.absent || 0}</span>
-                                    </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-
-                        {/* This Month */}
-                        <Card className="shadow-sm border-l-4 border-secondary">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">This Month</p>
-                                <div className="flex justify-between items-center text-sm">
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Present</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.present || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Leaves</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.leave || 0}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-default-400">Absent</span>
-                                        <span className="text-xl font-bold text-default-700">{monthStats.absent || 0}</span>
-                                    </div>
-                                </div>
-                            </CardBody>
-                        </Card>
-
-                        {/* Year Total */}
-                        <Card className="shadow-sm border-l-4 border-success">
-                            <CardBody className="py-4">
-                                <p className="text-small text-default-500 uppercase font-bold mb-2">Yearly Attendance</p>
-                                <div className="flex items-end gap-2">
-                                    <h4 className="text-3xl font-bold text-success">{yearStats.present || 0}</h4>
-                                    <span className="text-small text-default-400 mb-1">Total Days Present</span>
-                                </div>
-                            </CardBody>
-                        </Card>
-                    </div>
 
                     {/* Data Table */}
                     <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
                         <TableHeader columns={displayColumns}>
                             {(column: any) => (
-                                <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
+                                <TableColumn
+                                    key={column.uid}
+                                    align={column.uid === "actions" ? "center" : "start"}
+                                    className={column.uid === "location" ? "max-w-[200px]" : ""}
+                                >
                                     {column.name}
                                 </TableColumn>
                             )}
@@ -721,7 +752,7 @@ export default function AttendancePage() {
                     <ModalBody>
                         <p className="text-small text-default-500 mb-4">
                             Upload an Excel file containing attendance data. The file should have columns:
-                            <span className="font-semibold"> Employee ID, Date, Clock In, Clock Out, Status.</span>
+                            <span className="font-semibold"> Employee ID (Biometric ID), Date, Clock In, Clock Out, Status.</span>
                         </p>
                         <FileUpload
                             files={importFile}

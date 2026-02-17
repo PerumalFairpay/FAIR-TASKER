@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@heroui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@heroui/popover";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 
 import NextLink from "next/link";
@@ -58,6 +59,8 @@ import { AppState } from "@/store/rootReducer";
 
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
+import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
+import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
 
 interface NavbarProps {
@@ -107,21 +110,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const { theme, setTheme } = useTheme();
-  const isSSR = useIsSSR();
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
-  useEffect(() => {
-    siteConfig.navItems.forEach((item: any) => {
-      if (item.children?.some((child: any) => child.href === pathname)) {
-        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
-      }
-    });
-  }, [pathname]);
+  const [isAltPressed, setIsAltPressed] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
@@ -138,6 +127,126 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     }, 200);
   };
 
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isSSR = useIsSSR();
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  useEffect(() => {
+    siteConfig.navItems.forEach((item: any) => {
+      if (item.children?.some((child: any) => child.href === pathname)) {
+        setOpenMenus((prev) => ({ ...prev, [item.label]: true }));
+      }
+    });
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        setIsAltPressed(true);
+      }
+
+      // Check if Alt key is pressed
+      if (!event.altKey) return;
+
+      const key = event.key.toLowerCase();
+      // Default shortcuts
+      let targetPath = '';
+
+      switch (key) {
+        case 'd': targetPath = '/dashboard'; break;
+        case 'e': targetPath = '/employee/list'; break;
+        case 'a': targetPath = '/attendance'; break;
+        case 'l': targetPath = '/leave-management/request'; break;
+        case 'h': targetPath = '/holiday'; break;
+        case 'p': targetPath = '/project/list'; break;
+        case 't': targetPath = '/task/board'; break;
+        case 'y':
+          // Role-based logic for Payroll
+          const role = user?.role?.toLowerCase();
+          targetPath = role === 'admin' ? '/payslip/list' : '/payslip/employee';
+          break;
+        case 'c': targetPath = '/asset/category'; break;
+        case 'r': targetPath = '/asset/list'; break;
+        case 'b': targetPath = '/blog'; break;
+        case 'f': targetPath = '/feeds'; break;
+        case 's': targetPath = '/settings'; break;
+        default: return;
+      }
+
+      if (targetPath) {
+        event.preventDefault();
+        router.push(targetPath);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') {
+        setIsAltPressed(false);
+      }
+    };
+
+    const handleBlur = () => {
+      setIsAltPressed(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, [router, user]);
+
+  const getShortcutKey = (label: string) => {
+    const map: Record<string, string> = {
+      'Dashboard': 'D',
+      'Employee': 'E',
+      'Attendance': 'A',
+      'Leave Management': 'L',
+      'Holiday': 'H',
+      'Projects & Clients': 'P',
+      'Task Management': 'T',
+      'Payroll': 'Y',
+      'Categories': 'C',
+      'Resources': 'R',
+      'Blog': 'B',
+      'Feeds': 'F',
+      'Settings': 'S'
+    };
+    return map[label];
+  };
+
+  const ShortcutBadge = ({ label }: { label: string }) => {
+    const key = getShortcutKey(label);
+    if (!key || !isAltPressed) return null;
+    return (
+      <motion.span
+        initial={{ scale: 0.8, opacity: 0, y: 5 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.8, opacity: 0, y: 5 }}
+        className={clsx(
+          "flex items-center justify-center font-sans font-bold pointer-events-none z-[60]",
+          "bg-default-100 dark:bg-default-50/50 backdrop-blur-sm",
+          "border-b-2 border-default-300 dark:border-default-100",
+          "text-default-700 dark:text-default-200 shadow-sm",
+          isExpanded
+            ? "ml-auto text-[10px] px-1.5 h-5 min-w-[20px] rounded-md border"
+            : "absolute bottom-0 right-0 text-[9px] px-1 h-4 min-w-[16px] rounded-sm border"
+        )}
+      >
+        {key}
+      </motion.span>
+    );
+  };
+
+
   const toggleSidebar = () => {
     if (onToggle) onToggle();
   };
@@ -153,7 +262,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const toggleMenu = (label: string) => {
     if (!isExpanded && onToggle) {
       onToggle();
-      // If we are expanding, we also want to open this menu
       setOpenMenus(prev => ({
         ...prev,
         [label]: true
@@ -229,11 +337,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               href="/dashboard"
             >
               <Image
-                src={FairPayLogo}
+                src={isExpanded ? FairPayLogo : (resolvedTheme === "dark" ? FairPayMiniDarkLogo : FairPayMiniLogo)}
                 alt="FairPay"
                 className={clsx(
                   "object-contain transition-all duration-300",
-                  isExpanded ? "h-10 w-auto" : "h-8 w-8"
+                  isExpanded ? "h-10 w-auto" : "h-13 w-auto"
                 )}
               />
             </NextLink>
@@ -259,17 +367,18 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   });
                   const hasChildren = filteredChildren && filteredChildren.length > 0;
                   const isOpen = openMenus[item.label];
+                  const isSectionActive = filteredChildren?.some((child: any) => child.href === pathname);
 
                   if (hasChildren) {
                     return (
                       <div key={item.label} className="relative">
                         {!isExpanded ? (
-                          <Popover
+                          <Dropdown
                             isOpen={hoveredItem === item.label}
                             placement="right-start"
                             offset={10}
                           >
-                            <PopoverTrigger>
+                            <DropdownTrigger>
                               <div
                                 onMouseEnter={() => handleMouseEnter(item.label)}
                                 onMouseLeave={handleMouseLeave}
@@ -278,55 +387,50 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                 <Button
                                   onPress={() => toggleMenu(item.label)}
                                   className={clsx(
-                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center",
+                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
                                     "hover:bg-default-50 text-default-600"
                                   )}
                                   disableRipple
                                   isIconOnly
                                 >
-                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isOpen ? "text-primary" : "text-default-500")} />
+                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isSectionActive ? "text-primary" : "text-default-500")} />
+                                  <ShortcutBadge label={item.label} />
                                 </Button>
                               </div>
-                            </PopoverTrigger>
-                            <PopoverContent
+                            </DropdownTrigger>
+                            <DropdownMenu
                               onMouseEnter={() => handleMouseEnter(item.label)}
                               onMouseLeave={handleMouseLeave}
-                              className="p-2 min-w-[200px]"
+                              aria-label={item.label}
+                              closeOnSelect={true}
+                              onAction={() => setHoveredItem(null)}
                             >
-                              <div className="space-y-1">
-                                <div className="px-2 py-1.5 border-b border-default-100 mb-1">
-                                  <span className="font-semibold text-small text-default-700">{item.label}</span>
-                                </div>
-                                {filteredChildren.map((child: any) => {
-                                  const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
-                                  const isChildActive = pathname === child.href;
+                              {filteredChildren.map((child: any) => {
+                                const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                const isChildActive = pathname === child.href;
 
-                                  return (
-                                    <NextLink
-                                      key={child.href}
-                                      href={child.href}
-                                      className={clsx(
-                                        "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                        isChildActive
-                                          ? "bg-primary/10 text-primary"
-                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
-                                      )}
-                                      onClick={() => setHoveredItem(null)}
-                                    >
-                                      <ChildIcon size={16} strokeWidth={2} />
-                                      <span>{child.label}</span>
-                                    </NextLink>
-                                  );
-                                })}
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                                return (
+                                  <DropdownItem
+                                    key={child.href}
+                                    href={child.href}
+                                    as={NextLink}
+                                    startContent={<ChildIcon size={16} />}
+                                    className={clsx(
+                                      isChildActive ? "text-primary bg-primary/10" : "text-default-500"
+                                    )}
+                                  >
+                                    {child.label}
+                                  </DropdownItem>
+                                );
+                              })}
+                            </DropdownMenu>
+                          </Dropdown>
                         ) : (
                           <>
                             <Button
                               onPress={() => toggleMenu(item.label)}
                               className={clsx(
-                                "w-full bg-transparent justify-start gap-2 h-10 px-2",
+                                "w-full bg-transparent justify-start gap-2 h-10 px-2 relative",
                                 "hover:bg-default-50 text-default-600",
                                 !isExpanded && "justify-center px-0"
                               )}
@@ -340,10 +444,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                     animate={{ rotate: isOpen ? 90 : 0 }}
                                     transition={{ duration: 0.2 }}
                                   >
-                                    <ChevronRight size={16} />
+                                    <ChevronDown size={16} />
                                   </motion.div>
                                 </>
                               )}
+                              <ShortcutBadge label={item.label} />
                             </Button>
                           </>
                         )}
@@ -364,14 +469,15 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   const isChildActive = pathname === child.href;
 
                                   return (
-                                    <NextLink
+                                    <Button
                                       key={child.href}
+                                      as={NextLink}
                                       href={child.href}
                                       className={clsx(
-                                        "relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                                        "w-full justify-start relative flex items-center gap-2 px-4 h-10 text-sm font-medium rounded-lg transition-colors",
                                         isChildActive
                                           ? "bg-primary/10 text-primary"
-                                          : "text-default-500 hover:bg-default-50 hover:text-default-900"
+                                          : "bg-transparent text-default-500 hover:bg-default-50 hover:text-default-900"
                                       )}
                                     >
                                       {isChildActive && (
@@ -389,7 +495,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                         <ChildIcon size={18} strokeWidth={1.5} className={isChildActive ? "text-primary" : "text-default-500"} />
                                       </motion.div>
                                       <span>{child.label}</span>
-                                    </NextLink>
+                                    </Button>
                                   );
                                 })}
                               </div>
@@ -400,35 +506,86 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                     );
                   }
 
-                  return (
-                    <NextLink
-                      key={item.href}
-                      className={clsx(
-                        linkStyles({ color: "foreground" }),
-                        "data-[active=true]:text-primary data-[active=true]:font-medium",
-                        "relative p-2 rounded-lg flex items-center transition-colors h-10",
-                        isExpanded ? "justify-start gap-2" : "justify-center",
-                        pathname === item.href ? "bg-primary/10 text-primary" : "hover:bg-default-50 text-default-600"
-                      )}
-                      href={item.href}
-                    >
-                      {pathname === item.href && (
-                        <motion.div
-                          layoutId="active-indicator"
-                          className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
-                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                      )}
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex items-center justify-center"
+                  if (isExpanded) {
+                    return (
+                      <Button
+                        key={item.href}
+                        as={NextLink}
+                        href={item.href}
+                        className={clsx(
+                          "w-full justify-start gap-2 h-10 px-2 relative",
+                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600"
+                        )}
                       >
-                        <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
-                      </motion.div>
-                      {isExpanded && <span className="text-sm font-medium">{item.label}</span>}
-                    </NextLink>
-                  )
+                        {pathname === item.href && (
+                          <motion.div
+                            layoutId="active-indicator"
+                            className="absolute left-0 w-1 h-6 bg-primary rounded-r-full"
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center justify-center"
+                        >
+                          <Icon className={clsx("flex-shrink-0 w-5 h-5", pathname === item.href ? "text-primary" : "text-default-500")} />
+                        </motion.div>
+                        <span className="text-sm font-medium">{item.label}</span>
+                        <ShortcutBadge label={item.label} />
+                      </Button>
+                    );
+                  }
+
+                  return (
+                    <Dropdown
+                      key={item.href}
+                      isOpen={hoveredItem === item.label}
+                      placement="right-start"
+                      offset={10}
+                    >
+                      <DropdownTrigger>
+                        <div
+                          onMouseEnter={() => handleMouseEnter(item.label)}
+                          onMouseLeave={handleMouseLeave}
+                          className="w-full flex justify-center h-10 items-center"
+                        >
+                          <Button
+                            onPress={() => router.push(item.href)}
+                            className={clsx(
+                              "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
+                              "hover:bg-default-50 text-default-600",
+                              pathname === item.href && "text-primary bg-primary/10"
+                            )}
+                            disableRipple
+                            isIconOnly
+                          >
+                            <Icon className={clsx("w-5 h-5 flex-shrink-0", pathname === item.href ? "text-primary" : "text-default-500")} />
+                            <ShortcutBadge label={item.label} />
+                          </Button>
+                        </div>
+                      </DropdownTrigger>
+                      <DropdownMenu
+                        onMouseEnter={() => handleMouseEnter(item.label)}
+                        onMouseLeave={handleMouseLeave}
+                        aria-label={item.label}
+                        closeOnSelect={true}
+                        onAction={() => setHoveredItem(null)}
+                      >
+                        <DropdownItem
+                          key={item.href}
+                          href={item.href}
+                          as={NextLink}
+                          startContent={<Icon size={16} />}
+                          className={clsx(
+                            pathname === item.href ? "text-primary bg-primary/10" : "text-default-500"
+                          )}
+                        >
+                          {item.label}
+                        </DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  );
                 })}
             </nav>
           </div>

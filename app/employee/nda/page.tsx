@@ -204,6 +204,7 @@ export default function NDAPage() {
                     <PageHeader title="NDA Management" />
                     <Button
                         color="primary"
+                        variant="shadow"
                         endContent={<PlusIcon size={16} />}
                         onPress={onDrawerOpen}
                     >

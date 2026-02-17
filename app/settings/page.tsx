@@ -188,6 +188,7 @@ export default function SettingsPage() {
                 <PageHeader title="Global Settings" />
                 <Button
                     color="primary"
+                    variant="shadow"
                     startContent={<Save size={18} />}
                     onPress={handleSave}
                     isLoading={updateSettingsLoading}

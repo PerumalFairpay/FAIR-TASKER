@@ -101,7 +101,7 @@ export default function DocumentListPage() {
                         description="Manage and track your documents"
                     />
                     <PermissionGuard permission="document:submit">
-                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                        <Button color="primary" variant="shadow" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                             Upload Document
                         </Button>
                     </PermissionGuard>
@@ -111,6 +111,7 @@ export default function DocumentListPage() {
                     <TableHeader>
                         <TableColumn>NAME</TableColumn>
                         <TableColumn>CATEGORY</TableColumn>
+                        <TableColumn>SUBCATEGORY</TableColumn>
                         <TableColumn>UPLOAD DATE</TableColumn>
                         <TableColumn>EXPIRY DATE</TableColumn>
                         <TableColumn>STATUS</TableColumn>
@@ -119,6 +120,7 @@ export default function DocumentListPage() {
                     <TableBody items={documents || []} emptyContent="No documents found" loadingContent="Loading..." isLoading={loading}>
                         {(doc: any) => {
                             const category = documentCategories?.find((c: any) => c.id === doc.document_category_id);
+                            const subcategory = documentCategories?.find((c: any) => c.id === doc.document_subcategory_id);
                             return (
                                 <TableRow key={doc.id}>
                                     <TableCell>
@@ -128,6 +130,7 @@ export default function DocumentListPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>{category?.name || "N/A"}</TableCell>
+                                    <TableCell>{subcategory?.name || "-"}</TableCell>
                                     <TableCell>
                                         {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : "-"}
                                     </TableCell>

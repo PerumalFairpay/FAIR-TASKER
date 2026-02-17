@@ -82,17 +82,22 @@ export default function AddEditAssetDrawer({
 
     const categoryOptions = useMemo(() => buildDropdownOptions(assetCategories || []), [assetCategories]);
 
+    const rootCategories = useMemo(() => (assetCategories || []).filter((cat: any) => !cat.parent_id), [assetCategories]);
+
     const [formData, setFormData] = useState<any>({});
     const [files, setFiles] = useState<any[]>([]);
+
+    const subCategories = useMemo(() => {
+        if (!formData.asset_category_id) return [];
+        return (assetCategories || []).filter((cat: any) => cat.parent_id === formData.asset_category_id);
+    }, [assetCategories, formData.asset_category_id]);
 
     useEffect(() => {
         if (isOpen) {
             dispatch(getAssetCategoriesRequest());
-            if (!employees || employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
+            dispatch(getEmployeesSummaryRequest());
         }
-    }, [isOpen, dispatch, employees]);
+    }, [isOpen, dispatch]);
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedAsset) {
@@ -108,14 +113,20 @@ export default function AddEditAssetDrawer({
     }, [isOpen, mode, selectedAsset]);
 
     const handleChange = (name: string, value: any) => {
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        setFormData((prev: any) => {
+            const newData = { ...prev, [name]: value };
+            if (name === "asset_category_id") {
+                newData.asset_subcategory_id = "";
+            }
+            return newData;
+        });
     };
 
     const handleSubmit = () => {
         const data = new FormData();
 
         const fields = [
-            "asset_name", "asset_category_id", "manufacturer", "supplier",
+            "asset_name", "asset_category_id", "asset_subcategory_id", "manufacturer", "supplier",
             "purchase_from", "model_no", "serial_no", "purchase_date",
             "purchase_cost", "warranty_expiry", "condition", "status",
             "assigned_to", "description"
@@ -165,9 +176,25 @@ export default function AddEditAssetDrawer({
                                     isRequired
                                     variant="bordered"
                                 >
-                                    {categoryOptions.map((cat: any) => (
+                                    {rootCategories.map((cat: any) => (
                                         <SelectItem key={cat.id} textValue={cat.name}>
-                                            {cat.displayName}
+                                            {cat.name}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+
+                                <Select
+                                    label="Sub Category"
+                                    placeholder="Select Sub Category"
+                                    labelPlacement="outside"
+                                    selectedKeys={formData.asset_subcategory_id ? [formData.asset_subcategory_id] : []}
+                                    onChange={(e) => handleChange("asset_subcategory_id", e.target.value)}
+                                    variant="bordered"
+                                    isDisabled={subCategories.length === 0}
+                                >
+                                    {subCategories.map((cat: any) => (
+                                        <SelectItem key={cat.id} textValue={cat.name}>
+                                            {cat.name}
                                         </SelectItem>
                                     ))}
                                 </Select>

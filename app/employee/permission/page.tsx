@@ -96,7 +96,7 @@ export default function PermissionPage() {
                 <div className="flex justify-between items-center mb-6">
                     <PageHeader title="Permissions" />
                     <PermissionGuard permission="permission:submit">
-                        <Button color="primary" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
+                        <Button color="primary" variant="shadow" endContent={<PlusIcon size={16} />} onPress={handleCreate}>
                             Add New Permission
                         </Button>
                     </PermissionGuard>

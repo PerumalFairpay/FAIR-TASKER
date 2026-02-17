@@ -53,6 +53,8 @@ export default function AddEditProjectDrawer({
         budget: 0,
         currency: "USD",
         tags: [] as string[],
+        technical_stacks: "",
+        third_party_vendors: "",
     });
     const [logoFiles, setLogoFiles] = useState<any[]>([]);
 
@@ -72,6 +74,8 @@ export default function AddEditProjectDrawer({
                 budget: selectedProject.budget || 0,
                 currency: selectedProject.currency || "USD",
                 tags: selectedProject.tags || [],
+                technical_stacks: (selectedProject.technical_stacks || []).join(", "),
+                third_party_vendors: (selectedProject.third_party_vendors || []).join(", "),
             });
             setLogoFiles([]);
         }
@@ -112,6 +116,13 @@ export default function AddEditProjectDrawer({
         data.append("team_leader_ids", JSON.stringify(formData.team_leader_ids));
         data.append("team_member_ids", JSON.stringify(formData.team_member_ids));
         data.append("tags", JSON.stringify(formData.tags));
+
+        // Convert comma-separated strings to arrays
+        const technicalStacksArray = formData.technical_stacks.split(",").map(s => s.trim()).filter(Boolean);
+        const thirdPartyVendorsArray = formData.third_party_vendors.split(",").map(s => s.trim()).filter(Boolean);
+
+        data.append("technical_stacks", JSON.stringify(technicalStacksArray));
+        data.append("third_party_vendors", JSON.stringify(thirdPartyVendorsArray));
 
         if (logoFiles.length > 0) {
             data.append("logo", logoFiles[0].file);
@@ -353,6 +364,24 @@ export default function AddEditProjectDrawer({
                                     variant="bordered"
                                 />
                             </div>
+
+                            <Textarea
+                                label="Technical Stacks"
+                                placeholder="Enter technical stacks (comma separated)"
+                                name="technical_stacks"
+                                value={formData.technical_stacks}
+                                onChange={handleInputChange}
+                                variant="bordered"
+                            />
+
+                            <Textarea
+                                label="Third Party Vendors"
+                                placeholder="Enter third party vendors (comma separated)"
+                                name="third_party_vendors"
+                                value={formData.third_party_vendors}
+                                onChange={handleInputChange}
+                                variant="bordered"
+                            />
 
                             <Textarea
                                 label="Description"

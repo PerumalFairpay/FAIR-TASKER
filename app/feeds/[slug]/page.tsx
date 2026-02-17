@@ -18,12 +18,10 @@ export default function BlogDetailPage() {
     const { slug } = useParams();
     const dispatch = useDispatch();
     const router = useRouter();
-    // Adjusted selector to match FAIR-TASKER state structure (state.Blog instead of AppState if generic, but usually it's defined)
     const { blog, getBlogLoading, getBlogError } = useSelector((state: any) => state.Blog);
 
     useEffect(() => {
         if (slug) {
-            // Passing slug as ID. If your backend strictly requires UUID, ensure slug is UUID.
             dispatch(getBlogRequest(slug as string));
         }
     }, [dispatch, slug]);
@@ -84,9 +82,7 @@ export default function BlogDetailPage() {
                 transition={{ duration: 0.5 }}
                 className="max-w-7xl mx-auto"
             >
-                {/* Remove Back Button as per request */}
 
-                {/* Category Tag */}
                 {blog.category && (
                     <div className="flex justify-center mb-6">
                         <div className="inline-flex items-center px-4 py-2 bg-white dark:bg-[#1a1a1a] rounded-full shadow-sm border border-gray-200 dark:border-gray-800">
@@ -102,31 +98,9 @@ export default function BlogDetailPage() {
                     {blog.title}
                 </h1>
 
-                {/* Excerpt/Description (Moved above image for better flow) */}
-                {blog.excerpt && (
-                    <div className="mb-10 text-center max-w-3xl mx-auto">
-                        <p className="text-[#52525B] dark:text-gray-300 text-lg md:text-xl leading-relaxed">
-                            {blog.excerpt}
-                        </p>
-                    </div>
-                )}
 
-                {/* Author & Date info (Centered) */}
-                <div className="flex justify-center items-center gap-3 mb-12">
-                    <Avatar
-                        src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
-                        name={blog.author?.name || defaultAuthor.name}
-                        className="w-10 h-10 text-sm"
-                    />
-                    <div className="flex flex-col text-left">
-                        <span className="text-sm font-semibold text-[#111827] dark:text-white">
-                            {blog.author?.name || defaultAuthor.name}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(blog.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                        </span>
-                    </div>
-                </div>
+
+
 
                 {/* Cover Image */}
                 {blog.cover_image && (
@@ -137,19 +111,40 @@ export default function BlogDetailPage() {
                             className="w-full h-full object-cover"
                             src={blog.cover_image?.replace("host.docker.internal", "localhost")}
                         />
+
+                        {/* Author info overlay */}
+                        <div className="absolute bottom-6 left-6 z-10 flex items-center gap-3 bg-black/20 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/10 shadow-lg">
+                            <Avatar
+                                src={blog.author?.avatar?.replace("host.docker.internal", "localhost")}
+                                name={blog.author?.name || defaultAuthor.name}
+                                className="w-10 h-10 border border-white/20"
+                            />
+                            <div className="flex flex-col text-left">
+                                <span className="text-sm font-bold text-white leading-tight">
+                                    {blog.author?.name || defaultAuthor.name}
+                                </span>
+                                <span className="text-[11px] text-white/70 font-medium">
+                                    {new Date(blog.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 )}
 
-                {/* Content */}
+                {blog.excerpt && (
+                    <div className="mb-10 mx-auto">
+                        <p className="text-[#52525B] dark:text-gray-300 text-lg md:text-xl leading-relaxed">
+                            {blog.excerpt}
+                        </p>
+                    </div>
+                )}
+
                 <div className={`${styles.content} dark:text-gray-300 max-w-3xl mx-auto`}>
-                    {/* We use dangerouslySetInnerHTML to render the HTML content from the API */}
-                    {/* and use blog.module.css to style the HTML elements */}
                     <div dangerouslySetInnerHTML={{ __html: blog.content }} />
                 </div>
 
-                {/* Strings of tags if any */}
                 {blog.tags && blog.tags.length > 0 && (
-                    <div className="max-w-3xl mx-auto mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+                    <div className="max-w-7xl mx-auto mt-7 pt-8 border-t border-gray-200 dark:border-gray-800">
                         <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Tags</h3>
                         <div className="flex flex-wrap gap-2">
                             {blog.tags.map((tag: string, index: number) => (
@@ -163,7 +158,7 @@ export default function BlogDetailPage() {
 
                 {/* Recommendations Section */}
                 {blog.recommendations && blog.recommendations.length > 0 && (
-                    <div className="mt-20 pt-10 border-t border-gray-200 dark:border-gray-800">
+                    <div className="mt-7 pt-10 border-t border-gray-200 dark:border-gray-800">
                         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center md:text-left">Recommended for you</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {blog.recommendations.map((recommendation: any) => (

@@ -133,6 +133,7 @@ export default function AssetListPage() {
                     <PermissionGuard permission="asset:submit">
                         <Button
                             color="primary"
+                            variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
                         >
@@ -145,6 +146,7 @@ export default function AssetListPage() {
                     <TableHeader>
                         <TableColumn>ASSET NAME</TableColumn>
                         <TableColumn>CATEGORY</TableColumn>
+                        <TableColumn>SUBCATEGORY</TableColumn>
                         <TableColumn>MODEL/SERIAL</TableColumn>
                         <TableColumn>PURCHASE DATE</TableColumn>
                         <TableColumn>COST</TableColumn>
@@ -157,6 +159,7 @@ export default function AssetListPage() {
                             <TableRow key={item.id}>
                                 <TableCell className="font-medium">{item.asset_name}</TableCell>
                                 <TableCell>{getCategoryName(item.asset_category_id)}</TableCell>
+                                <TableCell>{item.asset_subcategory_id ? getCategoryName(item.asset_subcategory_id) : "-"}</TableCell>
                                 <TableCell>
                                     <div className="flex flex-col">
                                         <span className="text-sm">{item.model_no || "N/A"}</span>

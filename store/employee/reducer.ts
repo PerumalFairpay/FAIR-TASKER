@@ -23,6 +23,9 @@ import {
   GET_EMPLOYEES_SUMMARY_REQUEST,
   GET_EMPLOYEES_SUMMARY_SUCCESS,
   GET_EMPLOYEES_SUMMARY_FAILURE,
+  GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
+  GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS,
+  GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
   CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
 
@@ -76,6 +79,12 @@ interface EmployeeState {
   summaryLoading: boolean;
   summarySuccess: string | null;
   summaryError: string | null;
+
+  // Single Employee Summary Page
+  employeeSummaryLoading: boolean;
+  employeeSummarySuccess: string | null;
+  employeeSummaryError: string | null;
+  employeeSummaryData: any | null;
 }
 
 const initialEmployeeState: EmployeeState = {
@@ -120,6 +129,11 @@ const initialEmployeeState: EmployeeState = {
   summaryLoading: false,
   summarySuccess: null,
   summaryError: null,
+
+  employeeSummaryLoading: false,
+  employeeSummarySuccess: null,
+  employeeSummaryError: null,
+  employeeSummaryData: null,
 };
 
 const employeeReducer = (
@@ -311,6 +325,29 @@ const employeeReducer = (
         summaryError: action.payload,
       };
 
+    // Get Single Employee Summary Details
+    case GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST:
+      return {
+        ...state,
+        employeeSummaryLoading: true,
+        employeeSummaryError: null,
+        employeeSummarySuccess: null,
+        employeeSummaryData: null,
+      };
+    case GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS:
+      return {
+        ...state,
+        employeeSummaryLoading: false,
+        employeeSummaryData: action.payload.data,
+        employeeSummarySuccess: "Employee summary details fetched successfully",
+      };
+    case GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE:
+      return {
+        ...state,
+        employeeSummaryLoading: false,
+        employeeSummaryError: action.payload,
+      };
+
     case CLEAR_EMPLOYEE_DETAILS:
       return {
         ...state,
@@ -329,6 +366,9 @@ const employeeReducer = (
         getPermissionsError: null,
         getPermissionsSuccess: null,
         employee: null,
+        employeeSummaryData: null,
+        employeeSummaryError: null,
+        employeeSummarySuccess: null,
       };
 
     default:

@@ -79,8 +79,15 @@ export default function AddEditDocumentDrawer({
 
     const categoryOptions = useMemo(() => buildDropdownOptions(documentCategories || []), [documentCategories]);
 
+    const rootCategories = useMemo(() => (documentCategories || []).filter((cat: any) => !cat.parent_id), [documentCategories]);
+
     const [formData, setFormData] = useState<any>({});
     const [documentFiles, setDocumentFiles] = useState<any[]>([]);
+
+    const subCategories = useMemo(() => {
+        if (!formData.document_category_id) return [];
+        return (documentCategories || []).filter((cat: any) => cat.parent_id === formData.document_category_id);
+    }, [documentCategories, formData.document_category_id]);
 
     useEffect(() => {
         if (isOpen) {
@@ -100,7 +107,13 @@ export default function AddEditDocumentDrawer({
     }, [isOpen, mode, selectedDocument]);
 
     const handleChange = (name: string, value: string) => {
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        setFormData((prev: any) => {
+            const newData = { ...prev, [name]: value };
+            if (name === "document_category_id") {
+                newData.document_subcategory_id = "";
+            }
+            return newData;
+        });
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +124,7 @@ export default function AddEditDocumentDrawer({
         const data = new FormData();
 
         // Fields to append
-        const fields = ["name", "document_category_id", "description", "expiry_date", "status"];
+        const fields = ["name", "document_category_id", "document_subcategory_id", "description", "expiry_date", "status"];
 
         fields.forEach(field => {
             if (formData[field] !== undefined && formData[field] !== null) {
@@ -154,9 +167,25 @@ export default function AddEditDocumentDrawer({
                                 isRequired
                                 variant="bordered"
                             >
-                                {categoryOptions.map((cat: any) => (
+                                {rootCategories.map((cat: any) => (
                                     <SelectItem key={cat.id} textValue={cat.name}>
-                                        {cat.displayName}
+                                        {cat.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+
+                            <Select
+                                label="Sub Category"
+                                placeholder="Select Sub Category"
+                                labelPlacement="outside"
+                                selectedKeys={formData.document_subcategory_id ? [formData.document_subcategory_id] : []}
+                                onChange={(e) => handleChange("document_subcategory_id", e.target.value)}
+                                variant="bordered"
+                                isDisabled={subCategories.length === 0}
+                            >
+                                {subCategories.map((cat: any) => (
+                                    <SelectItem key={cat.id} textValue={cat.name}>
+                                        {cat.name}
                                     </SelectItem>
                                 ))}
                             </Select>

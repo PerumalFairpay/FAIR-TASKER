@@ -22,7 +22,7 @@ import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
 import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
-import { getProjectsRequest } from "@/store/project/action";
+import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
 // import AddEditTaskDrawer from "./AddEditTaskDrawer";
@@ -103,12 +103,11 @@ const TaskBoard = () => {
             date: filterDate,
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
-        dispatch(getProjectsRequest());
-        if (!employees || employees.length === 0) {
-            dispatch(getEmployeesSummaryRequest());
-        }
+        dispatch(getProjectsSummaryRequest());
+        dispatch(getEmployeesSummaryRequest());
+
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee, user, employees]);
+    }, [dispatch, filterDate, filterEmployee, user]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
@@ -349,7 +348,7 @@ const TaskBoard = () => {
                             onChange={(e) => setFilterEmployee(e.target.value)}
                         >
                             {employees.map((emp: any) => (
-                                <SelectItem key={emp.employee_no_id} textValue={emp.name}>
+                                <SelectItem key={emp.id} textValue={emp.name}>
                                     <div className="flex items-center gap-2">
                                         <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
                                         <span>{emp.name}</span>
@@ -467,6 +466,13 @@ const TaskBoard = () => {
                                                                                 </Button>
                                                                             )}
                                                                         </div>
+                                                                        {task.is_overdue_moved && (
+                                                                            <Tooltip content="Moved from Overdue" color="danger">
+                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
+                                                                                    <Clock size={14} />
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )}
                                                                         <Tooltip content={task.priority || "Medium"} size="sm">
                                                                             <div className="flex items-center justify-center">
                                                                                 {getPriorityIcon(task.priority)}
@@ -497,7 +503,7 @@ const TaskBoard = () => {
                                                                         <div className="flex items-center gap-1 text-default-400">
                                                                             <CalendarIcon size={14} />
                                                                             <span className="text-[10px] font-medium">
-                                                                                {task.end_date} {task.end_time}
+                                                                                {task.start_date} - {task.end_date}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-1 text-default-400">
@@ -506,14 +512,6 @@ const TaskBoard = () => {
                                                                                 {task.attachments?.length || 0}
                                                                             </span>
                                                                         </div>
-
-                                                                        {task.is_overdue_moved && (
-                                                                            <Tooltip content="Moved from Overdue" color="danger">
-                                                                                <div className="flex items-center gap-1 text-danger-500 cursor-help">
-                                                                                    <Clock size={14} />
-                                                                                </div>
-                                                                            </Tooltip>
-                                                                        )}
                                                                     </div>
 
                                                                     <AvatarGroup
@@ -527,7 +525,7 @@ const TaskBoard = () => {
                                                                         )}
                                                                     >
                                                                         {task.assigned_to?.map((empId: string) => {
-                                                                            const emp = employees.find((e: any) => e.employee_no_id === empId);
+                                                                            const emp = employees.find((e: any) => e.id === empId);
                                                                             return (
                                                                                 <Avatar
                                                                                     key={empId}

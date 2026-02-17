@@ -50,6 +50,7 @@ interface DashboardData {
     };
     attendance_metrics: {
         present_days: number;
+        on_time_days: number;
         absent_days: number;
         late_days: number;
         holiday_days: number;
@@ -402,12 +403,22 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             <div className="flex items-center justify-between mb-6">
                                 <div className="relative flex items-center justify-center w-32 h-32 mx-auto">
                                     {/* Circular Progress Placeholder - CSS based or SVG */}
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        <circle cx="64" cy="64" r="56" stroke="#f1f5f9" strokeWidth="12" fill="none" className="dark:stroke-white/5" />
-                                        <circle cx="64" cy="64" r="56" stroke="currentColor" strokeWidth="12" fill="none"
+                                    {/* Circular Progress Premium */}
+                                    <svg className="w-full h-full transform -rotate-90 group-hover:scale-105 transition-transform duration-500">
+                                        <defs>
+                                            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#3b82f6" />
+                                                <stop offset="100%" stopColor="#2563eb" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle cx="64" cy="64" r="56" strokeWidth="12" fill="none" className="stroke-slate-100 dark:stroke-white/5" />
+                                        <circle cx="64" cy="64" r="56" strokeWidth="12" fill="none"
+                                            stroke="url(#timeGradient)"
                                             strokeDasharray={351}
-                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 3600, 9) / 9))} /* Assuming 9h workday */
-                                            className="text-primary transition-all duration-1000 ease-linear"
+                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 3600, 9) / 9))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
+                                            style={{ filter: "drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))" }}
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center">
@@ -503,42 +514,136 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                 {/* --- Column 2: Stats & Metrics (Span 5) --- */}
                 <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
-                    {/* Attendance Overview Card (Compact) */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardBody className="p-5">
-                            {/* Header */}
-                            <div className="flex justify-between items-center mb-5">
-                                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-100 uppercase tracking-wide">Attendance</h3>
-                                <div className="px-2 py-1 bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-md text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                                    Total: {data.attendance_metrics.total_working_days} Days
-                                </div>
+                    {/* Attendance Overview Card (Premium Style) */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-visible">
+                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Monthly Attendance</h3>
+                                <p className="text-xs text-slate-400 dark:text-slate-500">
+                                    Total: {data.attendance_metrics.total_working_days} Working Days
+                                </p>
                             </div>
-
-                            {/* Primary Stats */}
-                            <div className="flex justify-between items-center divide-x divide-slate-100 dark:divide-white/5 mb-6">
-                                <div className="flex flex-col items-center w-1/3 px-2">
-                                    <span className="text-2xl font-bold text-emerald-500 leading-none">{data.attendance_metrics.present_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Present</span>
-                                </div>
-                                <div className="flex flex-col items-center w-1/3 px-2">
-                                    <span className="text-2xl font-bold text-rose-500 leading-none">{data.attendance_metrics.absent_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Absent</span>
-                                </div>
-                                <div className="flex flex-col items-center w-1/3 px-2">
-                                    <span className="text-2xl font-bold text-amber-500 leading-none">{data.attendance_metrics.leave_days}</span>
-                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wide">Leave</span>
-                                </div>
+                            <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-full text-emerald-500">
+                                <CheckCircle size={20} />
                             </div>
+                        </CardHeader>
+                        <CardBody className="px-6 py-4 space-y-6">
+                            {/* Main Visual Row */}
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-4 border-b border-slate-50 dark:border-white/5">
+                                {/* Premium Gauge */}
+                                <div className="relative w-48 h-48 flex-shrink-0 group">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <defs>
+                                            <linearGradient id="monthPresentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stopColor="#10b981" />
+                                                <stop offset="100%" stopColor="#059669" />
+                                            </linearGradient>
+                                        </defs>
 
-                            {/* Secondary Stats Pills */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-100/80 dark:border-orange-500/20">
-                                    <Clock size={14} className="text-orange-500" />
-                                    <span className="text-xs font-bold text-orange-700 dark:text-orange-400">{data.attendance_metrics.late_days} <span className="font-medium text-orange-600/70 dark:text-orange-400/70 text-[10px]">Late</span></span>
+                                        {/* Background Ring */}
+                                        <circle
+                                            cx="96" cy="96" r="88"
+                                            strokeWidth="12" fill="none"
+                                            className="stroke-slate-100 dark:stroke-white/5"
+                                        />
+
+                                        {/* Present Ring */}
+                                        <circle
+                                            cx="96" cy="96" r="88"
+                                            strokeWidth="12" fill="none"
+                                            stroke="url(#monthPresentGradient)"
+                                            className="transition-all duration-1500 ease-out"
+                                            strokeDasharray={552}
+                                            strokeDashoffset={552 - (552 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) || 0))}
+                                            strokeLinecap="round"
+                                            style={{ filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))" }}
+                                        />
+                                    </svg>
+
+                                    {/* Central Info */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-full bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-lg border border-white/50 dark:border-white/5">
+                                            <div className="flex items-baseline gap-0.5">
+                                                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+                                                    {Math.round((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100)}
+                                                </span>
+                                                <span className="text-sm font-bold text-emerald-500">%</span>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Attendance</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Animated Marker Dot on the progress edge */}
+                                    <div
+                                        className="absolute top-1/2 left-1/2 w-3 h-3 -ml-1.5 -mt-1.5 transition-all duration-1500 ease-out z-10 pointer-events-none"
+                                        style={{
+                                            transform: `rotate(${(3.6 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100)) - 90}deg) translate(88px) rotate(${90 - (3.6 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100))}deg)`
+                                        }}
+                                    >
+                                        <div className="w-full h-full bg-white dark:bg-emerald-500 border border-emerald-500 dark:border-white rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-violet-50 dark:bg-violet-500/10 border border-violet-100/80 dark:border-violet-500/20">
-                                    <Calendar size={14} className="text-violet-500" />
-                                    <span className="text-xs font-bold text-violet-700 dark:text-violet-400">{data.attendance_metrics.holiday_days} <span className="font-medium text-violet-600/70 dark:text-violet-400/70 text-[10px]">Holiday</span></span>
+
+                                {/* Stats List */}
+                                <div className="flex-1 w-full flex flex-col gap-3 pl-0 sm:pl-2">
+                                    {/* Present */}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Present</span>
+                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{data.attendance_metrics.present_days} Days</span>
+                                        </div>
+                                        <Progress
+                                            size="sm" radius="sm"
+                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-500" }}
+                                            value={(data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                        />
+                                    </div>
+
+                                    {/* On Time (Subset of Present) */}
+                                    <div className="flex flex-col gap-1 pl-2 border-l-2 border-slate-100 dark:border-white/5">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">On Time</span>
+                                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{data.attendance_metrics.on_time_days || (data.attendance_metrics.present_days - data.attendance_metrics.late_days)} Days</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Late */}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Late</span>
+                                            <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{data.attendance_metrics.late_days} Days</span>
+                                        </div>
+                                        <Progress
+                                            size="sm" radius="sm"
+                                            classNames={{ base: "h-1.5", track: "bg-orange-50 dark:bg-orange-500/10", indicator: "bg-orange-500" }}
+                                            value={(data.attendance_metrics.late_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                        />
+                                    </div>
+
+                                    {/* Absent */}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Absent</span>
+                                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{data.attendance_metrics.absent_days} Days</span>
+                                        </div>
+                                        <Progress
+                                            size="sm" radius="sm"
+                                            classNames={{ base: "h-1.5", track: "bg-rose-50 dark:bg-rose-500/10", indicator: "bg-rose-500" }}
+                                            value={(data.attendance_metrics.absent_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                        />
+                                    </div>
+
+                                    {/* Leave & Holiday Row */}
+                                    <div className="grid grid-cols-2 gap-2 mt-1">
+                                        <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
+                                            <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{data.attendance_metrics.leave_days}</span>
+                                            <span className="text-[9px] text-amber-600/70 uppercase">Leaves</span>
+                                        </div>
+                                        <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
+                                            <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{data.attendance_metrics.holiday_days}</span>
+                                            <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </CardBody>
