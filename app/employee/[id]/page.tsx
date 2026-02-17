@@ -216,9 +216,9 @@ export default function EmployeeSummaryPage() {
                                 </CardHeader>
                                 <Divider className="opacity-50" />
                                 <CardBody className="p-6">
-                                    <div className="flex flex-col md:flex-row items-center gap-10">
+                                    <div className="flex flex-col md:flex-row items-center gap-8">
                                         {/* Main Progress Circle */}
-                                        <div className="flex flex-col items-center gap-3">
+                                        <div className="flex flex-col items-center gap-4 py-2">
                                             {(() => {
                                                 const stats = attendance_stats?.[selectedPeriod] || {};
                                                 const total = (stats.total_present || 0) + (stats.absent || 0) + (stats.leave || 0) + (stats.holiday || 0);
@@ -227,53 +227,54 @@ export default function EmployeeSummaryPage() {
                                                 return (
                                                     <>
                                                         <CircularProgress
-                                                            label="Attendance Rate"
+                                                            label="Attendance"
                                                             size="lg"
                                                             value={rate}
                                                             color={rate > 90 ? "success" : rate > 75 ? "primary" : "warning"}
                                                             showValueLabel={true}
                                                             classNames={{
-                                                                svg: "w-36 h-36 drop-shadow-sm",
+                                                                svg: "w-32 h-32 drop-shadow-md",
                                                                 indicator: "stroke-current",
                                                                 track: "stroke-default-100",
-                                                                value: "text-3xl font-black",
-                                                                label: "text-[10px] font-bold text-default-400 uppercase tracking-widest mt-2"
+                                                                value: "text-2xl font-black text-default-800",
+                                                                label: "text-[10px] font-bold text-default-400 uppercase mt-1"
                                                             }}
                                                         />
-                                                        <div className="text-center">
-                                                            <p className="text-sm font-bold text-default-700">{stats.total_present || 0} Days Present</p>
-                                                            <p className="text-[10px] font-bold text-default-400 uppercase">Out of {total || 0} Total Days</p>
+                                                        <div className="text-center px-4 py-1.5 rounded-full bg-default-50 border border-default-100 shadow-sm">
+                                                            <p className="text-[10px] font-black text-default-800 uppercase tracking-tighter">
+                                                                <span className="text-primary">{stats.total_present || 0}</span> / {total || 0} Days
+                                                            </p>
                                                         </div>
                                                     </>
                                                 );
                                             })()}
                                         </div>
 
-                                        <Divider orientation="vertical" className="hidden md:block h-32 opacity-50" />
+                                        <Divider orientation="vertical" className="hidden md:block h-36 opacity-50" />
 
                                         {/* Detail Stats Grid */}
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 flex-1 w-full">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1 w-full">
                                             {[
-                                                { label: "On Time", value: attendance_stats?.[selectedPeriod]?.on_time, color: "success", icon: <CheckCircle size={18} /> },
-                                                { label: "Late", value: attendance_stats?.[selectedPeriod]?.late, color: "warning", icon: <Clock size={18} /> },
-                                                { label: "Absent", value: attendance_stats?.[selectedPeriod]?.absent, color: "danger", icon: <X size={18} /> },
-                                                { label: "Leaves", value: attendance_stats?.[selectedPeriod]?.leave, color: "secondary", icon: <Calendar size={18} /> },
-                                                { label: "Holiday", value: attendance_stats?.[selectedPeriod]?.holiday, color: "primary", icon: <MapPin size={18} /> },
-                                                { label: "Overtime", value: attendance_stats?.[selectedPeriod]?.overtime, color: "warning", icon: <Clock size={18} /> },
+                                                { label: "On Time", value: attendance_stats?.[selectedPeriod]?.on_time, color: "success", icon: <CheckCircle size={16} />, bg: "bg-success-50" },
+                                                { label: "Late", value: attendance_stats?.[selectedPeriod]?.late, color: "warning", icon: <Clock size={16} />, bg: "bg-warning-50" },
+                                                { label: "Absent", value: attendance_stats?.[selectedPeriod]?.absent, color: "danger", icon: <X size={16} />, bg: "bg-danger-50" },
+                                                { label: "Leaves", value: attendance_stats?.[selectedPeriod]?.leave, color: "secondary", icon: <Calendar size={16} />, bg: "bg-secondary-50" },
+                                                { label: "Holiday", value: attendance_stats?.[selectedPeriod]?.holiday, color: "primary", icon: <MapPin size={16} />, bg: "bg-primary-50" },
+                                                { label: "Overtime", value: attendance_stats?.[selectedPeriod]?.overtime, color: "warning", icon: <Clock size={16} />, bg: "bg-warning-50" },
                                             ].map((stat, idx) => (
                                                 <div
                                                     key={idx}
-                                                    className="relative overflow-hidden group p-4 rounded-2xl bg-default-50/50 border border-transparent hover:border-default-200 hover:bg-white hover:shadow-sm transition-all duration-300"
+                                                    className={`p-3 rounded-2xl ${stat.bg} bg-opacity-40 border border-transparent transition-all duration-300`}
                                                 >
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <div className={`p-2 rounded-xl bg-${stat.color}/10 text-${stat.color}`}>
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <div className={`p-1.5 rounded-lg bg-white shadow-sm text-${stat.color}`}>
                                                             {stat.icon}
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-default-400 uppercase tracking-widest truncate">{stat.label}</span>
+                                                        <span className={`text-lg font-black text-default-800 tabular-nums`}>{stat.value || 0}</span>
                                                     </div>
-                                                    <div className="flex items-baseline gap-1">
-                                                        <span className="text-2xl font-black text-default-800 tabular-nums">{stat.value || 0}</span>
-                                                        {stat.label === "Overtime" && <span className="text-xs font-bold text-default-400">hrs</span>}
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-[9px] font-bold text-default-500 uppercase tracking-wider">{stat.label}</span>
+                                                        {stat.label === "Overtime" && <span className="text-[8px] font-bold text-default-400">HRS</span>}
                                                     </div>
                                                 </div>
                                             ))}
