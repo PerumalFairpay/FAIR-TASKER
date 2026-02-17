@@ -22,13 +22,15 @@ import {
 interface AddEditPayslipComponentDrawerProps {
     isOpen: boolean;
     onClose: () => void;
-    selectedComponent: any;
+    selectedComponent: null | any;
+    initialType?: string;
 }
 
 export default function AddEditPayslipComponentDrawer({
     isOpen,
     onClose,
     selectedComponent,
+    initialType = "Earnings",
 }: AddEditPayslipComponentDrawerProps) {
     const dispatch = useDispatch();
     const {
@@ -56,12 +58,12 @@ export default function AddEditPayslipComponentDrawer({
         } else {
             setFormData({
                 name: "",
-                type: "Earnings",
+                type: initialType,
                 is_active: true,
             });
         }
         setErrors({});
-    }, [selectedComponent, isOpen]);
+    }, [selectedComponent, isOpen, initialType]);
 
     useEffect(() => {
         if (createPayslipComponentSuccess || updatePayslipComponentSuccess) {
