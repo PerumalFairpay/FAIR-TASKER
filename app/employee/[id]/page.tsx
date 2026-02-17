@@ -82,33 +82,49 @@ export default function EmployeeSummaryPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Left Column: Profile Card & Quick Info */}
                         <div className="lg:col-span-1 space-y-6">
-                            <Card className="border-none shadow-sm bg-gradient-to-br from-white to-default-50">
-                                <CardBody className="flex flex-col items-center gap-6 py-8">
-                                    <div className="relative">
-                                        <Avatar
-                                            src={employee?.profile_picture}
-                                            className="w-32 h-32 text-large ring-4 ring-primary/10"
-                                            isBordered
-                                            color="primary"
-                                        />
-                                        <div className="absolute -bottom-2 -right-2 bg-success text-white p-1.5 rounded-full border-2 border-white shadow-sm">
-                                            <CheckCircle size={16} />
-                                        </div>
-                                    </div>
-                                    <div className="text-center w-full space-y-1">
-                                        <h2 className="text-2xl font-bold tracking-tight">{employee?.name || "N/A"}</h2>
-                                        <p className="text-primary font-medium">{employee?.designation || "N/A"}</p>
-                                        <div className="flex justify-center gap-2 mt-3">
-                                            <Chip className="capitalize font-semibold" color={employee?.status === "Active" ? "success" : "warning"} variant="flat" size="sm">
+                            {/* Profile Card - Dashboard Style */}
+                            <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[32px] group">
+                                {/* Background Image */}
+                                <img
+                                    src={employee?.profile_picture?.replace("host.docker.internal", "localhost")}
+                                    alt={employee?.name}
+                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                />
+
+                                {/* Gradient Overlays */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/30" />
+
+                                {/* Content Overlay */}
+                                <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Chip
+                                                className="capitalize font-bold text-[10px] h-5"
+                                                color={employee?.status === "Active" ? "success" : "warning"}
+                                                variant="solid"
+                                                size="sm"
+                                            >
                                                 {employee?.status || "Unknown"}
                                             </Chip>
-                                            <Chip className="capitalize font-semibold" color="secondary" variant="flat" size="sm">
+                                            <Chip
+                                                className="capitalize font-bold text-[10px] h-5 bg-white/20 backdrop-blur-md text-white border-none"
+                                                variant="flat"
+                                                size="sm"
+                                            >
                                                 {employee?.employee_type || "Full-Time"}
                                             </Chip>
                                         </div>
+                                        <h2 className="text-2xl font-bold text-white tracking-tight leading-none">{employee?.name || "N/A"}</h2>
+                                        <p className="text-white/80 text-sm font-medium tracking-wide mt-1">
+                                            {employee?.designation || "N/A"} • {employee?.department || "N/A"}
+                                        </p>
                                     </div>
+                                </div>
+                            </Card>
 
-                                    <Divider className="my-2 opacity-50" />
+                            <Card className="border-none shadow-sm bg-white p-2">
+                                <CardBody className="p-4 space-y-4">
 
                                     <div className="w-full space-y-4 px-2">
                                         {[
