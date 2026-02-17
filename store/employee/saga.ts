@@ -9,6 +9,7 @@ import {
   UPDATE_USER_PERMISSIONS_REQUEST,
   GET_USER_PERMISSIONS_REQUEST,
   GET_EMPLOYEES_SUMMARY_REQUEST,
+  GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
 } from "./actionType";
 import {
   createEmployeeSuccess,
@@ -27,6 +28,8 @@ import {
   getUserPermissionsFailure,
   getEmployeesSummarySuccess,
   getEmployeesSummaryFailure,
+  getEmployeeSummaryDetailsSuccess,
+  getEmployeeSummaryDetailsFailure,
 } from "./action";
 import api from "../api";
 
@@ -189,6 +192,25 @@ function* onGetEmployeesSummary(): SagaIterator {
   }
 }
 
+// Get Employee Summary Details
+function getEmployeeSummaryDetailsApi(id: string) {
+  return api.get(`/employees/${id}/summary`);
+}
+
+function* onGetEmployeeSummaryDetails({ payload }: any): SagaIterator {
+  try {
+    const response = yield call(getEmployeeSummaryDetailsApi, payload);
+    yield put(getEmployeeSummaryDetailsSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      getEmployeeSummaryDetailsFailure(
+        error.response?.data?.message ||
+          "Failed to fetch employee summary details",
+      ),
+    );
+  }
+}
+
 export default function* employeeSaga(): SagaIterator {
   yield takeEvery(CREATE_EMPLOYEE_REQUEST, onCreateEmployee);
   yield takeEvery(GET_EMPLOYEES_REQUEST, onGetEmployees);
@@ -198,4 +220,8 @@ export default function* employeeSaga(): SagaIterator {
   yield takeEvery(UPDATE_USER_PERMISSIONS_REQUEST, onUpdateUserPermissions);
   yield takeEvery(GET_USER_PERMISSIONS_REQUEST, onGetUserPermissions);
   yield takeEvery(GET_EMPLOYEES_SUMMARY_REQUEST, onGetEmployeesSummary);
+  yield takeEvery(
+    GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
+    onGetEmployeeSummaryDetails,
+  );
 }
