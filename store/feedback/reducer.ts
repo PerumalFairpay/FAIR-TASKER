@@ -16,6 +16,20 @@ import {
 
 interface FeedbackState {
   feedbacks: any[];
+  metrics: {
+    total: number;
+    by_type: {
+      Bug: number;
+      "Feature Request": number;
+      General: number;
+    };
+    by_status: {
+      Open: number;
+      "In Review": number;
+      Resolved: number;
+      Closed: number;
+    };
+  } | null;
 
   createLoading: boolean;
   createSuccess: string | null;
@@ -36,6 +50,7 @@ interface FeedbackState {
 
 const initialFeedbackState: FeedbackState = {
   feedbacks: [],
+  metrics: null,
 
   createLoading: false,
   createSuccess: null,
@@ -94,6 +109,7 @@ const feedbackReducer = (
         ...state,
         listLoading: false,
         feedbacks: action.payload.data,
+        metrics: action.payload.meta,
       };
     case GET_FEEDBACKS_FAILURE:
       return {

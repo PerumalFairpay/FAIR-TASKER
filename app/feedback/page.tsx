@@ -14,12 +14,13 @@ import {
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Button } from "@heroui/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import { Card, CardBody } from "@heroui/card";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { format } from "date-fns";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb, ClipboardList } from "lucide-react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "@heroui/user";
 import FileUpload from "@/components/common/FileUpload";
@@ -33,7 +34,18 @@ const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 export default function FeedbackPage() {
     const dispatch = useDispatch();
     const { user } = useSelector((state: AppState) => state.Auth);
-    const { feedbacks, listLoading, createLoading, createSuccess, createError, updateSuccess, updateError, deleteSuccess, deleteError } = useSelector((state: AppState) => state.Feedback);
+    const {
+        feedbacks,
+        metrics,
+        listLoading,
+        createLoading,
+        createSuccess,
+        createError,
+        updateSuccess,
+        updateError,
+        deleteSuccess,
+        deleteError
+    } = useSelector((state: AppState) => state.Feedback);
     const isAdmin = user?.role === "admin";
 
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -219,6 +231,53 @@ export default function FeedbackPage() {
                         Submit Feedback
                     </Button>
                 )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <Card className="bg-default-50 border-none shadow-sm">
+                    <CardBody className="flex flex-row items-center gap-4">
+                        <div className="p-3 rounded-xl bg-primary/10 text-primary">
+                            <ClipboardList size={24} />
+                        </div>
+                        <div>
+                            <p className="text-small text-default-500">Total Feedbacks</p>
+                            <p className="text-2xl font-bold">{metrics?.total || 0}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card className="bg-default-50 border-none shadow-sm">
+                    <CardBody className="flex flex-row items-center gap-4">
+                        <div className="p-3 rounded-xl bg-danger/10 text-danger">
+                            <Bug size={24} />
+                        </div>
+                        <div>
+                            <p className="text-small text-default-500">Bugs</p>
+                            <p className="text-2xl font-bold">{metrics?.by_type?.Bug || 0}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card className="bg-default-50 border-none shadow-sm">
+                    <CardBody className="flex flex-row items-center gap-4">
+                        <div className="p-3 rounded-xl bg-success/10 text-success">
+                            <Lightbulb size={24} />
+                        </div>
+                        <div>
+                            <p className="text-small text-default-500">Feature Requests</p>
+                            <p className="text-2xl font-bold">{metrics?.by_type?.["Feature Request"] || 0}</p>
+                        </div>
+                    </CardBody>
+                </Card>
+                <Card className="bg-default-50 border-none shadow-sm">
+                    <CardBody className="flex flex-row items-center gap-4">
+                        <div className="p-3 rounded-xl bg-warning/10 text-warning">
+                            <MessageSquare size={24} />
+                        </div>
+                        <div>
+                            <p className="text-small text-default-500">General</p>
+                            <p className="text-2xl font-bold">{metrics?.by_type?.General || 0}</p>
+                        </div>
+                    </CardBody>
+                </Card>
             </div>
 
             <Table aria-label="Feedback Table">
