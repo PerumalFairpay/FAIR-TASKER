@@ -8,6 +8,9 @@ import {
   UPDATE_FEEDBACK_REQUEST,
   UPDATE_FEEDBACK_SUCCESS,
   UPDATE_FEEDBACK_FAILURE,
+  UPDATE_FEEDBACK_STATUS_REQUEST,
+  UPDATE_FEEDBACK_STATUS_SUCCESS,
+  UPDATE_FEEDBACK_STATUS_FAILURE,
   DELETE_FEEDBACK_REQUEST,
   DELETE_FEEDBACK_SUCCESS,
   DELETE_FEEDBACK_FAILURE,
@@ -50,6 +53,19 @@ export const updateFeedbackSuccess = (response: any) => ({
 });
 export const updateFeedbackFailure = (error: any) => ({
   type: UPDATE_FEEDBACK_FAILURE,
+  payload: error,
+});
+
+export const updateFeedbackStatusRequest = (id: string, status: string) => ({
+  type: UPDATE_FEEDBACK_STATUS_REQUEST,
+  payload: { id, status },
+});
+export const updateFeedbackStatusSuccess = (response: any) => ({
+  type: UPDATE_FEEDBACK_STATUS_SUCCESS,
+  payload: response,
+});
+export const updateFeedbackStatusFailure = (error: any) => ({
+  type: UPDATE_FEEDBACK_STATUS_FAILURE,
   payload: error,
 });
 

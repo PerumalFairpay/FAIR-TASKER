@@ -4,6 +4,7 @@ import {
   CREATE_FEEDBACK_REQUEST,
   GET_FEEDBACKS_REQUEST,
   UPDATE_FEEDBACK_REQUEST,
+  UPDATE_FEEDBACK_STATUS_REQUEST,
   DELETE_FEEDBACK_REQUEST,
 } from "./actionType";
 import {
@@ -13,6 +14,8 @@ import {
   getFeedbacksFailure,
   updateFeedbackSuccess,
   updateFeedbackFailure,
+  updateFeedbackStatusSuccess,
+  updateFeedbackStatusFailure,
   deleteFeedbackSuccess,
   deleteFeedbackFailure,
 } from "./action";
@@ -44,6 +47,10 @@ function updateFeedbackApi(id: string, payload: FormData) {
 
 function deleteFeedbackApi(id: string) {
   return api.delete(`/feedback/${id}`);
+}
+
+function updateFeedbackStatusApi(id: string, status: string) {
+  return api.patch(`/feedback/${id}/status`, { status });
 }
 
 function* onCreateFeedback({ payload }: any): SagaIterator {
@@ -86,6 +93,20 @@ function* onUpdateFeedback({ payload }: any): SagaIterator {
   }
 }
 
+function* onUpdateFeedbackStatus({ payload }: any): SagaIterator {
+  try {
+    const { id, status } = payload;
+    const response = yield call(updateFeedbackStatusApi, id, status);
+    yield put(updateFeedbackStatusSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updateFeedbackStatusFailure(
+        error.response?.data?.message || "Failed to update feedback status",
+      ),
+    );
+  }
+}
+
 function* onDeleteFeedback({ payload }: any): SagaIterator {
   try {
     yield call(deleteFeedbackApi, payload);
@@ -103,5 +124,6 @@ export default function* feedbackSaga(): SagaIterator {
   yield takeEvery(CREATE_FEEDBACK_REQUEST, onCreateFeedback);
   yield takeEvery(GET_FEEDBACKS_REQUEST, onGetFeedbacks);
   yield takeEvery(UPDATE_FEEDBACK_REQUEST, onUpdateFeedback);
+  yield takeEvery(UPDATE_FEEDBACK_STATUS_REQUEST, onUpdateFeedbackStatus);
   yield takeEvery(DELETE_FEEDBACK_REQUEST, onDeleteFeedback);
 }

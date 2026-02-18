@@ -8,10 +8,12 @@ import {
     createFeedbackRequest,
     getFeedbacksRequest,
     updateFeedbackRequest,
+    updateFeedbackStatusRequest,
     deleteFeedbackRequest,
     clearFeedback,
 } from "@/store/feedback/action";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import { Button } from "@heroui/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
@@ -156,6 +158,10 @@ export default function FeedbackPage() {
         } else {
             dispatch(createFeedbackRequest(data));
         }
+    };
+
+    const handleStatusUpdate = (id: string, newStatus: string) => {
+        dispatch(updateFeedbackStatusRequest(id, newStatus));
     };
 
     const handleDelete = (id: string) => {
@@ -422,7 +428,7 @@ export default function FeedbackPage() {
             </div>
 
             {viewType === "table" ? (
-                <Table aria-label="Feedback Table">
+                <Table aria-label="Feedback Table" removeWrapper isHeaderSticky>
                     <TableHeader columns={columns}>
                         {(column) => <TableColumn key={column.uid}>{column.name}</TableColumn>}
                     </TableHeader>
@@ -510,14 +516,40 @@ export default function FeedbackPage() {
                                     </div>
 
                                     <div className="flex items-center gap-4 mt-auto pt-4">
-                                        <Chip
-                                            size="sm"
-                                            color={getStatusColor(item.status)}
-                                            variant="flat"
-                                            className="font-medium"
-                                        >
-                                            {item.status}
-                                        </Chip>
+                                        {isAdmin ? (
+                                            <Dropdown size="sm">
+                                                <DropdownTrigger>
+                                                    <Chip
+                                                        size="sm"
+                                                        color={getStatusColor(item.status)}
+                                                        variant="flat"
+                                                        className="font-medium cursor-pointer hover:opacity-80 transition-opacity"
+                                                    >
+                                                        {item.status}
+                                                    </Chip>
+                                                </DropdownTrigger>
+                                                <DropdownMenu
+                                                    aria-label="Change status"
+                                                    onAction={(key) => handleStatusUpdate(item.id, key as string)}
+                                                    selectedKeys={[item.status]}
+                                                    selectionMode="single"
+                                                >
+                                                    <DropdownItem key="Open">Open</DropdownItem>
+                                                    <DropdownItem key="In Review">In Review</DropdownItem>
+                                                    <DropdownItem key="Resolved">Resolved</DropdownItem>
+                                                    <DropdownItem key="Closed">Closed</DropdownItem>
+                                                </DropdownMenu>
+                                            </Dropdown>
+                                        ) : (
+                                            <Chip
+                                                size="sm"
+                                                color={getStatusColor(item.status)}
+                                                variant="flat"
+                                                className="font-medium"
+                                            >
+                                                {item.status}
+                                            </Chip>
+                                        )}
                                         {item.attachments?.length > 0 && (
                                             <Tooltip content={`${item.attachments.length} Attachment(s)`} size="sm" closeDelay={0}>
                                                 <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/5 text-primary text-[10px] font-bold border border-primary/10 cursor-help">

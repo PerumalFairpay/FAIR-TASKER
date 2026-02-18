@@ -8,6 +8,9 @@ import {
   UPDATE_FEEDBACK_REQUEST,
   UPDATE_FEEDBACK_SUCCESS,
   UPDATE_FEEDBACK_FAILURE,
+  UPDATE_FEEDBACK_STATUS_REQUEST,
+  UPDATE_FEEDBACK_STATUS_SUCCESS,
+  UPDATE_FEEDBACK_STATUS_FAILURE,
   DELETE_FEEDBACK_REQUEST,
   DELETE_FEEDBACK_SUCCESS,
   DELETE_FEEDBACK_FAILURE,
@@ -89,6 +92,7 @@ const feedbackReducer = (
         createSuccess:
           action.payload.message || "Feedback submitted successfully",
         feedbacks: [action.payload.data, ...state.feedbacks],
+        metrics: action.payload.meta,
       };
     case CREATE_FEEDBACK_FAILURE:
       return {
@@ -135,8 +139,34 @@ const feedbackReducer = (
         feedbacks: state.feedbacks.map((item) =>
           item.id === action.payload.data.id ? action.payload.data : item,
         ),
+        metrics: action.payload.meta,
       };
     case UPDATE_FEEDBACK_FAILURE:
+      return {
+        ...state,
+        updateLoading: false,
+        updateError: action.payload,
+      };
+
+    // Update Status
+    case UPDATE_FEEDBACK_STATUS_REQUEST:
+      return {
+        ...state,
+        updateLoading: true,
+        updateError: null,
+        updateSuccess: null,
+      };
+    case UPDATE_FEEDBACK_STATUS_SUCCESS:
+      return {
+        ...state,
+        updateLoading: false,
+        updateSuccess: action.payload.message || "Status updated successfully",
+        feedbacks: state.feedbacks.map((item) =>
+          item.id === action.payload.data.id ? action.payload.data : item,
+        ),
+        metrics: action.payload.meta,
+      };
+    case UPDATE_FEEDBACK_STATUS_FAILURE:
       return {
         ...state,
         updateLoading: false,
