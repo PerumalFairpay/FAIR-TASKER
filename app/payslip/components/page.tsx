@@ -12,6 +12,7 @@ import {
 } from "@heroui/table";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
+import { Select, SelectItem } from "@heroui/select";
 import { useDisclosure } from "@heroui/modal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -34,12 +35,16 @@ export default function PayslipComponentsPage() {
     const [selectedComponent, setSelectedComponent] = useState<any>(null);
     const [initialType, setInitialType] = useState("Earnings");
     const [componentToDelete, setComponentToDelete] = useState<any>(null);
+    const [statusFilter, setStatusFilter] = useState<string>("all");
 
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
 
     useEffect(() => {
-        dispatch(getPayslipComponentsRequest());
-    }, [dispatch]);
+        const params: any = {};
+        if (statusFilter === "active") params.is_active = true;
+        if (statusFilter === "inactive") params.is_active = false;
+        dispatch(getPayslipComponentsRequest(params));
+    }, [dispatch, statusFilter]);
 
     const handleEdit = (component: any) => {
         setSelectedComponent(component);
@@ -144,6 +149,19 @@ export default function PayslipComponentsPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <PageHeader title="Payslip Components" />
+                <Select
+                    placeholder="Filter by Status"
+                    selectedKeys={[statusFilter]}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    variant="bordered"
+                    size="sm"
+                    className="w-44"
+                    aria-label="Status filter"
+                >
+                    <SelectItem key="all">All</SelectItem>
+                    <SelectItem key="active">Active</SelectItem>
+                    <SelectItem key="inactive">Inactive</SelectItem>
+                </Select>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

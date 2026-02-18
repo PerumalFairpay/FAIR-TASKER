@@ -78,7 +78,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
             dispatch(createPayslipStates());
             if (mode === "create") {
                 dispatch(getEmployeesRequest(1, 1000));
-                dispatch(getPayslipComponentsRequest());
+                dispatch(getPayslipComponentsRequest({ is_active: true }));
                 setFormData({
                     employee_id: "",
                     month: "",
