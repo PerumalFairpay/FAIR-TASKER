@@ -24,11 +24,12 @@ import { format } from "date-fns";
 import {
     Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb,
     ClipboardList, Search, Calendar, Paperclip, MoreVertical,
-    Clock, LayoutGrid, List
+    Clock, LayoutGrid, List, AlertCircle, ChevronsUp, ChevronsDown
 } from "lucide-react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "@heroui/user";
 import { Tooltip } from "@heroui/tooltip";
+import { Image } from "@heroui/image";
 import FileUpload from "@/components/common/FileUpload";
 import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
@@ -219,6 +220,15 @@ export default function FeedbackPage() {
         }
     };
 
+    const getPriorityIcon = (priority: string) => {
+        switch (priority) {
+            case "High": return <AlertCircle size={14} />;
+            case "Medium": return <ChevronsUp size={14} />;
+            case "Low": return <ChevronsDown size={14} />;
+            default: return null;
+        }
+    };
+
 
     const renderCell = (item: any, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof any];
@@ -240,7 +250,17 @@ export default function FeedbackPage() {
             case "type":
                 return <Chip color={cellValue === "Bug" ? "danger" : "primary"} variant="flat">{cellValue}</Chip>;
             case "priority":
-                return <Chip color={cellValue === "High" ? "danger" : cellValue === "Medium" ? "warning" : "success"} variant="dot">{cellValue}</Chip>;
+                return (
+                    <Chip
+                        color={getPriorityColor(cellValue)}
+                        variant="flat"
+                        size="sm"
+                        startContent={getPriorityIcon(cellValue)}
+                        className="font-bold border-none"
+                    >
+                        {cellValue}
+                    </Chip>
+                );
             case "status":
                 return <Chip color={cellValue === "Resolved" ? "success" : "default"} variant="flat">{cellValue}</Chip>;
             case "created_at":
@@ -299,7 +319,7 @@ export default function FeedbackPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <Card radius="md" className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-white dark:bg-content1 border-1 border-divider shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-primary/10 text-primary">
                             <ClipboardList size={24} />
@@ -310,7 +330,7 @@ export default function FeedbackPage() {
                         </div>
                     </CardBody>
                 </Card>
-                <Card radius="md" className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-white dark:bg-content1 border-1 border-divider shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-danger/10 text-danger">
                             <Bug size={24} />
@@ -321,7 +341,7 @@ export default function FeedbackPage() {
                         </div>
                     </CardBody>
                 </Card>
-                <Card radius="md" className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-white dark:bg-content1 border-1 border-divider shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-success/10 text-success">
                             <Lightbulb size={24} />
@@ -425,9 +445,25 @@ export default function FeedbackPage() {
                             <Card
                                 key={item.id}
                                 radius="md"
-                                className="group hover:shadow-lg transition-all duration-300 border-none bg-default-50 shadow-sm"
+                                className="group border-1 border-divider bg-white dark:bg-content1 shadow-sm overflow-hidden"
                             >
-                                <CardHeader className="flex justify-between items-start pb-0">
+                                {item.attachments?.[0] && (
+                                    <div className="relative h-40 w-full overflow-hidden">
+                                        <Image
+                                            src={item.attachments[0].replace("host.docker.internal", "localhost")}
+                                            alt="Cover"
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                            removeWrapper
+                                        />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                        {item.attachments.length > 1 && (
+                                            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
+                                                +{item.attachments.length - 1} More
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                <CardHeader className="flex justify-between items-start pb-0 pt-4">
                                     <div className="flex gap-2 flex-wrap">
                                         <Chip
                                             size="sm"
@@ -440,14 +476,15 @@ export default function FeedbackPage() {
                                         </Chip>
                                         <Chip
                                             size="sm"
-                                            variant="dot"
+                                            variant="flat"
                                             color={getPriorityColor(item.priority)}
-                                            className="h-6"
+                                            startContent={getPriorityIcon(item.priority)}
+                                            className="font-bold border-none"
                                         >
                                             {item.priority}
                                         </Chip>
                                     </div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-1">
                                         <Button isIconOnly size="sm" variant="light" onPress={() => handleOpen(item)}>
                                             <Edit size={16} className="text-default-400" />
                                         </Button>
@@ -459,13 +496,18 @@ export default function FeedbackPage() {
                                     </div>
                                 </CardHeader>
                                 <CardBody className="gap-2 py-4">
-                                    <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                                    <h3 className="font-bold text-lg leading-tight">
                                         {item.subject}
                                     </h3>
-                                    <div
-                                        className="text-default-500 text-sm line-clamp-3 overflow-hidden [&>p]:mb-0"
-                                        dangerouslySetInnerHTML={{ __html: item.description }}
-                                    />
+                                    <div className="relative mt-2 p-3 bg-default-100/40 rounded-lg border-l-2 border-primary/50">
+                                        <div
+                                            className="text-default-600 text-sm leading-relaxed line-clamp-4 overflow-hidden 
+                                                       [&>p]:mb-1 [&>b]:text-foreground [&>strong]:text-foreground
+                                                       [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4
+                                                       [&>a]:text-primary [&>a]:underline"
+                                            dangerouslySetInnerHTML={{ __html: item.description }}
+                                        />
+                                    </div>
 
                                     <div className="flex items-center gap-4 mt-auto pt-4">
                                         <Chip
@@ -477,18 +519,16 @@ export default function FeedbackPage() {
                                             {item.status}
                                         </Chip>
                                         {item.attachments?.length > 0 && (
-                                            <div className="flex items-center gap-1 text-default-400 text-xs font-medium">
-                                                <Paperclip size={14} />
-                                                {item.attachments.length}
-                                            </div>
+                                            <Tooltip content={`${item.attachments.length} Attachment(s)`} size="sm" closeDelay={0}>
+                                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/5 text-primary text-[10px] font-bold border border-primary/10 cursor-help">
+                                                    <Paperclip size={12} />
+                                                    <span>{item.attachments.length}</span>
+                                                </div>
+                                            </Tooltip>
                                         )}
-                                        <div className="flex items-center gap-1 text-default-400 text-xs ml-auto">
-                                            <Clock size={14} />
-                                            {format(new Date(item.created_at), "MMM dd, yyyy")}
-                                        </div>
                                     </div>
                                 </CardBody>
-                                <CardFooter className="border-t border-divider py-3 px-4">
+                                <CardFooter className="border-t border-divider py-3 px-4 flex justify-between items-end">
                                     <User
                                         name={item.employee?.name || item.employee_name}
                                         description={item.employee?.designation || "Employee"}
@@ -503,6 +543,16 @@ export default function FeedbackPage() {
                                             description: "text-[10px]"
                                         }}
                                     />
+                                    <div className="flex flex-col items-end gap-1 text-default-400 text-[10px] font-medium pb-0.5">
+                                        <div className="flex items-center gap-1">
+                                            <Calendar size={12} className="text-default-300" />
+                                            {format(new Date(item.created_at), "MMM dd, yyyy")}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Clock size={12} className="text-default-300" />
+                                            {format(new Date(item.created_at), "hh:mm aa")}
+                                        </div>
+                                    </div>
                                 </CardFooter>
                             </Card>
                         ))
