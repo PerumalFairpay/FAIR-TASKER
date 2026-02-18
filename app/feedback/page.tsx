@@ -441,7 +441,7 @@ export default function FeedbackPage() {
                     </TableBody>
                 </Table>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {listLoading ? (
                         Array.from({ length: 6 }).map((_, i) => (
                             <Card key={i} className="h-64 animate-pulse bg-default-100" />
@@ -451,22 +451,24 @@ export default function FeedbackPage() {
                             <Card
                                 key={item.id}
                                 radius="md"
-                                className="group border-1 border-divider bg-white dark:bg-content1 shadow-sm overflow-hidden"
+                                className="border-1 border-divider bg-white dark:bg-content1 shadow-sm overflow-hidden"
                             >
                                 {item.attachments?.[0] && (
-                                    <div className="relative h-40 w-full overflow-hidden">
-                                        <Image
-                                            src={item.attachments[0].replace("host.docker.internal", "localhost")}
-                                            alt="Cover"
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                            removeWrapper
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                                        {item.attachments.length > 1 && (
-                                            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
-                                                +{item.attachments.length - 1} More
-                                            </div>
-                                        )}
+                                    <div className="p-2.5 pb-0">
+                                        <div className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50">
+                                            <Image
+                                                src={item.attachments[0].replace("host.docker.internal", "localhost")}
+                                                alt="Cover"
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                removeWrapper
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                            {item.attachments.length > 1 && (
+                                                <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
+                                                    +{item.attachments.length - 1} More
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                                 <CardHeader className="flex justify-between items-start pb-0 pt-4">
