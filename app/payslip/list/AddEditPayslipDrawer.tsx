@@ -106,17 +106,22 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
     // When components load and we're in create mode with empty lists, populate from API
     useEffect(() => {
         if (isOpen && mode === "create" && payslipComponents && payslipComponents.length > 0) {
-            const apiEarnings = payslipComponents
-                .filter((c: any) => c.type === "Earnings" && c.is_active)
-                .map((c: any) => ({ name: c.name, amount: 0 }));
-            const apiDeductions = payslipComponents
-                .filter((c: any) => c.type === "Deductions" && c.is_active)
-                .map((c: any) => ({ name: c.name, amount: 0 }));
-            setFormData((prev: any) => ({
-                ...prev,
-                earnings: apiEarnings.length > 0 ? apiEarnings : prev.earnings,
-                deductions: apiDeductions.length > 0 ? apiDeductions : prev.deductions,
-            }));
+            setFormData((prev: any) => { 
+                if (prev.earnings.length > 0 || prev.deductions.length > 0) return prev;
+
+                const apiEarnings = payslipComponents
+                    .filter((c: any) => c.type === "Earnings" && c.is_active)
+                    .map((c: any) => ({ name: c.name, amount: 0 }));
+                const apiDeductions = payslipComponents
+                    .filter((c: any) => c.type === "Deductions" && c.is_active)
+                    .map((c: any) => ({ name: c.name, amount: 0 }));
+
+                return {
+                    ...prev,
+                    earnings: apiEarnings.length > 0 ? apiEarnings : prev.earnings,
+                    deductions: apiDeductions.length > 0 ? apiDeductions : prev.deductions,
+                };
+            });
         }
     }, [payslipComponents, isOpen, mode]);
 
@@ -186,7 +191,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
     const totalEarnings = formData.earnings.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
     const totalDeductions = formData.deductions.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
     const netPay = totalEarnings - totalDeductions;
- 
+
     const existingComponentNames = new Set(
         (payslipComponents || []).map((c: any) => c.name.toLowerCase())
     );
