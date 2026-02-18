@@ -11,21 +11,47 @@ import {
   DELETE_FEEDBACK_REQUEST,
   DELETE_FEEDBACK_SUCCESS,
   DELETE_FEEDBACK_FAILURE,
-  CLEAR_FEEDBACK_DETAILS,
+  CLEAR_FEEDBACK,
 } from "./actionType";
 
 interface FeedbackState {
   feedbacks: any[];
-  loading: boolean;
-  error: string | null;
-  success: string | null;
+
+  createLoading: boolean;
+  createSuccess: string | null;
+  createError: string | null;
+
+  listLoading: boolean;
+  listSuccess: string | null;
+  listError: string | null;
+
+  updateLoading: boolean;
+  updateSuccess: string | null;
+  updateError: string | null;
+
+  deleteLoading: boolean;
+  deleteSuccess: string | null;
+  deleteError: string | null;
 }
 
 const initialFeedbackState: FeedbackState = {
   feedbacks: [],
-  loading: false,
-  error: null,
-  success: null,
+
+  createLoading: false,
+  createSuccess: null,
+  createError: null,
+
+  listLoading: false,
+  listSuccess: null,
+  listError: null,
+
+  updateLoading: false,
+  updateSuccess: null,
+  updateError: null,
+
+  deleteLoading: false,
+  deleteSuccess: null,
+  deleteError: null,
 };
 
 const feedbackReducer = (
@@ -37,57 +63,59 @@ const feedbackReducer = (
     case CREATE_FEEDBACK_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        createLoading: true,
+        createError: null,
+        createSuccess: null,
       };
     case CREATE_FEEDBACK_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message,
+        createLoading: false,
+        createSuccess:
+          action.payload.message || "Feedback submitted successfully",
         feedbacks: [action.payload.data, ...state.feedbacks],
       };
     case CREATE_FEEDBACK_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        createLoading: false,
+        createError: action.payload,
       };
 
-    // Get All
+    // Get
     case GET_FEEDBACKS_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
+        listLoading: true,
+        listError: null,
       };
     case GET_FEEDBACKS_SUCCESS:
       return {
         ...state,
-        loading: false,
+        listLoading: false,
         feedbacks: action.payload.data,
       };
     case GET_FEEDBACKS_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        listLoading: false,
+        listError: action.payload,
       };
 
     // Update
     case UPDATE_FEEDBACK_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        updateLoading: true,
+        updateError: null,
+        updateSuccess: null,
       };
     case UPDATE_FEEDBACK_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message,
+        updateLoading: false,
+        updateSuccess:
+          action.payload.message || "Feedback updated successfully",
         feedbacks: state.feedbacks.map((item) =>
           item.id === action.payload.data.id ? action.payload.data : item,
         ),
@@ -95,23 +123,24 @@ const feedbackReducer = (
     case UPDATE_FEEDBACK_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        updateLoading: false,
+        updateError: action.payload,
       };
 
     // Delete
     case DELETE_FEEDBACK_REQUEST:
       return {
         ...state,
-        loading: true,
-        error: null,
-        success: null,
+        deleteLoading: true,
+        deleteError: null,
+        deleteSuccess: null,
       };
     case DELETE_FEEDBACK_SUCCESS:
       return {
         ...state,
-        loading: false,
-        success: action.payload.message,
+        deleteLoading: false,
+        deleteSuccess:
+          action.payload.message || "Feedback deleted successfully",
         feedbacks: state.feedbacks.filter(
           (item) => item.id !== action.payload.id,
         ),
@@ -119,15 +148,25 @@ const feedbackReducer = (
     case DELETE_FEEDBACK_FAILURE:
       return {
         ...state,
-        loading: false,
-        error: action.payload,
+        deleteLoading: false,
+        deleteError: action.payload,
       };
 
-    case CLEAR_FEEDBACK_DETAILS:
+    case CLEAR_FEEDBACK:
       return {
         ...state,
-        error: null,
-        success: null,
+        createLoading: false,
+        createSuccess: null,
+        createError: null,
+        listLoading: false,
+        listSuccess: null,
+        listError: null,
+        updateLoading: false,
+        updateSuccess: null,
+        updateError: null,
+        deleteLoading: false,
+        deleteSuccess: null,
+        deleteError: null,
       };
 
     default:

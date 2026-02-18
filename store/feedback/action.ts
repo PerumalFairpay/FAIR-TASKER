@@ -11,65 +11,61 @@ import {
   DELETE_FEEDBACK_REQUEST,
   DELETE_FEEDBACK_SUCCESS,
   DELETE_FEEDBACK_FAILURE,
-  CLEAR_FEEDBACK_DETAILS,
+  CLEAR_FEEDBACK,
 } from "./actionType";
 
-// Create Feedback
-export const createFeedbackRequest = (payload: any) => ({
+export const createFeedbackRequest = (payload: FormData) => ({
   type: CREATE_FEEDBACK_REQUEST,
   payload,
 });
-export const createFeedbackSuccess = (payload: any) => ({
+export const createFeedbackSuccess = (response: any) => ({
   type: CREATE_FEEDBACK_SUCCESS,
-  payload,
+  payload: response,
 });
-export const createFeedbackFailure = (payload: any) => ({
+export const createFeedbackFailure = (error: any) => ({
   type: CREATE_FEEDBACK_FAILURE,
-  payload,
+  payload: error,
 });
 
-// Get Feedbacks
-export const getFeedbacksRequest = (payload: any = {}) => ({
+export const getFeedbacksRequest = (user_id?: string, status?: string) => ({
   type: GET_FEEDBACKS_REQUEST,
-  payload, // can contain user_id, status
+  payload: { user_id, status },
 });
-export const getFeedbacksSuccess = (payload: any) => ({
+export const getFeedbacksSuccess = (response: any) => ({
   type: GET_FEEDBACKS_SUCCESS,
-  payload,
+  payload: response,
 });
-export const getFeedbacksFailure = (payload: any) => ({
+export const getFeedbacksFailure = (error: any) => ({
   type: GET_FEEDBACKS_FAILURE,
-  payload,
+  payload: error,
 });
 
-// Update Feedback
-export const updateFeedbackRequest = (id: string, payload: any) => ({
+export const updateFeedbackRequest = (id: string, payload: FormData) => ({
   type: UPDATE_FEEDBACK_REQUEST,
   payload: { id, payload },
 });
-export const updateFeedbackSuccess = (payload: any) => ({
+export const updateFeedbackSuccess = (response: any) => ({
   type: UPDATE_FEEDBACK_SUCCESS,
-  payload,
+  payload: response,
 });
-export const updateFeedbackFailure = (payload: any) => ({
+export const updateFeedbackFailure = (error: any) => ({
   type: UPDATE_FEEDBACK_FAILURE,
-  payload,
+  payload: error,
 });
 
-// Delete Feedback
 export const deleteFeedbackRequest = (id: string) => ({
   type: DELETE_FEEDBACK_REQUEST,
   payload: id,
 });
-export const deleteFeedbackSuccess = (payload: any) => ({
+export const deleteFeedbackSuccess = (response: any) => ({
   type: DELETE_FEEDBACK_SUCCESS,
-  payload,
+  payload: response,
 });
-export const deleteFeedbackFailure = (payload: any) => ({
+export const deleteFeedbackFailure = (error: any) => ({
   type: DELETE_FEEDBACK_FAILURE,
-  payload,
+  payload: error,
 });
 
-export const clearFeedbackDetails = () => ({
-  type: CLEAR_FEEDBACK_DETAILS,
+export const clearFeedback = () => ({
+  type: CLEAR_FEEDBACK,
 });

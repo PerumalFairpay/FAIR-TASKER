@@ -16,41 +16,37 @@ import {
   deleteFeedbackSuccess,
   deleteFeedbackFailure,
 } from "./action";
-import api from "../api"; // Assuming api.ts is in store/.. but checking department/saga.ts it used "../api".
-// Wait, store/department/saga.ts used `import api from "../api";` which means api.ts is in `store/api.ts`.
-// My file is in `store/feedback/saga.ts`, so `../api` is correct if `api.ts` is in `store`.
-// Yes, list_dir showed `api.ts` in `d:\NEXT JS\FAIR-TASKER\FAIR-TASKER\store`.
+import api from "../api";
 
-// API Functions
-function createFeedbackApi(payload: any) {
-  return api.post("/feedback/", payload);
+function createFeedbackApi(payload: FormData) {
+  return api.post("/feedback/", payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
-function getFeedbacksApi(params: any) {
-  return api.get("/feedback/", { params });
+function getFeedbacksApi(params: { user_id?: string; status?: string }) {
+  const query = new URLSearchParams(params as any).toString();
+  return api.get(`/feedback/?${query}`);
 }
 
-function updateFeedbackApi(id: string, payload: any) {
-  return api.put(`/feedback/${id}`, payload);
+function updateFeedbackApi(id: string, payload: FormData) {
+  return api.put(`/feedback/${id}`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
 function deleteFeedbackApi(id: string) {
   return api.delete(`/feedback/${id}`);
 }
 
-// Sagas
 function* onCreateFeedback({ payload }: any): SagaIterator {
   try {
     const response = yield call(createFeedbackApi, payload);
-    if (response.data.success) {
-      yield put(createFeedbackSuccess(response.data));
-    } else {
-      yield put(
-        createFeedbackFailure(
-          response.data.message || "Failed to submit feedback",
-        ),
-      );
-    }
+    yield put(createFeedbackSuccess(response.data));
   } catch (error: any) {
     yield put(
       createFeedbackFailure(
@@ -63,15 +59,7 @@ function* onCreateFeedback({ payload }: any): SagaIterator {
 function* onGetFeedbacks({ payload }: any): SagaIterator {
   try {
     const response = yield call(getFeedbacksApi, payload);
-    if (response.data.success) {
-      yield put(getFeedbacksSuccess(response.data));
-    } else {
-      yield put(
-        getFeedbacksFailure(
-          response.data.message || "Failed to fetch feedbacks",
-        ),
-      );
-    }
+    yield put(getFeedbacksSuccess(response.data));
   } catch (error: any) {
     yield put(
       getFeedbacksFailure(
@@ -85,15 +73,7 @@ function* onUpdateFeedback({ payload }: any): SagaIterator {
   try {
     const { id, payload: data } = payload;
     const response = yield call(updateFeedbackApi, id, data);
-    if (response.data.success) {
-      yield put(updateFeedbackSuccess(response.data));
-    } else {
-      yield put(
-        updateFeedbackFailure(
-          response.data.message || "Failed to update feedback",
-        ),
-      );
-    }
+    yield put(updateFeedbackSuccess(response.data));
   } catch (error: any) {
     yield put(
       updateFeedbackFailure(
@@ -105,16 +85,8 @@ function* onUpdateFeedback({ payload }: any): SagaIterator {
 
 function* onDeleteFeedback({ payload }: any): SagaIterator {
   try {
-    const response = yield call(deleteFeedbackApi, payload);
-    if (response.data.success) {
-      yield put(deleteFeedbackSuccess({ ...response.data, id: payload }));
-    } else {
-      yield put(
-        deleteFeedbackFailure(
-          response.data.message || "Failed to delete feedback",
-        ),
-      );
-    }
+    yield call(deleteFeedbackApi, payload);
+    yield put(deleteFeedbackSuccess({ id: payload }));
   } catch (error: any) {
     yield put(
       deleteFeedbackFailure(
