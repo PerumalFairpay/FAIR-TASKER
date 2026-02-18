@@ -49,7 +49,8 @@ import {
   UserPlus,
   UserMinus,
   SettingsIcon,
-  Settings
+  Settings,
+  MessageSquare
 } from "lucide-react";
 
 
@@ -97,7 +98,8 @@ const iconMap: Record<string, any> = {
   UserPlus,
   UserMinus,
   SettingsIcon,
-  Settings
+  Settings,
+  MessageSquare
 };
 
 
