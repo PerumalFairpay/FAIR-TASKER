@@ -260,6 +260,12 @@ export const siteConfig: SiteConfig = {
       icon: "Settings",
       allowedRoles: ["admin"],
     },
+    {
+      label: "Feedback",
+      href: "/feedback",
+      icon: "MessageSquare",
+      allowedRoles: ["admin", "employee"],
+    },
   ],
 
   navMenuItems: [

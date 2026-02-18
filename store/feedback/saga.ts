@@ -27,7 +27,10 @@ function createFeedbackApi(payload: FormData) {
 }
 
 function getFeedbacksApi(params: { user_id?: string; status?: string }) {
-  const query = new URLSearchParams(params as any).toString();
+  const filteredParams = Object.fromEntries(
+    Object.entries(params).filter(([_, v]) => v != null),
+  );
+  const query = new URLSearchParams(filteredParams as any).toString();
   return api.get(`/feedback/?${query}`);
 }
 
