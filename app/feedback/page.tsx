@@ -275,8 +275,8 @@ export default function FeedbackPage() {
                 if (cellValue && cellValue.length > 0) {
                     return (
                         <div className="flex gap-2">
-                            {cellValue.map((url: string, index: number) => (
-                                <Link key={index} href={url} target="_blank" className="text-primary hover:underline">
+                            {cellValue.map((attachment: any, index: number) => (
+                                <Link key={index} href={attachment.document_proof} target="_blank" className="text-primary hover:underline" title={attachment.document_name}>
                                     <LinkIcon size={16} />
                                 </Link>
                             ))}
@@ -457,8 +457,8 @@ export default function FeedbackPage() {
                                     <div className="p-2.5 pb-0">
                                         <div className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50">
                                             <Image
-                                                src={item.attachments[0].replace("host.docker.internal", "localhost")}
-                                                alt="Cover"
+                                                src={item.attachments[0].document_proof.replace("host.docker.internal", "localhost")}
+                                                alt={item.attachments[0].document_name || "Cover"}
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                 removeWrapper
                                             />
