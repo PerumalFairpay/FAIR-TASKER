@@ -26,7 +26,7 @@ function createFeedbackApi(payload: FormData) {
   });
 }
 
-function getFeedbacksApi(params: { user_id?: string; status?: string }) {
+function getFeedbacksApi(params: { employee_id?: string; status?: string }) {
   const filteredParams = Object.fromEntries(
     Object.entries(params).filter(([_, v]) => v != null),
   );

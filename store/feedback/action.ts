@@ -27,9 +27,9 @@ export const createFeedbackFailure = (error: any) => ({
   payload: error,
 });
 
-export const getFeedbacksRequest = (user_id?: string, status?: string) => ({
+export const getFeedbacksRequest = (employee_id?: string, status?: string) => ({
   type: GET_FEEDBACKS_REQUEST,
-  payload: { user_id, status },
+  payload: { employee_id, status },
 });
 export const getFeedbacksSuccess = (response: any) => ({
   type: GET_FEEDBACKS_SUCCESS,
