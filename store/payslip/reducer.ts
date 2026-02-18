@@ -5,6 +5,9 @@ import {
   GET_PAYSLIPS_REQUEST,
   GET_PAYSLIPS_SUCCESS,
   GET_PAYSLIPS_FAILURE,
+  GET_LATEST_PAYSLIP_REQUEST,
+  GET_LATEST_PAYSLIP_SUCCESS,
+  GET_LATEST_PAYSLIP_FAILURE,
   DOWNLOAD_PAYSLIP_REQUEST,
   DOWNLOAD_PAYSLIP_SUCCESS,
   DOWNLOAD_PAYSLIP_FAILURE,
@@ -31,6 +34,10 @@ const initialState = {
   payslipDownloadLoading: false,
   payslipDownloadError: null,
   payslipDownloadSuccess: null,
+
+  latestPayslip: null,
+  latestPayslipLoading: false,
+  latestPayslipError: null,
 
   currentPayslip: null,
 };
@@ -59,6 +66,28 @@ const payslipReducer = (state = initialState, action: any) => {
         ...state,
         payslipGenerateLoading: false,
         payslipGenerateError: action.payload,
+      };
+
+    // Get Latest Payslip
+    case GET_LATEST_PAYSLIP_REQUEST:
+      return {
+        ...state,
+        latestPayslipLoading: true,
+        latestPayslipError: null,
+        latestPayslip: null,
+      };
+    case GET_LATEST_PAYSLIP_SUCCESS:
+      return {
+        ...state,
+        latestPayslipLoading: false,
+        latestPayslip: action.payload,
+      };
+    case GET_LATEST_PAYSLIP_FAILURE:
+      return {
+        ...state,
+        latestPayslipLoading: false,
+        latestPayslipError: action.payload,
+        latestPayslip: null,
       };
 
     // Get List

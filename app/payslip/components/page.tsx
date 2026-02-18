@@ -12,6 +12,7 @@ import {
 } from "@heroui/table";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
+import { useDisclosure } from "@heroui/modal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import {
@@ -20,17 +21,21 @@ import {
 } from "@/store/payslipComponent/action";
 import { PencilIcon, TrashIcon, PlusIcon } from "lucide-react";
 import AddEditPayslipComponentDrawer from "./AddEditPayslipComponentDrawer";
+import DeletePayslipComponentModal from "./DeletePayslipComponentModal";
 import { PageHeader } from "@/components/PageHeader";
 
 export default function PayslipComponentsPage() {
     const dispatch = useDispatch();
-    const { payslipComponents, payslipComponentsLoading } = useSelector(
+    const { payslipComponents, payslipComponentsLoading, deletePayslipComponentLoading } = useSelector(
         (state: AppState) => state.PayslipComponent
     );
 
-    const [isOpen, setIsOpen] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedComponent, setSelectedComponent] = useState<any>(null);
     const [initialType, setInitialType] = useState("Earnings");
+    const [componentToDelete, setComponentToDelete] = useState<any>(null);
+
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
 
     useEffect(() => {
         dispatch(getPayslipComponentsRequest());
@@ -38,23 +43,29 @@ export default function PayslipComponentsPage() {
 
     const handleEdit = (component: any) => {
         setSelectedComponent(component);
-        setIsOpen(true);
+        setIsDrawerOpen(true);
     };
 
-    const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this component?")) {
-            dispatch(deletePayslipComponentRequest(id));
+    const handleDeleteClick = (component: any) => {
+        setComponentToDelete(component);
+        onDeleteOpen();
+    };
+
+    const handleDeleteConfirm = () => {
+        if (componentToDelete) {
+            dispatch(deletePayslipComponentRequest(componentToDelete.id));
+            onDeleteClose();
         }
     };
 
     const openDrawer = (type = "Earnings") => {
         setInitialType(type);
         setSelectedComponent(null);
-        setIsOpen(true);
+        setIsDrawerOpen(true);
     };
 
     const closeDrawer = () => {
-        setIsOpen(false);
+        setIsDrawerOpen(false);
         setSelectedComponent(null);
     };
 
@@ -115,7 +126,7 @@ export default function PayslipComponentsPage() {
                                         isIconOnly
                                         size="sm"
                                         variant="light"
-                                        onPress={() => handleDelete(item.id)}
+                                        onPress={() => handleDeleteClick(item)}
                                         className="text-danger cursor-pointer active:opacity-50"
                                     >
                                         <TrashIcon size={18} />
@@ -141,10 +152,18 @@ export default function PayslipComponentsPage() {
             </div>
 
             <AddEditPayslipComponentDrawer
-                isOpen={isOpen}
+                isOpen={isDrawerOpen}
                 onClose={closeDrawer}
                 selectedComponent={selectedComponent}
                 initialType={selectedComponent ? selectedComponent.type : initialType}
+            />
+
+            <DeletePayslipComponentModal
+                isOpen={isDeleteOpen}
+                onOpenChange={onDeleteOpenChange}
+                onConfirm={handleDeleteConfirm}
+                loading={deletePayslipComponentLoading ?? false}
+                componentName={componentToDelete?.name}
             />
         </div>
     );
