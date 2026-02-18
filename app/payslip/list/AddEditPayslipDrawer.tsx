@@ -12,8 +12,10 @@ import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "@/store/payslip/action";
+import { getPayslipComponentsRequest } from "@/store/payslipComponent/action";
 import { MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
+import { AppState } from "@/store/rootReducer";
 import { addToast } from "@heroui/toast";
 
 interface AddEditPayslipDrawerProps {
@@ -27,6 +29,7 @@ interface AddEditPayslipDrawerProps {
 const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }: AddEditPayslipDrawerProps) => {
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
+    const { payslipComponents } = useSelector((state: AppState) => state.PayslipComponent);
     const {
         payslipGenerateLoading,
         payslipGenerateError,
@@ -70,12 +73,13 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
             dispatch(createPayslipStates());
             if (mode === "create") {
                 dispatch(getEmployeesRequest(1, 1000));
+                dispatch(getPayslipComponentsRequest());
                 setFormData({
                     employee_id: "",
                     month: "",
                     year: new Date().getFullYear(),
-                    earnings: [{ name: "Basic", amount: 0 }, { name: "HRA", amount: 0 }],
-                    deductions: [{ name: "PF", amount: 0 }]
+                    earnings: [],
+                    deductions: []
                 });
             } else if (mode === "edit" && payslip) {
                 const earningsArray = Object.entries(payslip.earnings || {}).map(([name, amount]) => ({
@@ -98,6 +102,23 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
             }
         }
     }, [isOpen, mode, payslip, dispatch]);
+
+    // When components load and we're in create mode with empty lists, populate from API
+    useEffect(() => {
+        if (isOpen && mode === "create" && payslipComponents && payslipComponents.length > 0) {
+            const apiEarnings = payslipComponents
+                .filter((c: any) => c.type === "Earnings" && c.is_active)
+                .map((c: any) => ({ name: c.name, amount: 0 }));
+            const apiDeductions = payslipComponents
+                .filter((c: any) => c.type === "Deductions" && c.is_active)
+                .map((c: any) => ({ name: c.name, amount: 0 }));
+            setFormData((prev: any) => ({
+                ...prev,
+                earnings: apiEarnings.length > 0 ? apiEarnings : prev.earnings,
+                deductions: apiDeductions.length > 0 ? apiDeductions : prev.deductions,
+            }));
+        }
+    }, [payslipComponents, isOpen, mode]);
 
     const handleChange = (name: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
