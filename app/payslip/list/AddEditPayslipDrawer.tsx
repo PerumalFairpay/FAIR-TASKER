@@ -12,8 +12,8 @@ import { Select, SelectItem } from "@heroui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest } from "@/store/employee/action";
 import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "@/store/payslip/action";
-import { getPayslipComponentsRequest } from "@/store/payslipComponent/action";
-import { MinusCircle, Plus } from "lucide-react";
+import { getPayslipComponentsRequest, createPayslipComponentRequest } from "@/store/payslipComponent/action";
+import { BookmarkPlus, MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
 import { AppState } from "@/store/rootReducer";
 import { addToast } from "@heroui/toast";
@@ -186,6 +186,16 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
     const totalEarnings = formData.earnings.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
     const totalDeductions = formData.deductions.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
     const netPay = totalEarnings - totalDeductions;
+ 
+    const existingComponentNames = new Set(
+        (payslipComponents || []).map((c: any) => c.name.toLowerCase())
+    );
+
+    const handleSaveComponent = (name: string, type: "Earnings" | "Deductions") => {
+        if (!name.trim()) return;
+        dispatch(createPayslipComponentRequest({ name: name.trim(), type, is_active: true }));
+        addToast({ title: "Saved", description: `"${name}" added to Payslip Components`, color: "success" });
+    };
 
     return (
         <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
@@ -266,7 +276,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                                 <div className="space-y-3">
                                     {formData.earnings.map((earning: any, index: number) => (
-                                        <div key={index} className="flex gap-4 items-end">
+                                        <div key={index} className="flex gap-2 items-end">
                                             <Input
                                                 placeholder="e.g. Basic Salary"
                                                 variant="bordered"
@@ -283,6 +293,18 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                                 startContent={<span className="text-default-400 text-small">₹</span>}
                                                 className="w-32"
                                             />
+                                            {earning.name && !existingComponentNames.has(earning.name.toLowerCase()) && (
+                                                <Button
+                                                    isIconOnly
+                                                    color="success"
+                                                    variant="flat"
+                                                    size="sm"
+                                                    onPress={() => handleSaveComponent(earning.name, "Earnings")}
+                                                    title="Save to Payslip Components"
+                                                >
+                                                    <BookmarkPlus size={16} />
+                                                </Button>
+                                            )}
                                             <Button isIconOnly color="danger" variant="light" onPress={() => removeRow("earnings", index)}>
                                                 <MinusCircle size={18} />
                                             </Button>
@@ -316,7 +338,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                                 <div className="space-y-3">
                                     {formData.deductions.map((deduction: any, index: number) => (
-                                        <div key={index} className="flex gap-4 items-end">
+                                        <div key={index} className="flex gap-2 items-end">
                                             <Input
                                                 placeholder="e.g. PF"
                                                 variant="bordered"
@@ -333,6 +355,18 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                                 startContent={<span className="text-default-400 text-small">₹</span>}
                                                 className="w-32"
                                             />
+                                            {deduction.name && !existingComponentNames.has(deduction.name.toLowerCase()) && (
+                                                <Button
+                                                    isIconOnly
+                                                    color="success"
+                                                    variant="flat"
+                                                    size="sm"
+                                                    onPress={() => handleSaveComponent(deduction.name, "Deductions")}
+                                                    title="Save to Payslip Components"
+                                                >
+                                                    <BookmarkPlus size={16} />
+                                                </Button>
+                                            )}
                                             <Button isIconOnly color="danger" variant="light" onPress={() => removeRow("deductions", index)}>
                                                 <MinusCircle size={18} />
                                             </Button>
