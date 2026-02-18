@@ -105,7 +105,7 @@ export default function PayslipComponentsPage() {
                             <TableCell>
                                 <Chip
                                     color={item.is_active ? "success" : "default"}
-                                    variant="dot"
+                                    variant="flat"
                                     size="sm"
                                 >
                                     {item.is_active ? "Active" : "Inactive"}
