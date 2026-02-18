@@ -14,15 +14,21 @@ import {
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Button } from "@heroui/button";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
-import { Card, CardBody } from "@heroui/card";
+import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
+import { Tabs, Tab } from "@heroui/tabs";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
 import { format } from "date-fns";
-import { Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb, ClipboardList } from "lucide-react";
+import {
+    Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb,
+    ClipboardList, Search, Calendar, Paperclip, MoreVertical,
+    Clock, LayoutGrid, List
+} from "lucide-react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "@heroui/user";
+import { Tooltip } from "@heroui/tooltip";
 import FileUpload from "@/components/common/FileUpload";
 import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
@@ -58,6 +64,9 @@ export default function FeedbackPage() {
     });
     const [files, setFiles] = useState<any[]>([]);
     const [editingFeedback, setEditingFeedback] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [viewType, setViewType] = useState<"card" | "table">("card");
 
     useEffect(() => {
         dispatch(getFeedbacksRequest());
@@ -154,6 +163,62 @@ export default function FeedbackPage() {
         }
     }
 
+    const filteredFeedbacks = useMemo(() => {
+        let result = feedbacks || [];
+
+        if (statusFilter !== "all") {
+            result = result.filter((f: any) => f.status === statusFilter);
+        }
+
+        if (searchTerm) {
+            const lowerFilter = searchTerm.toLowerCase();
+            result = result.filter((f: any) =>
+                f.subject.toLowerCase().includes(lowerFilter) ||
+                f.employee_name?.toLowerCase().includes(lowerFilter) ||
+                f.description?.toLowerCase().includes(lowerFilter)
+            );
+        }
+
+        return result;
+    }, [feedbacks, statusFilter, searchTerm]);
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Open": return "primary";
+            case "In Review": return "warning";
+            case "Resolved": return "success";
+            case "Closed": return "default";
+            default: return "default";
+        }
+    };
+
+    const getTypeColor = (type: string) => {
+        switch (type) {
+            case "Bug": return "danger";
+            case "Feature Request": return "primary";
+            case "General": return "secondary";
+            default: return "default";
+        }
+    };
+
+    const getTypeIcon = (type: string) => {
+        switch (type) {
+            case "Bug": return <Bug size={14} />;
+            case "Feature Request": return <Lightbulb size={14} />;
+            case "General": return <MessageSquare size={14} />;
+            default: return <MessageSquare size={14} />;
+        }
+    };
+
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case "High": return "danger";
+            case "Medium": return "warning";
+            case "Low": return "success";
+            default: return "default";
+        }
+    };
+
 
     const renderCell = (item: any, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof any];
@@ -233,8 +298,8 @@ export default function FeedbackPage() {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <Card className="bg-default-50 border-none shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <Card radius="md" className="bg-default-50 border-none shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-primary/10 text-primary">
                             <ClipboardList size={24} />
@@ -245,7 +310,7 @@ export default function FeedbackPage() {
                         </div>
                     </CardBody>
                 </Card>
-                <Card className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-default-50 border-none shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-danger/10 text-danger">
                             <Bug size={24} />
@@ -256,7 +321,7 @@ export default function FeedbackPage() {
                         </div>
                     </CardBody>
                 </Card>
-                <Card className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-default-50 border-none shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-success/10 text-success">
                             <Lightbulb size={24} />
@@ -267,7 +332,7 @@ export default function FeedbackPage() {
                         </div>
                     </CardBody>
                 </Card>
-                <Card className="bg-default-50 border-none shadow-sm">
+                <Card radius="md" className="bg-default-50 border-none shadow-sm">
                     <CardBody className="flex flex-row items-center gap-4">
                         <div className="p-3 rounded-xl bg-warning/10 text-warning">
                             <MessageSquare size={24} />
@@ -280,18 +345,185 @@ export default function FeedbackPage() {
                 </Card>
             </div>
 
-            <Table aria-label="Feedback Table">
-                <TableHeader columns={columns}>
-                    {(column) => <TableColumn key={column.uid}>{column.name}</TableColumn>}
-                </TableHeader>
-                <TableBody items={feedbacks || []} isLoading={listLoading}>
-                    {(item: any) => (
-                        <TableRow key={item.id}>
-                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                        </TableRow>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                <div className="flex items-center gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                    <Tabs
+                        aria-label="Status filters"
+                        color="primary"
+                        variant="solid"
+                        size="sm"
+                        radius="md"
+                        selectedKey={statusFilter}
+                        onSelectionChange={(key) => setStatusFilter(key as string)}
+                        classNames={{
+                            tabList: "bg-default-100 p-1",
+                            cursor: "bg-white shadow-sm",
+                            tabContent: "group-data-[selected=true]:text-secondary font-bold px-3"
+                        }}
+                    >
+                        <Tab key="all" title={`All (${metrics?.total || 0})`} />
+                        <Tab key="Open" title={`Open (${metrics?.by_status?.Open || 0})`} />
+                        <Tab key="In Review" title={`In Review (${metrics?.by_status?.["In Review"] || 0})`} />
+                        <Tab key="Resolved" title={`Resolved (${metrics?.by_status?.Resolved || 0})`} />
+                        <Tab key="Closed" title={`Closed (${metrics?.by_status?.Closed || 0})`} />
+                    </Tabs>
+                </div>
+
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Input
+                        placeholder="Search feedback..."
+                        startContent={<Search size={18} className="text-default-400" />}
+                        value={searchTerm}
+                        onValueChange={setSearchTerm}
+                        className="w-full md:w-64"
+                        variant="bordered"
+                    />
+                    <div className="flex bg-default-100 rounded-lg p-1">
+                        <Button
+                            isIconOnly
+                            size="sm"
+                            variant={viewType === "card" ? "flat" : "light"}
+                            className={viewType === "card" ? "bg-white dark:bg-default-200 shadow-sm" : ""}
+                            onPress={() => setViewType("card")}
+                        >
+                            <LayoutGrid size={16} />
+                        </Button>
+                        <Button
+                            isIconOnly
+                            size="sm"
+                            variant={viewType === "table" ? "flat" : "light"}
+                            className={viewType === "table" ? "bg-white dark:bg-default-200 shadow-sm" : ""}
+                            onPress={() => setViewType("table")}
+                        >
+                            <List size={16} />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {viewType === "table" ? (
+                <Table aria-label="Feedback Table">
+                    <TableHeader columns={columns}>
+                        {(column) => <TableColumn key={column.uid}>{column.name}</TableColumn>}
+                    </TableHeader>
+                    <TableBody items={filteredFeedbacks} isLoading={listLoading}>
+                        {(item: any) => (
+                            <TableRow key={item.id}>
+                                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {listLoading ? (
+                        Array.from({ length: 6 }).map((_, i) => (
+                            <Card key={i} className="h-64 animate-pulse bg-default-100" />
+                        ))
+                    ) : filteredFeedbacks.length > 0 ? (
+                        filteredFeedbacks.map((item: any) => (
+                            <Card
+                                key={item.id}
+                                radius="md"
+                                className="group hover:shadow-lg transition-all duration-300 border-none bg-default-50 shadow-sm"
+                            >
+                                <CardHeader className="flex justify-between items-start pb-0">
+                                    <div className="flex gap-2 flex-wrap">
+                                        <Chip
+                                            size="sm"
+                                            variant="flat"
+                                            color={getTypeColor(item.type)}
+                                            startContent={getTypeIcon(item.type)}
+                                            className="px-2"
+                                        >
+                                            {item.type}
+                                        </Chip>
+                                        <Chip
+                                            size="sm"
+                                            variant="dot"
+                                            color={getPriorityColor(item.priority)}
+                                            className="h-6"
+                                        >
+                                            {item.priority}
+                                        </Chip>
+                                    </div>
+                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button isIconOnly size="sm" variant="light" onPress={() => handleOpen(item)}>
+                                            <Edit size={16} className="text-default-400" />
+                                        </Button>
+                                        {isAdmin && (
+                                            <Button isIconOnly size="sm" color="danger" variant="light" onPress={() => handleDelete(item.id)}>
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardBody className="gap-2 py-4">
+                                    <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">
+                                        {item.subject}
+                                    </h3>
+                                    <div
+                                        className="text-default-500 text-sm line-clamp-3 overflow-hidden [&>p]:mb-0"
+                                        dangerouslySetInnerHTML={{ __html: item.description }}
+                                    />
+
+                                    <div className="flex items-center gap-4 mt-auto pt-4">
+                                        <Chip
+                                            size="sm"
+                                            color={getStatusColor(item.status)}
+                                            variant="flat"
+                                            className="font-medium"
+                                        >
+                                            {item.status}
+                                        </Chip>
+                                        {item.attachments?.length > 0 && (
+                                            <div className="flex items-center gap-1 text-default-400 text-xs font-medium">
+                                                <Paperclip size={14} />
+                                                {item.attachments.length}
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-1 text-default-400 text-xs ml-auto">
+                                            <Clock size={14} />
+                                            {format(new Date(item.created_at), "MMM dd, yyyy")}
+                                        </div>
+                                    </div>
+                                </CardBody>
+                                <CardFooter className="border-t border-divider py-3 px-4">
+                                    <User
+                                        name={item.employee?.name || item.employee_name}
+                                        description={item.employee?.designation || "Employee"}
+                                        avatarProps={{
+                                            src: item.employee?.profile_picture,
+                                            size: "sm",
+                                            showFallback: true,
+                                            name: item.employee?.name || item.employee_name
+                                        }}
+                                        classNames={{
+                                            name: "text-xs font-semibold",
+                                            description: "text-[10px]"
+                                        }}
+                                    />
+                                </CardFooter>
+                            </Card>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-20 flex flex-col items-center justify-center text-default-400 gap-4 bg-default-50 rounded-3xl border-2 border-dashed border-divider">
+                            <MessageSquare size={48} className="opacity-20" />
+                            <div className="text-center">
+                                <p className="font-semibold text-lg">No feedback found</p>
+                                <p className="text-small">Try changing your filters or search term.</p>
+                            </div>
+                            <Button
+                                variant="flat"
+                                color="primary"
+                                onPress={() => { setSearchTerm(""); setStatusFilter("all"); }}
+                            >
+                                Clear all filters
+                            </Button>
+                        </div>
                     )}
-                </TableBody>
-            </Table>
+                </div>
+            )}
 
             <Modal isOpen={isOpen} onClose={onClose}>
                 <ModalContent>
