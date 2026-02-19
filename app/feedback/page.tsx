@@ -441,7 +441,7 @@ export default function FeedbackPage() {
                     </TableBody>
                 </Table>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                     {listLoading ? (
                         Array.from({ length: 6 }).map((_, i) => (
                             <Card key={i} className="h-64 animate-pulse bg-default-100" />
