@@ -24,6 +24,8 @@ import dashboardReducer from "./dashboard/reducer";
 import profileReducer from "./profile/reducer";
 import ndaReducer from "./nda/reducer";
 import payslipReducer from "./payslip/reducer";
+import payslipComponentReducer from "./payslipComponent/reducer";
+import feedbackReducer from "./feedback/reducer";
 
 const rootReducer = combineReducers({
   Blog: blogReducer,
@@ -50,6 +52,8 @@ const rootReducer = combineReducers({
   Profile: profileReducer,
   NDA: ndaReducer,
   Payslip: payslipReducer,
+  PayslipComponent: payslipComponentReducer,
+  Feedback: feedbackReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

@@ -3,6 +3,7 @@ import { SagaIterator } from "redux-saga";
 import {
   GENERATE_PAYSLIP_REQUEST,
   GET_PAYSLIPS_REQUEST,
+  GET_LATEST_PAYSLIP_REQUEST,
   DOWNLOAD_PAYSLIP_REQUEST,
   UPDATE_PAYSLIP_REQUEST,
 } from "./actionType";
@@ -11,6 +12,8 @@ import {
   generatePayslipFailure,
   getPayslipsSuccess,
   getPayslipsFailure,
+  getLatestPayslipSuccess,
+  getLatestPayslipFailure,
   downloadPayslipSuccess,
   downloadPayslipFailure,
   updatePayslipSuccess,
@@ -31,6 +34,10 @@ function getPayslipsApi(params: any) {
   );
   const queryString = new URLSearchParams(cleanParams as any).toString();
   return api.get(`/payslip/list?${queryString}`);
+}
+
+function getLatestPayslipApi(employeeId: string) {
+  return api.get(`/payslip/latest/${employeeId}`);
 }
 
 function downloadPayslipApi(id: string) {
@@ -59,6 +66,19 @@ function* onGetPayslips({ payload }: any): SagaIterator {
     yield put(
       getPayslipsFailure(
         error.response?.data?.message || "Failed to fetch payslips",
+      ),
+    );
+  }
+}
+
+function* onGetLatestPayslip({ payload }: any): SagaIterator {
+  try {
+    const response = yield call(getLatestPayslipApi, payload);
+    yield put(getLatestPayslipSuccess(response.data.data));
+  } catch (error: any) {
+    yield put(
+      getLatestPayslipFailure(
+        error.response?.data?.message || "No previous payslip found",
       ),
     );
   }
@@ -103,6 +123,7 @@ function* onUpdatePayslip({ payload }: any): SagaIterator {
 export default function* payslipSaga(): SagaIterator {
   yield takeEvery(GENERATE_PAYSLIP_REQUEST, onGeneratePayslip);
   yield takeEvery(GET_PAYSLIPS_REQUEST, onGetPayslips);
+  yield takeEvery(GET_LATEST_PAYSLIP_REQUEST, onGetLatestPayslip);
   yield takeEvery(DOWNLOAD_PAYSLIP_REQUEST, onDownloadPayslip);
   yield takeEvery(UPDATE_PAYSLIP_REQUEST, onUpdatePayslip);
 }

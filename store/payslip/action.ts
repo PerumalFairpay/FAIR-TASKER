@@ -5,6 +5,9 @@ import {
   GET_PAYSLIPS_REQUEST,
   GET_PAYSLIPS_SUCCESS,
   GET_PAYSLIPS_FAILURE,
+  GET_LATEST_PAYSLIP_REQUEST,
+  GET_LATEST_PAYSLIP_SUCCESS,
+  GET_LATEST_PAYSLIP_FAILURE,
   DOWNLOAD_PAYSLIP_REQUEST,
   DOWNLOAD_PAYSLIP_SUCCESS,
   DOWNLOAD_PAYSLIP_FAILURE,
@@ -13,7 +16,6 @@ import {
   UPDATE_PAYSLIP_FAILURE,
   CREATE_PAYSLIP_STATES,
 } from "./actionType";
-
 
 export const generatePayslipRequest = (payload: any) => ({
   type: GENERATE_PAYSLIP_REQUEST,
@@ -42,6 +44,21 @@ export const getPayslipsSuccess = (response: any) => ({
 
 export const getPayslipsFailure = (error: any) => ({
   type: GET_PAYSLIPS_FAILURE,
+  payload: error,
+});
+
+export const getLatestPayslipRequest = (employeeId: string) => ({
+  type: GET_LATEST_PAYSLIP_REQUEST,
+  payload: employeeId,
+});
+
+export const getLatestPayslipSuccess = (response: any) => ({
+  type: GET_LATEST_PAYSLIP_SUCCESS,
+  payload: response,
+});
+
+export const getLatestPayslipFailure = (error: any) => ({
+  type: GET_LATEST_PAYSLIP_FAILURE,
   payload: error,
 });
 

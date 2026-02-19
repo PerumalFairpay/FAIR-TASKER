@@ -9,11 +9,14 @@ import {
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Checkbox } from "@heroui/checkbox";
 import { useDispatch, useSelector } from "react-redux";
 import { getEmployeesRequest } from "@/store/employee/action";
-import { generatePayslipRequest, updatePayslipRequest, createPayslipStates } from "@/store/payslip/action";
-import { MinusCircle, Plus } from "lucide-react";
+import { generatePayslipRequest, updatePayslipRequest, createPayslipStates, getLatestPayslipRequest } from "@/store/payslip/action";
+import { getPayslipComponentsRequest, createPayslipComponentRequest } from "@/store/payslipComponent/action";
+import { BookmarkPlus, MinusCircle, Plus } from "lucide-react";
 import { RootState } from "@/store/store";
+import { AppState } from "@/store/rootReducer";
 import { addToast } from "@heroui/toast";
 
 interface AddEditPayslipDrawerProps {
@@ -27,15 +30,20 @@ interface AddEditPayslipDrawerProps {
 const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }: AddEditPayslipDrawerProps) => {
     const dispatch = useDispatch();
     const { employees } = useSelector((state: RootState) => state.Employee);
+    const { payslipComponents } = useSelector((state: AppState) => state.PayslipComponent);
     const {
         payslipGenerateLoading,
         payslipGenerateError,
         payslipGenerateSuccess,
         payslipUpdateLoading,
         payslipUpdateError,
-        payslipUpdateSuccess
+        payslipUpdateSuccess,
+        latestPayslip,
+        latestPayslipLoading,
+        latestPayslipError,
     } = useSelector((state: RootState) => state.Payslip);
 
+    const [copyFromPrevious, setCopyFromPrevious] = useState(false);
     const isLoading = mode === "create" ? payslipGenerateLoading : payslipUpdateLoading;
 
     useEffect(() => {
@@ -70,12 +78,13 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
             dispatch(createPayslipStates());
             if (mode === "create") {
                 dispatch(getEmployeesRequest(1, 1000));
+                dispatch(getPayslipComponentsRequest({ is_active: true }));
                 setFormData({
                     employee_id: "",
                     month: "",
                     year: new Date().getFullYear(),
-                    earnings: [{ name: "Basic", amount: 0 }, { name: "HRA", amount: 0 }],
-                    deductions: [{ name: "PF", amount: 0 }]
+                    earnings: [],
+                    deductions: []
                 });
             } else if (mode === "edit" && payslip) {
                 const earningsArray = Object.entries(payslip.earnings || {}).map(([name, amount]) => ({
@@ -98,6 +107,72 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
             }
         }
     }, [isOpen, mode, payslip, dispatch]);
+
+    // When components load and we're in create mode with empty lists, populate from API
+    useEffect(() => {
+        if (isOpen && mode === "create" && payslipComponents && payslipComponents.length > 0) {
+            setFormData((prev: any) => {
+                if (prev.earnings.length > 0 || prev.deductions.length > 0) return prev;
+
+                const apiEarnings = payslipComponents
+                    .filter((c: any) => c.type === "Earnings" && c.is_active)
+                    .map((c: any) => ({ name: c.name, amount: 0 }));
+                const apiDeductions = payslipComponents
+                    .filter((c: any) => c.type === "Deductions" && c.is_active)
+                    .map((c: any) => ({ name: c.name, amount: 0 }));
+
+                return {
+                    ...prev,
+                    earnings: apiEarnings.length > 0 ? apiEarnings : prev.earnings,
+                    deductions: apiDeductions.length > 0 ? apiDeductions : prev.deductions,
+                };
+            });
+        }
+    }, [payslipComponents, isOpen, mode]);
+
+    // When latestPayslip loads, populate the form
+    useEffect(() => {
+        if (latestPayslip && copyFromPrevious) {
+            const earnings = Object.entries(latestPayslip.earnings || {}).map(([name, amount]) => ({ name, amount }));
+            const deductions = Object.entries(latestPayslip.deductions || {}).map(([name, amount]) => ({ name, amount }));
+            setFormData((prev: any) => ({ ...prev, earnings, deductions }));
+        }
+    }, [latestPayslip]);
+
+    // Show toast when no previous payslip found
+    useEffect(() => {
+        if (latestPayslipError && copyFromPrevious) {
+            addToast({ title: "No Previous Payslip", description: latestPayslipError, color: "warning" });
+        }
+    }, [latestPayslipError]);
+
+    const handleEmployeeChange = (employeeId: string) => {
+        handleChange("employee_id", employeeId);
+        if (copyFromPrevious && employeeId) {
+            dispatch(getLatestPayslipRequest(employeeId));
+        }
+    };
+
+    const handleCopyFromPreviousChange = (checked: boolean) => {
+        setCopyFromPrevious(checked);
+        if (!checked) {
+            // Reset to payslip component defaults (amounts = 0)
+            const apiEarnings = (payslipComponents || [])
+                .filter((c: any) => c.type === "Earnings" && c.is_active)
+                .map((c: any) => ({ name: c.name, amount: 0 }));
+            const apiDeductions = (payslipComponents || [])
+                .filter((c: any) => c.type === "Deductions" && c.is_active)
+                .map((c: any) => ({ name: c.name, amount: 0 }));
+            setFormData((prev: any) => ({
+                ...prev,
+                earnings: apiEarnings.length > 0 ? apiEarnings : [{ name: "", amount: 0 }],
+                deductions: apiDeductions.length > 0 ? apiDeductions : [{ name: "", amount: 0 }],
+            }));
+        } else if (formData.employee_id) {
+            // If employee already selected, fetch immediately
+            dispatch(getLatestPayslipRequest(formData.employee_id));
+        }
+    };
 
     const handleChange = (name: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -166,6 +241,16 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
     const totalDeductions = formData.deductions.reduce((acc: number, cur: any) => acc + (parseFloat(cur.amount) || 0), 0);
     const netPay = totalEarnings - totalDeductions;
 
+    const existingComponentNames = new Set(
+        (payslipComponents || []).map((c: any) => c.name.toLowerCase())
+    );
+
+    const handleSaveComponent = (name: string, type: "Earnings" | "Deductions") => {
+        if (!name.trim()) return;
+        dispatch(createPayslipComponentRequest({ name: name.trim(), type, is_active: true }));
+        addToast({ title: "Saved", description: `"${name}" added to Payslip Components`, color: "success" });
+    };
+
     return (
         <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
             <DrawerContent>
@@ -184,7 +269,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                             labelPlacement="outside"
                                             variant="bordered"
                                             selectedKeys={formData.employee_id ? [formData.employee_id] : []}
-                                            onChange={(e) => handleChange("employee_id", e.target.value)}
+                                            onChange={(e) => handleEmployeeChange(e.target.value)}
                                             isRequired
                                         >
                                             {(employees || []).map((emp: any) => (
@@ -236,6 +321,20 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                             </div>
 
+                            {mode === "create" && (
+                                <div className="mt-3 flex items-center gap-2">
+                                    <Checkbox
+                                        isSelected={copyFromPrevious}
+                                        onValueChange={handleCopyFromPreviousChange}
+                                        isDisabled={latestPayslipLoading}
+                                        size="sm"
+                                    >
+                                        <span className="text-small text-default-600">
+                                            {latestPayslipLoading ? "Fetching previous payslip..." : "Copy amounts from previous payslip"}
+                                        </span>
+                                    </Checkbox>
+                                </div>
+                            )}
                             <div className="mt-8">
                                 <div className="flex justify-between items-center mb-4">
                                     <h4 className="text-medium font-semibold">Earnings</h4>
@@ -245,7 +344,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                                 <div className="space-y-3">
                                     {formData.earnings.map((earning: any, index: number) => (
-                                        <div key={index} className="flex gap-4 items-end">
+                                        <div key={index} className="flex gap-2 items-end">
                                             <Input
                                                 placeholder="e.g. Basic Salary"
                                                 variant="bordered"
@@ -262,6 +361,18 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                                 startContent={<span className="text-default-400 text-small">₹</span>}
                                                 className="w-32"
                                             />
+                                            {earning.name && !existingComponentNames.has(earning.name.toLowerCase()) && (
+                                                <Button
+                                                    isIconOnly
+                                                    color="success"
+                                                    variant="flat"
+                                                    size="sm"
+                                                    onPress={() => handleSaveComponent(earning.name, "Earnings")}
+                                                    title="Save to Payslip Components"
+                                                >
+                                                    <BookmarkPlus size={16} />
+                                                </Button>
+                                            )}
                                             <Button isIconOnly color="danger" variant="light" onPress={() => removeRow("earnings", index)}>
                                                 <MinusCircle size={18} />
                                             </Button>
@@ -295,7 +406,7 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                 </div>
                                 <div className="space-y-3">
                                     {formData.deductions.map((deduction: any, index: number) => (
-                                        <div key={index} className="flex gap-4 items-end">
+                                        <div key={index} className="flex gap-2 items-end">
                                             <Input
                                                 placeholder="e.g. PF"
                                                 variant="bordered"
@@ -312,6 +423,18 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
                                                 startContent={<span className="text-default-400 text-small">₹</span>}
                                                 className="w-32"
                                             />
+                                            {deduction.name && !existingComponentNames.has(deduction.name.toLowerCase()) && (
+                                                <Button
+                                                    isIconOnly
+                                                    color="success"
+                                                    variant="flat"
+                                                    size="sm"
+                                                    onPress={() => handleSaveComponent(deduction.name, "Deductions")}
+                                                    title="Save to Payslip Components"
+                                                >
+                                                    <BookmarkPlus size={16} />
+                                                </Button>
+                                            )}
                                             <Button isIconOnly color="danger" variant="light" onPress={() => removeRow("deductions", index)}>
                                                 <MinusCircle size={18} />
                                             </Button>
