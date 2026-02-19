@@ -25,9 +25,11 @@ import ndaSaga from "./nda/saga";
 import payslipSaga from "./payslip/saga";
 import payslipComponentSaga from "./payslipComponent/saga";
 import feedbackSaga from "./feedback/saga";
+import shiftSaga from "./shift/saga";
 
 export default function* rootSaga() {
   yield all([
+    fork(shiftSaga),
     fork(authSaga),
     fork(departmentSaga),
     fork(roleSaga),

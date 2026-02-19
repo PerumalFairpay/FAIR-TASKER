@@ -82,6 +82,12 @@ export const siteConfig: SiteConfig = {
           icon: "ShieldCheck",
           allowedRoles: ["admin"],
         },
+        {
+          label: "Shift Management",
+          href: "/shift",
+          icon: "Clock",
+          allowedRoles: ["admin"],
+        },
       ],
     },
     {
