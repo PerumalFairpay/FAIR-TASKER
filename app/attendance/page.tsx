@@ -587,7 +587,7 @@ export default function AttendancePage() {
 
                     {!isAdmin && (
                         <>
-                            {relevantRecord?.status === 'Leave' ? (
+                            {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                                 <Button
                                     className="cursor-default opacity-100 font-semibold"
                                     variant="flat"
@@ -598,17 +598,25 @@ export default function AttendancePage() {
                                     On Leave
                                 </Button>
                             ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-                                <Button
-                                    color="primary"
-                                    size="md"
-                                    startContent={<Clock size={20} />}
-                                    onPress={handleClockIn}
-                                    isLoading={clockInLoading}
-                                    className="shadow-lg shadow-primary/40 font-semibold"
-                                >
-                                    Clock In
-                                </Button>
+                                <div className="flex items-center gap-3">
+                                    {relevantRecord?.attendance_status === 'Half Day' && (
+                                        <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
+                                            Half Day Leave
+                                        </Chip>
+                                    )}
+                                    <Button
+                                        color="primary"
+                                        size="md"
+                                        startContent={<Clock size={20} />}
+                                        onPress={handleClockIn}
+                                        isLoading={clockInLoading}
+                                        className="shadow-lg shadow-primary/40 font-semibold"
+                                    >
+                                        Clock In
+                                    </Button>
+                                </div>
                             ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
+
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
