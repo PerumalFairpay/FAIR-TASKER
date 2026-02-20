@@ -1,6 +1,8 @@
 import React from "react";
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
+import { Fingerprint } from "lucide-react";
+
 
 interface DetailedStats {
     total_present: number;
@@ -19,6 +21,7 @@ interface AttendanceMetricsProps {
     monthStats: DetailedStats;
     yearStats: DetailedStats;
     elapsedSeconds: number;
+    isBiometric?: boolean;
 }
 
 const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
@@ -26,8 +29,10 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
     todayStats,
     monthStats,
     yearStats,
-    elapsedSeconds
+    elapsedSeconds,
+    isBiometric
 }) => {
+
 
     const formatDuration = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
@@ -157,7 +162,13 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                                             <span className={`text-lg font-bold ${statusConfig[userStatus].color}`}>
                                                 {statusConfig[userStatus].label}
                                             </span>
+                                            {isBiometric && (
+                                                <div className="bg-default-100 p-1 rounded-md text-default-400" title="Clocked in via Biometric">
+                                                    <Fingerprint size={14} />
+                                                </div>
+                                            )}
                                         </div>
+
                                         <p className="text-[10px] text-default-400">{statusConfig[userStatus].subtext}</p>
                                     </div>
                                     {/* Circular work timer */}

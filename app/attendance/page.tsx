@@ -628,12 +628,14 @@ export default function AttendancePage() {
                                             color="warning"
                                             size="md"
                                             variant="flat"
-                                            startContent={<LogOut size={20} />}
+                                            startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                             isLoading={clockOutLoading}
                                             className="font-semibold"
+                                            isDisabled={relevantRecord?.device_type === 'Biometric'}
                                         >
-                                            Clock Out
+                                            {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
                                         </Button>
+
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <div className="px-1 py-2 w-56">
@@ -694,7 +696,9 @@ export default function AttendancePage() {
                 monthStats={monthStats}
                 yearStats={yearStats}
                 elapsedSeconds={elapsedSeconds}
+                isBiometric={relevantRecord?.device_type === 'Biometric'}
             />
+
 
             {(getAllAttendanceLoading || getMyHistoryLoading) ? (
                 <div className="flex h-[60vh] items-center justify-center">
