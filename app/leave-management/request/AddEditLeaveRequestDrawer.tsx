@@ -192,6 +192,19 @@ export default function AddEditLeaveRequestDrawer({
         }
 
         if (name === "leave_duration_type") {
+            // Reset fields specific to other duration types when type changes
+            if (value !== "Half Day") {
+                newData.half_day_session = "";
+            }
+            if (value !== "Permission") {
+                newData.start_time = "";
+                newData.end_time = "";
+            }
+            if (value !== "Multiple") {
+                newData.start_session = "Full Day";
+                newData.end_session = "Full Day";
+            }
+
             if (value === "Permission") {
                 const permissionType = leaveTypes?.find((lt: any) => lt.name === "Permission");
                 if (permissionType) {
