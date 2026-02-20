@@ -14,9 +14,6 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
-  UPDATE_ATTENDANCE_STATUS_REQUEST,
-  UPDATE_ATTENDANCE_STATUS_SUCCESS,
-  UPDATE_ATTENDANCE_STATUS_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -102,23 +99,6 @@ export const importAttendanceSuccess = (response: any) => ({
 });
 export const importAttendanceFailure = (error: any) => ({
   type: IMPORT_ATTENDANCE_FAILURE,
-  payload: error,
-});
-
-// Update Status
-export const updateAttendanceStatusRequest = (
-  attendanceId: string,
-  payload: { status: string; reason?: string; notes?: string },
-) => ({
-  type: UPDATE_ATTENDANCE_STATUS_REQUEST,
-  payload: { attendanceId, ...payload },
-});
-export const updateAttendanceStatusSuccess = (response: any) => ({
-  type: UPDATE_ATTENDANCE_STATUS_SUCCESS,
-  payload: response,
-});
-export const updateAttendanceStatusFailure = (error: any) => ({
-  type: UPDATE_ATTENDANCE_STATUS_FAILURE,
   payload: error,
 });
 

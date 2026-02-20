@@ -14,9 +14,6 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
-  UPDATE_ATTENDANCE_STATUS_REQUEST,
-  UPDATE_ATTENDANCE_STATUS_SUCCESS,
-  UPDATE_ATTENDANCE_STATUS_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -51,10 +48,6 @@ interface AttendanceState {
   importAttendanceLoading: boolean;
   importAttendanceSuccess: boolean;
   importAttendanceError: string | null;
-
-  updateStatusLoading: boolean;
-  updateStatusSuccess: boolean;
-  updateStatusError: string | null;
 }
 
 const initialAttendanceState: AttendanceState = {
@@ -83,10 +76,6 @@ const initialAttendanceState: AttendanceState = {
   importAttendanceLoading: false,
   importAttendanceSuccess: false,
   importAttendanceError: null,
-
-  updateStatusLoading: false,
-  updateStatusSuccess: false,
-  updateStatusError: null,
 };
 
 const attendanceReducer = (
@@ -215,49 +204,6 @@ const attendanceReducer = (
         importAttendanceSuccess: false,
       };
 
-    // Update Status
-    case UPDATE_ATTENDANCE_STATUS_REQUEST:
-      return {
-        ...state,
-        updateStatusLoading: true,
-        updateStatusSuccess: false,
-        updateStatusError: null,
-      };
-    case UPDATE_ATTENDANCE_STATUS_SUCCESS:
-      return {
-        ...state,
-        updateStatusLoading: false,
-        updateStatusSuccess: true,
-        // Update only the status and notes fields, preserve other fields
-        attendanceHistory: state.attendanceHistory.map((item) =>
-          item.id === action.payload.data.id
-            ? {
-                ...item,
-                status: action.payload.data.status,
-                notes: action.payload.data.notes,
-                updated_at: action.payload.data.updated_at,
-              }
-            : item,
-        ),
-        allAttendance: state.allAttendance.map((item) =>
-          item.id === action.payload.data.id
-            ? {
-                ...item,
-                status: action.payload.data.status,
-                notes: action.payload.data.notes,
-                updated_at: action.payload.data.updated_at,
-              }
-            : item,
-        ),
-      };
-    case UPDATE_ATTENDANCE_STATUS_FAILURE:
-      return {
-        ...state,
-        updateStatusLoading: false,
-        updateStatusError: action.payload,
-        updateStatusSuccess: false,
-      };
-
     case CLEAR_ATTENDANCE_STATUS:
       return {
         ...state,
@@ -267,8 +213,6 @@ const attendanceReducer = (
         clockOutSuccess: false,
         importAttendanceError: null,
         importAttendanceSuccess: false,
-        updateStatusError: null,
-        updateStatusSuccess: false,
       };
 
     default:
