@@ -46,7 +46,12 @@ interface AttendanceRecord {
     };
     clock_in: string;
     clock_out?: string;
-    status: string;
+    status: string;              // Primary: Present | Absent | Leave | Holiday
+    attendance_status?: string;  // Detailed: Ontime | Late | Permission | Half Day | CL | SL | ...
+    leave_type_code?: string;    // e.g. "CL", "SL", "LOP"
+    is_permission?: boolean;
+    is_half_day?: boolean;
+    is_late?: boolean;
     device_type: string;
     total_work_hours?: string;
     location?: string;
@@ -371,18 +376,51 @@ export default function AttendancePage() {
                     }
                 }
                 return "-";
-            case "status":
-                let color: "success" | "danger" | "warning" | "primary" | "default" = "default";
-                if (cellValue === "Present") color = "success";
-                else if (cellValue === "Absent") color = "danger";
-                else if (cellValue === "Leave") color = "warning";
-                else if (cellValue === "Holiday") color = "primary";
+            case "status": {
+                // Build a compound label from primary status + attendance_status sub-status
+                const primary = item.status || "";
+                const sub = item.attendance_status || "";
+                const typeCode = item.leave_type_code || "";
+
+                // Determine badge color
+                let color: "success" | "danger" | "warning" | "primary" | "default" | "secondary" = "default";
+                let label = primary;
+
+                if (primary === "Present") {
+                    if (sub === "Permission") {
+                        label = "Present · Permission";
+                        color = "secondary";
+                    } else if (sub === "Half Day") {
+                        label = "Present · Half Day";
+                        color = "primary";
+                    } else if (sub === "Late") {
+                        label = "Present · Late";
+                        color = "warning";
+                    } else {
+                        label = "Present · On Time";
+                        color = "success";
+                    }
+                } else if (primary === "Absent") {
+                    color = "danger";
+                    label = "Absent";
+                } else if (primary === "Leave") {
+                    color = "warning";
+                    label = sub === "Half Day"
+                        ? "Leave · Half Day"
+                        : typeCode
+                            ? `Leave · ${typeCode}`
+                            : "Leave";
+                } else if (primary === "Holiday") {
+                    color = "primary";
+                    label = "Holiday";
+                }
 
                 return (
-                    <Chip className="capitalize" color={color} size="sm" variant="flat">
-                        {cellValue as string}
+                    <Chip className="capitalize whitespace-nowrap" color={color} size="sm" variant="flat">
+                        {label}
                     </Chip>
                 );
+            }
             case "device_type":
                 return (
                     <div className="flex items-center gap-2">
@@ -407,9 +445,10 @@ export default function AttendancePage() {
 
 
 
-    const todayStats = metrics?.today || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
-    const monthStats = metrics?.month || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
-    const yearStats = metrics?.year || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const defaultStats = { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, permission: 0, half_day: 0 };
+    const todayStats = metrics?.today || defaultStats;
+    const monthStats = metrics?.month || defaultStats;
+    const yearStats = metrics?.year || defaultStats;
 
     const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
@@ -505,16 +544,18 @@ export default function AttendancePage() {
                                     variant="bordered"
                                     placeholder="Status"
                                     aria-label="Filter by Status"
-                                    className="w-32"
+                                    className="w-36"
                                     selectedKeys={filters.status ? [filters.status] : []}
                                     onChange={(e) => handleFilterChange("status", e.target.value)}
                                 >
                                     <SelectItem key="Present">Present</SelectItem>
-                                    <SelectItem key="Late">Late</SelectItem>
+                                    <SelectItem key="Ontime">Present · On Time</SelectItem>
+                                    <SelectItem key="Late">Present · Late</SelectItem>
+                                    <SelectItem key="Permission">Present · Permission</SelectItem>
+                                    <SelectItem key="Half Day">Present · Half Day</SelectItem>
                                     <SelectItem key="Absent">Absent</SelectItem>
-                                    <SelectItem key="Holiday">Holiday</SelectItem>
                                     <SelectItem key="Leave">Leave</SelectItem>
-
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
                                 </Select>
 
                                 <Select
