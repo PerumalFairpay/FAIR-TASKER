@@ -58,6 +58,8 @@ interface AdminDashboardData {
             absent: number;
             on_leave: number;
             late: number;
+            half_day: number;
+            permission: number;
             holiday: number;
             present_percentage: number;
             avg_work_hours: number;
@@ -388,8 +390,8 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                         />
                                     </div>
 
-                                    {/* On Leave & Holiday (Compact Row) */}
-                                    <div className="grid grid-cols-2 gap-4 mt-2">
+                                    {/* On Leave, Half Day, Permission & Holiday (Compact Grid) */}
+                                    <div className="grid grid-cols-2 gap-3 mt-2">
                                         <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20">
                                             <div className="flex justify-between items-start mb-2">
                                                 <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wide">On Leave</span>
@@ -406,6 +408,24 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             </div>
                                             <div className="w-full bg-purple-200/50 dark:bg-purple-500/20 h-1 rounded-full overflow-hidden">
                                                 <div className="h-full bg-purple-500 rounded-full" style={{ width: `${(data.attendance_analytics.today.holiday / data.attendance_analytics.today.total_employees) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide">Half Day</span>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.half_day ?? 0}</span>
+                                            </div>
+                                            <div className="w-full bg-teal-200/50 dark:bg-teal-500/20 h-1 rounded-full overflow-hidden">
+                                                <div className="h-full bg-teal-500 rounded-full" style={{ width: `${((data.attendance_analytics.today.half_day ?? 0) / data.attendance_analytics.today.total_employees) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                        <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">Permission</span>
+                                                <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.attendance_analytics.today.permission ?? 0}</span>
+                                            </div>
+                                            <div className="w-full bg-indigo-200/50 dark:bg-indigo-500/20 h-1 rounded-full overflow-hidden">
+                                                <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${((data.attendance_analytics.today.permission ?? 0) / data.attendance_analytics.today.total_employees) * 100}%` }}></div>
                                             </div>
                                         </div>
                                     </div>

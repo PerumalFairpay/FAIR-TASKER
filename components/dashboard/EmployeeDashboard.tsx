@@ -53,6 +53,8 @@ interface DashboardData {
         on_time_days: number;
         absent_days: number;
         late_days: number;
+        half_day_days: number;
+        permission_days: number;
         holiday_days: number;
         leave_days: number;
         total_working_days: number;
@@ -569,7 +571,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                                 </span>
                                                 <span className="text-sm font-bold text-emerald-500">%</span>
                                             </div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Attendance</span>
+                                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 leading-none mt-0.5">
+                                                {data.attendance_metrics.present_days} Days
+                                            </span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Present</span>
                                         </div>
                                     </div>
 
@@ -586,25 +591,20 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                 {/* Stats List */}
                                 <div className="flex-1 w-full flex flex-col gap-3 pl-0 sm:pl-2">
-                                    {/* Present */}
+
+                                    {/* On Time */}
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Present</span>
-                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{data.attendance_metrics.present_days} Days</span>
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">On Time</span>
+                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                                {data.attendance_metrics.on_time_days ?? (data.attendance_metrics.present_days - data.attendance_metrics.late_days)} Days
+                                            </span>
                                         </div>
                                         <Progress
                                             size="sm" radius="sm"
-                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-500" }}
-                                            value={(data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-400" }}
+                                            value={((data.attendance_metrics.on_time_days ?? (data.attendance_metrics.present_days - data.attendance_metrics.late_days)) / (data.attendance_metrics.total_working_days || 1)) * 100}
                                         />
-                                    </div>
-
-                                    {/* On Time (Subset of Present) */}
-                                    <div className="flex flex-col gap-1 pl-2 border-l-2 border-slate-100 dark:border-white/5">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">On Time</span>
-                                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{data.attendance_metrics.on_time_days || (data.attendance_metrics.present_days - data.attendance_metrics.late_days)} Days</span>
-                                        </div>
                                     </div>
 
                                     {/* Late */}
@@ -633,7 +633,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         />
                                     </div>
 
-                                    {/* Leave & Holiday Row */}
+                                    {/* Leave, Holiday, Half Day & Permission Grid */}
                                     <div className="grid grid-cols-2 gap-2 mt-1">
                                         <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
                                             <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{data.attendance_metrics.leave_days}</span>
@@ -642,6 +642,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
                                             <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{data.attendance_metrics.holiday_days}</span>
                                             <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
+                                        </div>
+                                        <div className="px-2 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
+                                            <span className="block text-xs font-bold text-teal-700 dark:text-teal-400">{(data.attendance_metrics as any).half_day_days ?? 0}</span>
+                                            <span className="text-[9px] text-teal-600/70 uppercase">Half Day</span>
+                                        </div>
+                                        <div className="px-2 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
+                                            <span className="block text-xs font-bold text-indigo-700 dark:text-indigo-400">{(data.attendance_metrics as any).permission_days ?? 0}</span>
+                                            <span className="text-[9px] text-indigo-600/70 uppercase">Permission</span>
                                         </div>
                                     </div>
                                 </div>
