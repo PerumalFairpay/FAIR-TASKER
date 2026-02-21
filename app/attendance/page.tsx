@@ -22,7 +22,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane, Pencil } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane, Pencil, Settings } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 
 import { addToast } from "@heroui/toast";
@@ -443,7 +443,7 @@ export default function AttendancePage() {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
-            case 'manual': return <Pencil className="w-5 h-5 text-warning" />;
+            case 'manual': return <Settings className="w-5 h-5" />;
             case 'auto sync': return <RefreshCw className="w-5 h-5" />;
             default: return <Laptop className="w-5 h-5" />;
         }
@@ -517,7 +517,7 @@ export default function AttendancePage() {
             }
             case "device_type": {
                 const device = cellValue as string;
-                const label = device?.toLowerCase() === 'manual' ? "Manual Override" : device;
+                const label = device?.toLowerCase() === 'manual' ? "Manual" : device;
                 return (
                     <div className="flex items-center gap-2">
                         {getDeviceIcon(device)}
@@ -805,6 +805,7 @@ export default function AttendancePage() {
                 isAdmin={isAdmin}
                 todayStats={todayStats}
                 monthStats={monthStats}
+                yearStats={metrics?.year || defaultStats}
                 elapsedSeconds={elapsedSeconds}
                 isBiometric={relevantRecord?.device_type === 'Biometric'}
             />

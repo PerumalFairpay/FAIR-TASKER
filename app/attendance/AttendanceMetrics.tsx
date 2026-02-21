@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { Progress } from "@heroui/progress";
+import { Tabs, Tab } from "@heroui/tabs";
 import { Fingerprint, Clock, CheckCircle, Calendar, ShieldCheck, Activity, TrendingUp, UserCheck, AlertCircle, Gift } from "lucide-react";
 
 interface DetailedStats {
@@ -19,6 +20,7 @@ interface AttendanceMetricsProps {
     isAdmin: boolean;
     todayStats: DetailedStats;
     monthStats: DetailedStats;
+    yearStats: DetailedStats;
     elapsedSeconds: number;
     isBiometric?: boolean;
 }
@@ -27,9 +29,12 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
     isAdmin,
     todayStats,
     monthStats,
+    yearStats,
     elapsedSeconds,
     isBiometric
 }) => {
+    const [selectedTab, setSelectedTab] = React.useState<"month" | "year">("month");
+    const activeStats = selectedTab === "month" ? monthStats : yearStats;
 
     const formatDuration = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
@@ -236,14 +241,29 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                 </CardBody>
             </Card>
 
-            {/* ── CARD 2: MONTHLY ─────────────────────────────────────── */}
+            {/* ── CARD 2: RECAP ─────────────────────────────────────────── */}
             <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-hidden">
-                <CardHeader className="flex justify-between items-center px-4 pt-3 pb-1">
-                    <div>
-                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">Monthly Recap</h3>
-                        <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">Aggregate Performance</p>
+                <CardHeader className="flex justify-between items-center px-4 pt-2 pb-1">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">Recap Analysis</h3>
+                        <Tabs
+                            aria-label="Recap Period"
+                            variant="light"
+                            size="sm"
+                            radius="full"
+                            selectedKey={selectedTab}
+                            onSelectionChange={(key) => setSelectedTab(key as any)}
+                            classNames={{
+                                tabList: "p-0.5 bg-slate-100/50 dark:bg-white/5 rounded-full",
+                                tab: "h-5 px-2",
+                                tabContent: "text-[8px] font-bold uppercase tracking-wider"
+                            }}
+                        >
+                            <Tab key="month" title="Monthly" />
+                            <Tab key="year" title="Yearly" />
+                        </Tabs>
                     </div>
-                    <div className="p-1.5 bg-indigo-50/50 dark:bg-indigo-500/10 rounded-md text-indigo-500">
+                    <div className="p-1 pr-0 text-indigo-500">
                         <TrendingUp size={14} />
                     </div>
                 </CardHeader>
@@ -255,7 +275,7 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                             <div className="relative w-24 h-24 flex-shrink-0 group">
                                 <svg className="w-full h-full transform -rotate-90">
                                     <defs>
-                                        <linearGradient id="monthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <linearGradient id={`${selectedTab}Grad`} x1="0%" y1="0%" x2="100%" y2="100%">
                                             <stop offset="0%" stopColor="#6366f1" />
                                             <stop offset="100%" stopColor="#4f46e5" />
                                         </linearGradient>
@@ -263,13 +283,13 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                                     <circle cx="48" cy="48" r="42" strokeWidth="8" fill="none" className="stroke-slate-100 dark:stroke-white/5" />
                                     <circle
                                         cx="48" cy="48" r="42" strokeWidth="8" fill="none"
-                                        stroke="url(#monthGrad)"
+                                        stroke={`url(#${selectedTab}Grad)`}
                                         className="transition-all duration-1500 ease-out"
                                         strokeDasharray={264}
                                         strokeDashoffset={(() => {
-                                            const total = (monthStats.total_present || 0) + (monthStats.absent || 0) + (monthStats.leave || 0) + (monthStats.holiday || 0);
+                                            const total = (activeStats.total_present || 0) + (activeStats.absent || 0) + (activeStats.leave || 0) + (activeStats.holiday || 0);
                                             if (total === 0) return 264;
-                                            return 264 - (264 * (monthStats.total_present / total));
+                                            return 264 - (264 * (activeStats.total_present / total));
                                         })()}
                                         strokeLinecap="round"
                                         style={{ filter: "drop-shadow(0 0 4px rgba(99, 102, 241, 0.4))" }}
@@ -277,8 +297,8 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                                 </svg>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                                     <div className="flex flex-col items-center justify-center w-16 h-16 rounded-full bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-sm border border-white/50 dark:border-white/5">
-                                        <h4 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">{monthStats.total_present || 0}</h4>
-                                        <span className="text-[7px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5">Present</span>
+                                        <h4 className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">{activeStats.total_present || 0}</h4>
+                                        <span className="text-[7px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mt-0.5">{selectedTab === 'month' ? 'Days' : 'YTD'} Present</span>
                                     </div>
                                 </div>
                             </div>
@@ -286,11 +306,11 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                             {/* Progress Breakdown */}
                             <div className="flex-1 w-full flex flex-col gap-2">
                                 {[
-                                    { label: "On Time", val: monthStats.on_time, color: "bg-emerald-500", track: "bg-emerald-50 dark:bg-emerald-500/10", txt: "text-emerald-600 dark:text-emerald-400" },
-                                    { label: "Late Days", val: monthStats.late, color: "bg-orange-500", track: "bg-orange-50 dark:bg-orange-500/10", txt: "text-orange-600 dark:text-orange-400" },
-                                    { label: "Absent Days", val: monthStats.absent, color: "bg-rose-500", track: "bg-rose-50 dark:bg-rose-500/10", txt: "text-rose-600 dark:text-rose-400" },
+                                    { label: "On Time", val: activeStats.on_time, color: "bg-emerald-500", track: "bg-emerald-50 dark:bg-emerald-500/10", txt: "text-emerald-600 dark:text-emerald-400" },
+                                    { label: "Late Days", val: activeStats.late, color: "bg-orange-500", track: "bg-orange-50 dark:bg-orange-500/10", txt: "text-orange-600 dark:text-orange-400" },
+                                    { label: "Absent Days", val: activeStats.absent, color: "bg-rose-500", track: "bg-rose-50 dark:bg-rose-500/10", txt: "text-rose-600 dark:text-rose-400" },
                                 ].map((item, idx) => {
-                                    const total = (monthStats.total_present || 0) + (monthStats.absent || 0);
+                                    const total = (activeStats.total_present || 0) + (activeStats.absent || 0);
                                     const pct = total > 0 ? (item.val / total) * 100 : 0;
                                     return (
                                         <div key={idx} className="flex flex-col gap-0.5">
@@ -313,10 +333,10 @@ const AttendanceMetrics: React.FC<AttendanceMetricsProps> = ({
                         {/* Summary Grid */}
                         <div className="grid grid-cols-4 gap-1.5">
                             {[
-                                { label: "Leave", val: monthStats.leave, color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-500/10", icon: Calendar },
-                                { label: "Perm.", val: monthStats.permission, color: "text-violet-600 dark:text-violet-400", bgColor: "bg-violet-50 dark:bg-violet-500/10", icon: ShieldCheck },
-                                { label: "Half D.", val: monthStats.half_day, color: "text-sky-600 dark:text-sky-400", bgColor: "bg-sky-50 dark:bg-sky-500/10", icon: Activity },
-                                { label: "Holiday", val: monthStats.holiday, color: "text-indigo-600 dark:text-indigo-400", bgColor: "bg-indigo-50 dark:bg-indigo-500/10", icon: UserCheck }
+                                { label: "Leave", val: activeStats.leave, color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-500/10", icon: Calendar },
+                                { label: "Perm.", val: activeStats.permission, color: "text-violet-600 dark:text-violet-400", bgColor: "bg-violet-50 dark:bg-violet-500/10", icon: ShieldCheck },
+                                { label: "Half D.", val: activeStats.half_day, color: "text-sky-600 dark:text-sky-400", bgColor: "bg-sky-50 dark:bg-sky-500/10", icon: Activity },
+                                { label: "Holiday", val: activeStats.holiday, color: "text-indigo-600 dark:text-indigo-400", bgColor: "bg-indigo-50 dark:bg-indigo-500/10", icon: UserCheck }
                             ].map((stat, i) => (
                                 <div key={i} className={`px-1 py-1.5 rounded-md ${stat.bgColor} border border-slate-50 dark:border-white/5 flex flex-col items-center justify-center`}>
                                     <span className={`text-[11px] font-black ${stat.color}`}>{stat.val || 0}</span>
