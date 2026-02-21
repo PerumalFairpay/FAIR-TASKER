@@ -27,6 +27,13 @@ import { Select, SelectItem } from "@heroui/select";
 
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import {
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerBody,
+    DrawerFooter,
+} from "@heroui/drawer";
 import { Pagination } from "@heroui/pagination";
 import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Input } from "@heroui/input";
@@ -893,105 +900,113 @@ export default function AttendancePage() {
                 </ModalContent>
             </Modal>
 
-            {/* Edit Attendance Modal (Admin only) */}
-            <Modal isOpen={isEditOpen} onClose={onEditClose} size="md">
-                <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                            <Pencil size={18} className="text-primary" />
-                            <span>Edit Attendance</span>
-                        </div>
-                        {selectedRecord && (
-                            <p className="text-small font-normal text-default-500">
-                                {selectedRecord.employee_details?.name} &mdash; {selectedRecord.date}
-                            </p>
-                        )}
-                    </ModalHeader>
-                    <ModalBody className="gap-4">
-                        {editForm.status !== "Absent" && editForm.status !== "Holiday" && (
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-small font-medium text-default-700">Clock In (IST)</label>
-                                    <input
-                                        type="time"
-                                        value={editForm.clock_in}
-                                        onChange={(e) => setEditForm(prev => ({ ...prev, clock_in: e.target.value }))}
-                                        className="border border-default-200 rounded-lg px-3 py-2 text-sm bg-default-50 outline-none focus:ring-2 ring-primary w-full"
-                                    />
+            {/* Edit Attendance Drawer (Admin only) */}
+            <Drawer isOpen={isEditOpen} onClose={onEditClose} size="md">
+                <DrawerContent>
+                    {(onClose) => (
+                        <>
+                            <DrawerHeader className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <Pencil size={18} className="text-primary" />
+                                    <span>Edit Attendance</span>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-small font-medium text-default-700">Clock Out (IST)</label>
-                                    <input
-                                        type="time"
-                                        value={editForm.clock_out}
-                                        onChange={(e) => setEditForm(prev => ({ ...prev, clock_out: e.target.value }))}
-                                        className="border border-default-200 rounded-lg px-3 py-2 text-sm bg-default-50 outline-none focus:ring-2 ring-primary w-full"
-                                    />
-                                </div>
-                            </div>
-                        )}
+                                {selectedRecord && (
+                                    <p className="text-small font-normal text-default-500">
+                                        {selectedRecord.employee_details?.name} &mdash; {selectedRecord.date}
+                                    </p>
+                                )}
+                            </DrawerHeader>
+                            <DrawerBody className="gap-6 py-4">
+                                {editForm.status !== "Absent" && editForm.status !== "Holiday" && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Input
+                                            type="time"
+                                            label="Clock In (IST)"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={editForm.clock_in}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, clock_in: e.target.value }))}
+                                        />
+                                        <Input
+                                            type="time"
+                                            label="Clock Out (IST)"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={editForm.clock_out}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, clock_out: e.target.value }))}
+                                        />
+                                    </div>
+                                )}
 
-                        <Select
-                            label="Primary Status"
-                            size="sm"
-                            variant="bordered"
-                            selectedKeys={editForm.status ? [editForm.status] : []}
-                            onChange={(e) => {
-                                const newStatus = e.target.value;
-                                setEditForm(prev => {
-                                    if (newStatus === "Absent" || newStatus === "Holiday") {
-                                        return { ...prev, status: newStatus, clock_in: "", clock_out: "", attendance_status: "" };
-                                    } else if (newStatus !== "Present") {
-                                        return { ...prev, status: newStatus, attendance_status: "" };
-                                    }
-                                    return { ...prev, status: newStatus };
-                                });
-                            }}
-                        >
-                            <SelectItem key="Present">Present</SelectItem>
-                            <SelectItem key="Absent">Absent</SelectItem>
-                            <SelectItem key="Holiday">Holiday</SelectItem>
-                        </Select>
+                                <Select
+                                    label="Primary Status"
+                                    placeholder="Select Status"
+                                    labelPlacement="outside"
+                                    size="md"
+                                    variant="bordered"
+                                    selectedKeys={editForm.status ? [editForm.status] : []}
+                                    onChange={(e) => {
+                                        const newStatus = e.target.value;
+                                        setEditForm(prev => {
+                                            if (newStatus === "Absent" || newStatus === "Holiday") {
+                                                return { ...prev, status: newStatus, clock_in: "", clock_out: "", attendance_status: "" };
+                                            } else if (newStatus !== "Present") {
+                                                return { ...prev, status: newStatus, attendance_status: "" };
+                                            }
+                                            return { ...prev, status: newStatus };
+                                        });
+                                    }}
+                                >
+                                    <SelectItem key="Present">Present</SelectItem>
+                                    <SelectItem key="Absent">Absent</SelectItem>
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
+                                </Select>
 
-                        {editForm.status === "Present" && (
-                            <Select
-                                label="Attendance Status"
-                                size="sm"
-                                variant="bordered"
-                                selectedKeys={editForm.attendance_status ? [editForm.attendance_status] : []}
-                                onChange={(e) => setEditForm(prev => ({ ...prev, attendance_status: e.target.value }))}
-                            >
-                                <SelectItem key="Ontime">On Time</SelectItem>
-                                <SelectItem key="Late">Late</SelectItem>
-                                <SelectItem key="Permission">Permission</SelectItem>
-                                <SelectItem key="Half Day">Half Day</SelectItem>
-                            </Select>
-                        )}
+                                {editForm.status === "Present" && (
+                                    <Select
+                                        label="Attendance Status"
+                                        placeholder="Select Status"
+                                        labelPlacement="outside"
+                                        size="md"
+                                        variant="bordered"
+                                        selectedKeys={editForm.attendance_status ? [editForm.attendance_status] : []}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, attendance_status: e.target.value }))}
+                                    >
+                                        <SelectItem key="Ontime">On Time</SelectItem>
+                                        <SelectItem key="Late">Late</SelectItem>
+                                        <SelectItem key="Permission">Permission</SelectItem>
+                                        <SelectItem key="Half Day">Half Day</SelectItem>
+                                    </Select>
+                                )}
 
-                        <Textarea
-                            label="Admin Notes"
-                            placeholder="Reason for edit (optional)"
-                            size="sm"
-                            variant="bordered"
-                            value={editForm.notes}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
-                            minRows={2}
-                        />
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button variant="light" onPress={onEditClose}>
-                            Cancel
-                        </Button>
-                        <Button
-                            color="primary"
-                            onPress={handleEditSave}
-                            isLoading={editAttendanceLoading}
-                        >
-                            Save Changes
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                                <Textarea
+                                    label="Admin Notes"
+                                    placeholder="Reason for edit (optional)"
+                                    labelPlacement="outside"
+                                    size="md"
+                                    variant="bordered"
+                                    value={editForm.notes}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                                    minRows={3}
+                                />
+                            </DrawerBody>
+                            <DrawerFooter className="border-t border-divider">
+                                <Button variant="light" color="danger" onPress={onClose} fullWidth>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    onPress={handleEditSave}
+                                    isLoading={editAttendanceLoading}
+                                    fullWidth
+                                >
+                                    Save Changes
+                                </Button>
+                            </DrawerFooter>
+                        </>
+                    )}
+                </DrawerContent>
+            </Drawer>
 
 
         </div>
