@@ -10,6 +10,7 @@ import {
     clockOutRequest,
     clearAttendanceStatus,
     importAttendanceRequest,
+    editAttendanceRequest,
 } from "@/store/attendance/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { AppState } from "@/store/rootReducer";
@@ -21,7 +22,7 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane, Pencil } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 
 import { addToast } from "@heroui/toast";
@@ -71,7 +72,28 @@ const columns = [
     { name: "WORK HOURS", uid: "total_work_hours" },
     { name: "STATUS", uid: "status" },
     { name: "LOCATION", uid: "location" },
+    { name: "ACTIONS", uid: "actions" },
 ];
+
+// Helper: convert ISO timestamp → "HH:MM" for time input (displayed in local/IST time)
+function isoToTimeInput(iso?: string): string {
+    if (!iso) return "";
+    try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        // getHours/getMinutes returns local time (IST in browser)
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        return `${hh}:${mm}`;
+    } catch { return ""; }
+}
+
+function buildISOFromDateAndTime(dateStr: string, timeStr: string): string {
+    if (!dateStr || !timeStr) return "";
+    const d = new Date(`${dateStr}T${timeStr}:00`);
+    return d.toISOString(); // e.g. "2026-02-21T14:31:00.000Z"
+}
+
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
@@ -90,6 +112,9 @@ export default function AttendancePage() {
         importAttendanceLoading,
         importAttendanceSuccess,
         importAttendanceError,
+        editAttendanceLoading,
+        editAttendanceSuccess,
+        editAttendanceError,
         pagination
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
@@ -98,13 +123,22 @@ export default function AttendancePage() {
     const isAdmin = user?.role === 'admin';
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
+    const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
 
     // Pagination State
     const [page, setPage] = useState(1);
     const limit = 20;
 
-
+    // Edit modal state
+    const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+    const [editForm, setEditForm] = useState({
+        clock_in: "",
+        clock_out: "",
+        status: "",
+        attendance_status: "",
+        notes: "",
+    });
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -306,6 +340,27 @@ export default function AttendancePage() {
         }
     }, [importAttendanceSuccess, importAttendanceError, dispatch, isAdmin, viewMode, currentMonth, filters]);
 
+    // Edit attendance toast handler
+    useEffect(() => {
+        if (editAttendanceSuccess) {
+            addToast({
+                title: "Success",
+                description: "Attendance record updated successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            onEditClose();
+        }
+        if (editAttendanceError) {
+            addToast({
+                title: "Error",
+                description: editAttendanceError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [editAttendanceSuccess, editAttendanceError, dispatch]);
+
     const handleClockIn = () => {
         const now = new Date();
         const payload = {
@@ -344,6 +399,36 @@ export default function AttendancePage() {
             onImportClose();
             setImportFile([]);
         }
+    };
+
+    // Open edit modal pre-filled with the selected record
+    const handleEditOpen = (record: AttendanceRecord) => {
+        setSelectedRecord(record);
+        setEditForm({
+            clock_in: isoToTimeInput(record.clock_in),
+            clock_out: isoToTimeInput(record.clock_out),
+            status: record.status || "",
+            attendance_status: record.attendance_status || "",
+            notes: "",
+        });
+        onEditOpen();
+    };
+
+    const handleEditSave = () => {
+        if (!selectedRecord) return;
+
+        const data: any = {};
+        if (editForm.clock_in) {
+            data.clock_in = buildISOFromDateAndTime(selectedRecord.date, editForm.clock_in);
+        }
+        if (editForm.clock_out) {
+            data.clock_out = buildISOFromDateAndTime(selectedRecord.date, editForm.clock_out);
+        }
+        if (editForm.status) data.status = editForm.status;
+        if (editForm.attendance_status) data.attendance_status = editForm.attendance_status;
+        if (editForm.notes) data.notes = editForm.notes;
+
+        dispatch(editAttendanceRequest({ id: selectedRecord.id, data }));
     };
 
     const getDeviceIcon = (device: string) => {
@@ -436,6 +521,20 @@ export default function AttendancePage() {
                         {cellValue as string || "-"}
                     </div>
                 );
+            case "actions":
+                if (!isAdmin) return null;
+                return (
+                    <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        color="primary"
+                        aria-label="Edit attendance"
+                        onPress={() => handleEditOpen(item)}
+                    >
+                        <Pencil size={15} />
+                    </Button>
+                );
             default:
                 return cellValue as React.ReactNode;
         }
@@ -453,7 +552,7 @@ export default function AttendancePage() {
     const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
 
-    const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
+    const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee" && col.uid !== "actions");
 
     return (
         <div className="p-6">
@@ -789,6 +888,106 @@ export default function AttendancePage() {
                             isLoading={importAttendanceLoading}
                         >
                             Start Import
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            {/* Edit Attendance Modal (Admin only) */}
+            <Modal isOpen={isEditOpen} onClose={onEditClose} size="md">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                            <Pencil size={18} className="text-primary" />
+                            <span>Edit Attendance</span>
+                        </div>
+                        {selectedRecord && (
+                            <p className="text-small font-normal text-default-500">
+                                {selectedRecord.employee_details?.name} &mdash; {selectedRecord.date}
+                            </p>
+                        )}
+                    </ModalHeader>
+                    <ModalBody className="gap-4">
+                        {editForm.status !== "Absent" && editForm.status !== "Holiday" && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-small font-medium text-default-700">Clock In (IST)</label>
+                                    <input
+                                        type="time"
+                                        value={editForm.clock_in}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, clock_in: e.target.value }))}
+                                        className="border border-default-200 rounded-lg px-3 py-2 text-sm bg-default-50 outline-none focus:ring-2 ring-primary w-full"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-small font-medium text-default-700">Clock Out (IST)</label>
+                                    <input
+                                        type="time"
+                                        value={editForm.clock_out}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, clock_out: e.target.value }))}
+                                        className="border border-default-200 rounded-lg px-3 py-2 text-sm bg-default-50 outline-none focus:ring-2 ring-primary w-full"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <Select
+                            label="Primary Status"
+                            size="sm"
+                            variant="bordered"
+                            selectedKeys={editForm.status ? [editForm.status] : []}
+                            onChange={(e) => {
+                                const newStatus = e.target.value;
+                                setEditForm(prev => {
+                                    if (newStatus === "Absent" || newStatus === "Holiday") {
+                                        return { ...prev, status: newStatus, clock_in: "", clock_out: "", attendance_status: "" };
+                                    } else if (newStatus !== "Present") {
+                                        return { ...prev, status: newStatus, attendance_status: "" };
+                                    }
+                                    return { ...prev, status: newStatus };
+                                });
+                            }}
+                        >
+                            <SelectItem key="Present">Present</SelectItem>
+                            <SelectItem key="Absent">Absent</SelectItem>
+                            <SelectItem key="Holiday">Holiday</SelectItem>
+                        </Select>
+
+                        {editForm.status === "Present" && (
+                            <Select
+                                label="Attendance Status"
+                                size="sm"
+                                variant="bordered"
+                                selectedKeys={editForm.attendance_status ? [editForm.attendance_status] : []}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, attendance_status: e.target.value }))}
+                            >
+                                <SelectItem key="Ontime">On Time</SelectItem>
+                                <SelectItem key="Late">Late</SelectItem>
+                                <SelectItem key="Permission">Permission</SelectItem>
+                                <SelectItem key="Half Day">Half Day</SelectItem>
+                            </Select>
+                        )}
+
+                        <Textarea
+                            label="Admin Notes"
+                            placeholder="Reason for edit (optional)"
+                            size="sm"
+                            variant="bordered"
+                            value={editForm.notes}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                            minRows={2}
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button variant="light" onPress={onEditClose}>
+                            Cancel
+                        </Button>
+                        <Button
+                            color="primary"
+                            onPress={handleEditSave}
+                            isLoading={editAttendanceLoading}
+                        >
+                            Save Changes
                         </Button>
                     </ModalFooter>
                 </ModalContent>

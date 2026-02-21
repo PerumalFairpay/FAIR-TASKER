@@ -14,6 +14,9 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
+  EDIT_ATTENDANCE_REQUEST,
+  EDIT_ATTENDANCE_SUCCESS,
+  EDIT_ATTENDANCE_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -48,6 +51,10 @@ interface AttendanceState {
   importAttendanceLoading: boolean;
   importAttendanceSuccess: boolean;
   importAttendanceError: string | null;
+
+  editAttendanceLoading: boolean;
+  editAttendanceSuccess: boolean;
+  editAttendanceError: string | null;
 }
 
 const initialAttendanceState: AttendanceState = {
@@ -76,6 +83,10 @@ const initialAttendanceState: AttendanceState = {
   importAttendanceLoading: false,
   importAttendanceSuccess: false,
   importAttendanceError: null,
+
+  editAttendanceLoading: false,
+  editAttendanceSuccess: false,
+  editAttendanceError: null,
 };
 
 const attendanceReducer = (
@@ -204,6 +215,34 @@ const attendanceReducer = (
         importAttendanceSuccess: false,
       };
 
+    // Edit Attendance (Admin)
+    case EDIT_ATTENDANCE_REQUEST:
+      return {
+        ...state,
+        editAttendanceLoading: true,
+        editAttendanceSuccess: false,
+        editAttendanceError: null,
+      };
+    case EDIT_ATTENDANCE_SUCCESS: {
+      const updated = action.payload.data;
+      return {
+        ...state,
+        editAttendanceLoading: false,
+        editAttendanceSuccess: true,
+        // Update the record in-place in allAttendance
+        allAttendance: state.allAttendance.map((item) =>
+          item.id === updated.id ? updated : item,
+        ),
+      };
+    }
+    case EDIT_ATTENDANCE_FAILURE:
+      return {
+        ...state,
+        editAttendanceLoading: false,
+        editAttendanceError: action.payload,
+        editAttendanceSuccess: false,
+      };
+
     case CLEAR_ATTENDANCE_STATUS:
       return {
         ...state,
@@ -213,6 +252,8 @@ const attendanceReducer = (
         clockOutSuccess: false,
         importAttendanceError: null,
         importAttendanceSuccess: false,
+        editAttendanceError: null,
+        editAttendanceSuccess: false,
       };
 
     default:

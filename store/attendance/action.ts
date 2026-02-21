@@ -14,6 +14,9 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
+  EDIT_ATTENDANCE_REQUEST,
+  EDIT_ATTENDANCE_SUCCESS,
+  EDIT_ATTENDANCE_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -99,6 +102,20 @@ export const importAttendanceSuccess = (response: any) => ({
 });
 export const importAttendanceFailure = (error: any) => ({
   type: IMPORT_ATTENDANCE_FAILURE,
+  payload: error,
+});
+
+// Edit Attendance (Admin)
+export const editAttendanceRequest = (payload: { id: string; data: any }) => ({
+  type: EDIT_ATTENDANCE_REQUEST,
+  payload,
+});
+export const editAttendanceSuccess = (response: any) => ({
+  type: EDIT_ATTENDANCE_SUCCESS,
+  payload: response,
+});
+export const editAttendanceFailure = (error: any) => ({
+  type: EDIT_ATTENDANCE_FAILURE,
   payload: error,
 });
 
