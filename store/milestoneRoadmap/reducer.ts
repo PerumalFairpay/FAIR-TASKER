@@ -40,6 +40,7 @@ const initialState = {
   deleteLoading: false,
   deleteSuccess: false,
   deleteError: null,
+  previousMilestonesRoadmaps: null,
 };
 
 const milestoneRoadmapReducer = (state = initialState, action: any) => {
@@ -113,6 +114,17 @@ const milestoneRoadmapReducer = (state = initialState, action: any) => {
         updateLoading: true,
         updateSuccess: false,
         updateError: null,
+        previousMilestonesRoadmaps: state.milestonesRoadmaps,
+        milestonesRoadmaps: state.milestonesRoadmaps.map((item: any) =>
+          item.id === action.payload.id
+            ? {
+                ...item,
+                ...(action.payload.payload instanceof FormData
+                  ? {}
+                  : action.payload.payload),
+              }
+            : item,
+        ),
       };
     case UPDATE_MILESTONE_ROADMAP_SUCCESS:
       return {
@@ -122,12 +134,17 @@ const milestoneRoadmapReducer = (state = initialState, action: any) => {
         milestonesRoadmaps: state.milestonesRoadmaps.map((item: any) =>
           item.id === action.payload.id ? action.payload : item,
         ),
+        currentMilestoneRoadmap: action.payload,
+        previousMilestonesRoadmaps: null,
       };
     case UPDATE_MILESTONE_ROADMAP_FAILURE:
       return {
         ...state,
         updateLoading: false,
         updateError: action.payload,
+        milestonesRoadmaps:
+          state.previousMilestonesRoadmaps || state.milestonesRoadmaps,
+        previousMilestonesRoadmaps: null,
       };
 
     case DELETE_MILESTONE_ROADMAP_REQUEST:

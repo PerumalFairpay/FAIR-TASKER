@@ -149,9 +149,7 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
             newErrors.description = "Description is required";
         }
 
-        if (formData.assigned_to.length === 0) {
-            newErrors.assigned_to = "At least one assignee is required";
-        }
+
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -241,7 +239,7 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                         )}
 
                         <Input
-                            label="Item Name"
+                            label="Title"
                             placeholder="What needs to be done?"
                             value={formData.task_name}
                             onChange={(e) => {
@@ -348,10 +346,8 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                             onSelectionChange={(keys) => {
                                 const newKeys = Array.from(keys) as string[];
                                 setFormData({ ...formData, assigned_to: newKeys });
-                                if (newKeys.length > 0) setErrors((prev) => ({ ...prev, assigned_to: "" }));
                             }}
-                            isInvalid={!!errors.assigned_to}
-                            errorMessage={errors.assigned_to}
+
                             isDisabled={anyLoading}
                             renderValue={(items) => (
                                 <div className="flex flex-wrap gap-1">
