@@ -159,9 +159,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             newErrors.assigned_to = "At least one assignee is required";
         }
 
-        if (formData.start_date === todayStr && formData.start_time < currentTime) {
-            newErrors.start_time = "Start time cannot be in the past";
-        }
 
         if (formData.start_date === formData.end_date && formData.end_time <= formData.start_time) {
             newErrors.end_time = "End time must be after start time";
@@ -297,12 +294,12 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
 
                         <style jsx global>{`
                             .ql-toolbar.ql-snow {
-                                border-color: var(--heroui-default-200) !important;
+                                border-color: #e5e7eb !important;
                                 border-top-left-radius: 0.75rem;
                                 border-top-right-radius: 0.75rem;
                             }
                             .ql-container.ql-snow {
-                                border-color: var(--heroui-default-200) !important;
+                                border-color: #e5e7eb !important;
                                 border-bottom-left-radius: 0.75rem;
                                 border-bottom-right-radius: 0.75rem;
                                 min-height: 150px;
@@ -335,24 +332,12 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     type="time"
                                     label="Start Time"
                                     value={formData.start_time}
-                                    min={formData.start_date === todayStr ? currentTime : undefined}
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         setFormData({ ...formData, start_time: val });
-                                        if (formData.start_date === todayStr && val < currentTime) {
-                                            setErrors(prev => ({ ...prev, start_time: "Start time cannot be in the past" }));
-                                        } else {
-                                            setErrors(prev => {
-                                                const newErrs = { ...prev };
-                                                delete newErrs.start_time;
-                                                return newErrs;
-                                            });
-                                        }
                                     }}
-                                    isInvalid={!!errors.start_time}
-                                    errorMessage={errors.start_time}
                                     className="w-[150px]"
-                                    isDisabled={anyLoading || isEditMode}
+                                    isDisabled={true}
                                 />
                             </div>
                             <div className="flex gap-4">
