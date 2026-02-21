@@ -434,6 +434,7 @@ export default function AttendancePage() {
         if (editForm.status) data.status = editForm.status;
         if (editForm.attendance_status) data.attendance_status = editForm.attendance_status;
         if (editForm.notes) data.notes = editForm.notes;
+        data.device_type = "Manual";
 
         dispatch(editAttendanceRequest({ id: selectedRecord.id, data }));
     };
@@ -442,6 +443,7 @@ export default function AttendancePage() {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
+            case 'manual': return <Pencil className="w-5 h-5 text-warning" />;
             case 'auto sync': return <RefreshCw className="w-5 h-5" />;
             default: return <Laptop className="w-5 h-5" />;
         }
@@ -513,13 +515,16 @@ export default function AttendancePage() {
                     </Chip>
                 );
             }
-            case "device_type":
+            case "device_type": {
+                const device = cellValue as string;
+                const label = device?.toLowerCase() === 'manual' ? "Manual Override" : device;
                 return (
                     <div className="flex items-center gap-2">
-                        {getDeviceIcon(cellValue as string)}
-                        <span className="text-small">{cellValue as string}</span>
+                        {getDeviceIcon(device)}
+                        <span className="text-small">{label}</span>
                     </div>
                 );
+            }
             case "total_work_hours":
                 return cellValue ? `${cellValue} hrs` : "-";
             case "location":
