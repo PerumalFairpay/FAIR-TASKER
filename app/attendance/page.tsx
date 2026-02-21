@@ -805,7 +805,6 @@ export default function AttendancePage() {
                 isAdmin={isAdmin}
                 todayStats={todayStats}
                 monthStats={monthStats}
-                yearStats={yearStats}
                 elapsedSeconds={elapsedSeconds}
                 isBiometric={relevantRecord?.device_type === 'Biometric'}
             />
