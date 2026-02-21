@@ -58,6 +58,8 @@ const TaskBoard = () => {
     // Filters
     const [filterDate, setFilterDate] = useState(todayStr);
     const [filterEmployee, setFilterEmployee] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [filterPriority, setFilterPriority] = useState("");
 
     // Calculate dynamic label for Moved column
     const nextDayLabel = React.useMemo(() => {
@@ -101,13 +103,15 @@ const TaskBoard = () => {
 
         dispatch(getTasksRequest({
             date: filterDate,
-            assigned_to: isAdmin ? filterEmployee : user?.employee_id
+            assigned_to: isAdmin ? filterEmployee : user?.employee_id,
+            status: filterStatus || undefined,
+            priority: filterPriority || undefined
         }));
         dispatch(getProjectsSummaryRequest());
         dispatch(getEmployeesSummaryRequest());
 
         setEnabled(true);
-    }, [dispatch, filterDate, filterEmployee, user]);
+    }, [dispatch, filterDate, filterEmployee, filterStatus, filterPriority, user, isAdmin]);
 
     const handleOpenEodForSingleTask = (task: any, targetStatus: string) => {
         setEodDrawerTasks([task]);
@@ -346,6 +350,7 @@ const TaskBoard = () => {
                             className="w-40"
                             selectedKeys={filterEmployee ? [filterEmployee] : []}
                             onChange={(e) => setFilterEmployee(e.target.value)}
+                            aria-label="Filter by Employee"
                         >
                             {employees.map((emp: any) => (
                                 <SelectItem key={emp.id} textValue={emp.name}>
@@ -357,6 +362,36 @@ const TaskBoard = () => {
                             ))}
                         </Select>
                     )}
+
+                    {/* <Select
+                        size="sm"
+                        variant="bordered"
+                        placeholder="Priority"
+                        className="w-32"
+                        selectedKeys={filterPriority ? [filterPriority] : []}
+                        onChange={(e) => setFilterPriority(e.target.value)}
+                        aria-label="Filter by Priority"
+                    >
+                        <SelectItem key="Low">Low</SelectItem>
+                        <SelectItem key="Medium">Medium</SelectItem>
+                        <SelectItem key="High">High</SelectItem>
+                        <SelectItem key="Urgent">Urgent</SelectItem>
+                    </Select>
+
+                    <Select
+                        size="sm"
+                        variant="bordered"
+                        placeholder="Status"
+                        className="w-32"
+                        selectedKeys={filterStatus ? [filterStatus] : []}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        aria-label="Filter by Status"
+                    >
+                        <SelectItem key="Todo">Todo</SelectItem>
+                        <SelectItem key="In Progress">In Progress</SelectItem>
+                        <SelectItem key="Completed">Completed</SelectItem>
+                        <SelectItem key="Moved">Moved</SelectItem>
+                    </Select> */}
 
                     <Button
                         variant="flat"
