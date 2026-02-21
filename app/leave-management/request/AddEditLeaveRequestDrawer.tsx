@@ -52,7 +52,7 @@ export default function AddEditLeaveRequestDrawer({
     const { user } = useSelector((state: RootState) => state.Auth);
 
     const [formData, setFormData] = useState({
-        employee_id: "",
+        employee_id: user?.employee_id || "",
         leave_type_id: "",
         leave_duration_type: "Single",
         start_date: today(getLocalTimeZone()).toString(),
@@ -85,16 +85,6 @@ export default function AddEditLeaveRequestDrawer({
         }
     }, [isOpen, dispatch]);
 
-    useEffect(() => {
-        if (isOpen && user?.role === "employee" && employees?.length > 0) {
-            const currentEmployee = employees.find(
-                (emp: any) => emp.id === user.employee_id || emp.email === user.email || emp.id === user.id
-            );
-            if (currentEmployee) {
-                setFormData((prev) => ({ ...prev, employee_id: currentEmployee.id }));
-            }
-        }
-    }, [isOpen, user, employees]);
 
     useEffect(() => {
         if (mode === "edit" && selectedRequest) {
@@ -116,7 +106,7 @@ export default function AddEditLeaveRequestDrawer({
 
         } else {
             setFormData({
-                employee_id: "",
+                employee_id: user?.employee_id || "",
                 leave_type_id: "",
                 leave_duration_type: "Single",
                 start_date: today(getLocalTimeZone()).toString(),
@@ -301,38 +291,6 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
-                            <Select
-                                label="Employee"
-                                placeholder="Select employee"
-                                selectedKeys={formData.employee_id ? [formData.employee_id] : []}
-                                onSelectionChange={(keys) => handleSelectChange("employee_id", Array.from(keys)[0])}
-                                variant="bordered"
-                                isRequired
-                                isDisabled={user?.role === "employee"}
-                            >
-                                {(employees || []).map((emp: any) => (
-                                    <SelectItem key={emp.id} textValue={emp.name}>
-                                        <div className="flex gap-2 items-center">
-                                            {emp.profile_picture ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={emp.profile_picture}
-                                                    alt={emp.name}
-                                                    className="w-8 h-8 rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-8 h-8 rounded-full bg-default-200 flex items-center justify-center text-sm font-semibold text-default-500">
-                                                    {emp.name?.charAt(0).toUpperCase()}
-                                                </div>
-                                            )}
-                                            <div className="flex flex-col">
-                                                <span className="text-small">{emp.name}</span>
-                                                <span className="text-tiny text-default-400">{emp.email}</span>
-                                            </div>
-                                        </div>
-                                    </SelectItem>
-                                ))}
-                            </Select>
 
                             <Select
                                 label="Leave Type"

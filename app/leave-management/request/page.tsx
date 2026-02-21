@@ -207,6 +207,7 @@ export default function LeaveRequestPage() {
                             </SelectItem>
                         ))}
                     </Select>
+                    {user.role !=="admin" && (
                     <Button
                         color="primary"
                         variant="shadow"
@@ -215,6 +216,7 @@ export default function LeaveRequestPage() {
                     >
                         Apply Leave
                     </Button>
+                    )}
                 </div>
             </div>
 
