@@ -16,7 +16,7 @@ import {
     MoreVertical, ArrowUpRight, Sun, Moon,
     Activity, ShieldCheck, AlertCircle, Target, ListTodo,
     Bug, Users, ClipboardList, LogOut,
-    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -331,11 +331,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         color="warning"
                                         size="lg"
                                         variant="flat"
-                                        startContent={<LogOut size={20} />}
+                                        startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                         isLoading={clockOutLoading}
                                         className="font-semibold"
+                                        isDisabled={relevantRecord?.device_type === 'Biometric'}
                                     >
-                                        Clock Out
+                                        {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent>
