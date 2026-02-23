@@ -102,14 +102,24 @@ const attendanceReducer = (
         clockInSuccess: false,
         clockInError: null,
       };
-    case CLOCK_IN_SUCCESS:
+    case CLOCK_IN_SUCCESS: {
+      const newRecord = action.payload.data;
+      const exists = state.attendanceHistory.some(
+        (item) => item.id === newRecord.id,
+      );
       return {
         ...state,
         clockInLoading: false,
         clockInSuccess: true,
         clockedIn: true,
-        attendanceHistory: [action.payload.data, ...state.attendanceHistory],
+        attendanceHistory: exists
+          ? state.attendanceHistory.map((item) =>
+              item.id === newRecord.id ? newRecord : item,
+            )
+          : [newRecord, ...state.attendanceHistory],
+        metrics: action.payload.metrics || state.metrics,
       };
+    }
     case CLOCK_IN_FAILURE:
       return {
         ...state,
@@ -135,6 +145,7 @@ const attendanceReducer = (
         attendanceHistory: state.attendanceHistory.map((item) =>
           item.id === action.payload.data.id ? action.payload.data : item,
         ),
+        metrics: action.payload.metrics || state.metrics,
       };
     case CLOCK_OUT_FAILURE:
       return {

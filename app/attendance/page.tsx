@@ -283,9 +283,6 @@ export default function AttendancePage() {
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            if (!isAdmin) {
-                dispatch(getMyAttendanceHistoryRequest());
-            }
         }
         if (clockInError) {
             addToast({
@@ -305,9 +302,6 @@ export default function AttendancePage() {
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            if (!isAdmin) {
-                dispatch(getMyAttendanceHistoryRequest());
-            }
         }
         if (clockOutError) {
             addToast({
