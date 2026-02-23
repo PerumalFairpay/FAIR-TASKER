@@ -128,7 +128,6 @@ export default function FeedbackPage() {
                 priority: feedback.priority,
                 attachments: [],
             });
-            // We don't populate files for edit as they are on server
             setFiles([]);
         } else {
             resetForm();
@@ -455,13 +454,20 @@ export default function FeedbackPage() {
                             >
                                 {item.attachments?.[0] && (
                                     <div className="p-2.5 pb-0">
-                                        <div className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50">
-                                            <Image
-                                                src={item.attachments[0].document_proof.replace("host.docker.internal", "localhost")}
-                                                alt={item.attachments[0].document_name || "Cover"}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                removeWrapper
-                                            />
+                                        <div className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50 bg-default-100 flex items-center justify-center">
+                                            {item.attachments[0].file_type?.startsWith("image/") ? (
+                                                <Image
+                                                    src={item.attachments[0].document_proof.replace("host.docker.internal", "localhost")}
+                                                    alt={item.attachments[0].document_name || "Cover"}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    removeWrapper
+                                                />
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2 text-default-400">
+                                                    <Paperclip size={32} />
+                                                    <span className="text-[10px] font-medium px-2 text-center line-clamp-1">{item.attachments[0].document_name}</span>
+                                                </div>
+                                            )}
                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                             {item.attachments.length > 1 && (
                                                 <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
@@ -675,8 +681,7 @@ export default function FeedbackPage() {
                                 setFiles={setFiles}
                                 allowMultiple={true}
                                 maxFiles={5}
-                                acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg']}
-                                labelIdle='Drag & Drop images only or <span class="filepond--label-action">Browse</span>'
+                                labelIdle='Drag & Drop files or <span class="filepond--label-action">Browse</span>'
                             />
                         </div>
                     </ModalBody>
