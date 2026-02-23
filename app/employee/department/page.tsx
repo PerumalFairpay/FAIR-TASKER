@@ -10,6 +10,7 @@ import {
     deleteDepartmentRequest,
     clearDepartmentDetails,
 } from "@/store/department/action";
+import { getShiftsRequest } from "@/store/shift/action";
 import { RootState } from "@/store/store";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -225,6 +226,7 @@ export default function DepartmentPage() {
     const { departments, loading, error, success } = useSelector(
         (state: RootState) => state.Department
     );
+    const { shifts } = useSelector((state: any) => state.Shift || { shifts: [] });
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const {
@@ -241,10 +243,12 @@ export default function DepartmentPage() {
     const [formData, setFormData] = useState({
         name: "",
         parent_id: "",
+        default_shift_id: "",
     });
 
     useEffect(() => {
         dispatch(getDepartmentsRequest());
+        dispatch(getShiftsRequest());
     }, [dispatch]);
 
     useEffect(() => {
@@ -256,14 +260,14 @@ export default function DepartmentPage() {
 
     const handleCreate = () => {
         setMode("create");
-        setFormData({ name: "", parent_id: "" });
+        setFormData({ name: "", parent_id: "", default_shift_id: "" });
         setShowParentSelect(false);
         onOpen();
     };
 
     const handleAddSub = (parentId: string) => {
         setMode("create");
-        setFormData({ name: "", parent_id: parentId });
+        setFormData({ name: "", parent_id: parentId, default_shift_id: "" });
         setShowParentSelect(false);
         onOpen();
     };
@@ -274,6 +278,7 @@ export default function DepartmentPage() {
         setFormData({
             name: department.name,
             parent_id: department.parent_id || "",
+            default_shift_id: department.default_shift_id || "",
         });
         setShowParentSelect(true);
         onOpen();
@@ -293,17 +298,20 @@ export default function DepartmentPage() {
 
     const handleSubmit = () => {
         const parentId = formData.parent_id ? formData.parent_id : null;
+        const defaultShiftId = formData.default_shift_id ? formData.default_shift_id : null;
 
         if (mode === "create") {
             const payload = {
                 name: formData.name,
                 parent_id: parentId,
+                default_shift_id: defaultShiftId,
             };
             dispatch(createDepartmentRequest(payload));
         } else {
             const payload = {
                 name: formData.name,
                 parent_id: parentId,
+                default_shift_id: defaultShiftId,
             };
             dispatch(updateDepartmentRequest(selectedDepartment.id, payload));
         }
@@ -370,6 +378,20 @@ export default function DepartmentPage() {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
+                                <Select
+                                    label="Default Shift"
+                                    placeholder="Select Default Shift"
+                                    selectedKeys={formData.default_shift_id ? [formData.default_shift_id] : []}
+                                    onChange={(e) => setFormData({ ...formData, default_shift_id: e.target.value })}
+                                    className="pt-4"
+                                >
+                                    {(shifts || []).map((shift: any) => (
+                                        <SelectItem key={shift.id} textValue={shift.name}>
+                                            {shift.name} ({shift.start_time} - {shift.end_time})
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+
                                 {showParentSelect && (
                                     <Select
                                         label="Parent Department"

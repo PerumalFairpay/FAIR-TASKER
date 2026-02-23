@@ -4,6 +4,7 @@ import { RootState } from "@/store/store";
 import { getRolesRequest } from "@/store/role/action";
 import { getDepartmentsRequest } from "@/store/department/action";
 import { getEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
+import { getShiftsRequest } from "@/store/shift/action";
 import {
     Drawer,
     DrawerContent,
@@ -42,6 +43,7 @@ export default function AddEditEmployeeDrawer({
     const dispatch = useDispatch();
     const { roles } = useSelector((state: RootState) => state.Role);
     const { departments } = useSelector((state: RootState) => state.Department);
+    const { shifts } = useSelector((state: any) => state.Shift || { shifts: [] });
     const { employee: fetchedEmployee, getLoading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
     const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
 
@@ -86,6 +88,7 @@ export default function AddEditEmployeeDrawer({
         if (isOpen) {
             dispatch(getRolesRequest());
             dispatch(getDepartmentsRequest());
+            dispatch(getShiftsRequest());
             if (mode === "edit" && selectedEmployee?.id) {
                 dispatch(getEmployeeRequest(selectedEmployee.id));
             }
@@ -560,6 +563,21 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleConfirmationPeriodChange(e.target.value)}
                                                 type="number"
                                             />
+                                            <Select
+                                                label="Shift"
+                                                placeholder="Select Shift"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                selectedKeys={formData.shift_id ? [formData.shift_id] : []}
+                                                onChange={(e) => handleChange("shift_id", e.target.value)}
+                                            >
+                                                {(shifts || []).map((shift: any) => (
+                                                    <SelectItem key={shift.id} textValue={shift.name}>
+                                                        {shift.name} ({shift.start_time} - {shift.end_time})
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+
                                             <Select
                                                 label="Work Mode"
                                                 placeholder="Select Work Mode"

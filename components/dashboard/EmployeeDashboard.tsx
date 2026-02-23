@@ -16,7 +16,7 @@ import {
     MoreVertical, ArrowUpRight, Sun, Moon,
     Activity, ShieldCheck, AlertCircle, Target, ListTodo,
     Bug, Users, ClipboardList, LogOut,
-    Award, RefreshCw, Ban, Baby, FileText, HeartPulse
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -53,6 +53,8 @@ interface DashboardData {
         on_time_days: number;
         absent_days: number;
         late_days: number;
+        half_day_days: number;
+        permission_days: number;
         holiday_days: number;
         leave_days: number;
         total_working_days: number;
@@ -134,8 +136,30 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
         clockInError,
         clockOutLoading,
         clockOutSuccess,
-        clockOutError
+        clockOutError,
+        metrics: reduxMetrics
     } = useSelector((state: AppState) => state.Attendance);
+
+    const displayMetrics = React.useMemo(() => {
+        if (reduxMetrics && reduxMetrics.month) {
+            const m = reduxMetrics.month;
+            const totalPresent = (m.on_time || 0) + (m.late || 0) + (m.half_day || 0) + (m.permission || 0);
+            const totalWorking = totalPresent + (m.absent || 0) + (m.leave || 0) + (m.holiday || 0);
+            return {
+                ...data.attendance_metrics,
+                present_days: totalPresent,
+                on_time_days: m.on_time || 0,
+                absent_days: m.absent || 0,
+                late_days: m.late || 0,
+                half_day_days: m.half_day || 0,
+                permission_days: m.permission || 0,
+                leave_days: m.leave || 0,
+                holiday_days: m.holiday || 0,
+                total_working_days: totalWorking > 0 ? totalWorking : data.attendance_metrics.total_working_days
+            };
+        }
+        return data.attendance_metrics;
+    }, [reduxMetrics, data.attendance_metrics]);
 
     const { user } = useSelector((state: AppState) => state.Auth);
 
@@ -152,7 +176,6 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            dispatch(getMyAttendanceHistoryRequest());
         }
         if (clockInError) {
             addToast({
@@ -172,7 +195,6 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            dispatch(getMyAttendanceHistoryRequest());
         }
         if (clockOutError) {
             addToast({
@@ -268,29 +290,36 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 <div className="hidden sm:flex items-center gap-6">
                     {/* Buttons Section */}
                     <div>
-                        {relevantRecord?.status === 'Leave' ? (
+                        {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                             <Button
                                 className="cursor-default opacity-100 font-semibold"
                                 variant="flat"
-                                color="warning"
+                                color="secondary"
                                 size="lg"
-                                startContent={<Calendar size={20} />}
+                                startContent={<Plane size={20} />}
                                 disableAnimation
                             >
                                 On Leave
                             </Button>
-                        ) : !isTodayClockIn && user?.work_mode === 'Remote' ? (
-                            <Button
-                                color="primary"
-                                size="lg"
-                                startContent={<Clock size={20} />}
-                                onPress={handleClockIn}
-                                isLoading={clockInLoading}
-                                className="shadow-lg shadow-primary/40 font-semibold"
-                            >
-                                Clock In
-                            </Button>
-                        ) : !isTodayClockOut && user?.work_mode === 'Remote' ? (
+                        ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
+                            <div className="flex items-center gap-3">
+                                {relevantRecord?.attendance_status === 'Half Day' && (
+                                    <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
+                                        Half Day Leave
+                                    </Chip>
+                                )}
+                                <Button
+                                    color="primary"
+                                    size="lg"
+                                    startContent={<Clock size={20} />}
+                                    onPress={handleClockIn}
+                                    isLoading={clockInLoading}
+                                    className="shadow-lg shadow-primary/40 font-semibold"
+                                >
+                                    Clock In
+                                </Button>
+                            </div>
+                        ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
                             <Popover
                                 isOpen={isClockOutPopoverOpen}
                                 onOpenChange={setIsClockOutPopoverOpen}
@@ -302,11 +331,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         color="warning"
                                         size="lg"
                                         variant="flat"
-                                        startContent={<LogOut size={20} />}
+                                        startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                         isLoading={clockOutLoading}
                                         className="font-semibold"
+                                        isDisabled={relevantRecord?.device_type === 'Biometric'}
                                     >
-                                        Clock Out
+                                        {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent>
@@ -520,7 +550,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             <div>
                                 <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Monthly Attendance</h3>
                                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                                    Total: {data.attendance_metrics.total_working_days} Working Days
+                                    Total: {displayMetrics.total_working_days} Working Days
                                 </p>
                             </div>
                             <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-full text-emerald-500">
@@ -554,7 +584,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             stroke="url(#monthPresentGradient)"
                                             className="transition-all duration-1500 ease-out"
                                             strokeDasharray={552}
-                                            strokeDashoffset={552 - (552 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) || 0))}
+                                            strokeDashoffset={552 - (552 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) || 0))}
                                             strokeLinecap="round"
                                             style={{ filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))" }}
                                         />
@@ -565,11 +595,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-full bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-lg border border-white/50 dark:border-white/5">
                                             <div className="flex items-baseline gap-0.5">
                                                 <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-                                                    {Math.round((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100)}
+                                                    {Math.round((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100)}
                                                 </span>
                                                 <span className="text-sm font-bold text-emerald-500">%</span>
                                             </div>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Attendance</span>
+                                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 leading-none mt-0.5">
+                                                {displayMetrics.present_days} Days
+                                            </span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Present</span>
                                         </div>
                                     </div>
 
@@ -577,7 +610,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <div
                                         className="absolute top-1/2 left-1/2 w-3 h-3 -ml-1.5 -mt-1.5 transition-all duration-1500 ease-out z-10 pointer-events-none"
                                         style={{
-                                            transform: `rotate(${(3.6 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100)) - 90}deg) translate(88px) rotate(${90 - (3.6 * ((data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100))}deg)`
+                                            transform: `rotate(${(3.6 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100)) - 90}deg) translate(88px) rotate(${90 - (3.6 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100))}deg)`
                                         }}
                                     >
                                         <div className="w-full h-full bg-white dark:bg-emerald-500 border border-emerald-500 dark:border-white rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
@@ -586,37 +619,32 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                 {/* Stats List */}
                                 <div className="flex-1 w-full flex flex-col gap-3 pl-0 sm:pl-2">
-                                    {/* Present */}
+
+                                    {/* On Time */}
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Present</span>
-                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{data.attendance_metrics.present_days} Days</span>
+                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">On Time</span>
+                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                                {displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)} Days
+                                            </span>
                                         </div>
                                         <Progress
                                             size="sm" radius="sm"
-                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-500" }}
-                                            value={(data.attendance_metrics.present_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-400" }}
+                                            value={((displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)) / (displayMetrics.total_working_days || 1)) * 100}
                                         />
-                                    </div>
-
-                                    {/* On Time (Subset of Present) */}
-                                    <div className="flex flex-col gap-1 pl-2 border-l-2 border-slate-100 dark:border-white/5">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">On Time</span>
-                                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{data.attendance_metrics.on_time_days || (data.attendance_metrics.present_days - data.attendance_metrics.late_days)} Days</span>
-                                        </div>
                                     </div>
 
                                     {/* Late */}
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-end">
                                             <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Late</span>
-                                            <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{data.attendance_metrics.late_days} Days</span>
+                                            <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{displayMetrics.late_days} Days</span>
                                         </div>
                                         <Progress
                                             size="sm" radius="sm"
                                             classNames={{ base: "h-1.5", track: "bg-orange-50 dark:bg-orange-500/10", indicator: "bg-orange-500" }}
-                                            value={(data.attendance_metrics.late_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                            value={(displayMetrics.late_days / (displayMetrics.total_working_days || 1)) * 100}
                                         />
                                     </div>
 
@@ -624,24 +652,32 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <div className="flex flex-col gap-1">
                                         <div className="flex justify-between items-end">
                                             <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Absent</span>
-                                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{data.attendance_metrics.absent_days} Days</span>
+                                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{displayMetrics.absent_days} Days</span>
                                         </div>
                                         <Progress
                                             size="sm" radius="sm"
                                             classNames={{ base: "h-1.5", track: "bg-rose-50 dark:bg-rose-500/10", indicator: "bg-rose-500" }}
-                                            value={(data.attendance_metrics.absent_days / (data.attendance_metrics.total_working_days || 1)) * 100}
+                                            value={(displayMetrics.absent_days / (displayMetrics.total_working_days || 1)) * 100}
                                         />
                                     </div>
 
-                                    {/* Leave & Holiday Row */}
+                                    {/* Leave, Holiday, Half Day & Permission Grid */}
                                     <div className="grid grid-cols-2 gap-2 mt-1">
                                         <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
-                                            <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{data.attendance_metrics.leave_days}</span>
+                                            <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{displayMetrics.leave_days}</span>
                                             <span className="text-[9px] text-amber-600/70 uppercase">Leaves</span>
                                         </div>
                                         <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
-                                            <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{data.attendance_metrics.holiday_days}</span>
+                                            <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{displayMetrics.holiday_days}</span>
                                             <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
+                                        </div>
+                                        <div className="px-2 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
+                                            <span className="block text-xs font-bold text-teal-700 dark:text-teal-400">{(displayMetrics as any).half_day_days ?? 0}</span>
+                                            <span className="text-[9px] text-teal-600/70 uppercase">Half Day</span>
+                                        </div>
+                                        <div className="px-2 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
+                                            <span className="block text-xs font-bold text-indigo-700 dark:text-indigo-400">{(displayMetrics as any).permission_days ?? 0}</span>
+                                            <span className="text-[9px] text-indigo-600/70 uppercase">Permission</span>
                                         </div>
                                     </div>
                                 </div>

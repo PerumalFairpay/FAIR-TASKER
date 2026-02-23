@@ -9,7 +9,7 @@ import { loginRequest } from "@/store/auth/action";
 import { AppState } from "@/store/rootReducer";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Banknote, CalendarCheck, Eye, EyeOff, ShieldCheck, Users, BarChart3, User as UserIcon, Clock, KanbanSquare, Package, Briefcase, Newspaper } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
 
@@ -38,178 +38,167 @@ export default function LoginPage() {
     }
   }, [token, router]);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-      },
-    },
-  };
-
-  const features = [
-    { icon: <Users className="text-blue-400" />, text: "Employee Lifecycle Management" },
-    { icon: <Clock className="text-green-400" />, text: "Smart Attendance & Leave" },
-    { icon: <KanbanSquare className="text-purple-400" />, text: "Advanced Task & Project Board" },
-    { icon: <Package className="text-yellow-400" />, text: "Asset & Resource Tracking" },
-    { icon: <Briefcase className="text-cyan-400" />, text: "Client & Vendor Management" },
-    { icon: <BarChart3 className="text-orange-400" />, text: "Insightful HR Analytics" },
-    { icon: <Newspaper className="text-rose-400" />, text: "Internal Blog & News Feeds" },
-    { icon: <ShieldCheck className="text-emerald-400" />, text: "Granular Access Control" },
-  ];
 
   return (
-    <div className="flex min-h-screen w-full overflow-hidden bg-background">
-      {/* Left Side - Hero Section */}
-      <motion.div
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-blue-950 to-black p-12 lg:flex"
-      >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 z-0">
-          <motion.div
+    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background transition-colors duration-500">
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Stylistic SVGs */}
+        <div className="absolute inset-0 opacity-20 dark:opacity-30">
+          <motion.svg
             animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute -left-20 -top-20 h-[500px] w-[500px] rounded-full bg-blue-600/20 blur-3xl"
-          />
-          <motion.div
-            animate={{
+              rotate: 360,
               scale: [1, 1.1, 1],
-              opacity: [0.3, 0.5, 0.3],
             }}
             transition={{
-              duration: 10,
+              duration: 25,
               repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1
+              ease: "linear",
             }}
-            className="absolute bottom-0 right-0 h-[600px] w-[600px] rounded-full bg-purple-600/20 blur-3xl"
-          />
+            className="absolute -top-[10%] -left-[5%] h-[60%] w-[60%] text-blue-600/30"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill="currentColor"
+              d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.1,41.4C64.8,53.7,53.8,63.7,40.9,71.1C28,78.5,14,83.2,-0.2,83.5C-14.4,83.8,-28.8,79.7,-42,72.6C-55.2,65.5,-67.2,55.3,-75.4,42.4C-83.6,29.5,-88,14.8,-88.4,-0.2C-88.8,-15.3,-85.1,-30.5,-76.8,-43.3C-68.5,-56.1,-55.6,-66.4,-41.7,-73.8C-27.8,-81.2,-13.9,-85.7,0.4,-86.3C14.7,-87,29.4,-83.7,44.7,-76.4Z"
+              transform="translate(100 100)"
+            />
+          </motion.svg>
+
+          <motion.svg
+            animate={{
+              rotate: -360,
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 35,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[70%] text-purple-600/30"
+            viewBox="0 0 200 200"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill="currentColor"
+              d="M39.6,-67.3C50.2,-58.5,57.1,-46.1,64.2,-33.6C71.3,-21.1,78.7,-8.5,80.1,5.3C81.5,19.1,76.8,34.1,68.1,46C59.4,57.9,46.7,66.6,33.1,71.5C19.5,76.4,5,77.5,-10.1,75.4C-25.2,73.3,-40.8,68,-52.7,58.3C-64.6,48.6,-72.7,34.4,-77.1,19.3C-81.5,4.2,-82.1,-11.8,-76.9,-25.9C-71.7,-40,-60.7,-52.1,-47.8,-59.8C-34.9,-67.5,-20.1,-70.7,-4.8,-62.4C10.5,-54.1,28.9,-76.1,39.6,-67.3Z"
+              transform="translate(100 100)"
+            />
+          </motion.svg>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 flex h-full flex-col justify-between">
-          <div />
+        {/* Animated Orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          className="absolute -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-blue-600/15 blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            x: [0, -40, 0],
+            y: [0, 60, 0],
+            opacity: [0.15, 0.35, 0.15],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+          className="absolute -bottom-40 -right-20 h-[700px] w-[700px] rounded-full bg-purple-600/15 blur-[130px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.1, 0.25, 0.1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2
+          }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[800px] w-[800px] rounded-full bg-indigo-500/10 blur-[150px]"
+        />
 
-          <motion.div
-            className="space-y-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.h1
-              variants={itemVariants}
-              className="text-4xl font-bold leading-tight text-white tracking-tight sm:text-5xl"
-            >
-              Empower your <br />
-              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Human Capital
-              </span>
-            </motion.h1>
-            <motion.p variants={itemVariants} className="max-w-md text-base text-blue-100/70 leading-relaxed">
-              The all-in-one HRM solution to manage your workforce, automate payroll, and cultivate a high-performance culture with ease and precision.
-            </motion.p>
+        {/* Subtle Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      </div>
 
-            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 pt-2">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/5 p-3 backdrop-blur-sm transition-colors hover:bg-white/10 text-white/90">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20 text-blue-300">
-                    {React.cloneElement(feature.icon as React.ReactElement, { size: 16 })}
-                  </div>
-                  <span className="text-xs font-medium">{feature.text}</span>
-                </div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="text-xs text-white/40"
-          >
-            © 2025 FairTasker. All rights reserved.
-          </motion.div>
-        </div>
-      </motion.div>
-
-      {/* Right Side - Login Form */}
-      <div className="flex w-full flex-col justify-center bg-background p-8 lg:w-1/2 lg:p-24">
+      <div className="relative z-10 w-full px-6 py-12 lg:px-8">
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto w-full max-w-[400px]"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mx-auto w-full max-w-[420px] p-4 md:p-8"
         >
           <div className="mb-10 text-center flex flex-col items-center">
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="mb-8"
             >
               <Image
                 src={FairPayLogo}
                 alt="FairPay Logo"
-                width={200}
-                height={70}
-                className="object-contain"
+                width={220}
+                height={80}
+                className="object-contain drop-shadow-sm"
                 priority
               />
             </motion.div>
-            <p className="mt-2 text-default-500">Sign in to your account to continue</p>
+            <motion.h2
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-bold tracking-tight text-foreground"
+            >
+              Welcome Back
+            </motion.h2>
           </div>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
             <motion.div
-              initial={{ x: 20, opacity: 0 }}
+              initial={{ x: -10, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.5 }}
             >
               <Input
                 suppressHydrationWarning
                 isRequired
-                label="Email"
+                label="Email Address"
                 labelPlacement="outside"
-                placeholder="john@example.com"
+                placeholder="name@company.com"
                 type="email"
                 variant="bordered"
                 value={email}
                 onValueChange={setEmail}
                 className="max-w-full"
                 classNames={{
-                  label: "text-foreground font-medium",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all",
+                  label: "text-foreground font-semibold text-xs uppercase tracking-wider",
+                  inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
                 }}
               />
             </motion.div>
 
             <motion.div
-              initial={{ x: 20, opacity: 0 }}
+              initial={{ x: -10, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.6 }}
             >
               <Input
                 suppressHydrationWarning
@@ -222,42 +211,44 @@ export default function LoginPage() {
                 value={password}
                 onValueChange={setPassword}
                 endContent={
-                  <button className="focus:outline-none opacity-70 hover:opacity-100 transition-opacity" type="button" onClick={toggleVisibility}>
+                  <button className="focus:outline-none opacity-60 hover:opacity-100 transition-opacity" type="button" onClick={toggleVisibility}>
                     {isVisible ? (
-                      <EyeOff className="text-xl text-default-400" />
+                      <EyeOff size={18} className="text-default-400" />
                     ) : (
-                      <Eye className="text-xl text-default-400" />
+                      <Eye size={18} className="text-default-400" />
                     )}
                   </button>
                 }
                 classNames={{
-                  label: "text-foreground font-medium",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all",
+                  label: "text-foreground font-semibold text-xs uppercase tracking-wider",
+                  inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
                 }}
               />
             </motion.div>
 
-
             <AnimatePresence mode="wait">
               {loginError && (
                 <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="rounded-lg bg-danger-50/50 border border-danger-100 p-3 text-center text-sm font-medium text-danger"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="rounded-xl bg-danger-50/10 border border-danger-200/20 p-3 text-center text-xs font-medium text-danger backdrop-blur-sm"
                 >
-                  {typeof loginError === 'string' ? loginError : 'Invalid credentials. Please try again.'}
+                  {typeof loginError === 'string' ? loginError : 'Unrecognized login error. Please check your network.'}
                 </motion.div>
               )}
             </AnimatePresence>
 
             <motion.div
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="pt-2"
             >
               <Button
-                className="h-12 w-full bg-gradient-to-r from-blue-600 to-purple-600 font-bold text-white shadow-lg shadow-blue-500/30 transition-shadow hover:shadow-blue-500/40"
+                className="h-12 w-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white shadow-xl shadow-blue-500/20 transition-all hover:shadow-blue-500/40 hover:brightness-110"
                 type="submit"
                 isLoading={loginLoading}
                 size="lg"
@@ -266,6 +257,15 @@ export default function LoginPage() {
               </Button>
             </motion.div>
           </form>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="mt-12 text-center text-[10px] uppercase tracking-widest text-default-400"
+          >
+            © 2025 FairPay Technologies
+          </motion.div>
         </motion.div>
       </div>
     </div>

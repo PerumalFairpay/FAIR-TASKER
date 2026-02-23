@@ -2,6 +2,7 @@ import React from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import Video from "yet-another-react-lightbox/plugins/video";
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody } from "@heroui/drawer";
 
 interface FilePreviewModalProps {
@@ -24,13 +25,21 @@ export default function FilePreviewModal({
     const isImage = fileType?.includes("image") ||
         fileName?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
 
-    if (isImage) {
+    const isVideo = fileType?.includes("video") ||
+        fileName?.match(/\.(mp4|webm|ogg)$/i);
+
+    if (isImage || isVideo) {
         return (
             <Lightbox
                 open={isOpen}
                 close={onClose}
-                slides={[{ src: fileUrl }]}
-                plugins={[Zoom]}
+                slides={isVideo ? [{
+                    type: "video",
+                    sources: [
+                        { src: fileUrl, type: fileType || "video/mp4" }
+                    ]
+                }] : [{ src: fileUrl }]}
+                plugins={[Zoom, Video]}
                 controller={{ closeOnBackdropClick: true }}
             />
         );

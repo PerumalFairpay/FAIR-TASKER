@@ -10,7 +10,7 @@ import {
     clockOutRequest,
     clearAttendanceStatus,
     importAttendanceRequest,
-    updateAttendanceStatusRequest
+    editAttendanceRequest,
 } from "@/store/attendance/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { AppState } from "@/store/rootReducer";
@@ -22,11 +22,18 @@ import { Card, CardBody } from "@heroui/card";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { Avatar } from "@heroui/avatar";
-import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane } from "lucide-react";
+import { Plus, MoreVertical, Calendar as CalendarIcon, Paperclip, Clock, LogOut, MapPin, Laptop, Fingerprint, Smartphone, List, CheckCircle, RefreshCw, Plane, Pencil, Settings } from "lucide-react";
 import { Select, SelectItem } from "@heroui/select";
 
 import { addToast } from "@heroui/toast";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import {
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerBody,
+    DrawerFooter,
+} from "@heroui/drawer";
 import { Pagination } from "@heroui/pagination";
 import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Input } from "@heroui/input";
@@ -47,7 +54,12 @@ interface AttendanceRecord {
     };
     clock_in: string;
     clock_out?: string;
-    status: string;
+    status: string;              // Primary: Present | Absent | Leave | Holiday
+    attendance_status?: string;  // Detailed: Ontime | Late | Permission | Half Day | CL | SL | ...
+    leave_type_code?: string;    // e.g. "CL", "SL", "LOP"
+    is_permission?: boolean;
+    is_half_day?: boolean;
+    is_late?: boolean;
     device_type: string;
     total_work_hours?: string;
     location?: string;
@@ -67,7 +79,28 @@ const columns = [
     { name: "WORK HOURS", uid: "total_work_hours" },
     { name: "STATUS", uid: "status" },
     { name: "LOCATION", uid: "location" },
+    { name: "ACTIONS", uid: "actions" },
 ];
+
+// Helper: convert ISO timestamp → "HH:MM" for time input (displayed in local/IST time)
+function isoToTimeInput(iso?: string): string {
+    if (!iso) return "";
+    try {
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return "";
+        // getHours/getMinutes returns local time (IST in browser)
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        return `${hh}:${mm}`;
+    } catch { return ""; }
+}
+
+function buildISOFromDateAndTime(dateStr: string, timeStr: string): string {
+    if (!dateStr || !timeStr) return "";
+    const d = new Date(`${dateStr}T${timeStr}:00`);
+    return d.toISOString(); // e.g. "2026-02-21T14:31:00.000Z"
+}
+
 
 export default function AttendancePage() {
     const dispatch = useDispatch();
@@ -86,6 +119,9 @@ export default function AttendancePage() {
         importAttendanceLoading,
         importAttendanceSuccess,
         importAttendanceError,
+        editAttendanceLoading,
+        editAttendanceSuccess,
+        editAttendanceError,
         pagination
     } = useSelector((state: AppState) => state.Attendance);
     const { user } = useSelector((state: AppState) => state.Auth);
@@ -94,20 +130,22 @@ export default function AttendancePage() {
     const isAdmin = user?.role === 'admin';
 
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
+    const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
 
     // Pagination State
     const [page, setPage] = useState(1);
     const limit = 20;
 
-    // Status update state
-    const [statusUpdateData, setStatusUpdateData] = useState<{
-        attendanceId: string;
-        oldStatus: string;
-        newStatus: string;
-        reason: string;
-        notes: string;
-    } | null>(null);
+    // Edit modal state
+    const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+    const [editForm, setEditForm] = useState({
+        clock_in: "",
+        clock_out: "",
+        status: "",
+        attendance_status: "",
+        notes: "",
+    });
 
     // Local state for clock logic
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
@@ -245,9 +283,6 @@ export default function AttendancePage() {
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            if (!isAdmin) {
-                dispatch(getMyAttendanceHistoryRequest());
-            }
         }
         if (clockInError) {
             addToast({
@@ -267,9 +302,6 @@ export default function AttendancePage() {
                 color: "success"
             });
             dispatch(clearAttendanceStatus());
-            if (!isAdmin) {
-                dispatch(getMyAttendanceHistoryRequest());
-            }
         }
         if (clockOutError) {
             addToast({
@@ -308,6 +340,27 @@ export default function AttendancePage() {
             dispatch(clearAttendanceStatus());
         }
     }, [importAttendanceSuccess, importAttendanceError, dispatch, isAdmin, viewMode, currentMonth, filters]);
+
+    // Edit attendance toast handler
+    useEffect(() => {
+        if (editAttendanceSuccess) {
+            addToast({
+                title: "Success",
+                description: "Attendance record updated successfully",
+                color: "success"
+            });
+            dispatch(clearAttendanceStatus());
+            onEditClose();
+        }
+        if (editAttendanceError) {
+            addToast({
+                title: "Error",
+                description: editAttendanceError,
+                color: "danger"
+            });
+            dispatch(clearAttendanceStatus());
+        }
+    }, [editAttendanceSuccess, editAttendanceError, dispatch]);
 
     const handleClockIn = () => {
         const now = new Date();
@@ -349,10 +402,42 @@ export default function AttendancePage() {
         }
     };
 
+    // Open edit modal pre-filled with the selected record
+    const handleEditOpen = (record: AttendanceRecord) => {
+        setSelectedRecord(record);
+        setEditForm({
+            clock_in: isoToTimeInput(record.clock_in),
+            clock_out: isoToTimeInput(record.clock_out),
+            status: record.status || "",
+            attendance_status: record.attendance_status || "",
+            notes: "",
+        });
+        onEditOpen();
+    };
+
+    const handleEditSave = () => {
+        if (!selectedRecord) return;
+
+        const data: any = {};
+        if (editForm.clock_in) {
+            data.clock_in = buildISOFromDateAndTime(selectedRecord.date, editForm.clock_in);
+        }
+        if (editForm.clock_out) {
+            data.clock_out = buildISOFromDateAndTime(selectedRecord.date, editForm.clock_out);
+        }
+        if (editForm.status) data.status = editForm.status;
+        if (editForm.attendance_status) data.attendance_status = editForm.attendance_status;
+        if (editForm.notes) data.notes = editForm.notes;
+        data.device_type = "Manual";
+
+        dispatch(editAttendanceRequest({ id: selectedRecord.id, data }));
+    };
+
     const getDeviceIcon = (device: string) => {
         switch (device?.toLowerCase()) {
             case 'biometric': return <Fingerprint className="w-5 h-5" />;
             case 'mobile': return <Smartphone className="w-5 h-5" />;
+            case 'manual': return <Settings className="w-5 h-5" />;
             case 'auto sync': return <RefreshCw className="w-5 h-5" />;
             default: return <Laptop className="w-5 h-5" />;
         }
@@ -379,56 +464,61 @@ export default function AttendancePage() {
                     }
                 }
                 return "-";
-            case "status":
-                let color: "success" | "danger" | "warning" | "primary" | "default" = "default";
-                if (cellValue === "Present") color = "success";
-                else if (cellValue === "Absent") color = "danger";
-                else if (cellValue === "Leave") color = "warning";
-                else if (cellValue === "Holiday") color = "primary";
+            case "status": {
+                // Build a compound label from primary status + attendance_status sub-status
+                const primary = item.status || "";
+                const sub = item.attendance_status || "";
+                const typeCode = item.leave_type_code || "";
 
-                if (isAdmin) {
-                    return (
-                        <Select
-                            size="sm"
-                            variant="flat"
-                            color={color}
-                            className="w-32"
-                            aria-label="Update Status"
-                            selectedKeys={[cellValue as string]}
-                            onSelectionChange={(keys) => {
-                                const newStatus = Array.from(keys)[0] as string;
-                                if (newStatus && newStatus !== cellValue) {
-                                    setStatusUpdateData({
-                                        attendanceId: item.id,
-                                        oldStatus: cellValue as string,
-                                        newStatus,
-                                        reason: '',
-                                        notes: ''
-                                    });
-                                }
-                            }}
-                        >
-                            <SelectItem key="Present">Present</SelectItem>
-                            <SelectItem key="Absent">Absent</SelectItem>
-                            <SelectItem key="Leave">Leave</SelectItem>
-                            <SelectItem key="Holiday">Holiday</SelectItem>
-                            <SelectItem key="Late">Late</SelectItem>
-                        </Select>
-                    );
+                // Determine badge color
+                let color: "success" | "danger" | "warning" | "primary" | "default" | "secondary" = "default";
+                let label = primary;
+
+                if (primary === "Present") {
+                    if (sub === "Permission") {
+                        label = "Present · Permission";
+                        color = "secondary";
+                    } else if (sub === "Half Day") {
+                        label = "Present · Half Day";
+                        color = "primary";
+                    } else if (sub === "Late") {
+                        label = "Present · Late";
+                        color = "warning";
+                    } else {
+                        label = "Present · On Time";
+                        color = "success";
+                    }
+                } else if (primary === "Absent") {
+                    color = "danger";
+                    label = "Absent";
+                } else if (primary === "Leave") {
+                    color = "warning";
+                    label = sub === "Half Day"
+                        ? "Leave · Half Day"
+                        : typeCode
+                            ? `Leave · ${typeCode}`
+                            : "Leave";
+                } else if (primary === "Holiday") {
+                    color = "primary";
+                    label = "Holiday";
                 }
 
                 return (
-                    <Chip className="capitalize" color={color} size="sm" variant="flat">
-                        {cellValue as string}
+                    <Chip className="capitalize whitespace-nowrap" color={color} size="sm" variant="flat">
+                        {label}
                     </Chip>
                 );
-            case "device_type":
+            }
+            case "device_type": {
+                const device = cellValue as string;
+                const label = device?.toLowerCase() === 'manual' ? "Manual" : device;
                 return (
                     <div className="flex items-center gap-2">
-                        {getDeviceIcon(cellValue as string)}
-                        <span className="text-small">{cellValue as string}</span>
+                        {getDeviceIcon(device)}
+                        <span className="text-small">{label}</span>
                     </div>
                 );
+            }
             case "total_work_hours":
                 return cellValue ? `${cellValue} hrs` : "-";
             case "location":
@@ -436,6 +526,20 @@ export default function AttendancePage() {
                     <div className="max-w-[300px] truncate text-small" title={cellValue as string}>
                         {cellValue as string || "-"}
                     </div>
+                );
+            case "actions":
+                if (!isAdmin || item.status === "Leave") return null;
+                return (
+                    <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        color="primary"
+                        aria-label="Edit attendance"
+                        onPress={() => handleEditOpen(item)}
+                    >
+                        <Pencil size={15} />
+                    </Button>
                 );
             default:
                 return cellValue as React.ReactNode;
@@ -446,14 +550,15 @@ export default function AttendancePage() {
 
 
 
-    const todayStats = metrics?.today || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
-    const monthStats = metrics?.month || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
-    const yearStats = metrics?.year || { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, overtime: 0 };
+    const defaultStats = { total_present: 0, on_time: 0, late: 0, absent: 0, leave: 0, holiday: 0, permission: 0, half_day: 0 };
+    const todayStats = metrics?.today || defaultStats;
+    const monthStats = metrics?.month || defaultStats;
+    const yearStats = metrics?.year || defaultStats;
 
     const todayTotal = (todayStats.total_present || 0) + (todayStats.absent || 0) + (todayStats.leave || 0) + (todayStats.holiday || 0);
 
 
-    const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee");
+    const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee" && col.uid !== "actions");
 
     return (
         <div className="p-6">
@@ -544,16 +649,18 @@ export default function AttendancePage() {
                                     variant="bordered"
                                     placeholder="Status"
                                     aria-label="Filter by Status"
-                                    className="w-32"
+                                    className="w-36"
                                     selectedKeys={filters.status ? [filters.status] : []}
                                     onChange={(e) => handleFilterChange("status", e.target.value)}
                                 >
                                     <SelectItem key="Present">Present</SelectItem>
-                                    <SelectItem key="Late">Late</SelectItem>
+                                    <SelectItem key="Ontime">Present · On Time</SelectItem>
+                                    <SelectItem key="Late">Present · Late</SelectItem>
+                                    <SelectItem key="Permission">Present · Permission</SelectItem>
+                                    <SelectItem key="Half Day">Present · Half Day</SelectItem>
                                     <SelectItem key="Absent">Absent</SelectItem>
-                                    <SelectItem key="Holiday">Holiday</SelectItem>
                                     <SelectItem key="Leave">Leave</SelectItem>
-
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
                                 </Select>
 
                                 <Select
@@ -585,7 +692,7 @@ export default function AttendancePage() {
 
                     {!isAdmin && (
                         <>
-                            {relevantRecord?.status === 'Leave' ? (
+                            {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                                 <Button
                                     className="cursor-default opacity-100 font-semibold"
                                     variant="flat"
@@ -596,17 +703,25 @@ export default function AttendancePage() {
                                     On Leave
                                 </Button>
                             ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-                                <Button
-                                    color="primary"
-                                    size="md"
-                                    startContent={<Clock size={20} />}
-                                    onPress={handleClockIn}
-                                    isLoading={clockInLoading}
-                                    className="shadow-lg shadow-primary/40 font-semibold"
-                                >
-                                    Clock In
-                                </Button>
+                                <div className="flex items-center gap-3">
+                                    {relevantRecord?.attendance_status === 'Half Day' && (
+                                        <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
+                                            Half Day Leave
+                                        </Chip>
+                                    )}
+                                    <Button
+                                        color="primary"
+                                        size="md"
+                                        startContent={<Clock size={20} />}
+                                        onPress={handleClockIn}
+                                        isLoading={clockInLoading}
+                                        className="shadow-lg shadow-primary/40 font-semibold"
+                                    >
+                                        Clock In
+                                    </Button>
+                                </div>
                             ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
+
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
@@ -618,12 +733,14 @@ export default function AttendancePage() {
                                             color="warning"
                                             size="md"
                                             variant="flat"
-                                            startContent={<LogOut size={20} />}
+                                            startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                             isLoading={clockOutLoading}
                                             className="font-semibold"
+                                            isDisabled={relevantRecord?.device_type === 'Biometric'}
                                         >
-                                            Clock Out
+                                            {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
                                         </Button>
+
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <div className="px-1 py-2 w-56">
@@ -682,9 +799,11 @@ export default function AttendancePage() {
                 isAdmin={isAdmin}
                 todayStats={todayStats}
                 monthStats={monthStats}
-                yearStats={yearStats}
+                yearStats={metrics?.year || defaultStats}
                 elapsedSeconds={elapsedSeconds}
+                isBiometric={relevantRecord?.device_type === 'Biometric'}
             />
+
 
             {(getAllAttendanceLoading || getMyHistoryLoading) ? (
                 <div className="flex h-[60vh] items-center justify-center">
@@ -780,70 +899,115 @@ export default function AttendancePage() {
                 </ModalContent>
             </Modal>
 
-            {/* Status Update Modal */}
-            <Modal
-                isOpen={!!statusUpdateData}
-                onClose={() => setStatusUpdateData(null)}
-                size="md"
-            >
-                <ModalContent>
-                    <ModalHeader>Update Attendance Status</ModalHeader>
-                    <ModalBody>
-                        <div className="space-y-4">
-                            <div>
-                                <p className="text-sm text-default-500 mb-1">New Status</p>
-                                <Chip color="primary" variant="flat">{statusUpdateData?.newStatus}</Chip>
-                            </div>
+            {/* Edit Attendance Drawer (Admin only) */}
+            <Drawer isOpen={isEditOpen} onClose={onEditClose} size="md">
+                <DrawerContent>
+                    {(onClose) => (
+                        <>
+                            <DrawerHeader className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <Pencil size={18} className="text-primary" />
+                                    <span>Edit Attendance</span>
+                                </div>
+                                {selectedRecord && (
+                                    <p className="text-small font-normal text-default-500">
+                                        {selectedRecord.employee_details?.name} &mdash; {selectedRecord.date}
+                                    </p>
+                                )}
+                            </DrawerHeader>
+                            <DrawerBody className="gap-6 py-4">
+                                {editForm.status !== "Absent" && editForm.status !== "Holiday" && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Input
+                                            type="time"
+                                            label="Clock In (IST)"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={editForm.clock_in}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, clock_in: e.target.value }))}
+                                        />
+                                        <Input
+                                            type="time"
+                                            label="Clock Out (IST)"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={editForm.clock_out}
+                                            onChange={(e) => setEditForm(prev => ({ ...prev, clock_out: e.target.value }))}
+                                        />
+                                    </div>
+                                )}
 
-                            {statusUpdateData?.newStatus === 'Leave' && (
-                                <Input
-                                    label="Reason"
-                                    placeholder="Enter leave reason"
-                                    value={statusUpdateData?.reason || ''}
-                                    onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, reason: e.target.value } : null)}
-                                    isRequired
+                                <Select
+                                    label="Primary Status"
+                                    placeholder="Select Status"
+                                    labelPlacement="outside"
+                                    size="md"
+                                    variant="bordered"
+                                    selectedKeys={editForm.status ? [editForm.status] : []}
+                                    onChange={(e) => {
+                                        const newStatus = e.target.value;
+                                        setEditForm(prev => {
+                                            if (newStatus === "Absent" || newStatus === "Holiday") {
+                                                return { ...prev, status: newStatus, clock_in: "", clock_out: "", attendance_status: "" };
+                                            } else if (newStatus !== "Present") {
+                                                return { ...prev, status: newStatus, attendance_status: "" };
+                                            }
+                                            return { ...prev, status: newStatus };
+                                        });
+                                    }}
+                                >
+                                    <SelectItem key="Present">Present</SelectItem>
+                                    <SelectItem key="Absent">Absent</SelectItem>
+                                    <SelectItem key="Holiday">Holiday</SelectItem>
+                                </Select>
+
+                                {editForm.status === "Present" && (
+                                    <Select
+                                        label="Attendance Status"
+                                        placeholder="Select Status"
+                                        labelPlacement="outside"
+                                        size="md"
+                                        variant="bordered"
+                                        selectedKeys={editForm.attendance_status ? [editForm.attendance_status] : []}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, attendance_status: e.target.value }))}
+                                    >
+                                        <SelectItem key="Ontime">On Time</SelectItem>
+                                        <SelectItem key="Late">Late</SelectItem>
+                                        <SelectItem key="Permission">Permission</SelectItem>
+                                        <SelectItem key="Half Day">Half Day</SelectItem>
+                                    </Select>
+                                )}
+
+                                <Textarea
+                                    label="Admin Notes"
+                                    placeholder="Reason for edit (optional)"
+                                    labelPlacement="outside"
+                                    size="md"
+                                    variant="bordered"
+                                    value={editForm.notes}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                                    minRows={3}
                                 />
-                            )}
+                            </DrawerBody>
+                            <DrawerFooter className="border-t border-divider">
+                                <Button variant="light" color="danger" onPress={onClose} fullWidth>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    color="primary"
+                                    onPress={handleEditSave}
+                                    isLoading={editAttendanceLoading}
+                                    fullWidth
+                                >
+                                    Save Changes
+                                </Button>
+                            </DrawerFooter>
+                        </>
+                    )}
+                </DrawerContent>
+            </Drawer>
 
-                            <Textarea
-                                label={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Rejection Reason" : "Notes"}
-                                placeholder={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "Enter reason for rejecting the leave request" : "Add notes (optional)"}
-                                value={statusUpdateData?.notes || ''}
-                                onChange={(e) => setStatusUpdateData(prev => prev ? { ...prev, notes: e.target.value } : null)}
-                                minRows={3}
-                                description={statusUpdateData?.oldStatus === 'Leave' && statusUpdateData?.newStatus !== 'Leave' ? "This will be saved as the rejection reason for the associated leave request" : undefined}
-                            />
-                        </div>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button
-                            variant="flat"
-                            onPress={() => setStatusUpdateData(null)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            color="primary"
-                            onPress={() => {
-                                if (statusUpdateData) {
-                                    dispatch(updateAttendanceStatusRequest(
-                                        statusUpdateData.attendanceId,
-                                        {
-                                            status: statusUpdateData.newStatus,
-                                            reason: statusUpdateData.reason || undefined,
-                                            notes: statusUpdateData.notes || undefined
-                                        }
-                                    ));
-                                    setStatusUpdateData(null);
-                                }
-                            }}
-                            isDisabled={statusUpdateData?.newStatus === 'Leave' && !statusUpdateData?.reason}
-                        >
-                            Update Status
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+
         </div>
     );
 }

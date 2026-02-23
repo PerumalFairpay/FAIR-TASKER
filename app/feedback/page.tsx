@@ -26,7 +26,8 @@ import { format } from "date-fns";
 import {
     Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb,
     ClipboardList, Search, Calendar, Paperclip, MoreVertical,
-    Clock, LayoutGrid, List, AlertCircle, ChevronsUp, ChevronsDown
+    Clock, LayoutGrid, List, AlertCircle, ChevronsUp, ChevronsDown,
+    Video
 } from "lucide-react";
 import { User as UserIcon } from "lucide-react";
 import { User } from "@heroui/user";
@@ -36,6 +37,7 @@ import FileUpload from "@/components/common/FileUpload";
 import Link from "next/link";
 import { Link as LinkIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import FilePreviewModal from "@/components/common/FilePreviewModal";
 import "react-quill-new/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -58,6 +60,8 @@ export default function FeedbackPage() {
     const isAdmin = user?.role === "admin";
 
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onClose: onPreviewClose } = useDisclosure();
+    const [previewFile, setPreviewFile] = useState<{ url: string, type: string, name: string } | null>(null);
     const [formData, setFormData] = useState({
         subject: "",
         description: "",
@@ -128,7 +132,6 @@ export default function FeedbackPage() {
                 priority: feedback.priority,
                 attachments: [],
             });
-            // We don't populate files for edit as they are on server
             setFiles([]);
         } else {
             resetForm();
@@ -169,6 +172,15 @@ export default function FeedbackPage() {
             dispatch(deleteFeedbackRequest(id));
         }
     }
+
+    const handlePreview = (attachment: any) => {
+        setPreviewFile({
+            url: attachment.document_proof,
+            type: attachment.file_type || "",
+            name: attachment.document_name || "Attachment"
+        });
+        onPreviewOpen();
+    };
 
     const filteredFeedbacks = useMemo(() => {
         let result = feedbacks || [];
@@ -276,9 +288,16 @@ export default function FeedbackPage() {
                     return (
                         <div className="flex gap-2">
                             {cellValue.map((attachment: any, index: number) => (
-                                <Link key={index} href={attachment.document_proof} target="_blank" className="text-primary hover:underline" title={attachment.document_name}>
+                                <Button
+                                    key={index}
+                                    isIconOnly
+                                    size="sm"
+                                    variant="light"
+                                    onPress={() => handlePreview(attachment)}
+                                    title={attachment.document_name}
+                                >
                                     <LinkIcon size={16} />
-                                </Link>
+                                </Button>
                             ))}
                         </div>
                     );
@@ -441,7 +460,7 @@ export default function FeedbackPage() {
                     </TableBody>
                 </Table>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                     {listLoading ? (
                         Array.from({ length: 6 }).map((_, i) => (
                             <Card key={i} className="h-64 animate-pulse bg-default-100" />
@@ -455,13 +474,36 @@ export default function FeedbackPage() {
                             >
                                 {item.attachments?.[0] && (
                                     <div className="p-2.5 pb-0">
-                                        <div className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50">
-                                            <Image
-                                                src={item.attachments[0].document_proof.replace("host.docker.internal", "localhost")}
-                                                alt={item.attachments[0].document_name || "Cover"}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                removeWrapper
-                                            />
+                                        <div
+                                            className="group relative h-32 w-full overflow-hidden rounded-lg border-1 border-divider/50 bg-default-100 flex items-center justify-center cursor-pointer"
+                                            onClick={() => handlePreview(item.attachments[0])}
+                                        >
+                                            {item.attachments[0].file_type?.startsWith("image/") ? (
+                                                <Image
+                                                    src={item.attachments[0].document_proof}
+                                                    alt={item.attachments[0].document_name || "Cover"}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    removeWrapper
+                                                />
+                                            ) : item.attachments[0].file_type?.startsWith("video/") ? (
+                                                <div className="w-full h-full bg-black relative">
+                                                    <video
+                                                        src={item.attachments[0].document_proof + "#t=0.5"}
+                                                        className="w-full h-full object-cover opacity-80"
+                                                        preload="metadata"
+                                                        muted
+                                                        playsInline
+                                                    />
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <Video size={24} className="text-white/70 shadow-lg" />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2 text-default-400">
+                                                    <Paperclip size={32} />
+                                                    <span className="text-[10px] font-medium px-2 text-center line-clamp-1">{item.attachments[0].document_name}</span>
+                                                </div>
+                                            )}
                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                                             {item.attachments.length > 1 && (
                                                 <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
@@ -675,8 +717,7 @@ export default function FeedbackPage() {
                                 setFiles={setFiles}
                                 allowMultiple={true}
                                 maxFiles={5}
-                                acceptedFileTypes={['image/png', 'image/jpeg', 'image/jpg']}
-                                labelIdle='Drag & Drop images only or <span class="filepond--label-action">Browse</span>'
+                                labelIdle='Drag & Drop files or <span class="filepond--label-action">Browse</span>'
                             />
                         </div>
                     </ModalBody>
@@ -690,6 +731,14 @@ export default function FeedbackPage() {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            <FilePreviewModal
+                isOpen={isPreviewOpen}
+                onClose={onPreviewClose}
+                fileUrl={previewFile?.url || null}
+                fileType={previewFile?.type || null}
+                fileName={previewFile?.name || ""}
+            />
         </div>
     );
 }

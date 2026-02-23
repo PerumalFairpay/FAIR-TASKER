@@ -23,38 +23,61 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
         d.setDate(i + 1);
         return d;
     });
-    const getStatus = (emp: any, date: Date): any => {
-        const dateStr = format(date, "yyyy-MM-dd");
-
+    const getStatus = (emp: any, dateStr: string): any => {
         const record = attendance.find((a) => {
-            // Since we derived the employee list from attendance records, 
-            // we can match strictly on the specific ID field we set (id).
-            // We check both root employee_id and flattened employee_details.id for safety.
-            return (a.employee_id === emp.id || a.employee_details?.id === emp.id) && a.date === dateStr;
+            // Robust matching: Check Mongo ID or Biometric ID in any available field
+            const empIds = [emp.id, emp.employee_id, emp.employee_no_id].filter(Boolean);
+            const recordEmpId = a.employee_id;
+            const detailEmpId = a.employee_details?.id;
+            const detailBioId = a.employee_details?.employee_no_id;
+
+            const isMatch = empIds.some(id =>
+                id === recordEmpId ||
+                id === detailEmpId ||
+                id === detailBioId
+            );
+
+            return isMatch && a.date === dateStr;
         });
 
         if (record) {
-            if (record.status === "Present") {
-                return { type: "Present", label: <Check size={14} strokeWidth={3} />, color: "bg-success text-white" };
-            } else if (record.status === "Late") {
-                return { type: "Late", label: <Clock size={14} />, color: "bg-amber-500 text-white" };
-            } else if (record.status === "Absent") {
-                return { type: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
-            } else if (record.status === "Leave") {
-                return { type: "Leave", label: <Plane size={14} />, color: "bg-purple-500 text-white" };
-            } else if (record.status === "Holiday") {
-                return { type: "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white" };
+            const primary = record.status || "";
+            const sub = record.attendance_status || "";
+
+            if (primary === "Present") {
+                if (sub === "Permission")
+                    return { type: "Permission", name: "Present · Permission", label: <Clock size={14} />, color: "bg-violet-500 text-white" };
+                if (sub === "Half Day")
+                    return { type: "HalfDay", name: "Present · Half Day", label: <Coffee size={14} />, color: "bg-sky-500 text-white" };
+                if (sub === "Late")
+                    return { type: "Late", name: "Present · Late", label: <Clock size={14} />, color: "bg-amber-500 text-white" };
+                return { type: "Present", name: "Present · On Time", label: <Check size={14} strokeWidth={3} />, color: "bg-success text-white" };
             }
-            return { type: record.status, label: <AlertCircle size={14} />, color: "bg-primary text-white" };
+            if (primary === "Absent")
+                return { type: "Absent", name: "Absent", label: <X size={14} strokeWidth={3} />, color: "bg-danger text-white" };
+            if (primary === "Leave") {
+                const lbl = sub === "Half Day"
+                    ? "Leave · Half Day"
+                    : record.leave_type_code
+                        ? `Leave · ${record.leave_type_code}`
+                        : "Leave";
+                return { type: "Leave", name: lbl, label: <Plane size={14} />, color: "bg-purple-500 text-white" };
+            }
+            if (primary === "Holiday")
+                return { type: "Holiday", name: record.notes || "Holiday", label: <Coffee size={14} />, color: "bg-orange-400 text-white" };
+
+            return { type: primary, name: primary, label: <AlertCircle size={14} />, color: "bg-primary text-white" };
         }
 
-        const dayOfWeek = date.getDay();
+        const dateObj = parseISO(dateStr);
+        const dayOfWeek = dateObj.getDay();
         if (dayOfWeek === 0 || dayOfWeek === 6) {
             return { type: "Weekend", label: "-", color: "text-default-300" };
         }
 
         return { type: "None", label: "-", color: "text-default-300" };
     };
+
 
     const headerColumns = [
         { uid: "employee", label: "Employee", subLabel: "" },
@@ -119,8 +142,7 @@ const AttendanceCalendar: React.FC<AttendanceCalendarProps> = ({
                             }
 
                             // Date Column
-                            const date = parseISO(columnKey as string);
-                            const status = getStatus(emp, date);
+                            const status = getStatus(emp, columnKey as string);
 
                             return (
                                 <TableCell>

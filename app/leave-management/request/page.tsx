@@ -207,14 +207,16 @@ export default function LeaveRequestPage() {
                             </SelectItem>
                         ))}
                     </Select>
-                    <Button
-                        color="primary"
-                        variant="shadow"
-                        endContent={<PlusIcon size={16} />}
-                        onPress={handleCreate}
-                    >
-                        Apply Leave
-                    </Button>
+                    {user.role !== "admin" && (
+                        <Button
+                            color="primary"
+                            variant="shadow"
+                            endContent={<PlusIcon size={16} />}
+                            onPress={handleCreate}
+                        >
+                            Apply Leave
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -462,7 +464,7 @@ export default function LeaveRequestPage() {
                                                 </DropdownItem>
                                             )}
 
-                                            {(user?.role !== "employee" || item.status === "Pending") && (
+                                            {item.status === "Pending" && (
                                                 <DropdownItem
                                                     key="edit"
                                                     startContent={<PencilIcon size={16} />}

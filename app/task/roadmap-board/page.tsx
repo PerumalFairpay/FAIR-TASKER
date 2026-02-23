@@ -19,12 +19,12 @@ import {
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { AppState } from "@/store/rootReducer";
-import { getTasksRequest, updateTaskRequest, getTaskRequest } from "@/store/task/action";
+import { getMilestonesRoadmapsRequest, updateMilestoneRoadmapRequest, getMilestoneRoadmapRequest } from "@/store/milestoneRoadmap/action";
 import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import clsx from "clsx";
-import AddEditTaskDrawer from "../board/AddEditTaskDrawer";
-import TaskDetailModal from "../board/TaskDetailModal";
+import AddEditMilestoneRoadmapDrawer from "./AddEditMilestoneRoadmapDrawer";
+import MilestoneRoadmapDetailModal from "./MilestoneRoadmapDetailModal";
 
 const COLUMNS = [
     { id: "Backlog", title: "Backlog", color: "bg-warning-50", textColor: "text-warning-600" },
@@ -36,7 +36,7 @@ const ALLOWED_STATUSES = ["Backlog", "Milestone", "Roadmap"];
 
 const RoadmapBoard = () => {
     const dispatch = useDispatch();
-    const { tasks, currentTask } = useSelector((state: AppState) => state.Task);
+    const { milestonesRoadmaps, currentMilestoneRoadmap } = useSelector((state: AppState) => state.MilestoneRoadmap);
     const { employees } = useSelector((state: AppState) => state.Employee);
     const { user } = useSelector((state: AppState) => state.Auth);
     const router = useRouter();
@@ -61,7 +61,7 @@ const RoadmapBoard = () => {
     useEffect(() => {
         if (!isAdmin && !user) return;
 
-        dispatch(getTasksRequest({
+        dispatch(getMilestonesRoadmapsRequest({
             date: filterDate,
             assigned_to: isAdmin ? filterEmployee : user?.employee_id
         }));
@@ -76,14 +76,14 @@ const RoadmapBoard = () => {
         if (!destination) return;
         if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
-        dispatch(updateTaskRequest(draggableId, { status: destination.droppableId }));
+        dispatch(updateMilestoneRoadmapRequest(draggableId, { status: destination.droppableId }));
     };
 
     if (!enabled) return null;
 
     const getTasksByStatus = (status: string) => {
-        return tasks.filter((task: any) => {
-            if (task.status !== status) return false; 
+        return milestonesRoadmaps.filter((task: any) => {
+            if (task.status !== status) return false;
             return true;
         });
     };
@@ -129,7 +129,7 @@ const RoadmapBoard = () => {
     const handleEditTask = (task: any) => {
         // Allow editing for any status here
         setSelectedTask(task);
-        dispatch(getTaskRequest(task.id));
+        dispatch(getMilestoneRoadmapRequest(task.id));
         setIsTaskDrawerOpen(true);
     };
 
@@ -313,7 +313,7 @@ const RoadmapBoard = () => {
                                                                         <div className="flex items-center gap-1 text-default-400">
                                                                             <CalendarIcon size={14} />
                                                                             <span className="text-[10px] font-medium">
-                                                                                {task.end_date} {task.end_time}
+                                                                                {task.end_date}
                                                                             </span>
                                                                         </div>
                                                                         <div className="flex items-center gap-1 text-default-400">
@@ -369,15 +369,15 @@ const RoadmapBoard = () => {
                 </div>
             </DragDropContext>
 
-            <AddEditTaskDrawer
+            <AddEditMilestoneRoadmapDrawer
                 isOpen={isTaskDrawerOpen}
                 onClose={() => setIsTaskDrawerOpen(false)}
-                task={currentTask && currentTask.id === selectedTask?.id ? currentTask : selectedTask}
+                task={currentMilestoneRoadmap && currentMilestoneRoadmap.id === selectedTask?.id ? currentMilestoneRoadmap : selectedTask}
                 selectedDate={filterDate}
                 allowedStatuses={ALLOWED_STATUSES}
             />
 
-            <TaskDetailModal
+            <MilestoneRoadmapDetailModal
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}
                 task={selectedTask}

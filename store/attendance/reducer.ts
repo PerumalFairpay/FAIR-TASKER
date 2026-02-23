@@ -14,9 +14,9 @@ import {
   IMPORT_ATTENDANCE_REQUEST,
   IMPORT_ATTENDANCE_SUCCESS,
   IMPORT_ATTENDANCE_FAILURE,
-  UPDATE_ATTENDANCE_STATUS_REQUEST,
-  UPDATE_ATTENDANCE_STATUS_SUCCESS,
-  UPDATE_ATTENDANCE_STATUS_FAILURE,
+  EDIT_ATTENDANCE_REQUEST,
+  EDIT_ATTENDANCE_SUCCESS,
+  EDIT_ATTENDANCE_FAILURE,
   CLEAR_ATTENDANCE_STATUS,
 } from "./actionType";
 
@@ -52,9 +52,9 @@ interface AttendanceState {
   importAttendanceSuccess: boolean;
   importAttendanceError: string | null;
 
-  updateStatusLoading: boolean;
-  updateStatusSuccess: boolean;
-  updateStatusError: string | null;
+  editAttendanceLoading: boolean;
+  editAttendanceSuccess: boolean;
+  editAttendanceError: string | null;
 }
 
 const initialAttendanceState: AttendanceState = {
@@ -84,9 +84,9 @@ const initialAttendanceState: AttendanceState = {
   importAttendanceSuccess: false,
   importAttendanceError: null,
 
-  updateStatusLoading: false,
-  updateStatusSuccess: false,
-  updateStatusError: null,
+  editAttendanceLoading: false,
+  editAttendanceSuccess: false,
+  editAttendanceError: null,
 };
 
 const attendanceReducer = (
@@ -102,14 +102,24 @@ const attendanceReducer = (
         clockInSuccess: false,
         clockInError: null,
       };
-    case CLOCK_IN_SUCCESS:
+    case CLOCK_IN_SUCCESS: {
+      const newRecord = action.payload.data;
+      const exists = state.attendanceHistory.some(
+        (item) => item.id === newRecord.id,
+      );
       return {
         ...state,
         clockInLoading: false,
         clockInSuccess: true,
         clockedIn: true,
-        attendanceHistory: [action.payload.data, ...state.attendanceHistory],
+        attendanceHistory: exists
+          ? state.attendanceHistory.map((item) =>
+              item.id === newRecord.id ? newRecord : item,
+            )
+          : [newRecord, ...state.attendanceHistory],
+        metrics: action.payload.metrics || state.metrics,
       };
+    }
     case CLOCK_IN_FAILURE:
       return {
         ...state,
@@ -135,6 +145,7 @@ const attendanceReducer = (
         attendanceHistory: state.attendanceHistory.map((item) =>
           item.id === action.payload.data.id ? action.payload.data : item,
         ),
+        metrics: action.payload.metrics || state.metrics,
       };
     case CLOCK_OUT_FAILURE:
       return {
@@ -215,47 +226,32 @@ const attendanceReducer = (
         importAttendanceSuccess: false,
       };
 
-    // Update Status
-    case UPDATE_ATTENDANCE_STATUS_REQUEST:
+    // Edit Attendance (Admin)
+    case EDIT_ATTENDANCE_REQUEST:
       return {
         ...state,
-        updateStatusLoading: true,
-        updateStatusSuccess: false,
-        updateStatusError: null,
+        editAttendanceLoading: true,
+        editAttendanceSuccess: false,
+        editAttendanceError: null,
       };
-    case UPDATE_ATTENDANCE_STATUS_SUCCESS:
+    case EDIT_ATTENDANCE_SUCCESS: {
+      const updated = action.payload.data;
       return {
         ...state,
-        updateStatusLoading: false,
-        updateStatusSuccess: true,
-        // Update only the status and notes fields, preserve other fields
-        attendanceHistory: state.attendanceHistory.map((item) =>
-          item.id === action.payload.data.id
-            ? {
-                ...item,
-                status: action.payload.data.status,
-                notes: action.payload.data.notes,
-                updated_at: action.payload.data.updated_at,
-              }
-            : item,
-        ),
+        editAttendanceLoading: false,
+        editAttendanceSuccess: true,
+        // Update the record in-place in allAttendance
         allAttendance: state.allAttendance.map((item) =>
-          item.id === action.payload.data.id
-            ? {
-                ...item,
-                status: action.payload.data.status,
-                notes: action.payload.data.notes,
-                updated_at: action.payload.data.updated_at,
-              }
-            : item,
+          item.id === updated.id ? updated : item,
         ),
       };
-    case UPDATE_ATTENDANCE_STATUS_FAILURE:
+    }
+    case EDIT_ATTENDANCE_FAILURE:
       return {
         ...state,
-        updateStatusLoading: false,
-        updateStatusError: action.payload,
-        updateStatusSuccess: false,
+        editAttendanceLoading: false,
+        editAttendanceError: action.payload,
+        editAttendanceSuccess: false,
       };
 
     case CLEAR_ATTENDANCE_STATUS:
@@ -267,8 +263,8 @@ const attendanceReducer = (
         clockOutSuccess: false,
         importAttendanceError: null,
         importAttendanceSuccess: false,
-        updateStatusError: null,
-        updateStatusSuccess: false,
+        editAttendanceError: null,
+        editAttendanceSuccess: false,
       };
 
     default:

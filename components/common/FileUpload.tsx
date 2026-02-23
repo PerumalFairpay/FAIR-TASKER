@@ -24,6 +24,7 @@ interface FileUploadProps {
     acceptedFileTypes?: string[];
     allowMultiple?: boolean;
     maxFiles?: number;
+    maxFileSize?: string;
     name?: string;
     [key: string]: any;
 }
@@ -35,6 +36,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
     acceptedFileTypes,
     allowMultiple = false,
     maxFiles = 1,
+    maxFileSize = '10MB',
     name = 'file',
     ...props
 }) => {
@@ -70,6 +72,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
                 onupdatefiles={setFiles}
                 allowMultiple={allowMultiple}
                 maxFiles={maxFiles}
+                maxFileSize={maxFileSize}
                 name={name}
                 labelIdle={labelIdle}
                 acceptedFileTypes={acceptedFileTypes}
