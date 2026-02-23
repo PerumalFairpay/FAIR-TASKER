@@ -175,7 +175,7 @@ export default function FeedbackPage() {
 
     const handlePreview = (attachment: any) => {
         setPreviewFile({
-            url: attachment.document_proof.replace("host.docker.internal", "localhost"),
+            url: attachment.document_proof,
             type: attachment.file_type || "",
             name: attachment.document_name || "Attachment"
         });
@@ -480,15 +480,23 @@ export default function FeedbackPage() {
                                         >
                                             {item.attachments[0].file_type?.startsWith("image/") ? (
                                                 <Image
-                                                    src={item.attachments[0].document_proof.replace("host.docker.internal", "localhost")}
+                                                    src={item.attachments[0].document_proof}
                                                     alt={item.attachments[0].document_name || "Cover"}
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     removeWrapper
                                                 />
                                             ) : item.attachments[0].file_type?.startsWith("video/") ? (
-                                                <div className="flex flex-col items-center gap-2 text-default-400">
-                                                    <Video size={32} />
-                                                    <span className="text-[10px] font-medium px-2 text-center line-clamp-1">{item.attachments[0].document_name}</span>
+                                                <div className="w-full h-full bg-black relative">
+                                                    <video
+                                                        src={item.attachments[0].document_proof + "#t=0.5"}
+                                                        className="w-full h-full object-cover opacity-80"
+                                                        preload="metadata"
+                                                        muted
+                                                        playsInline
+                                                    />
+                                                    <div className="absolute inset-0 flex items-center justify-center">
+                                                        <Video size={24} className="text-white/70 shadow-lg" />
+                                                    </div>
                                                 </div>
                                             ) : (
                                                 <div className="flex flex-col items-center gap-2 text-default-400">
