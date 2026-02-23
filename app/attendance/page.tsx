@@ -528,7 +528,7 @@ export default function AttendancePage() {
                     </div>
                 );
             case "actions":
-                if (!isAdmin) return null;
+                if (!isAdmin || item.status === "Leave") return null;
                 return (
                     <Button
                         isIconOnly
