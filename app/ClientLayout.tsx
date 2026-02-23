@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
+import { AIAssistant } from "@/components/AIAssistant";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserRequest, clearAuth } from "@/store/auth/action";
@@ -73,6 +74,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
+            <AIAssistant />
         </div>
     );
 }
