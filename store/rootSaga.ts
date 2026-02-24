@@ -27,6 +27,7 @@ import payslipComponentSaga from "./payslipComponent/saga";
 import feedbackSaga from "./feedback/saga";
 import shiftSaga from "./shift/saga";
 import milestoneRoadmapSaga from "./milestoneRoadmap/saga";
+import aiAssistantSaga from "./aiAssistant/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -58,5 +59,6 @@ export default function* rootSaga() {
     fork(payslipComponentSaga),
     fork(feedbackSaga),
     fork(milestoneRoadmapSaga),
+    fork(aiAssistantSaga),
   ]);
 }

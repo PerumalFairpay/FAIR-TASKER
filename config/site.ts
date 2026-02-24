@@ -25,7 +25,7 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Fair Tasker",
+  name: "FAIRPAY HRM",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
