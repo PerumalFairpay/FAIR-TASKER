@@ -6,9 +6,12 @@ import {
   CLEAR_CHAT_HISTORY,
 } from "./actionType";
 
-export const sendChatQuery = (query: string) => ({
+export const sendChatQuery = (
+  query: string,
+  history: { role: string; content: string }[] = [],
+) => ({
   type: SEND_CHAT_QUERY,
-  payload: { query },
+  payload: { query, history },
 });
 
 export const sendChatQuerySuccess = () => ({

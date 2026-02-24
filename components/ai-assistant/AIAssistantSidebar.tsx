@@ -39,7 +39,10 @@ export default function AIAssistantSidebar() {
 
         const userMessage = inputValue.trim();
         setInputValue("");
-        dispatch(sendChatQuery(userMessage));
+
+        // Pass the current messages as history, excluding any temporary or loading messages
+        const historyData = messages.map(msg => ({ role: msg.role, content: msg.content }));
+        dispatch(sendChatQuery(userMessage, historyData));
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -81,17 +84,17 @@ export default function AIAssistantSidebar() {
                         <DrawerHeader className="flex flex-col gap-1 border-b border-default-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-md p-5">
                             <div className="flex justify-between items-center w-full">
                                 <div className="flex items-center gap-3">
-                                    <Badge content="" color="success" shape="circle" placement="bottom-right" className="border-2 border-white dark:border-default-100">
-                                        <Avatar
-                                            icon={<BrainCircuit size={22} />}
-                                            className="bg-secondary-100 text-secondary-600 border-2 border-secondary-500"
-                                            size="md"
-                                        />
-                                    </Badge>
+                                    {/* <Badge content="" color="success" shape="circle" placement="bottom-right" className="border-2 border-white dark:border-default-100"> */}
+                                    <Avatar
+                                        icon={<BrainCircuit size={22} />}
+                                        className="bg-secondary-100 text-secondary-600 border-2 border-secondary-500"
+                                        size="md"
+                                    />
+                                    {/* </Badge> */}
                                     <div>
                                         <h3 className="font-bold text-lg tracking-tight text-default-900 dark:text-default-100">FAIRPAY AI</h3>
                                         <p className="text-default-500 text-xs flex items-center gap-1">
-                                            <Sparkles size={10} className="text-secondary-500" /> Active Assistant
+                                            <Sparkles size={10} className="text-secondary-500" /> Ai Assistant
                                         </p>
                                     </div>
                                 </div>
@@ -171,7 +174,7 @@ export default function AIAssistantSidebar() {
                                 <div className="flex gap-2 items-center w-full">
                                     <div className="relative flex-grow group">
                                         <Textarea
-                                            placeholder="Ask FAIRPAY AI..."
+                                            placeholder="Ask something..."
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
                                             onKeyDown={handleKeyDown}
@@ -185,7 +188,7 @@ export default function AIAssistantSidebar() {
                                                 inputWrapper: "bg-default-100/50 hover:bg-default-200/50 focus-within:bg-default-100/80 border-default-200 dark:border-default-100 rounded-xl pl-4 py-2 min-h-unit-12 items-center",
                                                 input: "text-small py-0",
                                             }}
-                                            startContent={<MessageSquare size={18} className="text-default-400 shrink-0" />}
+                                        // startContent={<MessageSquare size={18} className="text-default-400 shrink-0" />}
                                         />
                                     </div>
                                     <Button

@@ -7,7 +7,10 @@ import {
   chatChunkReceived,
 } from "./action";
 
-function createChatChannel(query: string) {
+function createChatChannel(
+  query: string,
+  history: { role: string; content: string }[] = [],
+) {
   return eventChannel((emitter) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -18,7 +21,7 @@ function createChatChannel(query: string) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ query }),
+          body: JSON.stringify({ query, history }),
           credentials: "include",
         });
 
@@ -63,7 +66,11 @@ function createChatChannel(query: string) {
 }
 
 function* workSendChatQuery(action: any): Generator<any, void, any> {
-  const channel = yield call(createChatChannel, action.payload.query);
+  const channel = yield call(
+    createChatChannel,
+    action.payload.query,
+    action.payload.history || [],
+  );
   try {
     while (true) {
       const { chunk, error } = yield take(channel);
