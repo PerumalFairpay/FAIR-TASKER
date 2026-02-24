@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
 import HRMLoading from "./assets/HRMLoading.json";
+import FloatingChat from "@/components/ai-assistant/FloatingChat";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -73,6 +74,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
+            <FloatingChat />
         </div>
     );
 }
+
