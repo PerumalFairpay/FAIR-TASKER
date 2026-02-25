@@ -15,6 +15,9 @@ import {
   DELETE_DOCUMENT_SUCCESS,
   DELETE_DOCUMENT_FAILURE,
   CLEAR_DOCUMENT_DETAILS,
+  UPDATE_DOCUMENT_STATUS_REQUEST,
+  UPDATE_DOCUMENT_STATUS_SUCCESS,
+  UPDATE_DOCUMENT_STATUS_FAILURE,
 } from "./actionType";
 
 // Create Document
@@ -93,4 +96,18 @@ export const deleteDocumentFailure = (error: any) => ({
 // Clear Details
 export const clearDocumentDetails = () => ({
   type: CLEAR_DOCUMENT_DETAILS,
+});
+
+// Update Document Status
+export const updateDocumentStatusRequest = (id: string, status: string) => ({
+  type: UPDATE_DOCUMENT_STATUS_REQUEST,
+  payload: { id, status },
+});
+export const updateDocumentStatusSuccess = (response: any) => ({
+  type: UPDATE_DOCUMENT_STATUS_SUCCESS,
+  payload: response,
+});
+export const updateDocumentStatusFailure = (error: any) => ({
+  type: UPDATE_DOCUMENT_STATUS_FAILURE,
+  payload: error,
 });

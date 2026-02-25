@@ -8,6 +8,7 @@ import {
     updateDocumentRequest,
     deleteDocumentRequest,
     clearDocumentDetails,
+    updateDocumentStatusRequest,
 } from "@/store/document/action";
 import { getDocumentCategoriesRequest } from "@/store/documentCategory/action";
 import { RootState } from "@/store/store";
@@ -54,9 +55,11 @@ export default function DocumentListPage() {
         createDocumentSuccessMessage,
         updateDocumentSuccessMessage,
         deleteDocumentSuccessMessage,
+        updateDocumentStatusSuccessMessage,
         createDocumentLoading,
         updateDocumentLoading,
-        deleteDocumentLoading
+        deleteDocumentLoading,
+        updateDocumentStatusLoading
     } = useSelector((state: RootState) => state.Document);
     const { documentCategories } = useSelector((state: RootState) => state.DocumentCategory);
     const { hasPermission } = usePermissions();
@@ -112,14 +115,13 @@ export default function DocumentListPage() {
     };
 
     useEffect(() => {
-        if (createDocumentSuccessMessage || updateDocumentSuccessMessage || deleteDocumentSuccessMessage) {
+        if (createDocumentSuccessMessage || updateDocumentSuccessMessage || deleteDocumentSuccessMessage || updateDocumentStatusSuccessMessage) {
             onClose();
             onDeleteClose();
             dispatch(clearDocumentDetails());
             setDocumentToDelete(null);
-            fetchDocuments(searchValue, statusFilter);
         }
-    }, [createDocumentSuccessMessage, updateDocumentSuccessMessage, deleteDocumentSuccessMessage]);
+    }, [createDocumentSuccessMessage, updateDocumentSuccessMessage, deleteDocumentSuccessMessage, updateDocumentStatusSuccessMessage]);
 
     const handleCreate = () => {
         setMode("create");
@@ -142,6 +144,10 @@ export default function DocumentListPage() {
         if (documentToDelete) {
             dispatch(deleteDocumentRequest(documentToDelete));
         }
+    };
+
+    const handleStatusUpdate = (id: string, newStatus: string) => {
+        dispatch(updateDocumentStatusRequest(id, newStatus));
     };
 
     const handleSubmit = (formData: FormData) => {
@@ -226,13 +232,35 @@ export default function DocumentListPage() {
                                     </TableCell>
                                     <TableCell>{doc.expiry_date || "-"}</TableCell>
                                     <TableCell>
-                                        <Chip
-                                            color={statusColorMap[doc.status] || "default"}
-                                            variant="flat"
-                                            size="sm"
-                                        >
-                                            {doc.status}
-                                        </Chip>
+                                        {hasPermission("document:submit") ? (
+                                            <Select
+                                                size="sm"
+                                                selectedKeys={[doc.status]}
+                                                onChange={(e) => {
+                                                    if (e.target.value && e.target.value !== doc.status) {
+                                                        handleStatusUpdate(doc.id, e.target.value);
+                                                    }
+                                                }}
+                                                variant="flat"
+                                                color={statusColorMap[doc.status] || "default"}
+                                                className="w-[120px]"
+                                                aria-label="Update Status"
+                                            >
+                                                {STATUS_OPTIONS.filter((opt) => opt.key !== "").map((opt) => (
+                                                    <SelectItem key={opt.key} textValue={opt.label}>
+                                                        {opt.label}
+                                                    </SelectItem>
+                                                ))}
+                                            </Select>
+                                        ) : (
+                                            <Chip
+                                                color={statusColorMap[doc.status] || "default"}
+                                                variant="flat"
+                                                size="sm"
+                                            >
+                                                {doc.status}
+                                            </Chip>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center justify-center gap-2">

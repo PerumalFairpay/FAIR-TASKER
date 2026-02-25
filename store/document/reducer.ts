@@ -15,6 +15,9 @@ import {
   DELETE_DOCUMENT_SUCCESS,
   DELETE_DOCUMENT_FAILURE,
   CLEAR_DOCUMENT_DETAILS,
+  UPDATE_DOCUMENT_STATUS_REQUEST,
+  UPDATE_DOCUMENT_STATUS_SUCCESS,
+  UPDATE_DOCUMENT_STATUS_FAILURE,
 } from "./actionType";
 
 interface DocumentState {
@@ -40,6 +43,10 @@ interface DocumentState {
   deleteDocumentLoading: boolean;
   deleteDocumentError: any;
   deleteDocumentSuccessMessage: string | null;
+
+  updateDocumentStatusLoading: boolean;
+  updateDocumentStatusError: any;
+  updateDocumentStatusSuccessMessage: string | null;
 }
 
 const initialState: DocumentState = {
@@ -65,6 +72,10 @@ const initialState: DocumentState = {
   deleteDocumentLoading: false,
   deleteDocumentError: null,
   deleteDocumentSuccessMessage: null,
+
+  updateDocumentStatusLoading: false,
+  updateDocumentStatusError: null,
+  updateDocumentStatusSuccessMessage: null,
 };
 
 const documentReducer = (state = initialState, action: any): DocumentState => {
@@ -160,6 +171,32 @@ const documentReducer = (state = initialState, action: any): DocumentState => {
         updateDocumentError: action.payload,
       };
 
+    // --- Update Status ---
+    case UPDATE_DOCUMENT_STATUS_REQUEST:
+      return {
+        ...state,
+        updateDocumentStatusLoading: true,
+        updateDocumentStatusError: null,
+        updateDocumentStatusSuccessMessage: null,
+      };
+    case UPDATE_DOCUMENT_STATUS_SUCCESS:
+      return {
+        ...state,
+        updateDocumentStatusLoading: false,
+        updateDocumentStatusSuccessMessage:
+          action.payload.message || "Document status updated successfully",
+        documents: state.documents.map((doc: any) =>
+          doc.id === action.payload.data.id ? action.payload.data : doc,
+        ),
+        document: action.payload.data,
+      };
+    case UPDATE_DOCUMENT_STATUS_FAILURE:
+      return {
+        ...state,
+        updateDocumentStatusLoading: false,
+        updateDocumentStatusError: action.payload,
+      };
+
     // --- Delete ---
     case DELETE_DOCUMENT_REQUEST:
       return {
@@ -205,6 +242,9 @@ const documentReducer = (state = initialState, action: any): DocumentState => {
 
         deleteDocumentError: null,
         deleteDocumentSuccessMessage: null,
+
+        updateDocumentStatusError: null,
+        updateDocumentStatusSuccessMessage: null,
       };
 
     default:

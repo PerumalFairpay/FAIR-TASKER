@@ -6,6 +6,7 @@ import {
   GET_DOCUMENT_REQUEST,
   UPDATE_DOCUMENT_REQUEST,
   DELETE_DOCUMENT_REQUEST,
+  UPDATE_DOCUMENT_STATUS_REQUEST,
 } from "./actionType";
 import {
   createDocumentSuccess,
@@ -18,6 +19,8 @@ import {
   updateDocumentFailure,
   deleteDocumentSuccess,
   deleteDocumentFailure,
+  updateDocumentStatusSuccess,
+  updateDocumentStatusFailure,
 } from "./action";
 import api from "../api";
 
@@ -52,6 +55,10 @@ function updateDocumentApi(id: string, payload: FormData) {
 
 function deleteDocumentApi(id: string) {
   return api.delete(`/documents/delete/${id}`);
+}
+
+function updateDocumentStatusApi(id: string, status: string) {
+  return api.patch(`/documents/update-status/${id}`, { status });
 }
 
 // Sagas
@@ -121,10 +128,25 @@ function* onDeleteDocument({ payload }: any): SagaIterator {
   }
 }
 
+function* onUpdateDocumentStatus({ payload }: any): SagaIterator {
+  try {
+    const { id, status } = payload;
+    const response = yield call(updateDocumentStatusApi, id, status);
+    yield put(updateDocumentStatusSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updateDocumentStatusFailure(
+        error.response?.data?.message || "Failed to update document status",
+      ),
+    );
+  }
+}
+
 export default function* documentSaga(): SagaIterator {
   yield takeEvery(CREATE_DOCUMENT_REQUEST, onCreateDocument);
   yield takeEvery(GET_DOCUMENTS_REQUEST, onGetDocuments);
   yield takeEvery(GET_DOCUMENT_REQUEST, onGetDocument);
   yield takeEvery(UPDATE_DOCUMENT_REQUEST, onUpdateDocument);
   yield takeEvery(DELETE_DOCUMENT_REQUEST, onDeleteDocument);
+  yield takeEvery(UPDATE_DOCUMENT_STATUS_REQUEST, onUpdateDocumentStatus);
 }
