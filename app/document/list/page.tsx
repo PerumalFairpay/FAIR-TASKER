@@ -63,6 +63,7 @@ export default function DocumentListPage() {
     } = useSelector((state: RootState) => state.Document);
     const { documentCategories } = useSelector((state: RootState) => state.DocumentCategory);
     const { hasPermission } = usePermissions();
+    const canManageDocs = hasPermission("document:submit");
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const {
@@ -83,21 +84,22 @@ export default function DocumentListPage() {
     // Fetch with current filters
     const fetchDocuments = useCallback(
         (search: string, status: string) => {
+            const finalStatus = canManageDocs ? status : "Active";
             dispatch(
                 getDocumentsRequest({
                     ...(search ? { search } : {}),
-                    ...(status ? { status } : {}),
+                    ...(finalStatus ? { status: finalStatus } : {}),
                 })
             );
         },
-        [dispatch]
+        [dispatch, canManageDocs]
     );
 
     // Initial load
     useEffect(() => {
         dispatch(getDocumentCategoriesRequest());
-        fetchDocuments("", "");
-    }, [dispatch]);
+        fetchDocuments("", canManageDocs ? "" : "Active");
+    }, [dispatch, canManageDocs]);
 
     // Debounce search
     useEffect(() => {
@@ -186,20 +188,22 @@ export default function DocumentListPage() {
                         variant="bordered"
                         className="sm:max-w-xs"
                     />
-                    <Select
-                        placeholder="All Status"
-                        selectedKeys={statusFilter ? [statusFilter] : [""]}
-                        onChange={handleStatusChange}
-                        variant="bordered"
-                        className="sm:max-w-[160px]"
-                        aria-label="Filter by status"
-                    >
-                        {STATUS_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.key} textValue={opt.label}>
-                                {opt.label}
-                            </SelectItem>
-                        ))}
-                    </Select>
+                    <PermissionGuard permission="document:submit">
+                        <Select
+                            placeholder="All Status"
+                            selectedKeys={statusFilter ? [statusFilter] : [""]}
+                            onChange={handleStatusChange}
+                            variant="bordered"
+                            className="sm:max-w-[160px]"
+                            aria-label="Filter by status"
+                        >
+                            {STATUS_OPTIONS.map((opt) => (
+                                <SelectItem key={opt.key} textValue={opt.label}>
+                                    {opt.label}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </PermissionGuard>
                 </div>
 
                 {/* Table */}
@@ -213,7 +217,12 @@ export default function DocumentListPage() {
                         <TableColumn>STATUS</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
-                    <TableBody items={documents || []} emptyContent="No documents found" loadingContent="Loading..." isLoading={getDocumentsLoading}>
+                    <TableBody
+                        items={canManageDocs ? (documents || []) : (documents || []).filter((doc: any) => doc.status === "Active")}
+                        emptyContent="No documents found"
+                        loadingContent="Loading..."
+                        isLoading={getDocumentsLoading}
+                    >
                         {(doc: any) => {
                             const category = documentCategories?.find((c: any) => c.id === doc.document_category_id);
                             const subcategory = documentCategories?.find((c: any) => c.id === doc.document_subcategory_id);

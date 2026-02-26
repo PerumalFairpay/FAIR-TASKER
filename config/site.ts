@@ -226,7 +226,7 @@ export const siteConfig: SiteConfig = {
       label: "Resources",
       href: "/resources",
       icon: "Package",
-      allowedRoles: ["admin"],
+      allowedRoles: ["admin","employee"],
       children: [
         {
           label: "Asset",
@@ -244,7 +244,7 @@ export const siteConfig: SiteConfig = {
           label: "Document",
           href: "/document/list",
           icon: "FileText",
-          allowedRoles: ["admin"],
+          allowedRoles: ["admin","employee"],
         },
       ],
     },
