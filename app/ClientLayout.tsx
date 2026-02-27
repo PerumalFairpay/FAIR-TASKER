@@ -74,7 +74,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
-            <AIAssistantSidebar />
+            {pathname !== "/ai-chat" && <AIAssistantSidebar />}
         </div>
     );
 }

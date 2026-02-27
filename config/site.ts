@@ -35,6 +35,12 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin", "employee"],
     },
     {
+      label: "AI Chat",
+      href: "/ai-chat",
+      icon: "MessageSquare",
+      allowedRoles: ["admin", "employee"],
+    },
+    {
       label: "Employee",
       href: "/employee",
       icon: "Users",
@@ -226,7 +232,7 @@ export const siteConfig: SiteConfig = {
       label: "Resources",
       href: "/resources",
       icon: "Package",
-      allowedRoles: ["admin","employee"],
+      allowedRoles: ["admin", "employee"],
       children: [
         {
           label: "Asset",
@@ -244,7 +250,7 @@ export const siteConfig: SiteConfig = {
           label: "Document",
           href: "/document/list",
           icon: "FileText",
-          allowedRoles: ["admin","employee"],
+          allowedRoles: ["admin", "employee"],
         },
       ],
     },

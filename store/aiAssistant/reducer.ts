@@ -18,9 +18,7 @@ interface AIAssistantState {
 }
 
 const initialState: AIAssistantState = {
-  messages: [
-    { role: "assistant", content: "Hello! How can I help you today?" },
-  ],
+  messages: [],
   loading: false,
   error: null,
 };
