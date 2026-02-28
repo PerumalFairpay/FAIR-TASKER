@@ -183,8 +183,8 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <PageHeader title="Global Settings" />
                 <Button
                     color="primary"
@@ -192,6 +192,7 @@ export default function SettingsPage() {
                     startContent={<Save size={18} />}
                     onPress={handleSave}
                     isLoading={updateSettingsLoading}
+                    className="w-full sm:w-auto"
                 >
                     Save Changes
                 </Button>
