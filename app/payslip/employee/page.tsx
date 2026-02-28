@@ -24,6 +24,9 @@ import {
     useDisclosure,
 } from "@heroui/modal";
 import { Select, SelectItem } from "@heroui/select";
+import { Card, CardBody } from "@heroui/card";
+import { Divider } from "@heroui/divider";
+import { Chip } from "@heroui/chip";
 
 const EmployeePayslipList = () => {
     const dispatch = useDispatch();
@@ -87,19 +90,18 @@ const EmployeePayslipList = () => {
     };
 
     return (
-        <div className="p-6">
-            <div className="flex flex-col gap-4 mb-6">
+        <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <PageHeader title="My Payslips" />
-
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <Select
                         label="Month"
                         placeholder="Filter by Month"
                         labelPlacement="outside"
                         size="sm"
-                        className="w-[150px]"
+                        className="w-full sm:w-[150px]"
                         classNames={{
-                            trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                            trigger: "h-10 bg-default-100 dark:bg-white/5 border-none shadow-none",
                             value: "text-small",
                         }}
                         selectedKeys={[month]}
@@ -116,9 +118,9 @@ const EmployeePayslipList = () => {
                         placeholder="Filter by Year"
                         labelPlacement="outside"
                         size="sm"
-                        className="w-[150px]"
+                        className="w-full sm:w-[150px]"
                         classNames={{
-                            trigger: "h-10 bg-default-100 data-[hover=true]:bg-default-200 border-none shadow-none",
+                            trigger: "h-10 bg-default-100 dark:bg-white/5 border-none shadow-none",
                             value: "text-small",
                         }}
                         selectedKeys={[year]}
@@ -133,52 +135,126 @@ const EmployeePayslipList = () => {
                 </div>
             </div>
 
-            <Table
-                aria-label="My Payslips Table"
-                removeWrapper
-                isHeaderSticky
-                bottomContent={
-                    meta && meta.total_items > 0 && (
-                        <TablePagination
-                            page={page}
-                            total={meta.total_pages}
-                            onChange={(p) => setPage(p)}
-                            limit={limit}
-                            onLimitChange={(l) => { setLimit(l); setPage(1); }}
-                        />
-                    )
-                }
-            >
-                <TableHeader>
-                    <TableColumn>MONTH</TableColumn>
-                    <TableColumn>YEAR</TableColumn>
-                    <TableColumn>NET PAY</TableColumn>
-                    <TableColumn>GENERATED AT</TableColumn>
-                    <TableColumn align="center">ACTIONS</TableColumn>
-                </TableHeader>
-                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
-                    {(item: any) => (
-                        <TableRow key={item.id}>
-                            <TableCell>{item.month}</TableCell>
-                            <TableCell>{item.year}</TableCell>
-                            <TableCell>{`₹ ${item.net_pay.toFixed(2)}`}</TableCell>
-                            <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                                <div className="flex justify-center">
-                                    <Button
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table
+                    aria-label="My Payslips Table"
+                    removeWrapper
+                    isHeaderSticky
+                >
+                    <TableHeader>
+                        <TableColumn>MONTH</TableColumn>
+                        <TableColumn>YEAR</TableColumn>
+                        <TableColumn>NET PAY</TableColumn>
+                        <TableColumn>GENERATED AT</TableColumn>
+                        <TableColumn align="center">ACTIONS</TableColumn>
+                    </TableHeader>
+                    <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
+                        {(item: any) => (
+                            <TableRow key={item.id}>
+                                <TableCell className="font-medium">{item.month}</TableCell>
+                                <TableCell>{item.year}</TableCell>
+                                <TableCell className="font-semibold text-primary">
+                                    {`₹ ${item.net_pay.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
+                                </TableCell>
+                                <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
+                                <TableCell>
+                                    <div className="flex justify-center">
+                                        <Button
+                                            color="primary"
+                                            variant="flat"
+                                            size="sm"
+                                            startContent={<Eye size={16} />}
+                                            onPress={() => handleView(item.id)}
+                                            className="font-medium"
+                                        >
+                                            View / Download
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden space-y-4">
+                {payslipListLoading ? (
+                    <div className="flex justify-center py-8 text-default-400 font-medium italic">Loading payslips...</div>
+                ) : (payslips || []).length > 0 ? (
+                    (payslips as any[]).map((item: any) => (
+                        <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50 overflow-hidden">
+                            <CardBody className="p-0">
+                                <div className="p-4 flex justify-between items-center bg-default-50/50 dark:bg-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary/20 flex items-center justify-center text-primary">
+                                            <Calendar size={20} />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <h3 className="text-sm font-bold text-default-900">{item.month}</h3>
+                                            <span className="text-[10px] text-default-400 font-medium tracking-wider uppercase">{item.year}</span>
+                                        </div>
+                                    </div>
+                                    <Chip
                                         color="primary"
                                         variant="flat"
+                                        size="sm"
+                                        className="font-bold text-[11px]"
+                                    >
+                                        {`₹${item.net_pay.toLocaleString('en-IN')}`}
+                                    </Chip>
+                                </div>
+                                <Divider className="opacity-50" />
+                                <div className="p-4 space-y-4">
+                                    <div className="flex justify-between items-center px-1">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase tracking-widest">Generated On</span>
+                                            <span className="text-xs font-semibold text-default-700">
+                                                {new Date(item.generated_at).toLocaleDateString('en-GB', {
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col gap-1 items-end">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase tracking-widest">Type</span>
+                                            <span className="text-xs font-semibold text-default-700">Monthly Payslip</span>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        color="primary"
+                                        variant="shadow"
+                                        fullWidth
                                         startContent={<Eye size={18} />}
                                         onPress={() => handleView(item.id)}
+                                        className="font-bold h-11"
                                     >
                                         View / Download
                                     </Button>
                                 </div>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                            </CardBody>
+                        </Card>
+                    ))
+                ) : (
+                    <div className="text-center py-12 text-default-400 italic">No payslips found</div>
+                )}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-6 flex justify-center">
+                {meta && meta.total_items > 0 && (
+                    <TablePagination
+                        page={page}
+                        total={meta.total_pages}
+                        onChange={(p) => setPage(p)}
+                        limit={limit}
+                        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                    />
+                )}
+            </div>
 
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
