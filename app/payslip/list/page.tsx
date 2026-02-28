@@ -98,7 +98,7 @@ const PayslipList = () => {
         <div className="p-6">
             <div className="flex flex-col gap-4 mb-6">
                 <div className="flex justify-between items-center">
-                    <PageHeader title="Payslips (Admin)" />
+                    <PageHeader title="Payslips" />
                     <Button color="primary" variant="shadow" endContent={<Plus size={16} />} onPress={handleOpen}>
                         Generate Payslip
                     </Button>
