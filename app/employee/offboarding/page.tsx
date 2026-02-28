@@ -21,6 +21,8 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { User } from "@heroui/user";
 import { Tabs, Tab } from "@heroui/tabs";
+import { Card, CardBody } from "@heroui/card";
+import { Divider } from "@heroui/divider";
 
 export default function OffboardingPage() {
     const dispatch = useDispatch();
@@ -234,74 +236,150 @@ export default function OffboardingPage() {
     };
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex justify-between items-center mb-6">
                 <PageHeader title="Employee Offboarding" />
             </div>
 
-            <Table aria-label="Offboarding employees table" removeWrapper isHeaderSticky>
-                <TableHeader>
-                    <TableColumn>EMPLOYEE</TableColumn>
-                    <TableColumn>LAST WORKING DAY</TableColumn>
-                    <TableColumn>PROGRESS</TableColumn>
-                    <TableColumn align="center">ACTIONS</TableColumn>
-                </TableHeader>
-                <TableBody items={offboardingEmployees} emptyContent="No employees in offboarding phase" isLoading={listLoading}>
-                    {(employee: any) => {
-                        const progress = calculateProgress(employee.offboarding_checklist || []);
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <Table aria-label="Offboarding employees table" removeWrapper isHeaderSticky>
+                    <TableHeader>
+                        <TableColumn>EMPLOYEE</TableColumn>
+                        <TableColumn>LAST WORKING DAY</TableColumn>
+                        <TableColumn>PROGRESS</TableColumn>
+                        <TableColumn align="center">ACTIONS</TableColumn>
+                    </TableHeader>
+                    <TableBody items={offboardingEmployees} emptyContent="No employees in offboarding phase" isLoading={listLoading}>
+                        {(employee: any) => {
+                            const progress = calculateProgress(employee.offboarding_checklist || []);
 
-                        return (
-                            <TableRow key={employee.id}>
-                                <TableCell>
-                                    <User
-                                        avatarProps={{ radius: "lg", src: employee.profile_picture }}
-                                        description={employee.designation || "N/A"}
-                                        name={employee.name}
-                                    />
-                                </TableCell>
-                                <TableCell>
-                                    {employee.last_working_day ? (
-                                        <div className="flex items-center gap-2">
-                                            <Calendar size={14} className="text-danger-500" />
-                                            <span className="text-sm text-danger-500">
-                                                {new Date(employee.last_working_day).toLocaleDateString()}
-                                            </span>
+                            return (
+                                <TableRow key={employee.id}>
+                                    <TableCell>
+                                        <User
+                                            avatarProps={{ radius: "lg", src: employee.profile_picture }}
+                                            description={employee.designation || "N/A"}
+                                            name={employee.name}
+                                        />
+                                    </TableCell>
+                                    <TableCell>
+                                        {employee.last_working_day ? (
+                                            <div className="flex items-center gap-2">
+                                                <Calendar size={14} className="text-danger-500" />
+                                                <span className="text-sm text-danger-500">
+                                                    {new Date(employee.last_working_day).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-default-400">Not set</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col gap-1 min-w-[120px]">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-tiny text-default-500">PROGRESS</span>
+                                                <span className="text-tiny font-semibold text-warning">{progress}%</span>
+                                            </div>
+                                            <Progress
+                                                value={progress}
+                                                color={progress === 100 ? "success" : "warning"}
+                                                size="sm"
+                                            />
                                         </div>
-                                    ) : (
-                                        <span className="text-default-400">Not set</span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex flex-col gap-1 min-w-[120px]">
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="relative flex items-center justify-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="light"
+                                                color="primary"
+                                                startContent={<Settings2 size={16} />}
+                                                onPress={() => handleOpenDrawer(employee)}
+                                            >
+                                                Manage
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        }}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden space-y-4">
+                {listLoading ? (
+                    <div className="flex justify-center py-8">
+                        <span className="text-default-400">Loading employees...</span>
+                    </div>
+                ) : offboardingEmployees.length > 0 ? (
+                    offboardingEmployees.map((employee: any) => {
+                        const progress = calculateProgress(employee.offboarding_checklist || []);
+                        return (
+                            <Card key={employee.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                                <CardBody className="p-4 flex flex-col gap-4">
+                                    <div className="flex justify-between items-start">
+                                        <User
+                                            avatarProps={{ radius: "lg", src: employee.profile_picture, size: "md" }}
+                                            description={employee.designation || "N/A"}
+                                            name={employee.name}
+                                            classNames={{
+                                                name: "text-sm font-bold",
+                                                description: "text-[10px]"
+                                            }}
+                                        />
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase">LWD</span>
+                                            {employee.last_working_day ? (
+                                                <div className="flex items-center gap-1 text-danger-500">
+                                                    <Calendar size={10} />
+                                                    <span className="text-[10px] font-bold">
+                                                        {new Date(employee.last_working_day).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] text-default-300">Not set</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <Divider className="opacity-50" />
+
+                                    <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-tiny text-default-500">PROGRESS</span>
-                                            <span className="text-tiny font-semibold text-warning">{progress}%</span>
+                                            <span className="text-[10px] font-bold text-default-400 uppercase">Offboarding Progress</span>
+                                            <span className="text-xs font-bold text-warning">{progress}%</span>
                                         </div>
                                         <Progress
                                             value={progress}
                                             color={progress === 100 ? "success" : "warning"}
                                             size="sm"
+                                            radius="full"
                                         />
                                     </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="relative flex items-center justify-center gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="light"
-                                            color="primary"
-                                            startContent={<Settings2 size={16} />}
-                                            onPress={() => handleOpenDrawer(employee)}
-                                        >
-                                            Manage
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+
+                                    <Button
+                                        size="sm"
+                                        color="primary"
+                                        variant="flat"
+                                        className="w-full mt-1 font-bold h-9"
+                                        startContent={<Settings2 size={18} />}
+                                        onPress={() => handleOpenDrawer(employee)}
+                                    >
+                                        Manage Offboarding
+                                    </Button>
+                                </CardBody>
+                            </Card>
                         );
-                    }}
-                </TableBody>
-            </Table>
+                    })
+                ) : (
+                    <div className="text-center py-12 text-default-400">
+                        No employees in offboarding phase
+                    </div>
+                )}
+            </div>
 
             <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} size="lg">
                 <DrawerContent>
@@ -323,10 +401,10 @@ export default function OffboardingPage() {
                                     color="warning"
                                     classNames={{
                                         base: "w-full",
-                                        tabList: "bg-default-100 p-1 rounded-xl w-full flex justify-between",
+                                        tabList: "bg-default-100 p-1 rounded-xl w-full flex overflow-x-auto scrollbar-hide",
                                         cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
-                                        tab: "h-10",
-                                        tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
+                                        tab: "h-10 min-w-fit px-4",
+                                        tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary whitespace-nowrap"
                                     }}
                                 >
                                     <Tab key="exit-details" title={
@@ -386,7 +464,7 @@ export default function OffboardingPage() {
                                                                 <p className="font-medium text-danger-700">{asset.asset_name}</p>
                                                                 <p className="text-tiny text-danger-500">Serial: {asset.serial_no} • {asset.category?.name}</p>
                                                             </div>
-                                                            <div className="flex items-center gap-3">
+                                                            <div className="flex flex-wrap items-center gap-3">
                                                                 <Chip size="sm" color="danger" variant="flat">Pending Return</Chip>
                                                                 <Button
                                                                     size="sm"
@@ -522,12 +600,13 @@ export default function OffboardingPage() {
                                     </Tab>
                                 </Tabs>
                             </DrawerBody>
-                            <DrawerFooter className="border-t border-default-200 justify-between">
+                            <DrawerFooter className="border-t border-default-200 flex-col sm:flex-row gap-3">
                                 <Button
                                     color="primary"
                                     variant="flat"
                                     onPress={handleSaveProgress}
                                     isLoading={isSaving}
+                                    className="w-full sm:w-auto"
                                 >
                                     Save Progress
                                 </Button>
@@ -537,6 +616,7 @@ export default function OffboardingPage() {
                                     onPress={handleCompleteOffboarding}
                                     isLoading={isCompletingOffboarding}
                                     isDisabled={!isReadyToComplete()}
+                                    className="w-full sm:w-auto font-bold"
                                 >
                                     Complete Offboarding
                                 </Button>
