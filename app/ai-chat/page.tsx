@@ -7,7 +7,6 @@ import {
     Trash2,
     Bot,
     Webhook,
-    Sparkles,
     User
 } from "lucide-react";
 import { Button } from "@heroui/button";
@@ -140,9 +139,9 @@ export default function AIChatPage() {
                                                 duration: 4,
                                                 ease: "easeInOut"
                                             }}
-                                            className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+                                            className="absolute -inset-1 bg-gradient-to-r from-default-300 to-default-900 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 dark:from-default-400 dark:to-white"
                                         ></motion.div>
-                                        <Webhook size={28} className="relative text-secondary-500 dark:text-secondary-400" />
+                                        <Webhook size={28} className="relative text-default-900 dark:text-default-100" />
                                     </motion.div>
                                     <motion.h3
                                         layoutId="astro-name"
@@ -194,8 +193,8 @@ export default function AIChatPage() {
                                             )}
                                         >
                                             {msg.role === "assistant" && (
-                                                <div className="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center shrink-0 mt-1">
-                                                    <Sparkles size={16} className="text-secondary-600" />
+                                                <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-default-50 flex items-center justify-center shrink-0 mt-1 border border-default-200 dark:border-white/10">
+                                                    <Webhook size={16} className="text-default-700 dark:text-default-200" />
                                                 </div>
                                             )}
                                             <div className={clsx(
@@ -237,8 +236,8 @@ export default function AIChatPage() {
                                     ))}
                                     {isLoading && (
                                         <div className="flex gap-4 items-center">
-                                            <div className="w-8 h-8 rounded-full bg-secondary-100 flex items-center justify-center animate-pulse">
-                                                <Sparkles size={16} className="text-secondary-600" />
+                                            <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-default-50 flex items-center justify-center border border-default-200 dark:border-white/10">
+                                                <Webhook size={16} className="text-default-700 dark:text-default-200 animate-spin" />
                                             </div>
                                             <div className="flex gap-1.5 py-4">
                                                 {[0, 0.2, 0.4].map((d) => (

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { X, Send, Loader2, Webhook, User, Sparkles, MessageSquare, SendHorizontal } from "lucide-react";
+import { X, Send, Loader2, Webhook, User, MessageSquare, SendHorizontal } from "lucide-react";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Avatar } from "@heroui/avatar";
@@ -90,14 +90,14 @@ export default function AIAssistantSidebar() {
                                     {/* <Badge content="" color="success" shape="circle" placement="bottom-right" className="border-2 border-white dark:border-default-100"> */}
                                     <Avatar
                                         icon={<Webhook size={22} />}
-                                        className="bg-secondary-100 text-secondary-600 border-2 border-secondary-500"
+                                        className="bg-default-100 dark:bg-default-50 text-default-700 dark:text-default-200 border border-default-200 dark:border-white/10"
                                         size="md"
                                     />
                                     {/* </Badge> */}
                                     <div>
                                         <h3 className="font-bold text-lg tracking-tight text-default-900 dark:text-default-100">ASTRO</h3>
                                         <p className="text-default-500 text-xs flex items-center gap-1">
-                                            <Sparkles size={10} className="text-secondary-500" /> Ai Assistant
+                                            <Webhook size={10} className="text-default-400" /> Ai Assistant
                                         </p>
                                     </div>
                                 </div>
@@ -127,7 +127,7 @@ export default function AIAssistantSidebar() {
                                                 {msg.role === "assistant" && (
                                                     <Avatar
                                                         icon={<Webhook size={18} />}
-                                                        className="shrink-0 shadow-sm bg-secondary-100 text-secondary-600"
+                                                        className="shrink-0 shadow-sm bg-default-100 dark:bg-default-50 text-default-700 dark:text-default-200 border border-default-200 dark:border-white/10"
                                                         size="sm"
                                                     />
                                                 )}
@@ -167,8 +167,8 @@ export default function AIAssistantSidebar() {
                                             className="flex gap-3 flex-row"
                                         >
                                             <Avatar
-                                                icon={<Webhook size={18} />}
-                                                className="bg-secondary-100 text-secondary-600 shrink-0"
+                                                icon={<Webhook size={18} className="animate-spin" />}
+                                                className="bg-default-100 dark:bg-default-50 text-default-700 dark:text-default-200 border border-default-200 dark:border-white/10 shrink-0"
                                                 size="sm"
                                             />
                                             <div className="flex items-center justify-center gap-2 py-3 px-1">
