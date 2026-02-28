@@ -178,68 +178,63 @@ const EmployeePayslipList = () => {
                 </Table>
             </div>
 
-            {/* Mobile View */}
+            {/* Mobile View — NDA style */}
             <div className="md:hidden space-y-4">
                 {payslipListLoading ? (
-                    <div className="flex justify-center py-8 text-default-400 font-medium italic">Loading payslips...</div>
+                    <div className="flex justify-center py-8 text-default-400">Loading payslips...</div>
                 ) : (payslips || []).length > 0 ? (
                     (payslips as any[]).map((item: any) => (
-                        <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50 overflow-hidden">
-                            <CardBody className="p-0">
-                                <div className="p-4 flex justify-between items-center bg-default-50/50 dark:bg-white/5">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary/20 flex items-center justify-center text-primary">
-                                            <Calendar size={20} />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <h3 className="text-sm font-bold text-default-900">{item.month}</h3>
-                                            <span className="text-[10px] text-default-400 font-medium tracking-wider uppercase">{item.year}</span>
-                                        </div>
+                        <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                            <CardBody className="p-4 flex flex-col gap-4">
+                                {/* Header: Month name + year chip */}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col gap-0.5">
+                                        <h3 className="text-sm font-bold text-default-900">{item.month}</h3>
+                                        <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">Monthly Payslip</p>
                                     </div>
-                                    <Chip
-                                        color="primary"
-                                        variant="flat"
-                                        size="sm"
-                                        className="font-bold text-[11px]"
-                                    >
-                                        {`₹${item.net_pay.toLocaleString('en-IN')}`}
-                                    </Chip>
+                                    <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg shrink-0">
+                                        {item.year}
+                                    </span>
                                 </div>
+
                                 <Divider className="opacity-50" />
-                                <div className="p-4 space-y-4">
-                                    <div className="flex justify-between items-center px-1">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[9px] font-bold text-default-400 uppercase tracking-widest">Generated On</span>
-                                            <span className="text-xs font-semibold text-default-700">
+
+                                {/* NDA-style compact info bar */}
+                                <div className="flex justify-between items-center bg-default-50 dark:bg-white/5 p-2 rounded-xl">
+                                    <div className="flex gap-4 items-center">
+                                        {/* Net Pay */}
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase">Net Pay</span>
+                                            <span className="text-tiny font-bold text-primary">
+                                                ₹ {item.net_pay.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                            </span>
+                                        </div>
+                                        {/* Generated */}
+                                        <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase">Generated</span>
+                                            <span className="text-tiny">
                                                 {new Date(item.generated_at).toLocaleDateString('en-GB', {
-                                                    day: '2-digit',
-                                                    month: 'short',
-                                                    year: 'numeric'
+                                                    day: '2-digit', month: 'short', year: 'numeric'
                                                 })}
                                             </span>
                                         </div>
-                                        <div className="flex flex-col gap-1 items-end">
-                                            <span className="text-[9px] font-bold text-default-400 uppercase tracking-widest">Type</span>
-                                            <span className="text-xs font-semibold text-default-700">Monthly Payslip</span>
-                                        </div>
                                     </div>
-
+                                    {/* Action Button */}
                                     <Button
+                                        isIconOnly
+                                        size="sm"
+                                        variant="flat"
                                         color="primary"
-                                        variant="shadow"
-                                        fullWidth
-                                        startContent={<Eye size={18} />}
                                         onPress={() => handleView(item.id)}
-                                        className="font-bold h-11"
                                     >
-                                        View / Download
+                                        <Eye size={14} />
                                     </Button>
                                 </div>
                             </CardBody>
                         </Card>
                     ))
                 ) : (
-                    <div className="text-center py-12 text-default-400 italic">No payslips found</div>
+                    <div className="text-center py-12 text-default-400">No payslips found</div>
                 )}
             </div>
 
