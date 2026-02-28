@@ -22,11 +22,14 @@ import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import ClearChatModal from "./ClearChatModal";
+import { useDisclosure } from "@heroui/modal";
 
 export default function AIChatPage() {
     const [inputValue, setInputValue] = useState("");
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { isOpen: isClearModalOpen, onOpen, onOpenChange } = useDisclosure();
 
     const { user } = useSelector((state: AppState) => state.Auth);
     const { messages, loading: isLoading } = useSelector((state: AppState) => state.AIAssistant);
@@ -61,9 +64,7 @@ export default function AIChatPage() {
     };
 
     const handleClearChat = () => {
-        if (window.confirm("Are you sure you want to clear the chat history?")) {
-            dispatch(clearChatHistory());
-        }
+        dispatch(clearChatHistory());
     };
 
     if (!user) return null;
@@ -99,7 +100,7 @@ export default function AIChatPage() {
                                 isIconOnly
                                 variant="light"
                                 size="sm"
-                                onClick={handleClearChat}
+                                onClick={onOpen}
                                 className="text-default-400 hover:text-danger rounded-full"
                             >
                                 <Trash2 size={18} />
@@ -277,6 +278,12 @@ export default function AIChatPage() {
                     )}
                 </AnimatePresence>
             </main>
+
+            <ClearChatModal
+                isOpen={isClearModalOpen}
+                onOpenChange={onOpenChange}
+                onConfirm={handleClearChat}
+            />
         </div>
     );
 }
