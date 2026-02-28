@@ -20,6 +20,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import { sendChatQuery, clearChatHistory } from "@/store/aiAssistant/action";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export default function AIChatPage() {
     const [inputValue, setInputValue] = useState("");
@@ -141,7 +144,7 @@ export default function AIChatPage() {
                                                 </div>
                                             )}
                                             <div className={clsx(
-                                                "max-w-[85%] flex flex-col gap-1",
+                                                "max-w-[92%] flex flex-col gap-1",
                                                 msg.role === "user" ? "items-end" : "items-start"
                                             )}>
                                                 <div className={clsx(
@@ -150,7 +153,24 @@ export default function AIChatPage() {
                                                         ? "bg-default-100 text-default-900 shadow-sm"
                                                         : "bg-transparent text-default-800 dark:text-default-200"
                                                 )}>
-                                                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                                                    {msg.role === "user" ? (
+                                                        <span className="whitespace-pre-wrap">{msg.content}</span>
+                                                    ) : (
+                                                        <div className="prose prose-sm dark:prose-invert max-w-none 
+                                                            prose-p:leading-relaxed 
+                                                            prose-pre:bg-default-100 dark:prose-pre:bg-default-50/50 prose-pre:rounded-xl prose-pre:p-4 
+                                                            prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-primary-500/10 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none 
+                                                            prose-table:border-separate prose-table:border-spacing-0 prose-table:w-full prose-table:border prose-table:border-default-200 prose-table:rounded-xl prose-table:overflow-hidden
+                                                            prose-th:bg-default-100/50 prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:border-b prose-th:border-default-200 prose-th:first:pl-4
+                                                            prose-td:px-4 prose-td:py-3 prose-td:border-b prose-td:border-default-200 last:prose-td:border-b-0 prose-td:first:pl-4">
+                                                            <ReactMarkdown
+                                                                remarkPlugins={[remarkGfm]}
+                                                                rehypePlugins={[rehypeRaw as any]}
+                                                            >
+                                                                {msg.content}
+                                                            </ReactMarkdown>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             {msg.role === "user" && (
