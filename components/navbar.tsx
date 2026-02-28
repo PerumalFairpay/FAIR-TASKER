@@ -63,6 +63,7 @@ import FairPayLogo from "@/app/assets/FairPay.png";
 import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
 import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
+import { ScrollShadow } from "@heroui/scroll-shadow";
 
 interface NavbarProps {
   isExpanded?: boolean;
@@ -280,47 +281,49 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     <>
       {/* Mobile Bottom Navbar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
-        <div className="flex items-center justify-around h-full px-2">
-          {siteConfig.navItems.filter(item => {
-            const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
-            const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
-            return roleMatch && permissionMatch;
-          }).map((item: any) => {
-            if (item.children && !item.children.some((child: any) => child.href === item.href)) {
-              if (item.children) return null;
-            }
+        <ScrollShadow orientation="horizontal" className="flex items-center h-full px-2 scrollbar-hide" hideScrollBar>
+          <div className="flex items-center min-w-max h-full">
+            {siteConfig.navItems.filter(item => {
+              const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+              const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
+              return roleMatch && permissionMatch;
+            }).map((item: any) => {
+              if (item.children && !item.children.some((child: any) => child.href === item.href)) {
+                if (item.children) return null;
+              }
 
-            const isActive = pathname === item.href;
-            const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
-            return (
-              <NextLink
-                key={item.href}
-                href={item.href}
-                className={clsx(
-                  "flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1 transition-all duration-200 ease-in-out",
-                  isActive
-                    ? "text-primary bg-primary/10 shadow-sm scale-105"
-                    : "text-default-600 hover:bg-default-50 active:scale-95"
-                )}
-              >
-                <Icon
+              const isActive = pathname === item.href;
+              const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+              return (
+                <NextLink
+                  key={item.href}
+                  href={item.href}
                   className={clsx(
-                    "w-5 h-5 mb-1 transition-colors",
-                    isActive ? "text-primary" : "text-default-500"
-                  )}
-                />
-                <span
-                  className={clsx(
-                    "text-[11px] font-medium truncate max-w-[70px]",
-                    isActive ? "text-primary" : "text-default-600"
+                    "flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1 transition-all duration-200 ease-in-out",
+                    isActive
+                      ? "text-primary bg-primary/10 shadow-sm scale-105"
+                      : "text-default-600 hover:bg-default-50 active:scale-95"
                   )}
                 >
-                  {item.label}
-                </span>
-              </NextLink>
-            );
-          })}
-        </div>
+                  <Icon
+                    className={clsx(
+                      "w-5 h-5 mb-1 transition-colors",
+                      isActive ? "text-primary" : "text-default-500"
+                    )}
+                  />
+                  <span
+                    className={clsx(
+                      "text-[11px] font-medium truncate max-w-[70px]",
+                      isActive ? "text-primary" : "text-default-600"
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </NextLink>
+              );
+            })}
+          </div>
+        </ScrollShadow>
       </div>
 
       {/* Desktop Sidebar */}
@@ -349,7 +352,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
             </NextLink>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
+          <ScrollShadow className="flex-1 py-4 scrollbar-hide">
             <nav className="flex flex-col gap-1 px-2">
               {siteConfig.navItems
                 .filter(item => {
@@ -590,7 +593,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   );
                 })}
             </nav>
-          </div>
+          </ScrollShadow>
 
           <div className="p-1 border-t border-divider">
             {user && (
