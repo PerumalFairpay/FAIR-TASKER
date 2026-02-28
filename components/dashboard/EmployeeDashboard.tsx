@@ -278,18 +278,20 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     return (
         <div className="min-h-screen  font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-                <PageHeader
-                    title={data.greeting.greeting_text}
-                    description={data.greeting.message}
-                />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 px-1">
+                <div className="flex-1">
+                    <PageHeader
+                        title={data.greeting.greeting_text}
+                        description={data.greeting.message}
+                    />
+                </div>
 
-                <div className="hidden sm:flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full md:w-auto">
                     {/* Buttons Section */}
-                    <div>
+                    <div className="flex items-center justify-between sm:justify-end gap-3 order-2 sm:order-1">
                         {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                             <Button
-                                className="cursor-default opacity-100 font-semibold"
+                                className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
                                 variant="flat"
                                 color="secondary"
                                 size="md"
@@ -299,10 +301,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 On Leave
                             </Button>
                         ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
                                 {relevantRecord?.attendance_status === 'Half Day' && (
                                     <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
-                                        Half Day Leave
+                                        Half Day
                                     </Chip>
                                 )}
                                 <Button
@@ -311,7 +313,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
                                     isLoading={clockInLoading}
-                                    className="shadow-lg shadow-primary/40 font-semibold"
+                                    className="shadow-lg shadow-primary/40 font-semibold flex-1 sm:flex-none"
                                 >
                                     Clock In
                                 </Button>
@@ -330,7 +332,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         variant="flat"
                                         startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                         isLoading={clockOutLoading}
-                                        className="font-semibold"
+                                        className="font-semibold w-full sm:w-auto"
                                         isDisabled={relevantRecord?.device_type === 'Biometric'}
                                     >
                                         {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
@@ -364,7 +366,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </Popover>
                         ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
                             <Button
-                                className="cursor-default opacity-100 font-semibold"
+                                className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
                                 variant="flat"
                                 color="success"
                                 size="md"
@@ -377,12 +379,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </div>
 
                     {/* Clock Section */}
-                    <div className="text-right border-l pl-6 border-slate-200 dark:border-white/10">
-                        <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                    <div className="text-left sm:text-right border-l-0 sm:border-l sm:pl-6 border-slate-200 dark:border-white/10 order-1 sm:order-2">
+                        <div className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                             {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
                         </div>
-                        <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
-                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                        <div className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-500">
+                            {currentDate ? format(currentDate, "EEEE, MMM d, yyyy") : ""}
                         </div>
                     </div>
                 </div>

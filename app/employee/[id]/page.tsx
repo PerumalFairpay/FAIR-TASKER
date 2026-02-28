@@ -62,7 +62,7 @@ export default function EmployeeSummaryPage() {
                     </div>
                 </div>
             ) : (
-                <div className="p-6 max-w-7xl mx-auto space-y-6">
+                <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
                     <div className="flex items-center gap-4 mb-2">
                         <Button
                             isIconOnly
@@ -74,8 +74,8 @@ export default function EmployeeSummaryPage() {
                             <ArrowLeft size={20} />
                         </Button>
                         <div>
-                            <h1 className="text-2xl font-bold">Employee Summary</h1>
-                            <p className="text-default-500 text-sm">Viewing details for {employee?.name || "Employee"}</p>
+                            <h1 className="text-xl sm:text-2xl font-bold">Employee Summary</h1>
+                            <p className="text-default-500 text-xs sm:text-sm">Viewing details for {employee?.name || "Employee"}</p>
                         </div>
                     </div>
 
@@ -377,13 +377,12 @@ export default function EmployeeSummaryPage() {
                                         variant="solid"
                                         radius="lg"
                                         size="sm"
-                                        fullWidth
                                         classNames={{
-                                            base: "w-full p-4 pb-0",
-                                            tabList: "w-full bg-default-100/80 backdrop-blur-md p-1 border border-default-200/50 gap-1",
+                                            base: "w-full p-4 pb-0 overflow-x-auto",
+                                            tabList: "bg-default-100/80 backdrop-blur-md p-1 border border-default-200/50 gap-1",
                                             cursor: "bg-white shadow-sm border border-default-100",
-                                            tab: "h-8",
-                                            tabContent: "group-data-[selected=true]:text-primary text-default-500 font-bold transition-all px-4"
+                                            tab: "h-8 min-w-fit px-4",
+                                            tabContent: "group-data-[selected=true]:text-primary text-default-500 font-bold transition-all"
                                         }}
                                     >
                                         <Tab
@@ -395,7 +394,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                                                 <InfoItem label="Full Name" value={employee?.name} />
                                                 <InfoItem label="Personal Email" value={employee?.personal_email} />
                                                 <InfoItem label="Date of Birth" value={employee?.date_of_birth} />
@@ -418,7 +417,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                                                 <InfoItem label="Employee ID" value={employee?.employee_no_id} />
                                                 <InfoItem label="Biometric ID" value={employee?.biometric_id} />
                                                 <InfoItem label="Employee Type" value={employee?.employee_type} />
@@ -440,7 +439,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                                                 <InfoItem label="Bank Name" value={employee?.bank_name} />
                                                 <InfoItem label="Account Name" value={employee?.account_name} />
                                                 <InfoItem label="Account Number" value={employee?.account_number} />
@@ -459,7 +458,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6">
+                                            <div className="p-4 sm:p-6">
                                                 {employeeSummaryData?.assigned_projects?.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         {employeeSummaryData.assigned_projects.map((project: any, idx: number) => (
@@ -504,7 +503,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6">
+                                            <div className="p-4 sm:p-6">
                                                 {employeeSummaryData?.assigned_assets?.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         {employeeSummaryData.assigned_assets.map((asset: any, idx: number) => (
@@ -553,7 +552,7 @@ export default function EmployeeSummaryPage() {
                                                 </div>
                                             }
                                         >
-                                            <div className="p-6">
+                                            <div className="p-4 sm:p-6">
                                                 {employee?.documents?.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                         {employee.documents.map((doc: any, idx: number) => (

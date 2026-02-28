@@ -202,21 +202,20 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
     return (
         <div className="min-h-screen font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-                <PageHeader
-                    title="Admin Dashboard"
-                    description="Welcome back, here's your organization overview."
-                />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 px-1">
+                <div className="flex-1">
+                    <PageHeader
+                        title="Admin Dashboard"
+                        description="Welcome back, here's your organization overview."
+                    />
+                </div>
 
-                <div className="hidden sm:flex items-center gap-6">
-                    {/* Clock Section */}
-                    <div className="text-right border-l pl-6 border-slate-200 dark:border-white/10">
-                        <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                            {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
-                        </div>
-                        <div className="text-sm font-medium text-slate-500 dark:text-slate-500">
-                            {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
-                        </div>
+                <div className="w-full md:w-auto text-left md:text-right border-l-0 md:border-l md:pl-6 border-slate-200 dark:border-white/10">
+                    <div className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                        {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
+                    </div>
+                    <div className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-500">
+                        {currentDate ? format(currentDate, "EEEE, MMM d, yyyy") : ""}
                     </div>
                 </div>
             </div>

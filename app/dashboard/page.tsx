@@ -24,7 +24,7 @@ export default function Dashboard() {
     }, [dispatch]);
 
     return (
-        <div className="p-6 min-h-screen">
+        <div className="p-4 sm:p-6 min-h-screen">
             {/* <div className="mb-6">
                 <PageHeader title="Dashboard" />
             </div> */}
