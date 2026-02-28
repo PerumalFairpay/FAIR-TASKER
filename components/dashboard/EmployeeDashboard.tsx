@@ -292,7 +292,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 className="cursor-default opacity-100 font-semibold"
                                 variant="flat"
                                 color="secondary"
-                                size="lg"
+                                size="md"
                                 startContent={<Plane size={20} />}
                                 disableAnimation
                             >
@@ -307,7 +307,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 )}
                                 <Button
                                     color="primary"
-                                    size="lg"
+                                    size="md"
                                     startContent={<Clock size={20} />}
                                     onPress={handleClockIn}
                                     isLoading={clockInLoading}
@@ -326,7 +326,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 <PopoverTrigger>
                                     <Button
                                         color="warning"
-                                        size="lg"
+                                        size="md"
                                         variant="flat"
                                         startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
                                         isLoading={clockOutLoading}
@@ -367,7 +367,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 className="cursor-default opacity-100 font-semibold"
                                 variant="flat"
                                 color="success"
-                                size="lg"
+                                size="md"
                                 startContent={<CheckCircle size={20} />}
                                 disableAnimation
                             >
