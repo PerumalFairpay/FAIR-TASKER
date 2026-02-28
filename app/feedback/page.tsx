@@ -423,7 +423,7 @@ export default function FeedbackPage() {
                         className="w-full md:w-64"
                         variant="bordered"
                     />
-                    <div className="flex bg-default-100 rounded-lg p-1">
+                    <div className="hidden md:flex bg-default-100 rounded-lg p-1">
                         <Button
                             isIconOnly
                             size="sm"
