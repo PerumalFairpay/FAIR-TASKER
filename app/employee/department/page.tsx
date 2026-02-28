@@ -156,7 +156,7 @@ const DepartmentTreeNode = ({
                             {node.name}
                         </span>
                         <div className="flex items-center gap-1.5 sm:gap-2">
-                             
+
                         </div>
                     </div>
                 </div>
@@ -314,20 +314,20 @@ export default function DepartmentPage() {
 
     return (
         <div className="p-4 sm:p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <PageHeader
                     title="Departments"
                     description="Manage organizational hierarchy"
                 />
                 <Button
                     color="primary"
-                    size="sm"
+                    size="md"
                     variant="shadow"
                     startContent={<PlusIcon size={18} />}
                     onPress={handleCreate}
-                    className="font-bold"
+                    className="font-semibold px-6 w-full sm:w-auto"
                 >
-                    Add
+                    Department
                 </Button>
             </div>
 
