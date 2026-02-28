@@ -74,7 +74,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
-            {pathname !== "/ai-chat" && <AIAssistantSidebar />}
+            {pathname !== "/ai-chat" && <div className="hidden lg:block"><AIAssistantSidebar /></div>}
         </div>
     );
 }

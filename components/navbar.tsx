@@ -55,6 +55,7 @@ import {
   X,
   LogOut,
   User as UserIcon,
+  Webhook,
 } from "lucide-react";
 
 
@@ -107,8 +108,10 @@ const iconMap: Record<string, any> = {
   MessageSquare
 };
 
-// The 4 pinned bottom nav items (by href). Everything else goes in "More".
-const PINNED_HREFS = ["/dashboard", "/attendance", "/task/board", "/feeds"];
+// Left & right flanking items around the center AI Chat FAB
+const LEFT_HREFS = ["/dashboard", "/attendance"];
+const RIGHT_HREFS = ["/feeds"];
+const AI_CHAT_HREF = "/ai-chat";
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
@@ -295,31 +298,27 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     return roleMatch && permissionMatch;
   });
 
-  // Build pinned items: match PINNED_HREFS order, fallback to first 4 allowed items
-  const pinnedItems = PINNED_HREFS.map(href => {
-    // Could be a direct item or a child item
+  const resolveHref = (href: string) => {
     for (const item of filteredNavItems) {
-      if (item.href === href) return { ...item, _directItem: true };
+      if (item.href === href) return { ...item };
       if (item.children) {
         const child = item.children.find((c: any) => c.href === href);
         if (child) {
-          const roleMatch = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
-          const permissionMatch = !child.permission || user?.permissions?.includes(child.permission);
-          if (roleMatch && permissionMatch) return { ...child, _directItem: true };
+          const r = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+          const p = !child.permission || user?.permissions?.includes(child.permission);
+          if (r && p) return { ...child };
         }
       }
     }
     return null;
-  }).filter(Boolean);
+  };
 
-  // "More" items: top-level items not in pinnedItems by href
-  const moreItems = filteredNavItems.filter((item: any) => !PINNED_HREFS.includes(item.href));
+  const leftItems = LEFT_HREFS.map(resolveHref).filter(Boolean);
+  const rightItems = RIGHT_HREFS.map(resolveHref).filter(Boolean);
 
-  const isMoreActive = !pinnedItems.some(p => {
-    if (!p) return false;
-    if (p.href === pathname) return true;
-    return false;
-  }) && pathname !== "/";
+  // Everything not in left/right flanks or AI Chat goes to More drawer
+  const allFlankedHrefs = [...LEFT_HREFS, ...RIGHT_HREFS, AI_CHAT_HREF];
+  const moreItems = filteredNavItems.filter((item: any) => !allFlankedHrefs.includes(item.href));
 
   // Check if current path is somewhere under an item in more
   const isMoreSectionActive = moreItems.some((item: any) => {
@@ -330,6 +329,9 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const toggleMoreMenu = (label: string) => {
     setMoreOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
   };
+
+  // AI Chat item
+  const aiChatItem = resolveHref(AI_CHAT_HREF);
 
   return (
     <>
@@ -536,33 +538,156 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           )}
         </AnimatePresence>
 
-        {/* Tab Bar */}
-        <div
-          className="relative flex items-center justify-around px-2 h-16"
-          style={{
-            background: resolvedTheme === "dark"
-              ? "rgba(10,10,20,0.95)"
-              : "rgba(255,255,255,0.95)",
-            backdropFilter: "blur(20px)",
-            borderTop: "1px solid rgba(128,128,128,0.12)",
-            boxShadow: "0 -4px 24px rgba(0,0,0,0.07)"
-          }}
-        >
-          {pinnedItems.map((item: any) => {
-            if (!item) return null;
-            const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
-            const isActive = pathname === item.href;
+        {/* ── Tab Bar with SVG Notch ── */}
+        <div className="relative h-16">
 
-            return (
-              <NextLink
-                key={item.href}
-                href={item.href}
+          {/* SVG background shape with circular arc notch */}
+          <svg
+            viewBox="0 0 390 64"
+            preserveAspectRatio="none"
+            className="absolute inset-0 w-full h-full"
+            style={{ filter: "drop-shadow(0 -4px 20px rgba(0,0,0,0.10))" }}
+          >
+            <path
+              d="M0,0 L148,0 C153,0 158,0 161,5 A34,34 0 0,0 229,5 C232,0 237,0 242,0 L390,0 L390,64 L0,64 Z"
+              fill={resolvedTheme === "dark" ? "rgb(10,10,20)" : "rgb(255,255,255)"}
+            />
+          </svg>
+
+          {/* Floating AI Chat FAB – sits centered above the notch */}
+          {aiChatItem && (
+            <NextLink
+              href={AI_CHAT_HREF}
+              className="absolute left-1/2 -translate-x-1/2 top-2 -translate-y-[50%] z-20"
+            >
+              <motion.div
+                whileTap={{ scale: 0.88 }}
+                whileHover={{ scale: 1.06 }}
+                className={clsx(
+                  "w-14 h-14 rounded-full flex items-center justify-center",
+                  "bg-default-900 dark:bg-white",
+                  "text-white dark:text-default-900",
+                  "border border-default-800 dark:border-default-200",
+                  "shadow-2xl",
+                  pathname === AI_CHAT_HREF && "ring-4 ring-default-900/20 dark:ring-white/20"
+                )}
+              >
+                <Webhook size={26} />
+              </motion.div>
+            </NextLink>
+          )}
+
+          {/* Tab items row */}
+          <div className="relative z-10 flex items-center h-full">
+
+            {/* Left items */}
+            <div className="flex flex-1 justify-around">
+              {leftItems.map((item: any) => {
+                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                const isActive = pathname === item.href;
+                return (
+                  <NextLink
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center justify-center flex-1 py-1 relative group"
+                  >
+                    <div className="relative flex flex-col items-center gap-0.5">
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            layoutId="mobile-tab-indicator"
+                            className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                          />
+                        )}
+                      </AnimatePresence>
+                      <motion.div
+                        whileTap={{ scale: 0.85 }}
+                        className={clsx(
+                          "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
+                          isActive ? "bg-primary/10" : "group-hover:bg-default-100"
+                        )}
+                      >
+                        <Icon
+                          size={20}
+                          strokeWidth={isActive ? 2.2 : 1.8}
+                          className={clsx(
+                            "transition-colors duration-200",
+                            isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                          )}
+                        />
+                      </motion.div>
+                      <span className={clsx(
+                        "text-[10px] font-medium leading-none transition-colors duration-200",
+                        isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                      )}>
+                        {item.label}
+                      </span>
+                    </div>
+                  </NextLink>
+                );
+              })}
+            </div>
+
+            {/* Center spacer for FAB notch */}
+            <div className="w-24 flex-shrink-0" />
+
+            {/* Right items: resolved hrefs + More */}
+            <div className="flex flex-1 justify-around">
+              {rightItems.map((item: any) => {
+                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                const isActive = pathname === item.href;
+                return (
+                  <NextLink
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center justify-center flex-1 py-1 relative group"
+                  >
+                    <div className="relative flex flex-col items-center gap-0.5">
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            layoutId="mobile-tab-indicator"
+                            className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                          />
+                        )}
+                      </AnimatePresence>
+                      <motion.div
+                        whileTap={{ scale: 0.85 }}
+                        className={clsx(
+                          "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
+                          isActive ? "bg-primary/10" : "group-hover:bg-default-100"
+                        )}
+                      >
+                        <Icon
+                          size={20}
+                          strokeWidth={isActive ? 2.2 : 1.8}
+                          className={clsx(
+                            "transition-colors duration-200",
+                            isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                          )}
+                        />
+                      </motion.div>
+                      <span className={clsx(
+                        "text-[10px] font-medium leading-none transition-colors duration-200",
+                        isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                      )}>
+                        {item.label}
+                      </span>
+                    </div>
+                  </NextLink>
+                );
+              })}
+
+              {/* More button */}
+              <button
+                onClick={() => setMoreSheetOpen(prev => !prev)}
                 className="flex flex-col items-center justify-center flex-1 py-1 relative group"
               >
                 <div className="relative flex flex-col items-center gap-0.5">
-                  {/* Active pill indicator */}
                   <AnimatePresence>
-                    {isActive && (
+                    {isMoreSectionActive && !moreSheetOpen && (
                       <motion.div
                         layoutId="mobile-tab-indicator"
                         className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
@@ -570,90 +695,38 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                       />
                     )}
                   </AnimatePresence>
-
                   <motion.div
                     whileTap={{ scale: 0.85 }}
+                    animate={{ rotate: moreSheetOpen ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
                     className={clsx(
                       "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
-                      isActive
-                        ? "bg-primary/12"
-                        : "group-hover:bg-default-100"
+                      moreSheetOpen || isMoreSectionActive ? "bg-primary/10" : "group-hover:bg-default-100"
                     )}
                   >
-                    <Icon
+                    <MoreHorizontal
                       size={20}
-                      strokeWidth={isActive ? 2.2 : 1.8}
+                      strokeWidth={moreSheetOpen || isMoreSectionActive ? 2.2 : 1.8}
                       className={clsx(
                         "transition-colors duration-200",
-                        isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                        moreSheetOpen || isMoreSectionActive
+                          ? "text-primary"
+                          : "text-default-400 group-hover:text-default-600"
                       )}
                     />
                   </motion.div>
-
-                  <span
-                    className={clsx(
-                      "text-[10px] font-medium leading-none transition-colors duration-200",
-                      isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              </NextLink>
-            );
-          })}
-
-          {/* More button */}
-          <button
-            onClick={() => setMoreSheetOpen(prev => !prev)}
-            className="flex flex-col items-center justify-center flex-1 py-1 relative group"
-          >
-            <div className="relative flex flex-col items-center gap-0.5">
-              <AnimatePresence>
-                {isMoreSectionActive && !moreSheetOpen && (
-                  <motion.div
-                    layoutId="mobile-tab-indicator"
-                    className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
-                    transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                  />
-                )}
-              </AnimatePresence>
-
-              <motion.div
-                whileTap={{ scale: 0.85 }}
-                animate={{ rotate: moreSheetOpen ? 90 : 0 }}
-                transition={{ duration: 0.2 }}
-                className={clsx(
-                  "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
-                  moreSheetOpen || isMoreSectionActive
-                    ? "bg-primary/12"
-                    : "group-hover:bg-default-100"
-                )}
-              >
-                <MoreHorizontal
-                  size={20}
-                  strokeWidth={moreSheetOpen || isMoreSectionActive ? 2.2 : 1.8}
-                  className={clsx(
-                    "transition-colors duration-200",
+                  <span className={clsx(
+                    "text-[10px] font-medium leading-none transition-colors duration-200",
                     moreSheetOpen || isMoreSectionActive
                       ? "text-primary"
                       : "text-default-400 group-hover:text-default-600"
-                  )}
-                />
-              </motion.div>
-
-              <span
-                className={clsx(
-                  "text-[10px] font-medium leading-none transition-colors duration-200",
-                  moreSheetOpen || isMoreSectionActive
-                    ? "text-primary"
-                    : "text-default-400 group-hover:text-default-600"
-                )}
-              >
-                More
-              </span>
+                  )}>
+                    More
+                  </span>
+                </div>
+              </button>
             </div>
-          </button>
+          </div>
         </div>
       </div>
 
