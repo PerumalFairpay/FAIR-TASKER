@@ -23,6 +23,7 @@ import {
 import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { CircularProgress } from "@heroui/progress";
+import { Divider } from "@heroui/divider";
 import { useDisclosure } from "@heroui/modal";
 import {
     PlusIcon, PencilIcon, TrashIcon,
@@ -148,18 +149,18 @@ export default function LeaveRequestPage() {
     };
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="p-4 sm:p-6">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                 <PageHeader
                     title="Leave Requests"
                     description="Track and manage employee leave applications"
                 />
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
                     {(user?.role === "admin" || user?.role === "hr") && (
                         <Select
                             label="Employee"
                             placeholder="Filter by Employee"
-                            className="w-48"
+                            className="w-full sm:w-48"
                             size="sm"
                             selectedKeys={employeeFilter ? [employeeFilter] : []}
                             onChange={(e) => setEmployeeFilter(e.target.value)}
@@ -196,13 +197,13 @@ export default function LeaveRequestPage() {
                     <Select
                         label="Status"
                         placeholder="Filter by Status"
-                        className="w-36"
+                        className="w-full sm:w-36"
                         size="sm"
                         selectedKeys={statusFilter ? [statusFilter] : []}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
                         {["All", "Pending", "Approved", "Rejected"].map((status) => (
-                            <SelectItem key={status}>
+                            <SelectItem key={status} textValue={status}>
                                 {status}
                             </SelectItem>
                         ))}
@@ -213,6 +214,7 @@ export default function LeaveRequestPage() {
                             variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
+                            className="w-full sm:w-auto font-bold h-10"
                         >
                             Apply Leave
                         </Button>
@@ -290,208 +292,385 @@ export default function LeaveRequestPage() {
                 </div>
             )}
 
-            <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"} removeWrapper isHeaderSticky>
-                <TableHeader>
-                    <TableColumn>EMPLOYEE</TableColumn>
-                    <TableColumn>LEAVE TYPE</TableColumn>
-                    <TableColumn>DURATION</TableColumn>
-                    <TableColumn>DAYS</TableColumn>
-                    <TableColumn>REASON</TableColumn>
-                    <TableColumn>ATTACHMENT</TableColumn>
-                    <TableColumn>STATUS</TableColumn>
-                    <TableColumn align="center">ACTIONS</TableColumn>
-                </TableHeader>
-                <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={getRequestsLoading}>
-                    {(item: any) => (
-                        <TableRow key={item.id}>
-                            <TableCell>
-                                <User
-                                    name={item.employee_details?.name || "Unknown"}
-                                    description={item.employee_details?.employee_no_id}
-                                    avatarProps={{
-                                        src: item.employee_details?.profile_picture,
-                                        name: item.employee_details?.name?.charAt(0)
-                                    }}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">{item.leave_type_details?.name}</span>
-                                    <span className="text-tiny text-default-400">{item.leave_duration_type}</span>
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <Calendar size={12} className="text-default-400" />
-                                        <span>{item.start_date}</span>
-                                        {item.start_date !== item.end_date && (
-                                            <>
-                                                <span className="text-default-300">→</span>
-                                                <span>{item.end_date}</span>
-                                            </>
+            {/* Desktop View */}
+            <div className="hidden lg:block">
+                <Table aria-label="Leave request table" shadow="sm" key={user?.id || "loading"} removeWrapper isHeaderSticky>
+                    <TableHeader>
+                        <TableColumn>EMPLOYEE</TableColumn>
+                        <TableColumn>LEAVE TYPE</TableColumn>
+                        <TableColumn>DURATION</TableColumn>
+                        <TableColumn>DAYS</TableColumn>
+                        <TableColumn>REASON</TableColumn>
+                        <TableColumn>ATTACHMENT</TableColumn>
+                        <TableColumn>STATUS</TableColumn>
+                        <TableColumn align="center">ACTIONS</TableColumn>
+                    </TableHeader>
+                    <TableBody items={leaveRequests || []} emptyContent={"No leave requests found"} isLoading={getRequestsLoading}>
+                        {(item: any) => (
+                            <TableRow key={item.id}>
+                                <TableCell>
+                                    <User
+                                        name={item.employee_details?.name || "Unknown"}
+                                        description={item.employee_details?.employee_no_id}
+                                        avatarProps={{
+                                            src: item.employee_details?.profile_picture,
+                                            name: item.employee_details?.name?.charAt(0)
+                                        }}
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-medium">{item.leave_type_details?.name}</span>
+                                        <span className="text-tiny text-default-400">{item.leave_duration_type}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Calendar size={12} className="text-default-400" />
+                                            <span>{item.start_date}</span>
+                                            {item.start_date !== item.end_date && (
+                                                <>
+                                                    <span className="text-default-300">→</span>
+                                                    <span>{item.end_date}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                        {item.half_day_session && (
+                                            <div className="flex items-center gap-1.5 text-tiny text-primary-600 font-medium bg-primary-50 dark:bg-primary-950/30 px-1.5 py-0.5 rounded-md w-fit border border-primary-100 dark:border-primary-800">
+                                                <Clock size={10} />
+                                                <span>{item.half_day_session}</span>
+                                            </div>
+                                        )}
+                                        {item.leave_duration_type === "Multiple" && (item.start_session || item.end_session) && (
+                                            <div className="flex items-center gap-1.5 flex-wrap">
+                                                {item.start_session && item.start_session !== "Full Day" && (
+                                                    <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                        Start: {item.start_session}
+                                                    </span>
+                                                )}
+                                                {item.end_session && item.end_session !== "Full Day" && (
+                                                    <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
+                                                        End: {item.end_session}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                        {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
+                                            <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 dark:bg-warning-950/30 px-1.5 py-0.5 rounded-md w-fit border border-warning-100 dark:border-warning-800">
+                                                <Clock size={10} />
+                                                <span>{item.start_time} - {item.end_time}</span>
+                                            </div>
                                         )}
                                     </div>
-                                    {item.half_day_session && (
-                                        <div className="flex items-center gap-1.5 text-tiny text-primary-600 font-medium bg-primary-50 dark:bg-primary-950/30 px-1.5 py-0.5 rounded-md w-fit border border-primary-100 dark:border-primary-800">
-                                            <Clock size={10} />
-                                            <span>{item.half_day_session}</span>
-                                        </div>
-                                    )}
-                                    {item.leave_duration_type === "Multiple" && (item.start_session || item.end_session) && (
-                                        <div className="flex items-center gap-1.5 flex-wrap">
-                                            {item.start_session && item.start_session !== "Full Day" && (
-                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
-                                                    Start: {item.start_session}
-                                                </span>
-                                            )}
-                                            {item.end_session && item.end_session !== "Full Day" && (
-                                                <span className="text-tiny text-secondary-600 font-medium bg-secondary-50 dark:bg-secondary-950/30 px-1.5 py-0.5 rounded-md border border-secondary-100 dark:border-secondary-800">
-                                                    End: {item.end_session}
-                                                </span>
-                                            )}
-                                        </div>
-                                    )}
-                                    {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
-                                        <div className="flex items-center gap-1.5 text-tiny text-warning-600 font-medium bg-warning-50 dark:bg-warning-950/30 px-1.5 py-0.5 rounded-md w-fit border border-warning-100 dark:border-warning-800">
-                                            <Clock size={10} />
-                                            <span>{item.start_time} - {item.end_time}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <Chip variant="flat" size="sm" color="secondary">
-                                    {item.total_days} {item.total_days === 1 ? "Day" : "Days"}
-                                </Chip>
-                            </TableCell>
-                            <TableCell>
-                                <span className="text-sm text-default-600">
-                                    {item.reason}
-                                </span>
-                            </TableCell>
-                            <TableCell>
-                                {item.attachment ? (
-                                    <div
-                                        className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
-                                        onClick={() => {
-                                            const extension = item.attachment.split('.').pop()?.toLowerCase();
-                                            let type = item.file_type;
-                                            if (!type) {
-                                                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
-                                                    type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
-                                                } else if (extension === 'pdf') {
-                                                    type = 'application/pdf';
-                                                }
-                                            }
-                                            setPreviewData({
-                                                url: item.attachment,
-                                                type: type,
-                                                name: "Leave Attachment",
-                                            });
-                                        }}
-                                    >
-                                        <FileTypeIcon
-                                            fileType={item.file_type}
-                                            fileName={item.attachment}
-                                        />
-                                    </div>
-                                ) : (
-                                    <span className="text-default-300 text-sm">-</span>
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                {item.status === "Rejected" && item.rejection_reason ? (
-                                    <Tooltip
-                                        content={item.rejection_reason}
-                                        color="danger"
-                                        closeDelay={0}
-                                        classNames={{
-                                            content: "max-w-xs"
-                                        }}
-                                    >
-                                        <div className="cursor-help">
-                                            <Chip
-                                                color={getStatusColor(item.status)}
-                                                size="sm"
-                                                variant="flat"
-                                                startContent={getStatusIcon(item.status)}
-                                                className="gap-1 px-2 font-medium"
-                                            >
-                                                {item.status}
-                                            </Chip>
-                                        </div>
-                                    </Tooltip>
-                                ) : (
-                                    <Chip
-                                        color={getStatusColor(item.status)}
-                                        size="sm"
-                                        variant="flat"
-                                        startContent={getStatusIcon(item.status)}
-                                        className="gap-1 px-2 font-medium"
-                                    >
-                                        {item.status}
+                                </TableCell>
+                                <TableCell>
+                                    <Chip variant="flat" size="sm" color="secondary">
+                                        {item.total_days} {item.total_days === 1 ? "Day" : "Days"}
                                     </Chip>
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center justify-center gap-2">
-                                    <Dropdown>
-                                        <DropdownTrigger>
-                                            <Button isIconOnly variant="light" size="sm">
-                                                <MoreVertical size={18} className="text-default-400" />
-                                            </Button>
-                                        </DropdownTrigger>
-                                        <DropdownMenu aria-label="Action Menu">
-                                            {hasPermission("leave:approve") && (
-                                                <DropdownItem
-                                                    key="approve"
-                                                    startContent={<CheckCircle2 size={16} className="text-success" />}
-                                                    onPress={() => handleStatusUpdate(item.id, "Approved")}
-                                                    className="text-success"
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm text-default-600">
+                                        {item.reason}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    {item.attachment ? (
+                                        <div
+                                            className="cursor-pointer active:opacity-50 hover:opacity-80 transition-opacity w-fit"
+                                            onClick={() => {
+                                                const extension = item.attachment.split('.').pop()?.toLowerCase();
+                                                let type = item.file_type;
+                                                if (!type) {
+                                                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
+                                                        type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                                                    } else if (extension === 'pdf') {
+                                                        type = 'application/pdf';
+                                                    }
+                                                }
+                                                setPreviewData({
+                                                    url: item.attachment,
+                                                    type: type,
+                                                    name: "Leave Attachment",
+                                                });
+                                            }}
+                                        >
+                                            <FileTypeIcon
+                                                fileType={item.file_type}
+                                                fileName={item.attachment}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <span className="text-default-300 text-sm">-</span>
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    {item.status === "Rejected" && item.rejection_reason ? (
+                                        <Tooltip
+                                            content={item.rejection_reason}
+                                            color="danger"
+                                            closeDelay={0}
+                                            classNames={{
+                                                content: "max-w-xs"
+                                            }}
+                                        >
+                                            <div className="cursor-help">
+                                                <Chip
+                                                    color={getStatusColor(item.status)}
+                                                    size="sm"
+                                                    variant="flat"
+                                                    startContent={getStatusIcon(item.status)}
+                                                    className="gap-1 px-2 font-medium"
                                                 >
-                                                    Approve
-                                                </DropdownItem>
-                                            )}
-                                            {hasPermission("leave:approve") && (
-                                                <DropdownItem
-                                                    key="reject"
-                                                    startContent={<XCircle size={16} className="text-danger" />}
-                                                    onPress={() => handleRejectClick(item.id)}
-                                                    className="text-danger"
-                                                >
-                                                    Reject
-                                                </DropdownItem>
-                                            )}
+                                                    {item.status}
+                                                </Chip>
+                                            </div>
+                                        </Tooltip>
+                                    ) : (
+                                        <Chip
+                                            color={getStatusColor(item.status)}
+                                            size="sm"
+                                            variant="flat"
+                                            startContent={getStatusIcon(item.status)}
+                                            className="gap-1 px-2 font-medium"
+                                        >
+                                            {item.status}
+                                        </Chip>
+                                    )}
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <Button isIconOnly variant="light" size="sm">
+                                                    <MoreVertical size={18} className="text-default-400" />
+                                                </Button>
+                                            </DropdownTrigger>
+                                            <DropdownMenu aria-label="Action Menu">
+                                                {hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="approve"
+                                                        startContent={<CheckCircle2 size={16} className="text-success" />}
+                                                        onPress={() => handleStatusUpdate(item.id, "Approved")}
+                                                        className="text-success"
+                                                    >
+                                                        Approve
+                                                    </DropdownItem>
+                                                )}
+                                                {hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="reject"
+                                                        startContent={<XCircle size={16} className="text-danger" />}
+                                                        onPress={() => handleRejectClick(item.id)}
+                                                        className="text-danger"
+                                                    >
+                                                        Reject
+                                                    </DropdownItem>
+                                                )}
 
-                                            {item.status === "Pending" && (
-                                                <DropdownItem
-                                                    key="edit"
-                                                    startContent={<PencilIcon size={16} />}
-                                                    onPress={() => handleEdit(item)}
-                                                >
-                                                    Edit
-                                                </DropdownItem>
-                                            )}
+                                                {item.status === "Pending" && (
+                                                    <DropdownItem
+                                                        key="edit"
+                                                        startContent={<PencilIcon size={16} />}
+                                                        onPress={() => handleEdit(item)}
+                                                    >
+                                                        Edit
+                                                    </DropdownItem>
+                                                )}
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
 
-                                            {/* {(user?.role !== "employee" || item.status === "Pending") && (
-                                                <DropdownItem
-                                                    key="delete"
-                                                    startContent={<TrashIcon size={16} />}
-                                                    onPress={() => handleDelete(item.id)}
-                                                    className="text-danger"
-                                                >
-                                                    Delete
-                                                </DropdownItem>
-                                            )} */}
-                                        </DropdownMenu>
-                                    </Dropdown>
+            {/* Mobile View */}
+            <div className="lg:hidden space-y-4">
+                {getRequestsLoading ? (
+                    <div className="flex justify-center py-8 text-default-400 font-medium italic">Loading requests...</div>
+                ) : (leaveRequests || []).length > 0 ? (
+                    (leaveRequests as any[]).map((item: any) => (
+                        <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                            <CardBody className="p-4 flex flex-col gap-4">
+                                <div className="flex justify-between items-start">
+                                    <User
+                                        name={item.employee_details?.name || "Unknown"}
+                                        description={item.employee_details?.employee_no_id}
+                                        avatarProps={{
+                                            src: item.employee_details?.profile_picture,
+                                            name: item.employee_details?.name?.charAt(0),
+                                            size: "sm"
+                                        }}
+                                        classNames={{
+                                            name: "text-sm font-bold",
+                                            description: "text-[10px]"
+                                        }}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                        <div className="cursor-pointer active:opacity-50" onClick={() => {
+                                            if (item.attachment) {
+                                                const extension = item.attachment.split('.').pop()?.toLowerCase();
+                                                let type = item.file_type;
+                                                if (!type) {
+                                                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(extension)) {
+                                                        type = `image/${extension === 'jpg' ? 'jpeg' : extension}`;
+                                                    } else if (extension === 'pdf') {
+                                                        type = 'application/pdf';
+                                                    }
+                                                }
+                                                setPreviewData({
+                                                    url: item.attachment,
+                                                    type: type,
+                                                    name: "Leave Attachment",
+                                                });
+                                            }
+                                        }}>
+                                            {item.attachment ? (
+                                                <Paperclip size={16} className="text-primary" />
+                                            ) : (
+                                                <Paperclip size={16} className="text-default-200" />
+                                            )}
+                                        </div>
+                                        <Dropdown>
+                                            <DropdownTrigger>
+                                                <Button isIconOnly variant="flat" size="sm" className="h-7 w-7 min-w-0 bg-default-50 dark:bg-white/5">
+                                                    <MoreVertical size={14} className="text-default-400" />
+                                                </Button>
+                                            </DropdownTrigger>
+                                            <DropdownMenu aria-label="Action Menu">
+                                                {hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="approve"
+                                                        startContent={<CheckCircle2 size={16} className="text-success" />}
+                                                        onPress={() => handleStatusUpdate(item.id, "Approved")}
+                                                        className="text-success"
+                                                    >
+                                                        Approve
+                                                    </DropdownItem>
+                                                )}
+                                                {hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="reject"
+                                                        startContent={<XCircle size={16} className="text-danger" />}
+                                                        onPress={() => handleRejectClick(item.id)}
+                                                        className="text-danger"
+                                                    >
+                                                        Reject
+                                                    </DropdownItem>
+                                                )}
+                                                {item.status === "Pending" && (
+                                                    <DropdownItem
+                                                        key="edit"
+                                                        startContent={<PencilIcon size={16} />}
+                                                        onPress={() => handleEdit(item)}
+                                                    >
+                                                        Edit
+                                                    </DropdownItem>
+                                                )}
+                                            </DropdownMenu>
+                                        </Dropdown>
+                                    </div>
                                 </div>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+
+                                <Divider className="opacity-50" />
+
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Leave Policy</span>
+                                        <div className="flex flex-col">
+                                            <span className="text-xs font-bold text-default-900">{item.leave_type_details?.name}</span>
+                                            <span className="text-[10px] text-primary-500 font-medium">{item.leave_duration_type}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-1 items-end">
+                                        <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Status</span>
+                                        <Chip
+                                            color={getStatusColor(item.status)}
+                                            size="sm"
+                                            variant="flat"
+                                            startContent={getStatusIcon(item.status)}
+                                            className="h-6 gap-1 px-1.5 text-[10px] font-bold"
+                                        >
+                                            {item.status}
+                                        </Chip>
+                                    </div>
+
+                                    <div className="col-span-2 flex flex-col gap-1 bg-default-50 dark:bg-white/5 p-2.5 rounded-xl border border-default-100 dark:border-default-50/10">
+                                        <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Leave Window</span>
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-2 text-xs font-bold text-default-700">
+                                                <Calendar size={12} className="text-primary" />
+                                                <span>{item.start_date}</span>
+                                                {item.start_date !== item.end_date && (
+                                                    <>
+                                                        <span className="text-default-300">→</span>
+                                                        <span>{item.end_date}</span>
+                                                    </>
+                                                )}
+                                                <div className="ml-auto">
+                                                    <Chip variant="flat" size="sm" color="secondary" className="h-5 text-[10px] font-bold px-1">
+                                                        {item.total_days} {item.total_days === 1 ? "Day" : "Days"}
+                                                    </Chip>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {item.half_day_session && (
+                                                    <Chip size="sm" variant="flat" color="primary" className="h-5 text-[9px] font-bold bg-primary-50 dark:bg-primary-950/30">
+                                                        {item.half_day_session}
+                                                    </Chip>
+                                                )}
+                                                {item.leave_duration_type === "Multiple" && (item.start_session || item.end_session) && (
+                                                    <>
+                                                        {item.start_session && item.start_session !== "Full Day" && (
+                                                            <Chip size="sm" variant="flat" color="secondary" className="h-5 text-[9px] font-bold bg-secondary-50 dark:bg-secondary-950/30">
+                                                                Start: {item.start_session}
+                                                            </Chip>
+                                                        )}
+                                                        {item.end_session && item.end_session !== "Full Day" && (
+                                                            <Chip size="sm" variant="flat" color="secondary" className="h-5 text-[9px] font-bold bg-secondary-50 dark:bg-secondary-950/30">
+                                                                End: {item.end_session}
+                                                            </Chip>
+                                                        )}
+                                                    </>
+                                                )}
+                                                {item.leave_duration_type === "Permission" && item.start_time && item.end_time && (
+                                                    <Chip size="sm" variant="flat" color="warning" className="h-5 text-[9px] font-bold bg-warning-50 dark:bg-warning-950/30" startContent={<Clock size={10} />}>
+                                                        {item.start_time} - {item.end_time}
+                                                    </Chip>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Reason</span>
+                                    <p className="text-xs text-default-600 line-clamp-2 italic leading-relaxed">
+                                        "{item.reason}"
+                                    </p>
+                                </div>
+
+                                {item.status === "Rejected" && item.rejection_reason && (
+                                    <div className="bg-danger-50 dark:bg-danger-950/20 p-2.5 rounded-xl border border-danger-100 dark:border-danger-900/30">
+                                        <span className="text-[9px] font-bold text-danger-500 uppercase flex items-center gap-1 mb-1">
+                                            <XCircle size={10} /> Rejection Reason
+                                        </span>
+                                        <p className="text-[11px] text-danger-600 leading-normal">
+                                            {item.rejection_reason}
+                                        </p>
+                                    </div>
+                                )}
+                            </CardBody>
+                        </Card>
+                    ))
+                ) : (
+                    <div className="text-center py-12 text-default-400 italic">No leave requests found</div>
+                )}
+            </div>
 
             <AddEditLeaveRequestDrawer
                 isOpen={isOpen}
