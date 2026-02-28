@@ -64,7 +64,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
     // Otherwise, render with sidebar (navbar)
     return (
-        <div className="relative flex flex-col h-screen overflow-hidden">
+        <div className="relative flex flex-col h-[100dvh] overflow-hidden">
             <Navbar isExpanded={isExpanded} onToggle={() => setIsExpanded(!isExpanded)} />
             <main className={clsx(
                 "flex-grow relative flex flex-col overflow-y-auto mb-16 lg:mb-0 transition-all duration-300 ease-in-out",
