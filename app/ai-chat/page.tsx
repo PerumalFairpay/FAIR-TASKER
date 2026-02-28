@@ -4,11 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import {
     SendHorizontal,
     Loader2,
-    BrainCircuit,
-    Sparkles,
-    User,
     Trash2,
-    Bot
+    Bot,
+    Webhook,
+    Sparkles,
+    User
 } from "lucide-react";
 import { Button } from "@heroui/button";
 import { Textarea } from "@heroui/input";
@@ -75,9 +75,9 @@ export default function AIChatPage() {
             <header className="flex items-center justify-between px-6 py-3 z-20">
                 <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-default-100 rounded-lg">
-                        <BrainCircuit size={18} className="text-default-600" />
+                        <Webhook size={18} className="text-default-600" />
                     </div>
-                    <span className="font-semibold text-sm tracking-tight">Fairpay AI</span>
+                    <span className="font-semibold text-sm tracking-tight">Astro</span>
                 </div>
                 <div className="flex items-center gap-1">
                     {!isLanding && (
@@ -128,7 +128,7 @@ export default function AIChatPage() {
                                             }}
                                             className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
                                         ></motion.div>
-                                        <Sparkles size={28} className="relative text-primary-500 dark:text-primary-400" />
+                                        <Webhook size={28} className="relative text-secondary-500 dark:text-secondary-400" />
                                     </div>
                                     <h3 className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100">
                                         Hi {user?.first_name || 'there'}
