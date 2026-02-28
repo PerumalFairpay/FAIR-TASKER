@@ -24,15 +24,16 @@ const TablePagination: React.FC<TablePaginationProps> = ({
     loop = false
 }) => {
     return (
-        <div className={`flex flex-col md:flex-row gap-4 items-center justify-${align} w-full py-4`}>
+        <div className={`flex flex-row flex-wrap items-center justify-between sm:justify-${align} gap-3 w-full py-4`}>
             {limit && onLimitChange && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                     <Select
-                        className="w-20"
+                        className="w-16"
                         size="sm"
                         selectedKeys={[limit.toString()]}
                         onChange={(e) => onLimitChange(Number(e.target.value))}
                         aria-label="Rows per page"
+                        variant="flat"
                     >
                         <SelectItem key="5" textValue="5">5</SelectItem>
                         <SelectItem key="10" textValue="10">10</SelectItem>
@@ -48,9 +49,11 @@ const TablePagination: React.FC<TablePaginationProps> = ({
                 showShadow
                 color="primary"
                 page={page}
+                size="sm"
                 total={total}
                 onChange={onChange}
                 loop={loop}
+                className="scale-90 sm:scale-100 origin-right"
             />
         </div>
     );
