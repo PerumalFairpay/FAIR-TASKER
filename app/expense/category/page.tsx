@@ -134,9 +134,10 @@ const CategoryTreeNode = ({
             )}
 
             <div className={clsx(
-                "group relative flex items-center gap-4 p-3 mb-2 rounded-2xl transition-all duration-300",
+                "group relative flex items-center gap-2 sm:gap-4 p-3 mb-2 rounded-2xl transition-all duration-300",
                 "bg-transparent border border-default-200 shadow-sm hover:shadow-md",
                 "hover:border-primary/50 hover:bg-primary/5",
+                "active:bg-primary/10 active:border-primary/30", // Mobile "hold" feedback
                 level === 0 && "bg-gradient-to-r from-primary/5 to-transparent border-primary/20 shadow-md shadow-primary/5"
             )}>
                 {/* Visual Accent */}
@@ -144,37 +145,26 @@ const CategoryTreeNode = ({
 
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className={clsx(
-                        "p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center",
+                        "p-2 sm:p-2.5 rounded-xl transition-all duration-300 flex items-center justify-center shrink-0",
                         level === 0 ? "bg-primary text-white shadow-lg shadow-primary/30" :
                             hasChildren ? "bg-primary/10 text-primary" : "bg-default-100 text-default-600",
                         "group-hover:scale-110"
                     )}>
-                        {icon}
+                        {React.cloneElement(icon as React.ReactElement, { size: level === 0 ? 20 : 18 })}
                     </div>
 
                     <div className="flex flex-col min-w-0">
                         <span className={clsx(
                             "font-semibold text-default-800 truncate transition-colors",
-                            level === 0 ? "text-lg" : "text-base",
+                            level === 0 ? "text-base sm:text-lg" : "text-sm sm:text-base",
                             "group-hover:text-primary transition-colors"
                         )}>
                             {node.name}
                         </span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] uppercase tracking-wider font-bold text-default-400">
-                                {level === 0 ? 'Main Category' : `Sub Category`}
-                            </span>
-                            {hasChildren && (
-                                <span className="w-1 h-1 rounded-full bg-default-300" />
-                            )}
-                            <span className="text-xs text-default-400">
-                                {hasChildren ? `${node.children.length} types` : 'Type'}
-                            </span>
-                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 duration-300">
+                <div className="flex items-center gap-1 opacity-0 sm:group-hover:opacity-100 sm:translate-x-2 sm:group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0 transition-all duration-300">
                     {hasPermission("expense:submit") && (
                         <>
                             <Button size="sm" isIconOnly variant="flat" color="primary" onPress={() => onAddSub(node.id)} className="rounded-lg">
@@ -208,10 +198,10 @@ const CategoryTreeNode = ({
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="overflow-hidden ml-10 relative"
+                        className="overflow-hidden ml-6 sm:ml-10 relative"
                     >
                         {/* Vertical line through children */}
-                        <div className="absolute left-[-24px] top-[-8px] bottom-6 w-0.5 bg-primary/20" />
+                        <div className="absolute left-[-16.5px] sm:left-[-24px] top-[-8px] bottom-6 w-0.5 bg-primary/20" />
 
                         {node.children.map((child: any, index: number) => (
                             <CategoryTreeNode
@@ -328,8 +318,8 @@ export default function ExpenseCategoryPage() {
 
     return (
         <PermissionGuard permission="expense:view" fallback={<div className="p-6 text-center text-red-500">Access Denied</div>}>
-            <div className="p-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+            <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                     <PageHeader
                         title="Expense Categories"
                         description="Organize and manage your expense tracking hierarchy."
@@ -341,7 +331,7 @@ export default function ExpenseCategoryPage() {
                             variant="shadow"
                             startContent={<PlusIcon size={18} />}
                             onPress={handleCreate}
-                            className="font-semibold px-6"
+                            className="font-semibold px-6 w-full sm:w-auto"
                         >
                             Category
                         </Button>
