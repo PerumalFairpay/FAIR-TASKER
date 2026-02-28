@@ -32,8 +32,8 @@ export default function AIChatPage() {
     const { user } = useSelector((state: AppState) => state.Auth);
     const { messages, loading: isLoading } = useSelector((state: AppState) => state.AIAssistant);
 
-    // Consider it "landing" if there are no messages or just the one default assistant message
-    const isLanding = messages.length <= 1;
+    // Consider it "landing" if there are no messages
+    const isLanding = messages.length === 0;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,12 +72,26 @@ export default function AIChatPage() {
     return (
         <div className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] transition-colors duration-500">
             {/* Header - Transparent and simple */}
-            <header className="flex items-center justify-between px-6 py-3 z-20">
+            <header className="flex items-center justify-between px-6 py-3 z-30">
                 <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-default-100 rounded-lg">
-                        <Webhook size={18} className="text-default-600" />
-                    </div>
-                    <span className="font-semibold text-sm tracking-tight">Astro</span>
+                    {!isLanding && (
+                        <>
+                            <motion.div
+                                layoutId="astro-logo"
+                                className="p-1.5 bg-default-100 rounded-lg shrink-0"
+                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            >
+                                <Webhook size={18} className="text-default-600" />
+                            </motion.div>
+                            <motion.span
+                                layoutId="astro-name"
+                                className="font-semibold text-sm tracking-tight"
+                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            >
+                                Astro
+                            </motion.span>
+                        </>
+                    )}
                 </div>
                 <div className="flex items-center gap-1">
                     {!isLanding && (
@@ -98,24 +112,24 @@ export default function AIChatPage() {
 
             {/* Main Content */}
             <main className="flex-1 relative flex flex-col items-center justify-center overflow-hidden">
-                <AnimatePresence mode="wait">
+                <AnimatePresence initial={false}>
                     {isLanding ? (
                         /* Landing View */
                         <motion.div
                             key="landing"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="flex flex-col items-start justify-center w-full max-w-3xl px-6 text-left"
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95, position: "absolute" }}
+                            transition={{ duration: 0.4 }}
+                            className="flex flex-col items-start justify-center w-full max-w-3xl px-6 text-left z-20"
                         >
-                            <div className="flex flex-col items-start mb-10">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.8, ease: "easeOut" }}
-                                    className="flex items-center gap-3 mb-4"
-                                >
-                                    <div className="relative group">
+                            <div className="flex flex-col items-start mb-10 w-full">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <motion.div
+                                        layoutId="astro-logo"
+                                        className="relative group shrink-0"
+                                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                                    >
                                         <motion.div
                                             animate={{
                                                 scale: [1, 1.2, 1],
@@ -129,11 +143,14 @@ export default function AIChatPage() {
                                             className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
                                         ></motion.div>
                                         <Webhook size={28} className="relative text-secondary-500 dark:text-secondary-400" />
-                                    </div>
-                                    <h3 className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100">
+                                    </motion.div>
+                                    <motion.h3
+                                        layoutId="astro-name"
+                                        className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100"
+                                    >
                                         Hi {user?.first_name || 'there'}
-                                    </h3>
-                                </motion.div>
+                                    </motion.h3>
+                                </div>
                                 <motion.h2
                                     initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -143,14 +160,20 @@ export default function AIChatPage() {
                                     Where should we start?
                                 </motion.h2>
                             </div>
-                            <SearchBar
-                                value={inputValue}
-                                onChange={setInputValue}
-                                onKeyDown={handleKeyDown}
-                                onSubmit={handleSubmit}
-                                isLoading={isLoading}
-                                placeholder="Ask anything"
-                            />
+                            <motion.div
+                                layoutId="search-bar"
+                                className="w-full"
+                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            >
+                                <SearchBar
+                                    value={inputValue}
+                                    onChange={setInputValue}
+                                    onKeyDown={handleKeyDown}
+                                    onSubmit={handleSubmit}
+                                    isLoading={isLoading}
+                                    placeholder="Ask anything"
+                                />
+                            </motion.div>
                         </motion.div>
                     ) : (
                         /* Chat History View */
@@ -158,7 +181,7 @@ export default function AIChatPage() {
                             key="chat"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="flex flex-col w-full h-full"
+                            className="flex flex-col w-full h-full relative"
                         >
                             <ScrollShadow className="flex-1 px-4 lg:px-0 py-8" hideScrollBar>
                                 <div className="max-w-3xl mx-auto flex flex-col gap-10 pb-40">
@@ -234,7 +257,11 @@ export default function AIChatPage() {
                             </ScrollShadow>
 
                             {/* Sticky Search Bar for Chat View */}
-                            <div className="absolute bottom-0 inset-x-0 p-6 lg:p-10 pointer-events-none bg-gradient-to-t from-white dark:from-[#09090b] via-white/80 dark:via-[#09090b]/80 to-transparent">
+                            <motion.div
+                                layoutId="search-bar"
+                                className="absolute bottom-0 inset-x-0 p-6 lg:p-10 pointer-events-none bg-gradient-to-t from-white dark:from-[#09090b] via-white/80 dark:via-[#09090b]/80 to-transparent z-10"
+                                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                            >
                                 <div className="max-w-3xl mx-auto pointer-events-auto">
                                     <SearchBar
                                         value={inputValue}
@@ -246,7 +273,7 @@ export default function AIChatPage() {
                                         compact
                                     />
                                 </div>
-                            </div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
