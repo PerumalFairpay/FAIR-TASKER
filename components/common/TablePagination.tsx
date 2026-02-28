@@ -27,7 +27,6 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         <div className={`flex flex-col md:flex-row gap-4 items-center justify-${align} w-full py-4`}>
             {limit && onLimitChange && (
                 <div className="flex items-center gap-2">
-                    <span className="text-small text-default-400">Rows per page:</span>
                     <Select
                         className="w-20"
                         size="sm"

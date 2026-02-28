@@ -470,6 +470,15 @@ export default function NDAPage() {
                                                 size="sm"
                                                 variant="flat"
                                                 className="h-6"
+                                                startContent={
+                                                    item.status === "Signed" ? (
+                                                        <CheckCircle2 size={12} />
+                                                    ) : item.status === "Pending" ? (
+                                                        <Clock size={12} />
+                                                    ) : (
+                                                        <FileText size={12} />
+                                                    )
+                                                }
                                             >
                                                 {item.status}
                                             </Chip>
@@ -477,27 +486,26 @@ export default function NDAPage() {
 
                                         <Divider className="opacity-50" />
 
-                                        <div className="flex justify-between items-center text-tiny text-default-500">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="font-bold text-default-400 uppercase text-[9px]">Documents</span>
-                                                {item.documents && item.documents.length > 0 ? (
-                                                    <div
-                                                        className="flex items-center gap-1.5 text-primary cursor-pointer"
-                                                        onClick={() => handleViewDocs(item)}
-                                                    >
-                                                        <FolderOpen size={14} />
-                                                        <span className="font-medium underline">{item.documents.length} Docs</span>
-                                                    </div>
-                                                ) : (
-                                                    <span>-</span>
-                                                )}
-                                            </div>
-                                        </div>
-
                                         <div className="flex justify-between items-center bg-default-50 dark:bg-white/5 p-2 rounded-xl mt-1">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-[9px] font-bold text-default-400 uppercase">System</span>
-                                                <span className="text-tiny">{item.device_type || "Desktop/Unkown"}</span>
+                                            <div className="flex gap-6 items-center">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase">System</span>
+                                                    <span className="text-tiny">{item.device_type || "-"}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase">Docs</span>
+                                                    {item.documents && item.documents.length > 0 ? (
+                                                        <div
+                                                            className="flex items-center gap-1.5 text-primary cursor-pointer"
+                                                            onClick={() => handleViewDocs(item)}
+                                                        >
+                                                            <FolderOpen size={14} />
+                                                            <span className="font-medium underline text-tiny">{item.documents.length}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-tiny text-default-300">-</span>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex gap-2">
                                                 {item.status !== "Signed" && (
