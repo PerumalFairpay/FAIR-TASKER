@@ -106,11 +106,43 @@ export default function AIChatPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="flex flex-col items-center justify-center w-full max-w-2xl px-4 text-center"
+                            className="flex flex-col items-start justify-center w-full max-w-3xl px-6 text-left"
                         >
-                            <h2 className="text-3xl font-medium mb-12 text-default-900 dark:text-default-100 italic">
-                                What can I help with?
-                            </h2>
+                            <div className="flex flex-col items-start mb-10">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.8, ease: "easeOut" }}
+                                    className="flex items-center gap-3 mb-4"
+                                >
+                                    <div className="relative group">
+                                        <motion.div
+                                            animate={{
+                                                scale: [1, 1.2, 1],
+                                                rotate: [0, 10, -10, 0],
+                                            }}
+                                            transition={{
+                                                repeat: Infinity,
+                                                duration: 4,
+                                                ease: "easeInOut"
+                                            }}
+                                            className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
+                                        ></motion.div>
+                                        <Sparkles size={28} className="relative text-primary-500 dark:text-primary-400" />
+                                    </div>
+                                    <h3 className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100">
+                                        Hi {user?.first_name || 'there'}
+                                    </h3>
+                                </motion.div>
+                                <motion.h2
+                                    initial={{ opacity: 0, y: 15 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                                    className="text-4xl lg:text-5xl font-medium tracking-tight bg-gradient-to-br from-default-800 to-default-500 dark:from-default-100 dark:to-default-400 bg-clip-text text-transparent pb-2 leading-tight"
+                                >
+                                    Where should we start?
+                                </motion.h2>
+                            </div>
                             <SearchBar
                                 value={inputValue}
                                 onChange={setInputValue}
@@ -237,64 +269,66 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
     return (
         <form
             onSubmit={onSubmit}
-            className={clsx(
-                "group relative flex items-center w-full transition-all duration-400 ease-in-out",
-                "bg-white/80 dark:bg-default-50/50 backdrop-blur-xl",
-                "border border-default-200 dark:border-white/10",
-                "hover:border-primary-500/50 dark:hover:border-primary-500/50",
-                "focus-within:border-primary-500 focus-within:ring-4 focus-within:ring-primary-500/10",
-                compact ? "rounded-2xl py-1 px-2" : "rounded-[2.5rem] py-2 px-5 shadow-lg hover:shadow-xl"
-            )}
+            className="flex items-center gap-2 w-full group"
         >
-            <Textarea
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                onKeyDown={onKeyDown}
-                placeholder={placeholder}
-                minRows={1}
-                maxRows={6}
-                variant="bordered"
-                color="primary"
-                className="flex-1"
-                classNames={{
-                    base: "border-none shadow-none",
-                    inputWrapper: [
-                        "bg-transparent",
-                        "border-none",
-                        "shadow-none",
-                        "group-data-[focus=true]:bg-transparent",
-                        "hover:bg-transparent",
-                        "data-[hover=true]:bg-transparent",
-                        "p-0",
-                        "min-h-unit-10",
-                    ].join(" "),
-                    input: clsx(
-                        "text-base py-3 lg:py-4 resize-none bg-transparent  leading-relaxed font-medium",
-                        compact ? "lg:py-2.5" : ""
-                    ),
-                }}
-            />
-
-            <div className="flex items-center gap-1 shrink-0 ml-4 py-1">
-                <Button
-                    isIconOnly
-                    type="submit"
-                    isDisabled={!value.trim() || isLoading}
-                    className={clsx(
-                        "rounded-full transition-all duration-300 shadow-md active:scale-95",
-                        value.trim()
-                            ? "bg-primary-500 text-white hover:bg-primary-600 shadow-primary-500/20"
-                            : "bg-default-200 text-default-400 dark:bg-default-100 dark:text-default-500"
-                    )}
-                    size="md"
-                >
-                    {isLoading ? (
-                        <Loader2 size={20} className="animate-spin" />
-                    ) : (
-                        <SendHorizontal size={20} className={value.trim() ? "translate-x-0.5" : ""} />
-                    )}
-                </Button>
+            <div
+                className={clsx(
+                    "relative flex-1 flex items-center transition-all duration-400 ease-in-out",
+                    "bg-white/80 dark:bg-default-50/50 backdrop-blur-xl",
+                    "border border-default-200 dark:border-white/10",
+                    "focus-within:border-primary-500/50 focus-within:ring-2 focus-within:ring-primary-500/5",
+                    compact ? "rounded-2xl py-0.5 px-3" : "rounded-[2.5rem] py-1 px-5"
+                )}
+            >
+                <Textarea
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onKeyDown={onKeyDown}
+                    placeholder={placeholder}
+                    minRows={1}
+                    maxRows={6}
+                    variant="bordered"
+                    color="primary"
+                    className="flex-1"
+                    classNames={{
+                        base: "border-none shadow-none",
+                        inputWrapper: [
+                            "bg-transparent",
+                            "border-none",
+                            "shadow-none",
+                            "group-data-[focus=true]:bg-transparent",
+                            "hover:bg-transparent",
+                            "data-[hover=true]:bg-transparent",
+                            "p-0",
+                            "min-h-[40px]",
+                        ].join(" "),
+                        input: clsx(
+                            "text-[15px] py-2 lg:py-2.5 resize-none bg-transparent leading-relaxed font-medium",
+                            compact ? "lg:py-1.5" : ""
+                        ),
+                    }}
+                />
             </div>
+
+            <Button
+                isIconOnly
+                type="submit"
+                isDisabled={!value.trim() || isLoading}
+                className={clsx(
+                    "rounded-full transition-all duration-300 active:scale-95 shrink-0",
+                    value.trim()
+                        ? "bg-primary-500 text-white"
+                        : "bg-default-200 text-default-400 dark:bg-default-100 dark:text-default-500",
+                    compact ? "h-11 w-11" : "h-12 w-12"
+                )}
+                size="md"
+            >
+                {isLoading ? (
+                    <Loader2 size={20} className="animate-spin" />
+                ) : (
+                    <SendHorizontal size={20} className={value.trim() ? "translate-x-0.5" : ""} />
+                )}
+            </Button>
         </form>
     );
 }

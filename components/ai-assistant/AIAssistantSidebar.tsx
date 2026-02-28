@@ -190,7 +190,7 @@ export default function AIAssistantSidebar() {
 
                         <DrawerFooter className="p-4 bg-white/70 dark:bg-white/[0.02] border-t border-default-200/50 dark:border-white/5 backdrop-blur-md">
                             <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
-                                <div className="flex gap-2 items-center w-full">
+                                <div className="flex gap-2 items-end w-full">
                                     <div className="relative flex-grow group">
                                         <Textarea
                                             placeholder="Ask something..."
@@ -204,19 +204,18 @@ export default function AIAssistantSidebar() {
                                             color="primary"
                                             className="transition-all"
                                             classNames={{
-                                                inputWrapper: "bg-default-100/50 hover:bg-default-200/50 focus-within:bg-default-100/80 border-default-200 dark:border-default-100 rounded-xl pl-4 py-2 min-h-unit-12 items-center",
+                                                inputWrapper: "bg-default-100/50 focus-within:bg-default-100/80 border-default-200 dark:border-default-100 rounded-xl pl-4 py-2 min-h-unit-12 items-center",
                                                 input: "text-small py-0",
                                             }}
-                                        // startContent={<MessageSquare size={18} className="text-default-400 shrink-0" />}
                                         />
                                     </div>
                                     <Button
                                         isIconOnly
                                         type="submit"
                                         color="primary"
-                                        size="sm"
+                                        size="md"
                                         isDisabled={!inputValue.trim() || isLoading}
-                                        className="shrink-0 rounded-xl h-10 w-10 shadow-md active:scale-95 transition-all"
+                                        className="shrink-0 rounded-xl h-12 w-12 transition-all"
                                     >
                                         {isLoading ? <Loader2 size={18} className="animate-spin" /> : <SendHorizontal size={18} />}
                                     </Button>
