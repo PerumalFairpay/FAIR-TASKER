@@ -228,11 +228,7 @@ export default function AIChatPage() {
                                                     )}
                                                 </div>
                                             </div>
-                                            {msg.role === "user" && (
-                                                <div className="w-8 h-8 rounded-full bg-default-100 flex items-center justify-center shrink-0 mt-1 uppercase text-xs font-bold text-default-600">
-                                                    {user?.first_name?.charAt(0) || 'U'}
-                                                </div>
-                                            )}
+
                                         </div>
                                     ))}
                                     {isLoading && (
