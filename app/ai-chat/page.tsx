@@ -304,7 +304,8 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                     "bg-white/80 dark:bg-default-50/50 backdrop-blur-xl",
                     "border border-default-200 dark:border-white/10",
                     "focus-within:border-primary-500/50 focus-within:ring-2 focus-within:ring-primary-500/5",
-                    compact ? "rounded-2xl py-0.5 px-3" : "rounded-[2.5rem] py-1 px-5"
+                    "rounded-[2.5rem]",
+                    compact ? "py-0.5 px-3" : "py-1 px-5"
                 )}
             >
                 <Textarea
