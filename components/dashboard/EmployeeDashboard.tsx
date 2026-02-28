@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
@@ -278,14 +279,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
         <div className="min-h-screen  font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-                <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        {data.greeting.greeting_text}
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
-                        {data.greeting.message}
-                    </p>
-                </div>
+                <PageHeader
+                    title={data.greeting.greeting_text}
+                    description={data.greeting.message}
+                />
 
                 <div className="hidden sm:flex items-center gap-6">
                     {/* Buttons Section */}
