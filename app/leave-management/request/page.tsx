@@ -414,7 +414,7 @@ export default function LeaveRequestPage() {
                                                 content: "max-w-xs"
                                             }}
                                         >
-                                            <div className="cursor-help">
+                                            <div className="flex flex-col gap-1 items-start cursor-help">
                                                 <Chip
                                                     color={getStatusColor(item.status)}
                                                     size="sm"
@@ -424,18 +424,30 @@ export default function LeaveRequestPage() {
                                                 >
                                                     {item.status}
                                                 </Chip>
+                                                {item.leave_duration_type === "Permission" && item.status === "Approved" && (
+                                                    <Chip size="sm" variant="dot" color={item.is_compensated ? "success" : "warning"} className="border-none text-tiny px-0 h-4 min-h-4">
+                                                        {item.is_compensated ? "Compensated" : "Pending Comp."}
+                                                    </Chip>
+                                                )}
                                             </div>
                                         </Tooltip>
                                     ) : (
-                                        <Chip
-                                            color={getStatusColor(item.status)}
-                                            size="sm"
-                                            variant="flat"
-                                            startContent={getStatusIcon(item.status)}
-                                            className="gap-1 px-2 font-medium"
-                                        >
-                                            {item.status}
-                                        </Chip>
+                                        <div className="flex flex-col gap-1 items-start">
+                                            <Chip
+                                                color={getStatusColor(item.status)}
+                                                size="sm"
+                                                variant="flat"
+                                                startContent={getStatusIcon(item.status)}
+                                                className="gap-1 px-2 font-medium"
+                                            >
+                                                {item.status}
+                                            </Chip>
+                                            {item.leave_duration_type === "Permission" && item.status === "Approved" && (
+                                                <Chip size="sm" variant="dot" color={item.is_compensated ? "success" : "warning"} className="border-none text-tiny px-0 h-4 min-h-4">
+                                                    {item.is_compensated ? "Compensated" : "Pending Comp."}
+                                                </Chip>
+                                            )}
+                                        </div>
                                     )}
                                 </TableCell>
                                 <TableCell>
@@ -662,6 +674,17 @@ export default function LeaveRequestPage() {
                                         <p className="text-[11px] text-danger-600 leading-normal">
                                             {item.rejection_reason}
                                         </p>
+                                    </div>
+                                )}
+
+                                {item.leave_duration_type === "Permission" && item.status === "Approved" && (
+                                    <div className={`p-2.5 rounded-xl border flex items-center justify-between ${item.is_compensated ? 'bg-success-50 dark:bg-success-950/20 border-success-100 dark:border-success-900/30' : 'bg-warning-50 dark:bg-warning-950/20 border-warning-100 dark:border-warning-900/30'}`}>
+                                        <span className={`text-[9px] font-bold uppercase tracking-tight flex items-center gap-1 ${item.is_compensated ? 'text-success-500' : 'text-warning-500'}`}>
+                                            <Clock size={10} /> Compensation Status
+                                        </span>
+                                        <Chip size="sm" variant="dot" color={item.is_compensated ? "success" : "warning"} className="border-none text-[10px] font-bold px-0 h-4 min-h-4">
+                                            {item.is_compensated ? "Compensated" : "Pending"}
+                                        </Chip>
                                     </div>
                                 )}
                             </CardBody>

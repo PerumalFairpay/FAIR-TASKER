@@ -563,7 +563,19 @@ export default function AddEditLeaveRequestDrawer({
                             />
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-default-700">Attachment (Optional)</label>
+                                <label className="text-sm font-medium text-default-700">
+                                    Attachment {(() => {
+                                        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                        const isRequired =
+                                            selectedType?.name === "Marriage Leave" ||
+                                            selectedType?.name === "Maternity Leave" ||
+                                            selectedType?.name === "Paternity Leave" ||
+                                            selectedType?.name === "Bereavement Leave" ||
+                                            (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+
+                                        return isRequired ? <span className="text-danger">* (Required for this leave type)</span> : "(Optional)";
+                                    })()}
+                                </label>
                                 <FileUpload
                                     files={files}
                                     setFiles={setFiles}
@@ -579,7 +591,25 @@ export default function AddEditLeaveRequestDrawer({
                             <Button color="danger" variant="flat" onPress={onClose}>
                                 Cancel
                             </Button>
-                            <Button color="primary" onPress={handleSubmit} isLoading={loading}>
+                            <Button
+                                color="primary"
+                                onPress={() => {
+                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                    const isRequired =
+                                        selectedType?.name === "Marriage Leave" ||
+                                        selectedType?.name === "Maternity Leave" ||
+                                        selectedType?.name === "Paternity Leave" ||
+                                        selectedType?.name === "Bereavement Leave" ||
+                                        (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+
+                                    if (isRequired && files.length === 0) {
+                                        alert("An attachment is required for this leave type/duration.");
+                                        return;
+                                    }
+                                    handleSubmit();
+                                }}
+                                isLoading={loading}
+                            >
                                 {mode === "create" ? "Submit Request" : "Update Request"}
                             </Button>
                         </DrawerFooter>
