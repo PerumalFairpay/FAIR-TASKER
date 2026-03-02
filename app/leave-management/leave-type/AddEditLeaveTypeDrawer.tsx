@@ -37,6 +37,10 @@ export default function AddEditLeaveTypeDrawer({
         number_of_days: 0,
         monthly_allowed: 0,
         allowed_hours: 0,
+        can_carry_forward: false,
+        can_encash: false,
+        probation_period_months: 0,
+        min_service_days: 0,
     });
 
     useEffect(() => {
@@ -49,6 +53,10 @@ export default function AddEditLeaveTypeDrawer({
                 number_of_days: selectedLeaveType.number_of_days || 0,
                 monthly_allowed: selectedLeaveType.monthly_allowed || 0,
                 allowed_hours: selectedLeaveType.allowed_hours || 0,
+                can_carry_forward: selectedLeaveType.can_carry_forward || false,
+                can_encash: selectedLeaveType.can_encash || false,
+                probation_period_months: selectedLeaveType.probation_period_months || 0,
+                min_service_days: selectedLeaveType.min_service_days || 0,
             });
         } else {
             setFormData({
@@ -59,6 +67,10 @@ export default function AddEditLeaveTypeDrawer({
                 number_of_days: 0,
                 monthly_allowed: 0,
                 allowed_hours: 0,
+                can_carry_forward: false,
+                can_encash: false,
+                probation_period_months: 0,
+                min_service_days: 0,
             });
         }
     }, [mode, selectedLeaveType, isOpen]);
@@ -67,7 +79,7 @@ export default function AddEditLeaveTypeDrawer({
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" ? parseFloat(value) || 0 : value
+            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" ? parseFloat(value) || 0 : value
         }));
     };
 
@@ -157,6 +169,50 @@ export default function AddEditLeaveTypeDrawer({
                                 variant="bordered"
                                 description="Set 0 if not applicable"
                             />
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <Select
+                                    label="Carry Forward"
+                                    selectedKeys={[formData.can_carry_forward ? "Yes" : "No"]}
+                                    onSelectionChange={(keys) => handleSelectChange("can_carry_forward", Array.from(keys)[0] === "Yes")}
+                                    variant="bordered"
+                                >
+                                    <SelectItem key="Yes">Yes</SelectItem>
+                                    <SelectItem key="No">No</SelectItem>
+                                </Select>
+
+                                <Select
+                                    label="Can Encash"
+                                    selectedKeys={[formData.can_encash ? "Yes" : "No"]}
+                                    onSelectionChange={(keys) => handleSelectChange("can_encash", Array.from(keys)[0] === "Yes")}
+                                    variant="bordered"
+                                >
+                                    <SelectItem key="Yes">Yes</SelectItem>
+                                    <SelectItem key="No">No</SelectItem>
+                                </Select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input
+                                    label="Probation (Months)"
+                                    placeholder="3"
+                                    type="number"
+                                    name="probation_period_months"
+                                    value={formData.probation_period_months.toString()}
+                                    onChange={handleInputChange}
+                                    variant="bordered"
+                                />
+
+                                <Input
+                                    label="Min Service (Days)"
+                                    placeholder="80"
+                                    type="number"
+                                    name="min_service_days"
+                                    value={formData.min_service_days.toString()}
+                                    onChange={handleInputChange}
+                                    variant="bordered"
+                                />
+                            </div>
 
                             <Select
                                 label="Status"

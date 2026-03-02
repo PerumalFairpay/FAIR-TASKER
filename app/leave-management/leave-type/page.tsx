@@ -117,7 +117,8 @@ export default function LeaveTypePage() {
                         <TableColumn>TYPE</TableColumn>
                         <TableColumn>YEARLY DAYS</TableColumn>
                         <TableColumn>MONTHLY LIMIT</TableColumn>
-                        <TableColumn>DURATION LIMIT</TableColumn>
+                        <TableColumn>POLICIES</TableColumn>
+                        <TableColumn>REQUIREMENTS</TableColumn>
                         <TableColumn>STATUS</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
@@ -154,11 +155,31 @@ export default function LeaveTypePage() {
                                     <span className="text-sm text-default-600 font-medium">{item.monthly_allowed} / Month</span>
                                 </TableCell>
                                 <TableCell>
-                                    {item.allowed_hours > 0 ? (
-                                        <span className="text-sm text-default-600 font-medium">{item.allowed_hours} Hours</span>
-                                    ) : (
-                                        <span className="text-sm text-default-300">-</span>
-                                    )}
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex gap-1">
+                                            <Chip size="sm" variant="flat" color={item.can_carry_forward ? "secondary" : "default"} className="h-5 text-[10px]">
+                                                {item.can_carry_forward ? "Carry Forward" : "No Carry"}
+                                            </Chip>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <Chip size="sm" variant="flat" color={item.can_encash ? "success" : "default"} className="h-5 text-[10px]">
+                                                {item.can_encash ? "Encashable" : "No Encash"}
+                                            </Chip>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex flex-col gap-0.5">
+                                        {item.probation_period_months > 0 && (
+                                            <span className="text-tiny text-default-500 font-medium">Probation: {item.probation_period_months}m</span>
+                                        )}
+                                        {item.min_service_days > 0 && (
+                                            <span className="text-tiny text-default-500 font-medium">Service: {item.min_service_days}d</span>
+                                        )}
+                                        {!(item.probation_period_months > 0 || item.min_service_days > 0) && (
+                                            <span className="text-sm text-default-300">-</span>
+                                        )}
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     <Chip
@@ -268,17 +289,28 @@ export default function LeaveTypePage() {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-between items-end bg-default-50 dark:bg-white/5 p-2 rounded-lg border border-default-100 dark:border-default-50">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[9px] font-bold text-default-400 uppercase">Monthly Allowed</span>
-                                        <span className="text-[10px] font-semibold text-default-600">{item.monthly_allowed} / Month</span>
-                                    </div>
-                                    {item.allowed_hours > 0 && (
-                                        <div className="flex flex-col gap-0.5 text-right">
-                                            <span className="text-[9px] font-bold text-default-400 uppercase">Duration Max</span>
-                                            <span className="text-[10px] font-semibold text-primary">{item.allowed_hours} Hours</span>
+                                <div className="flex justify-between items-start bg-default-50 dark:bg-white/5 p-2 rounded-lg border border-default-100 dark:border-default-50">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex gap-1">
+                                            <Chip size="sm" variant="flat" color={item.can_carry_forward ? "secondary" : "default"} className="h-4 text-[8px] px-1 uppercase font-bold">
+                                                C/F: {item.can_carry_forward ? "Yes" : "No"}
+                                            </Chip>
+                                            <Chip size="sm" variant="flat" color={item.can_encash ? "success" : "default"} className="h-4 text-[8px] px-1 uppercase font-bold">
+                                                Encash: {item.can_encash ? "Yes" : "No"}
+                                            </Chip>
                                         </div>
-                                    )}
+                                        <div className="flex flex-col">
+                                            {item.probation_period_months > 0 && <span className="text-[10px] text-default-500 font-medium">Probation: {item.probation_period_months}m</span>}
+                                            {item.min_service_days > 0 && <span className="text-[10px] text-default-500 font-medium">Service: {item.min_service_days}d</span>}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col gap-0.5 text-right">
+                                        <span className="text-[9px] font-bold text-default-400 uppercase leading-none">Monthly Limit</span>
+                                        <span className="text-[10px] font-semibold text-default-600">{item.monthly_allowed} / Month</span>
+                                        {item.allowed_hours > 0 && (
+                                            <span className="text-[10px] font-semibold text-primary">{item.allowed_hours} Hours Max</span>
+                                        )}
+                                    </div>
                                 </div>
                             </CardBody>
                         </Card>
