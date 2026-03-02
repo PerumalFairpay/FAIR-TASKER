@@ -242,7 +242,7 @@ export default function LeaveRequestPage() {
             {user?.role === "employee" && leaveMetrics && leaveMetrics.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 mb-6">
                     {leaveMetrics.map((metric: any, index: number) => {
-                        const percentage = metric.total_allowed > 0 ? (metric.available / metric.total_allowed) * 100 : 0;
+                        const percentage = metric.total_allowed > 0 ? ((metric.total_allowed - metric.used) / metric.total_allowed) * 100 : 0;
                         let color: "success" | "warning" | "danger" = "success";
                         if (percentage < 25) color = "danger";
                         else if (percentage < 50) color = "warning";
@@ -270,19 +270,28 @@ export default function LeaveRequestPage() {
                                                     <div className="w-[1px] h-2 bg-default-300 mx-0.5"></div>
                                                     <span className="text-default-700 font-semibold">{metric.total_allowed}</span> Total
                                                 </div>
-                                                {metric.allowed_hours > 0 && (
-                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-warning-600 bg-warning-50 px-1.5 py-0.5 rounded-full border border-warning-100 whitespace-nowrap">
-                                                        <Clock size={10} strokeWidth={2.5} />
-                                                        <span className="font-bold">{metric.allowed_hours}</span> Hrs
-                                                    </div>
-                                                )}
+                                                <div className="flex flex-wrap gap-1">
+                                                    {metric.allowed_hours > 0 && (
+                                                        <div className="flex items-center gap-1 text-[9px] font-medium text-warning-600 bg-warning-50 px-1.5 py-0.5 rounded-full border border-warning-100 whitespace-nowrap">
+                                                            <Clock size={10} strokeWidth={2.5} />
+                                                            <span className="font-bold">{metric.allowed_hours}</span> Hrs
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            <div className="flex items-baseline gap-1 mt-1.5">
+                                            <div className="flex items-baseline gap-1 mt-1.5 overflow-hidden">
                                                 <span className={`text-2xl font-bold ${textColorMap[color]} leading-none`}>
                                                     {metric.available}
                                                 </span>
-                                                <span className="text-[10px] text-default-500 font-medium">Days Left</span>
+                                                <span className="text-[10px] text-default-500 font-medium whitespace-nowrap">
+                                                    {metric.code === "PER" ? "Left" : (metric.available === 1 ? 'Day' : 'Days') + ' Left'}
+                                                    {metric.monthly_allowed > 0 && metric.monthly_allowed < 999 && (
+                                                        <span className="text-primary-500 font-bold ml-1">
+                                                            / {metric.monthly_allowed} Mo
+                                                        </span>
+                                                    )}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="relative flex items-center justify-center flex-shrink-0">
