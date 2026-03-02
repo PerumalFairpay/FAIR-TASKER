@@ -35,6 +35,7 @@ import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import AddEditLeaveRequestDrawer from "./AddEditLeaveRequestDrawer";
 import RejectLeaveModal from "./RejectLeaveModal";
+import CompensatePermissionModal from "./CompensatePermissionModal";
 import { User } from "@heroui/user";
 import { Tooltip } from "@heroui/tooltip";
 import { PermissionGuard, usePermissions } from "@/components/PermissionGuard";
@@ -59,9 +60,11 @@ export default function LeaveRequestPage() {
 
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const { isOpen: isRejectOpen, onOpen: onRejectOpen, onOpenChange: onRejectOpenChange, onClose: onRejectClose } = useDisclosure();
+    const { isOpen: isCompensateOpen, onOpen: onCompensateOpen, onOpenChange: onCompensateOpenChange, onClose: onCompensateClose } = useDisclosure();
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedRequest, setSelectedRequest] = useState<any>(null);
     const [rejectRequestId, setRejectRequestId] = useState<string | null>(null);
+    const [compensateRequestId, setCompensateRequestId] = useState<string | null>(null);
     const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
     const [statusFilter, setStatusFilter] = useState<string>("All");
@@ -87,6 +90,7 @@ export default function LeaveRequestPage() {
             });
             onClose();
             onRejectClose();
+            onCompensateClose();
             dispatch(clearLeaveRequestDetails());
         }
         if (errorMessage) {
@@ -128,6 +132,19 @@ export default function LeaveRequestPage() {
 
     const handleDelete = (id: string) => {
         dispatch(deleteLeaveRequestRequest(id));
+    };
+
+    const handleCompensateClick = (id: string) => {
+        setCompensateRequestId(id);
+        onCompensateOpen();
+    };
+
+    const handleCompensateConfirm = () => {
+        if (compensateRequestId) {
+            const formData = new FormData();
+            formData.append("is_compensated", "true");
+            dispatch(updateLeaveRequestRequest(compensateRequestId, formData));
+        }
     };
 
     const getStatusColor = (status: string) => {
@@ -479,6 +496,16 @@ export default function LeaveRequestPage() {
                                                         Reject
                                                     </DropdownItem>
                                                 )}
+                                                {item.leave_duration_type === "Permission" && item.status === "Approved" && !item.is_compensated && hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="compensate"
+                                                        startContent={<Clock size={16} className="text-primary" />}
+                                                        onPress={() => handleCompensateClick(item.id)}
+                                                        className="text-primary"
+                                                    >
+                                                        Mark as Compensated
+                                                    </DropdownItem>
+                                                )}
 
                                                 {item.status === "Pending" && (
                                                     <DropdownItem
@@ -571,6 +598,16 @@ export default function LeaveRequestPage() {
                                                         className="text-danger"
                                                     >
                                                         Reject
+                                                    </DropdownItem>
+                                                )}
+                                                {item.leave_duration_type === "Permission" && item.status === "Approved" && !item.is_compensated && hasPermission("leave:approve") && (
+                                                    <DropdownItem
+                                                        key="compensate"
+                                                        startContent={<Clock size={16} className="text-primary" />}
+                                                        onPress={() => handleCompensateClick(item.id)}
+                                                        className="text-primary"
+                                                    >
+                                                        Mark as Compensated
                                                     </DropdownItem>
                                                 )}
                                                 {item.status === "Pending" && (
@@ -726,6 +763,13 @@ export default function LeaveRequestPage() {
                     fileName={previewData.name}
                 />
             )}
+
+            <CompensatePermissionModal
+                isOpen={isCompensateOpen}
+                onOpenChange={onCompensateOpenChange}
+                onConfirm={handleCompensateConfirm}
+                loading={updateLoading}
+            />
         </div>
     );
 }
