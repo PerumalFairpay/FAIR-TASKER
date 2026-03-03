@@ -21,6 +21,7 @@ import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
 import { getHolidaysRequest } from "@/store/holiday/action";
 import { getUserRequest } from "@/store/auth/action";
+import { getSettingsRequest } from "@/store/settings/action";
 import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
 import { Upload } from "lucide-react";
@@ -50,6 +51,9 @@ export default function AddEditLeaveRequestDrawer({
     const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
     const { holidays } = useSelector((state: RootState) => state.Holiday);
     const { user } = useSelector((state: RootState) => state.Auth);
+    const { publicSettings, settings } = useSelector((state: RootState) => state.Settings);
+
+    const [sandwichRuleEnabled, setSandwichRuleEnabled] = useState(false);
 
     const [formData, setFormData] = useState({
         employee_id: user?.employee_id || "",
@@ -82,8 +86,24 @@ export default function AddEditLeaveRequestDrawer({
             if (!user) {
                 dispatch(getUserRequest());
             }
+            if (!settings && !publicSettings) {
+                dispatch(getSettingsRequest());
+            }
         }
     }, [isOpen, dispatch]);
+
+    // Extract sandwich_rule from settings
+    useEffect(() => {
+        let isSandwichEnabled = false;
+        const allSettings = settings || publicSettings || {};
+        if (allSettings["Leave Management"]) {
+            const sandwichSetting = allSettings["Leave Management"].find((s: any) => s.key === "sandwich_rule");
+            if (sandwichSetting && sandwichSetting.value === true) {
+                isSandwichEnabled = true;
+            }
+        }
+        setSandwichRuleEnabled(isSandwichEnabled);
+    }, [settings, publicSettings]);
 
 
     useEffect(() => {
@@ -229,15 +249,29 @@ export default function AddEditLeaveRequestDrawer({
                     const selectedEmp = (employees || []).find((e: any) => e.id === newData.employee_id);
                     const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6]; // Default: Sunday
 
-                    // Iterate day-by-day, counting only working days
+                    // Iterate day-by-day
                     let total = 0;
                     const cursor = new Date(d1);
                     while (cursor <= d2) {
-                        // JS getDay(): 0=Sun,1=Mon,...,6=Sat  ->  Python idx: 0=Mon...6=Sun
-                        const jsDay = cursor.getDay();  // 0(Sun)..6(Sat)
-                        const pyDay = jsDay === 0 ? 6 : jsDay - 1; // convert to Mon-based
-                        if (!weeklyOff.includes(pyDay)) {
+                        const jsDay = cursor.getDay();
+                        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+                        // Check if it's a holiday
+                        const dateStr = cursor.toISOString().split('T')[0];
+                        const isHoliday = holidays.some(
+                            (holiday: any) => holiday.date === dateStr && holiday.status === "Active"
+                        );
+
+                        const isWeeklyOff = weeklyOff.includes(pyDay);
+
+                        if (sandwichRuleEnabled) {
+                            // If sandwich rule is ON, all days within the leave range count
                             total += 1;
+                        } else {
+                            // If OFF, only count working days
+                            if (!isHoliday && !isWeeklyOff) {
+                                total += 1;
+                            }
                         }
                         cursor.setDate(cursor.getDate() + 1);
                     }
@@ -291,10 +325,16 @@ export default function AddEditLeaveRequestDrawer({
         if (isHoliday) return true;
 
         // Disable employee's weekly off days
-        // JS Date: 0=Sun..6=Sat  ->  Python weekday: 0=Mon..6=Sun
         const jsDate = new Date(date.year, date.month - 1, date.day);
-        const jsDay = jsDate.getDay(); // 0=Sun..6=Sat
+        const jsDay = jsDate.getDay();
         const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+        // If sandwich rule is enabled, we don't disable holidays or weekly offs
+        // on the calendar because they can be "sandwiched" and selected as part of the leave
+        if (sandwichRuleEnabled) {
+            return false;
+        }
+
         return empWeeklyOff.includes(pyDay);
     };
 
@@ -565,6 +605,56 @@ export default function AddEditLeaveRequestDrawer({
                                     })()}
                                 </>
                             )}
+
+                            {sandwichRuleEnabled && formData.leave_duration_type === "Multiple" && (() => {
+                                // Calculate how many days are added by the sandwich rule
+                                let addedDays = 0;
+                                let normalDays = 0;
+                                try {
+                                    const d1 = parseDate(formData.start_date);
+                                    const d2 = parseDate(formData.end_date);
+                                    const start = new Date(d1.year, d1.month - 1, d1.day);
+                                    const end = new Date(d2.year, d2.month - 1, d2.day);
+
+                                    const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
+                                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6];
+
+                                    const cursor = new Date(start);
+                                    while (cursor <= end) {
+                                        const jsDay = cursor.getDay();
+                                        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+                                        const dateStr = cursor.toISOString().split('T')[0];
+                                        const isHoliday = holidays.some(
+                                            (holiday: any) => holiday.date === dateStr && holiday.status === "Active"
+                                        );
+                                        const isOffDay = weeklyOff.includes(pyDay);
+
+                                        if (isHoliday || isOffDay) {
+                                            addedDays += 1;
+                                        } else {
+                                            normalDays += 1;
+                                        }
+                                        cursor.setDate(cursor.getDate() + 1);
+                                    }
+                                } catch (e) {
+                                    console.error(e);
+                                }
+
+                                if (addedDays > 0) {
+                                    return (
+                                        <Alert color="warning" title="Sandwich Rule Applied">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm">
+                                                    {addedDays} holiday/weekly off {addedDays === 1 ? 'day' : 'days'} between your leave dates
+                                                    will be counted as leave due to the Sandwich Rule.
+                                                </span>
+                                            </div>
+                                        </Alert>
+                                    );
+                                }
+                                return null;
+                            })()}
 
                             <Input
                                 label="Total Days"
