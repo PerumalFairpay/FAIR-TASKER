@@ -570,7 +570,6 @@ export default function AddEditLeaveRequestDrawer({
                                             selectedType?.name === "Marriage Leave" ||
                                             selectedType?.name === "Maternity Leave" ||
                                             selectedType?.name === "Paternity Leave" ||
-                                            selectedType?.name === "Bereavement Leave" ||
                                             (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
 
                                         return isRequired ? <span className="text-danger">* (Required for this leave type)</span> : "(Optional)";
@@ -599,7 +598,6 @@ export default function AddEditLeaveRequestDrawer({
                                         selectedType?.name === "Marriage Leave" ||
                                         selectedType?.name === "Maternity Leave" ||
                                         selectedType?.name === "Paternity Leave" ||
-                                        selectedType?.name === "Bereavement Leave" ||
                                         (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
 
                                     if (isRequired && files.length === 0) {
