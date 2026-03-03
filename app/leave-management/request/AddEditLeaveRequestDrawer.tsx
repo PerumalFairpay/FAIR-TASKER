@@ -210,7 +210,7 @@ export default function AddEditLeaveRequestDrawer({
         }
 
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session") {
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session" || name === "employee_id") {
 
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
@@ -225,10 +225,22 @@ export default function AddEditLeaveRequestDrawer({
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    // Simple calendar day count
-                    const diffTime = d2.getTime() - d1.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    let total = diffDays > 0 ? diffDays : 0;
+                    // Get selected employee's weekly off days (0=Mon...6=Sun)
+                    const selectedEmp = (employees || []).find((e: any) => e.id === newData.employee_id);
+                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6]; // Default: Sunday
+
+                    // Iterate day-by-day, counting only working days
+                    let total = 0;
+                    const cursor = new Date(d1);
+                    while (cursor <= d2) {
+                        // JS getDay(): 0=Sun,1=Mon,...,6=Sat  ->  Python idx: 0=Mon...6=Sun
+                        const jsDay = cursor.getDay();  // 0(Sun)..6(Sat)
+                        const pyDay = jsDay === 0 ? 6 : jsDay - 1; // convert to Mon-based
+                        if (!weeklyOff.includes(pyDay)) {
+                            total += 1;
+                        }
+                        cursor.setDate(cursor.getDate() + 1);
+                    }
 
                     // Adjust for start/end sessions
                     if (newData.start_session === "Second Half") total -= 0.5;
@@ -267,10 +279,23 @@ export default function AddEditLeaveRequestDrawer({
     const startSessions = ["Full Day", "Second Half"];
     const endSessions = ["Full Day", "First Half"];
 
+    // Get selected employee's weekly off to disable those days on the calendar
+    const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
+    const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
+
     const isDateUnavailable = (date: DateValue) => {
-        return holidays.some(
+        // Disable company holidays
+        const isHoliday = holidays.some(
             (holiday: any) => holiday.date === date.toString() && holiday.status === "Active"
         );
+        if (isHoliday) return true;
+
+        // Disable employee's weekly off days
+        // JS Date: 0=Sun..6=Sat  ->  Python weekday: 0=Mon..6=Sun
+        const jsDate = new Date(date.year, date.month - 1, date.day);
+        const jsDay = jsDate.getDay(); // 0=Sun..6=Sat
+        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+        return empWeeklyOff.includes(pyDay);
     };
 
     return (
