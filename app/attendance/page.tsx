@@ -43,6 +43,7 @@ import { FileDown, Upload, Loader2 } from "lucide-react";
 import Lottie from "lottie-react";
 import HRMLoading from "@/app/assets/HRMLoading.json";
 import axios from "axios";
+import LocationMapModal from "@/components/attendance/LocationMapModal";
 
 interface AttendanceRecord {
     id: string;
@@ -64,6 +65,8 @@ interface AttendanceRecord {
     device_type: string;
     total_work_hours?: string;
     location?: string;
+    latitude?: number;
+    longitude?: number;
     date: string;
 }
 
@@ -133,6 +136,10 @@ export default function AttendancePage() {
     const { isOpen: isImportOpen, onOpen: onImportOpen, onClose: onImportClose } = useDisclosure();
     const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
     const [importFile, setImportFile] = useState<any[]>([]);
+
+    // Map modal state
+    const [mapModalOpen, setMapModalOpen] = useState(false);
+    const [mapRecord, setMapRecord] = useState<{ latitude: number; longitude: number; address?: string; employeeName?: string } | null>(null);
 
     // Pagination State
     const [page, setPage] = useState(1);
@@ -520,12 +527,37 @@ export default function AttendancePage() {
             }
             case "total_work_hours":
                 return cellValue ? `${cellValue} hrs` : "-";
-            case "location":
+            case "location": {
+                const hasCoords = item.latitude && item.longitude;
                 return (
-                    <div className="max-w-[300px] truncate text-small" title={cellValue as string}>
-                        {cellValue as string || "-"}
+                    <div className="flex items-center gap-1.5 max-w-[280px]">
+                        <span className="truncate text-small" title={cellValue as string}>
+                            {cellValue as string || "-"}
+                        </span>
+                        {hasCoords && (
+                            <Button
+                                isIconOnly
+                                size="sm"
+                                variant="light"
+                                color="primary"
+                                className="min-w-unit-6 w-6 h-6 shrink-0"
+                                aria-label="View on map"
+                                onPress={() => {
+                                    setMapRecord({
+                                        latitude: item.latitude!,
+                                        longitude: item.longitude!,
+                                        address: item.location,
+                                        employeeName: item.employee_details?.name,
+                                    });
+                                    setMapModalOpen(true);
+                                }}
+                            >
+                                <MapPin size={13} />
+                            </Button>
+                        )}
                     </div>
                 );
+            }
             case "actions":
                 if (!isAdmin || item.status === "Leave") return null;
                 return (
@@ -1006,6 +1038,17 @@ export default function AttendancePage() {
                 </DrawerContent>
             </Drawer>
 
+            {/* Location Map Modal */}
+            {mapRecord && (
+                <LocationMapModal
+                    isOpen={mapModalOpen}
+                    onClose={() => { setMapModalOpen(false); setMapRecord(null); }}
+                    latitude={mapRecord.latitude}
+                    longitude={mapRecord.longitude}
+                    address={mapRecord.address}
+                    employeeName={mapRecord.employeeName}
+                />
+            )}
 
         </div>
     );

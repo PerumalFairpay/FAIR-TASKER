@@ -26,10 +26,20 @@ import api from "../api";
 import axios from "axios";
 
 // Helper function to get location coordinates and address
-const getCurrentLocation = (): Promise<string> => {
+interface LocationData {
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+
+const getCurrentLocation = (): Promise<LocationData> => {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      resolve("Geolocation not supported by browser");
+      resolve({
+        address: "Geolocation not supported by browser",
+        latitude: null,
+        longitude: null,
+      });
       return;
     }
 
@@ -39,24 +49,36 @@ const getCurrentLocation = (): Promise<string> => {
         try {
           const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
           if (!apiKey) {
-            resolve(
-              `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
-            );
+            resolve({
+              address: `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
+              latitude,
+              longitude,
+            });
             return;
           }
           const response = await axios.get(
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`,
           );
           if (response.data.results && response.data.results.length > 0) {
-            resolve(response.data.results[0].formatted_address);
+            resolve({
+              address: response.data.results[0].formatted_address,
+              latitude,
+              longitude,
+            });
           } else {
-            resolve(
-              `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
-            );
+            resolve({
+              address: `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
+              latitude,
+              longitude,
+            });
           }
         } catch (error) {
           console.error("Geocoding error:", error);
-          resolve(`Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`);
+          resolve({
+            address: `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
+            latitude,
+            longitude,
+          });
         }
       },
       (error) => {
@@ -65,7 +87,7 @@ const getCurrentLocation = (): Promise<string> => {
         if (error.code === error.POSITION_UNAVAILABLE)
           errMsg = "Location Unavailable";
         if (error.code === error.TIMEOUT) errMsg = "Location Request Timeout";
-        resolve(errMsg);
+        resolve({ address: errMsg, latitude: null, longitude: null });
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
@@ -138,12 +160,18 @@ function editAttendanceApi(payload: { id: string; data: any }) {
 function* onClockIn({ payload }: any): SagaIterator {
   try {
     // 1. Fetch location first
-    const locationStr = yield call(getCurrentLocation);
+    const locationData: {
+      address: string;
+      latitude: number | null;
+      longitude: number | null;
+    } = yield call(getCurrentLocation);
 
-    // 2. Attach location to payload
+    // 2. Attach location + coordinates to payload
     const finalPayload = {
       ...payload,
-      location: locationStr,
+      location: locationData.address,
+      latitude: locationData.latitude,
+      longitude: locationData.longitude,
     };
 
     // 3. Make the API call
@@ -159,12 +187,18 @@ function* onClockIn({ payload }: any): SagaIterator {
 function* onClockOut({ payload }: any): SagaIterator {
   try {
     // 1. Fetch location first
-    const locationStr = yield call(getCurrentLocation);
+    const locationData: {
+      address: string;
+      latitude: number | null;
+      longitude: number | null;
+    } = yield call(getCurrentLocation);
 
-    // 2. Attach location to payload
+    // 2. Attach location + coordinates to payload
     const finalPayload = {
       ...payload,
-      location: locationStr,
+      location: locationData.address,
+      latitude: locationData.latitude,
+      longitude: locationData.longitude,
     };
 
     // 3. Make the API call
