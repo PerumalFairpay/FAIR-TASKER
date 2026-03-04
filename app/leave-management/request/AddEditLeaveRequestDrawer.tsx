@@ -317,6 +317,20 @@ export default function AddEditLeaveRequestDrawer({
     const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
     const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
 
+    const dynamicCalendarClass = React.useMemo(() => {
+        const classes = ["[&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"];
+
+        empWeeklyOff.forEach(pyDay => {
+            // Calendar grid columns (nth-child): 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
+            const nthChild = pyDay === 6 ? 1 : pyDay + 2;
+            classes.push(`[&_td:nth-child(${nthChild})_button]:!text-green-600`);
+            classes.push(`[&_td:nth-child(${nthChild})_span]:!text-green-600`);
+            classes.push(`[&_th:nth-child(${nthChild})]:!text-green-600`);
+        });
+
+        return classes.join(" ");
+    }, [empWeeklyOff]);
+
     const isDateUnavailable = (date: DateValue) => {
         // Disable company holidays
         const isHoliday = holidays.some(
@@ -414,6 +428,10 @@ export default function AddEditLeaveRequestDrawer({
                                             className="col-span-2"
                                             minValue={today(getLocalTimeZone())}
                                             allowsNonContiguousRanges
+                                            isDateUnavailable={isDateUnavailable}
+                                            calendarProps={{
+                                                className: dynamicCalendarClass
+                                            }}
                                         />
                                         <div className="col-span-1">
                                             <Select
@@ -451,7 +469,7 @@ export default function AddEditLeaveRequestDrawer({
                                         className="col-span-2"
                                         minValue={today(getLocalTimeZone())}
                                         calendarProps={{
-                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
+                                            className: dynamicCalendarClass
                                         }}
                                     />
                                 )}
