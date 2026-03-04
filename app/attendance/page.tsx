@@ -723,9 +723,9 @@ export default function AttendancePage() {
                             </div>
                         )}
 
-                        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                            {/* Import Button (Admin) */}
-                            {isAdmin && (
+                        {isAdmin && (
+                            <div className="hidden sm:flex items-center gap-2 w-full sm:w-auto justify-end">
+                                {/* Import Button (Admin) - Hidden on Mobile */}
                                 <Button
                                     color="secondary"
                                     variant="flat"
@@ -736,8 +736,8 @@ export default function AttendancePage() {
                                 >
                                     <Upload size={18} />
                                 </Button>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Clock In/Out buttons - Desktop only */}
