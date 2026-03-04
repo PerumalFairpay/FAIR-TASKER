@@ -213,7 +213,6 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
             date: format(now, "yyyy-MM-dd"),
             clock_in: now.toISOString(),
             device_type: "Web",
-            location: "Web Portal",
             notes: "Web Clock In"
         };
         dispatch(clockInRequest(payload));
@@ -310,12 +309,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 <Button
                                     color="primary"
                                     size="md"
-                                    startContent={<Clock size={20} />}
+                                    startContent={clockInLoading ? null : <Clock size={20} />}
                                     onPress={handleClockIn}
                                     isLoading={clockInLoading}
                                     className="shadow-lg shadow-primary/40 font-semibold flex-1 sm:flex-none"
                                 >
-                                    Clock In
+                                    {clockInLoading ? "Clocking In..." : "Clock In"}
                                 </Button>
                             </div>
                         ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
@@ -330,12 +329,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         color="warning"
                                         size="md"
                                         variant="flat"
-                                        startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
+                                        startContent={clockOutLoading ? null : (relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />)}
                                         isLoading={clockOutLoading}
                                         className="font-semibold w-full sm:w-auto"
                                         isDisabled={relevantRecord?.device_type === 'Biometric'}
                                     >
-                                        {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
+                                        {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : (clockOutLoading ? "Getting Location..." : "Clock Out")}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent>

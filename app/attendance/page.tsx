@@ -711,7 +711,7 @@ export default function AttendancePage() {
                                     <Button
                                         color="primary"
                                         size="md"
-                                        startContent={clockInLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Clock size={20} />}
+                                        startContent={clockInLoading ? null : <Clock size={20} />}
                                         onPress={handleClockIn}
                                         isLoading={clockInLoading}
                                         className="shadow-lg shadow-primary/40 font-semibold"
@@ -732,7 +732,7 @@ export default function AttendancePage() {
                                             color="warning"
                                             size="md"
                                             variant="flat"
-                                            startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : (clockOutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut size={20} />)}
+                                            startContent={clockOutLoading ? null : (relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />)}
                                             isLoading={clockOutLoading}
                                             className="font-semibold"
                                             isDisabled={relevantRecord?.device_type === 'Biometric'}
