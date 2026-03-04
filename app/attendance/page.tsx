@@ -605,71 +605,24 @@ export default function AttendancePage() {
     const displayColumns = isAdmin ? columns : columns.filter(col => col.uid !== "employee" && col.uid !== "actions");
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
                 <PageHeader title={isAdmin ? "Attendance" : "My Attendance"} />
 
-                <div className="flex items-center gap-4 flex-wrap justify-end">
-                    {isAdmin && (
-                        <Button
-                            color="secondary"
-                            variant="flat"
-                            isIconOnly
-                            onPress={onImportOpen}
-                            aria-label="Import Attendance"
-                        >
-                            <Upload size={18} />
-                        </Button>
-                    )}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-3 w-full xl:w-auto">
 
-                    {/* Controls Section - View Toggle & Filters */}
-                    <div className="flex gap-2 items-center">
-                        {/* List Filters - Date Range */}
-                        {viewMode === "list" && (
-                            <>
-                                <DatePicker
-                                    size="sm"
-                                    variant="bordered"
-                                    className="w-36"
-                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
-                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
-                                    aria-label="Start Date"
-                                />
-                                <span className="text-default-400">-</span>
-                                <DatePicker
-                                    size="sm"
-                                    variant="bordered"
-                                    className="w-36"
-                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
-                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
-                                    aria-label="End Date"
-                                />
-                            </>
-                        )}
-
-                        {/* Calendar Month Picker */}
-                        {viewMode === "calendar" && (
-                            <div className="flex items-center gap-2">
-                                <input
-                                    type="month"
-                                    aria-label="Select Month"
-                                    className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary"
-                                    value={format(currentMonth, "yyyy-MM")}
-                                    onChange={handleMonthChange}
-                                />
-                            </div>
-                        )}
-
+                    {/* Left Group: Toggle + Date Range */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
                         {/* View Toggle */}
-                        <div className="flex bg-default-100 p-1 rounded-lg">
+                        <div className="flex bg-default-100 p-1 rounded-lg shrink-0 w-full sm:w-auto justify-center sm:justify-start">
                             <Button
                                 size="sm"
                                 isIconOnly
                                 variant={viewMode === "list" ? "solid" : "light"}
                                 color={viewMode === "list" ? "primary" : "default"}
                                 onPress={() => setViewMode("list")}
-                                className="rounded-md"
+                                className="rounded-md flex-1 sm:flex-none"
                             >
                                 <List size={18} />
                             </Button>
@@ -679,21 +632,58 @@ export default function AttendancePage() {
                                 variant={viewMode === "calendar" ? "solid" : "light"}
                                 color={viewMode === "calendar" ? "primary" : "default"}
                                 onPress={() => setViewMode("calendar")}
-                                className="rounded-md"
+                                className="rounded-md flex-1 sm:flex-none"
                             >
                                 <CalendarIcon size={18} />
                             </Button>
                         </div>
 
-                        {/* List Filters - Admin Options */}
+                        {/* List Filters - Date Range */}
+                        {viewMode === "list" && (
+                            <div className="flex gap-2 items-center w-full sm:w-auto">
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="flex-1 sm:w-36"
+                                    value={filters.start_date ? parseDate(filters.start_date) : undefined}
+                                    onChange={(date) => handleFilterChange("start_date", date ? date.toString() : "")}
+                                    aria-label="Start Date"
+                                />
+                                <span className="text-default-400 shrink-0">-</span>
+                                <DatePicker
+                                    size="sm"
+                                    variant="bordered"
+                                    className="flex-1 sm:w-36"
+                                    value={filters.end_date ? parseDate(filters.end_date) : undefined}
+                                    onChange={(date) => handleFilterChange("end_date", date ? date.toString() : "")}
+                                    aria-label="End Date"
+                                />
+                            </div>
+                        )}
+
+                        {/* Calendar Month Picker */}
+                        {viewMode === "calendar" && (
+                            <input
+                                type="month"
+                                aria-label="Select Month"
+                                className="border-default-200 border rounded-lg px-3 py-1.5 text-sm bg-default-50 outline-none focus:ring-2 ring-primary w-full sm:w-auto"
+                                value={format(currentMonth, "yyyy-MM")}
+                                onChange={handleMonthChange}
+                            />
+                        )}
+                    </div>
+
+                    {/* Right Group: Admin Filters + Buttons */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
+                        {/* Admin Filters */}
                         {viewMode === "list" && isAdmin && (
-                            <>
+                            <div className="flex gap-2 w-full sm:w-auto">
                                 <Select
                                     size="sm"
                                     variant="bordered"
                                     placeholder="Status"
                                     aria-label="Filter by Status"
-                                    className="w-36"
+                                    className="flex-1 sm:w-36"
                                     selectedKeys={filters.status ? [filters.status] : []}
                                     onChange={(e) => handleFilterChange("status", e.target.value)}
                                 >
@@ -712,7 +702,7 @@ export default function AttendancePage() {
                                     variant="bordered"
                                     placeholder="Employee"
                                     aria-label="Filter by Employee"
-                                    className="w-40"
+                                    className="flex-1 sm:w-44"
                                     selectedKeys={filters.employee_id ? [filters.employee_id] : []}
                                     onChange={(e) => handleFilterChange("employee_id", e.target.value)}
                                     onOpenChange={(isOpen) => {
@@ -730,10 +720,27 @@ export default function AttendancePage() {
                                         </SelectItem>
                                     ))}
                                 </Select>
-                            </>
+                            </div>
                         )}
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                            {/* Import Button (Admin) */}
+                            {isAdmin && (
+                                <Button
+                                    color="secondary"
+                                    variant="flat"
+                                    isIconOnly
+                                    onPress={onImportOpen}
+                                    aria-label="Import Attendance"
+                                    className="shrink-0"
+                                >
+                                    <Upload size={18} />
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
+                    {/* Clock In/Out buttons - Desktop only */}
                     {!isAdmin && !isMobileDevice && (
                         <>
                             {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
@@ -765,7 +772,6 @@ export default function AttendancePage() {
                                     </Button>
                                 </div>
                             ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-
                                 <Popover
                                     isOpen={isClockOutPopoverOpen}
                                     onOpenChange={setIsClockOutPopoverOpen}
@@ -784,7 +790,6 @@ export default function AttendancePage() {
                                         >
                                             {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : (clockOutLoading ? "Getting Location..." : "Clock Out")}
                                         </Button>
-
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <div className="px-1 py-2 w-56">
@@ -870,28 +875,153 @@ export default function AttendancePage() {
                 />
             ) : (
                 <>
+                    {/* Desktop Table */}
+                    <div className="hidden lg:block">
+                        <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
+                            <TableHeader columns={displayColumns}>
+                                {(column: any) => (
+                                    <TableColumn
+                                        key={column.uid}
+                                        align={column.uid === "actions" ? "center" : "start"}
+                                        className={column.uid === "location" ? "max-w-[200px]" : ""}
+                                    >
+                                        {column.name}
+                                    </TableColumn>
+                                )}
+                            </TableHeader>
+                            <TableBody items={displayData} emptyContent={"No attendance records found."}>
+                                {(item: AttendanceRecord) => (
+                                    <TableRow key={item.id}>
+                                        {(columnKey: React.Key) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
 
-                    {/* Data Table */}
-                    <Table aria-label="Attendance History Table" removeWrapper isHeaderSticky>
-                        <TableHeader columns={displayColumns}>
-                            {(column: any) => (
-                                <TableColumn
-                                    key={column.uid}
-                                    align={column.uid === "actions" ? "center" : "start"}
-                                    className={column.uid === "location" ? "max-w-[200px]" : ""}
-                                >
-                                    {column.name}
-                                </TableColumn>
-                            )}
-                        </TableHeader>
-                        <TableBody items={displayData} emptyContent={"No attendance records found."}>
-                            {(item: AttendanceRecord) => (
-                                <TableRow key={item.id}>
-                                    {(columnKey: React.Key) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden space-y-3">
+                        {displayData.length === 0 ? (
+                            <div className="text-center py-12 text-default-400 italic">No attendance records found.</div>
+                        ) : (
+                            (displayData as AttendanceRecord[]).map((item) => {
+                                const statusInfo = (() => {
+                                    const primary = item.status || "";
+                                    const sub = item.attendance_status || "";
+                                    const typeCode = item.leave_type_code || "";
+                                    let color: "success" | "danger" | "warning" | "primary" | "default" | "secondary" = "default";
+                                    let label = primary;
+                                    if (primary === "Present") {
+                                        if (sub === "Permission") { label = "Present · Permission"; color = "secondary"; }
+                                        else if (sub === "Half Day") { label = "Present · Half Day"; color = "primary"; }
+                                        else if (sub === "Late") { label = "Present · Late"; color = "warning"; }
+                                        else { label = "Present · On Time"; color = "success"; }
+                                    } else if (primary === "Absent") { color = "danger"; label = "Absent"; }
+                                    else if (primary === "Leave") {
+                                        color = "warning";
+                                        label = sub === "Half Day" ? "Leave · Half Day" : typeCode ? `Leave · ${typeCode}` : "Leave";
+                                    } else if (primary === "Holiday") { color = "primary"; label = "Holiday"; }
+                                    return { color, label };
+                                })();
+
+                                const clockInTime = item.clock_in ? (() => { const d = new Date(item.clock_in); return isNaN(d.getTime()) ? "-" : format(d, "hh:mm a"); })() : "-";
+                                const clockOutTime = item.clock_out ? (() => { const d = new Date(item.clock_out); return isNaN(d.getTime()) ? "-" : format(d, "hh:mm a"); })() : "-";
+
+                                return (
+                                    <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                                        <CardBody className="p-4 flex flex-col gap-3">
+                                            {/* Top row: date + status + actions */}
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[10px] font-bold text-default-400 uppercase tracking-tight">Date</span>
+                                                    <span className="text-sm font-bold text-default-800">{item.date}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Chip className="capitalize whitespace-nowrap" color={statusInfo.color} size="sm" variant="flat">
+                                                        {statusInfo.label}
+                                                    </Chip>
+                                                    {isAdmin && item.status !== "Leave" && (
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="light"
+                                                            color="primary"
+                                                            aria-label="Edit attendance"
+                                                            onPress={() => handleEditOpen(item)}
+                                                        >
+                                                            <Pencil size={14} />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Employee info (admin only) */}
+                                            {isAdmin && (
+                                                <div className="flex items-center gap-2 py-1.5 px-2.5 bg-default-50 dark:bg-white/5 rounded-xl border border-default-100 dark:border-white/5">
+                                                    <Avatar size="sm" src={item.employee_details?.profile_picture} name={item.employee_details?.name} className="w-7 h-7 shrink-0" />
+                                                    <div className="flex flex-col min-w-0">
+                                                        <span className="text-xs font-bold text-default-800 truncate">{item.employee_details?.name}</span>
+                                                        <span className="text-[10px] text-default-400 truncate">{item.employee_details?.email}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Clock In / Clock Out / Work Hours */}
+                                            <div className="grid grid-cols-3 gap-2">
+                                                <div className="flex flex-col items-center gap-0.5 bg-default-50 dark:bg-white/5 rounded-xl p-2 border border-default-100 dark:border-white/5">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Clock In</span>
+                                                    <span className="text-xs font-bold text-default-700">{clockInTime}</span>
+                                                </div>
+                                                <div className="flex flex-col items-center gap-0.5 bg-default-50 dark:bg-white/5 rounded-xl p-2 border border-default-100 dark:border-white/5">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Clock Out</span>
+                                                    <span className="text-xs font-bold text-default-700">{clockOutTime}</span>
+                                                </div>
+                                                <div className="flex flex-col items-center gap-0.5 bg-default-50 dark:bg-white/5 rounded-xl p-2 border border-default-100 dark:border-white/5">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase tracking-tight">Work Hrs</span>
+                                                    <span className="text-xs font-bold text-default-700">{item.total_work_hours ? `${item.total_work_hours}h` : "-"}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Device + Location */}
+                                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                                                <div className="flex items-center gap-1.5 text-default-500">
+                                                    {getDeviceIcon(item.device_type)}
+                                                    <span className="text-xs">{item.device_type || "-"}</span>
+                                                </div>
+                                                {item.location && (
+                                                    <div className="flex items-center gap-1 min-w-0">
+                                                        <MapPin size={12} className="text-default-400 shrink-0" />
+                                                        <span className="text-xs text-default-500 truncate max-w-[160px]">{item.location}</span>
+                                                        {item.latitude && item.longitude && (
+                                                            <Button
+                                                                isIconOnly
+                                                                size="sm"
+                                                                variant="light"
+                                                                color="primary"
+                                                                className="min-w-unit-6 w-6 h-6 shrink-0"
+                                                                aria-label="View on map"
+                                                                onPress={() => {
+                                                                    setMapRecord({
+                                                                        latitude: item.latitude!,
+                                                                        longitude: item.longitude!,
+                                                                        address: item.location,
+                                                                        employeeName: item.employee_details?.name,
+                                                                    });
+                                                                    setMapModalOpen(true);
+                                                                }}
+                                                            >
+                                                                <MapPin size={12} />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardBody>
+                                    </Card>
+                                );
+                            })
+                        )}
+                    </div>
 
                     {/* Pagination */}
                     {pagination && pagination.total_pages > 1 && (
