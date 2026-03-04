@@ -171,6 +171,19 @@ export default function AttendancePage() {
     // Keep track of today's record separately to persist button state during filtering
     const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
     const [isClockOutPopoverOpen, setIsClockOutPopoverOpen] = useState(false);
+    const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            setIsMobileDevice(mobileRegex.test(userAgent) || (isTouchDevice && window.innerWidth <= 1024));
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         if (attendanceHistory?.length) {
@@ -721,7 +734,7 @@ export default function AttendancePage() {
                         )}
                     </div>
 
-                    {!isAdmin && (
+                    {!isAdmin && !isMobileDevice && (
                         <>
                             {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                                 <Button

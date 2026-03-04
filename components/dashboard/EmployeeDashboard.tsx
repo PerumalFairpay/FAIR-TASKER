@@ -122,6 +122,22 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [isClockOutPopoverOpen, setIsClockOutPopoverOpen] = useState(false);
+    const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+            const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+            // If it matches mobile UA OR has touch points (most mobile browsers in desktop mode still report touch)
+            setIsMobileDevice(mobileRegex.test(userAgent) || (isTouchDevice && window.innerWidth <= 1024));
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         setCurrentDate(new Date());
@@ -287,95 +303,97 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 w-full md:w-auto">
                     {/* Buttons Section */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 order-2 sm:order-1">
-                        {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
-                            <Button
-                                className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
-                                variant="flat"
-                                color="secondary"
-                                size="md"
-                                startContent={<Plane size={20} />}
-                                disableAnimation
-                            >
-                                On Leave
-                            </Button>
-                        ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-                            <div className="flex items-center gap-3 w-full sm:w-auto">
-                                {relevantRecord?.attendance_status === 'Half Day' && (
-                                    <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
-                                        Half Day
-                                    </Chip>
-                                )}
+                    {!isMobileDevice && (
+                        <div className="hidden sm:flex items-center justify-between sm:justify-end gap-3 order-2 sm:order-1">
+                            {relevantRecord?.status === 'Leave' && relevantRecord?.attendance_status !== 'Half Day' ? (
                                 <Button
-                                    color="primary"
+                                    className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
+                                    variant="flat"
+                                    color="secondary"
                                     size="md"
-                                    startContent={clockInLoading ? null : <Clock size={20} />}
-                                    onPress={handleClockIn}
-                                    isLoading={clockInLoading}
-                                    className="shadow-lg shadow-primary/40 font-semibold flex-1 sm:flex-none"
+                                    startContent={<Plane size={20} />}
+                                    disableAnimation
                                 >
-                                    {clockInLoading ? "Clocking In..." : "Clock In"}
+                                    On Leave
                                 </Button>
-                            </div>
-                        ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
-                            <Popover
-                                isOpen={isClockOutPopoverOpen}
-                                onOpenChange={setIsClockOutPopoverOpen}
-                                placement="bottom"
-                                showArrow
-                            >
-                                <PopoverTrigger>
+                            ) : !isTodayClockIn && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
+                                <div className="flex items-center gap-3 w-full sm:w-auto">
+                                    {relevantRecord?.attendance_status === 'Half Day' && (
+                                        <Chip color="primary" variant="flat" size="sm" className="font-semibold px-2 h-8">
+                                            Half Day
+                                        </Chip>
+                                    )}
                                     <Button
-                                        color="warning"
+                                        color="primary"
                                         size="md"
-                                        variant="flat"
-                                        startContent={clockOutLoading ? null : (relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />)}
-                                        isLoading={clockOutLoading}
-                                        className="font-semibold w-full sm:w-auto"
-                                        isDisabled={relevantRecord?.device_type === 'Biometric'}
+                                        startContent={clockInLoading ? null : <Clock size={20} />}
+                                        onPress={handleClockIn}
+                                        isLoading={clockInLoading}
+                                        className="shadow-lg shadow-primary/40 font-semibold flex-1 sm:flex-none"
                                     >
-                                        {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : (clockOutLoading ? "Getting Location..." : "Clock Out")}
+                                        {clockInLoading ? "Clocking In..." : "Clock In"}
                                     </Button>
-                                </PopoverTrigger>
-                                <PopoverContent>
-                                    <div className="px-1 py-2 w-56">
-                                        <div className="text-small font-bold">Confirmation</div>
-                                        <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
-                                        <div className="flex gap-2 mt-3 justify-end">
-                                            <Button
-                                                size="sm"
-                                                variant="light"
-                                                onPress={() => setIsClockOutPopoverOpen(false)}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                color="warning"
-                                                onPress={() => {
-                                                    handleClockOut();
-                                                    setIsClockOutPopoverOpen(false);
-                                                }}
-                                            >
-                                                Yes, Clock Out
-                                            </Button>
+                                </div>
+                            ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
+                                <Popover
+                                    isOpen={isClockOutPopoverOpen}
+                                    onOpenChange={setIsClockOutPopoverOpen}
+                                    placement="bottom"
+                                    showArrow
+                                >
+                                    <PopoverTrigger>
+                                        <Button
+                                            color="warning"
+                                            size="md"
+                                            variant="flat"
+                                            startContent={clockOutLoading ? null : (relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />)}
+                                            isLoading={clockOutLoading}
+                                            className="font-semibold w-full sm:w-auto"
+                                            isDisabled={relevantRecord?.device_type === 'Biometric'}
+                                        >
+                                            {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : (clockOutLoading ? "Getting Location..." : "Clock Out")}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent>
+                                        <div className="px-1 py-2 w-56">
+                                            <div className="text-small font-bold">Confirmation</div>
+                                            <div className="text-tiny mt-1">Are you sure you want to clock out?</div>
+                                            <div className="flex gap-2 mt-3 justify-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="light"
+                                                    onPress={() => setIsClockOutPopoverOpen(false)}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    color="warning"
+                                                    onPress={() => {
+                                                        handleClockOut();
+                                                        setIsClockOutPopoverOpen(false);
+                                                    }}
+                                                >
+                                                    Yes, Clock Out
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
-                            <Button
-                                className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
-                                variant="flat"
-                                color="success"
-                                size="md"
-                                startContent={<CheckCircle size={20} />}
-                                disableAnimation
-                            >
-                                Done for Today
-                            </Button>
-                        ) : null}
-                    </div>
+                                    </PopoverContent>
+                                </Popover>
+                            ) : isTodayClockOut && user?.work_mode === 'Remote' ? (
+                                <Button
+                                    className="cursor-default opacity-100 font-semibold w-full sm:w-auto"
+                                    variant="flat"
+                                    color="success"
+                                    size="md"
+                                    startContent={<CheckCircle size={20} />}
+                                    disableAnimation
+                                >
+                                    Done for Today
+                                </Button>
+                            ) : null}
+                        </div>
+                    )}
 
                     {/* Clock Section */}
                     <div className="text-left sm:text-right border-l-0 sm:border-l sm:pl-6 border-slate-200 dark:border-white/10 order-1 sm:order-2">
