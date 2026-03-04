@@ -23,6 +23,54 @@ import {
   editAttendanceFailure,
 } from "./action";
 import api from "../api";
+import axios from "axios";
+
+// Helper function to get location coordinates and address
+const getCurrentLocation = (): Promise<string> => {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve("Geolocation not supported by browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+          if (!apiKey) {
+            resolve(
+              `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
+            );
+            return;
+          }
+          const response = await axios.get(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`,
+          );
+          if (response.data.results && response.data.results.length > 0) {
+            resolve(response.data.results[0].formatted_address);
+          } else {
+            resolve(
+              `Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`,
+            );
+          }
+        } catch (error) {
+          console.error("Geocoding error:", error);
+          resolve(`Lat: ${latitude.toFixed(4)}, Lng: ${longitude.toFixed(4)}`);
+        }
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        let errMsg = "Location Access Denied";
+        if (error.code === error.POSITION_UNAVAILABLE)
+          errMsg = "Location Unavailable";
+        if (error.code === error.TIMEOUT) errMsg = "Location Request Timeout";
+        resolve(errMsg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    );
+  });
+};
 
 // API Functions
 function clockInApi(payload: any) {
@@ -89,7 +137,17 @@ function editAttendanceApi(payload: { id: string; data: any }) {
 // Sagas
 function* onClockIn({ payload }: any): SagaIterator {
   try {
-    const response = yield call(clockInApi, payload);
+    // 1. Fetch location first
+    const locationStr = yield call(getCurrentLocation);
+
+    // 2. Attach location to payload
+    const finalPayload = {
+      ...payload,
+      location: locationStr,
+    };
+
+    // 3. Make the API call
+    const response = yield call(clockInApi, finalPayload);
     yield put(clockInSuccess(response.data));
   } catch (error: any) {
     yield put(
@@ -100,7 +158,17 @@ function* onClockIn({ payload }: any): SagaIterator {
 
 function* onClockOut({ payload }: any): SagaIterator {
   try {
-    const response = yield call(clockOutApi, payload);
+    // 1. Fetch location first
+    const locationStr = yield call(getCurrentLocation);
+
+    // 2. Attach location to payload
+    const finalPayload = {
+      ...payload,
+      location: locationStr,
+    };
+
+    // 3. Make the API call
+    const response = yield call(clockOutApi, finalPayload);
     yield put(clockOutSuccess(response.data));
   } catch (error: any) {
     yield put(

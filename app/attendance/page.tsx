@@ -39,9 +39,10 @@ import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Input } from "@heroui/input";
 import { Textarea } from "@heroui/input";
 import FileUpload from "@/components/common/FileUpload";
-import { FileDown, Upload } from "lucide-react";
+import { FileDown, Upload, Loader2 } from "lucide-react";
 import Lottie from "lottie-react";
 import HRMLoading from "@/app/assets/HRMLoading.json";
+import axios from "axios";
 
 interface AttendanceRecord {
     id: string;
@@ -368,10 +369,8 @@ export default function AttendancePage() {
             date: format(now, "yyyy-MM-dd"),
             clock_in: now.toISOString(),
             device_type: "Web",
-            location: "Web Portal", // Could be dynamic with navigator.geolocation
             notes: "Web Clock In"
         };
-
         dispatch(clockInRequest(payload));
     };
 
@@ -712,12 +711,12 @@ export default function AttendancePage() {
                                     <Button
                                         color="primary"
                                         size="md"
-                                        startContent={<Clock size={20} />}
+                                        startContent={clockInLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Clock size={20} />}
                                         onPress={handleClockIn}
                                         isLoading={clockInLoading}
                                         className="shadow-lg shadow-primary/40 font-semibold"
                                     >
-                                        Clock In
+                                        {clockInLoading ? "Clocking In..." : "Clock In"}
                                     </Button>
                                 </div>
                             ) : !isTodayClockOut && (user?.work_mode === 'Remote' || user?.work_mode === 'Hybrid') ? (
@@ -733,12 +732,12 @@ export default function AttendancePage() {
                                             color="warning"
                                             size="md"
                                             variant="flat"
-                                            startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : <LogOut size={20} />}
+                                            startContent={relevantRecord?.device_type === 'Biometric' ? <Fingerprint size={20} /> : (clockOutLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <LogOut size={20} />)}
                                             isLoading={clockOutLoading}
                                             className="font-semibold"
                                             isDisabled={relevantRecord?.device_type === 'Biometric'}
                                         >
-                                            {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : "Clock Out"}
+                                            {relevantRecord?.device_type === 'Biometric' ? "Biometric Clocked" : (clockOutLoading ? "Getting Location..." : "Clock Out")}
                                         </Button>
 
                                     </PopoverTrigger>

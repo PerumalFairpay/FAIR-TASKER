@@ -67,7 +67,7 @@
     "@types/lodash": "^4.17.23",
     "@types/react-show-more-text": "^1.4.5",
     "@types/react-signature-canvas": "^1.0.7",
-    "axios": "^1.13.2",
+    "axios": "^1.13.6",
     "clsx": "2.1.1",
     "date-fns": "^4.1.0",
     "filepond": "^4.32.11",
