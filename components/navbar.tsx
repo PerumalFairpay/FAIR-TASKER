@@ -23,7 +23,7 @@ import {
   Users,
   Briefcase,
   ChevronDown,
-  ChevronRight, // Lucide chevron
+  ChevronRight,
   ShieldAlert,
   Contact,
   Wallet,
@@ -50,7 +50,12 @@ import {
   UserMinus,
   SettingsIcon,
   Settings,
-  MessageSquare
+  MessageSquare,
+  MoreHorizontal,
+  X,
+  LogOut,
+  User as UserIcon,
+  Webhook,
 } from "lucide-react";
 
 
@@ -63,6 +68,7 @@ import FairPayLogo from "@/app/assets/FairPay.png";
 import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
 import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
+import { ScrollShadow } from "@heroui/scroll-shadow";
 
 interface NavbarProps {
   isExpanded?: boolean;
@@ -102,6 +108,10 @@ const iconMap: Record<string, any> = {
   MessageSquare
 };
 
+// Left & right flanking items around the center AI Chat FAB
+const LEFT_HREFS = ["/dashboard", "/attendance"];
+const RIGHT_HREFS = ["/feeds"];
+const AI_CHAT_HREF = "/ai-chat";
 
 export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const pathname = usePathname();
@@ -113,6 +123,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isAltPressed, setIsAltPressed] = useState(false);
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  const [moreOpenMenus, setMoreOpenMenus] = useState<Record<string, boolean>>({});
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (label: string) => {
@@ -145,17 +157,20 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     });
   }, [pathname]);
 
+  // Close more sheet on navigation
+  useEffect(() => {
+    setMoreSheetOpen(false);
+  }, [pathname]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Alt') {
         setIsAltPressed(true);
       }
 
-      // Check if Alt key is pressed
       if (!event.altKey) return;
 
       const key = event.key.toLowerCase();
-      // Default shortcuts
       let targetPath = '';
 
       switch (key) {
@@ -167,7 +182,6 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
         case 'p': targetPath = '/project/list'; break;
         case 't': targetPath = '/task/board'; break;
         case 'y':
-          // Role-based logic for Payroll
           const role = user?.role?.toLowerCase();
           targetPath = role === 'admin' ? '/payslip/list' : '/payslip/employee';
           break;
@@ -276,54 +290,447 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
     }));
   };
 
+  // ─── Mobile helpers ────────────────────────────────────────────────────────
+
+  const filteredNavItems = siteConfig.navItems.filter((item: any) => {
+    const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+    const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
+    return roleMatch && permissionMatch;
+  });
+
+  const resolveHref = (href: string) => {
+    for (const item of filteredNavItems) {
+      if (item.href === href) return { ...item };
+      if (item.children) {
+        const child = item.children.find((c: any) => c.href === href);
+        if (child) {
+          const r = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+          const p = !child.permission || user?.permissions?.includes(child.permission);
+          if (r && p) return { ...child };
+        }
+      }
+    }
+    return null;
+  };
+
+  const leftItems = LEFT_HREFS.map(resolveHref).filter(Boolean);
+  const rightItems = RIGHT_HREFS.map(resolveHref).filter(Boolean);
+
+  // Everything not in left/right flanks or AI Chat goes to More drawer
+  const allFlankedHrefs = [...LEFT_HREFS, ...RIGHT_HREFS, AI_CHAT_HREF];
+  const moreItems = filteredNavItems.filter((item: any) => !allFlankedHrefs.includes(item.href));
+
+  // Check if current path is somewhere under an item in more
+  const isMoreSectionActive = moreItems.some((item: any) => {
+    if (item.href === pathname) return true;
+    return item.children?.some((c: any) => c.href === pathname);
+  });
+
+  const toggleMoreMenu = (label: string) => {
+    setMoreOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  // AI Chat item
+  const aiChatItem = resolveHref(AI_CHAT_HREF);
+
   return (
     <>
-      {/* Mobile Bottom Navbar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-default-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 h-16">
-        <div className="flex items-center justify-around h-full px-2">
-          {siteConfig.navItems.filter(item => {
-            const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
-            const permissionMatch = !item.permission || user?.permissions?.includes(item.permission);
-            return roleMatch && permissionMatch;
-          }).map((item: any) => {
-            if (item.children && !item.children.some((child: any) => child.href === item.href)) {
-              if (item.children) return null;
-            }
+      {/* ─── Mobile Bottom Nav ──────────────────────────────────────────── */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
 
-            const isActive = pathname === item.href;
-            const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
-            return (
-              <NextLink
-                key={item.href}
-                href={item.href}
+        {/* More Drawer Sheet */}
+        <AnimatePresence>
+          {moreSheetOpen && (
+            <motion.div
+              key="sheet"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed bottom-[64px] left-0 right-0 z-50 rounded-t-3xl overflow-hidden shadow-2xl"
+              style={{
+                background: resolvedTheme === "dark"
+                  ? "rgba(15,15,25,0.97)"
+                  : "rgba(255,255,255,0.98)",
+                backdropFilter: "blur(20px)",
+                borderTop: "1px solid rgba(128,128,128,0.15)"
+              }}
+            >
+              {/* Sheet Header */}
+              <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-default-100">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={resolvedTheme === "dark" ? FairPayMiniDarkLogo : FairPayMiniLogo}
+                    alt="FairPay"
+                    className="h-7 w-auto object-contain"
+                  />
+                  <span className="text-base font-bold text-default-800">Menu</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {/* Theme toggle */}
+                  <button
+                    onClick={toggleTheme}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center bg-default-100 hover:bg-default-200 transition-colors"
+                  >
+                    {!isSSR && theme === "light" ? (
+                      <MoonFilledIcon size={18} />
+                    ) : (
+                      <SunFilledIcon size={18} />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setMoreSheetOpen(false)}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center bg-default-100 hover:bg-default-200 transition-colors"
+                  >
+                    <X size={18} className="text-default-600" />
+                  </button>
+                </div>
+              </div>
+
+              {/* User Profile strip */}
+              {user && (
+                <div className="px-4 py-3 border-b border-default-100">
+                  <div className="flex items-center justify-between">
+                    <NextLink href="/profile" onClick={() => setMoreSheetOpen(false)} className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {user.profile_picture ? (
+                          <img src={user.profile_picture} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-primary font-bold text-base">
+                            {(user.first_name || user.name || "?").charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-default-800 truncate">
+                          {`${user.first_name || ""} ${user.last_name || ""}`.trim() || user.name || ""}
+                        </p>
+                        <p className="text-xs text-default-500 truncate">{user.email}</p>
+                      </div>
+                    </NextLink>
+                    <button
+                      onClick={handleLogout}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center text-danger hover:bg-danger/10 transition-colors ml-2 flex-shrink-0"
+                    >
+                      <LogOut size={18} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Nav Items */}
+              <ScrollShadow className="max-h-[55vh] scrollbar-hide py-2 overflow-y-auto">
+                <div className="px-3 space-y-0.5">
+                  {moreItems.map((item: any) => {
+                    const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                    const isItemActive = pathname === item.href;
+                    const filteredChildren = item.children?.filter((child: any) => {
+                      const roleMatch = !child.allowedRoles || child.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
+                      const permissionMatch = !child.permission || user?.permissions?.includes(child.permission);
+                      return roleMatch && permissionMatch;
+                    });
+                    const hasChildren = filteredChildren && filteredChildren.length > 0;
+                    const isSectionActive = filteredChildren?.some((c: any) => c.href === pathname);
+                    const isMenuOpen = moreOpenMenus[item.label];
+
+                    return (
+                      <div key={item.label}>
+                        {hasChildren ? (
+                          <>
+                            <button
+                              onClick={() => toggleMoreMenu(item.label)}
+                              className={clsx(
+                                "w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 text-left",
+                                isSectionActive
+                                  ? "bg-primary/10 text-primary"
+                                  : "text-default-700 hover:bg-default-100"
+                              )}
+                            >
+                              <div className={clsx(
+                                "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
+                                isSectionActive ? "bg-primary/20" : "bg-default-100"
+                              )}>
+                                <Icon size={18} className={isSectionActive ? "text-primary" : "text-default-500"} />
+                              </div>
+                              <span className="flex-1 text-sm font-medium">{item.label}</span>
+                              <motion.div
+                                animate={{ rotate: isMenuOpen ? 90 : 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <ChevronRight size={16} className="text-default-400" />
+                              </motion.div>
+                            </button>
+                            <AnimatePresence initial={false}>
+                              {isMenuOpen && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="pl-3 mt-0.5 space-y-0.5 pb-1">
+                                    {filteredChildren.map((child: any) => {
+                                      const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
+                                      const isChildActive = pathname === child.href;
+                                      return (
+                                        <NextLink
+                                          key={child.href}
+                                          href={child.href}
+                                          onClick={() => setMoreSheetOpen(false)}
+                                          className={clsx(
+                                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200",
+                                            isChildActive
+                                              ? "bg-primary/10 text-primary"
+                                              : "text-default-600 hover:bg-default-100"
+                                          )}
+                                        >
+                                          <div className={clsx(
+                                            "w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0",
+                                            isChildActive ? "bg-primary/20" : "bg-default-100"
+                                          )}>
+                                            <ChildIcon size={14} className={isChildActive ? "text-primary" : "text-default-500"} />
+                                          </div>
+                                          <span className="text-sm font-medium">{child.label}</span>
+                                          {isChildActive && (
+                                            <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
+                                          )}
+                                        </NextLink>
+                                      );
+                                    })}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </>
+                        ) : (
+                          <NextLink
+                            href={item.href}
+                            onClick={() => setMoreSheetOpen(false)}
+                            className={clsx(
+                              "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200",
+                              isItemActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-default-700 hover:bg-default-100"
+                            )}
+                          >
+                            <div className={clsx(
+                              "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
+                              isItemActive ? "bg-primary/20" : "bg-default-100"
+                            )}>
+                              <Icon size={18} className={isItemActive ? "text-primary" : "text-default-500"} />
+                            </div>
+                            <span className="flex-1 text-sm font-medium">{item.label}</span>
+                            {isItemActive && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            )}
+                          </NextLink>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollShadow>
+
+              {/* Bottom safe area spacer */}
+              <div className="h-2" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Tab Bar with SVG Notch ── */}
+        <div className="relative h-16">
+
+          {/* SVG background shape with circular arc notch */}
+          <svg
+            viewBox="0 0 390 64"
+            preserveAspectRatio="none"
+            className="absolute inset-0 w-full h-full"
+            style={{ filter: "drop-shadow(0 -4px 20px rgba(0,0,0,0.10))" }}
+          >
+            <path
+              d="M0,0 L148,0 C153,0 158,0 161,5 A34,34 0 0,0 229,5 C232,0 237,0 242,0 L390,0 L390,64 L0,64 Z"
+              fill={resolvedTheme === "dark" ? "rgb(10,10,20)" : "rgb(255,255,255)"}
+            />
+          </svg>
+
+          {/* Floating AI Chat FAB – sits centered above the notch */}
+          {aiChatItem && (
+            <NextLink
+              href={AI_CHAT_HREF}
+              className="absolute left-1/2 -translate-x-1/2 top-2 -translate-y-[50%] z-20"
+            >
+              <motion.div
+                whileTap={{ scale: 0.88 }}
+                whileHover={{ scale: 1.06 }}
                 className={clsx(
-                  "flex flex-col items-center justify-center rounded-xl flex-1 mx-1 py-1 transition-all duration-200 ease-in-out",
-                  isActive
-                    ? "text-primary bg-primary/10 shadow-sm scale-105"
-                    : "text-default-600 hover:bg-default-50 active:scale-95"
+                  "w-14 h-14 rounded-full flex items-center justify-center",
+                  "bg-default-900 dark:bg-white",
+                  "text-white dark:text-default-900",
+                  "border border-default-800 dark:border-default-200",
+                  "shadow-2xl",
+                  pathname === AI_CHAT_HREF && "ring-4 ring-default-900/20 dark:ring-white/20"
                 )}
               >
-                <Icon
-                  className={clsx(
-                    "w-5 h-5 mb-1 transition-colors",
-                    isActive ? "text-primary" : "text-default-500"
-                  )}
-                />
-                <span
-                  className={clsx(
-                    "text-[11px] font-medium truncate max-w-[70px]",
-                    isActive ? "text-primary" : "text-default-600"
-                  )}
-                >
-                  {item.label}
-                </span>
-              </NextLink>
-            );
-          })}
+                <Webhook size={26} />
+              </motion.div>
+            </NextLink>
+          )}
+
+          {/* Tab items row */}
+          <div className="relative z-10 flex items-center h-full">
+
+            {/* Left items */}
+            <div className="flex flex-1 justify-around">
+              {leftItems.map((item: any) => {
+                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                const isActive = pathname === item.href;
+                return (
+                  <NextLink
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center justify-center flex-1 py-1 relative group"
+                  >
+                    <div className="relative flex flex-col items-center gap-0.5">
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            layoutId="mobile-tab-indicator"
+                            className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                          />
+                        )}
+                      </AnimatePresence>
+                      <motion.div
+                        whileTap={{ scale: 0.85 }}
+                        className={clsx(
+                          "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
+                          isActive ? "bg-primary/10" : "group-hover:bg-default-100"
+                        )}
+                      >
+                        <Icon
+                          size={20}
+                          strokeWidth={isActive ? 2.2 : 1.8}
+                          className={clsx(
+                            "transition-colors duration-200",
+                            isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                          )}
+                        />
+                      </motion.div>
+                      <span className={clsx(
+                        "text-[10px] font-medium leading-none transition-colors duration-200",
+                        isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                      )}>
+                        {item.label}
+                      </span>
+                    </div>
+                  </NextLink>
+                );
+              })}
+            </div>
+
+            {/* Center spacer for FAB notch */}
+            <div className="w-24 flex-shrink-0" />
+
+            {/* Right items: resolved hrefs + More */}
+            <div className="flex flex-1 justify-around">
+              {rightItems.map((item: any) => {
+                const Icon = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Logo;
+                const isActive = pathname === item.href;
+                return (
+                  <NextLink
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center justify-center flex-1 py-1 relative group"
+                  >
+                    <div className="relative flex flex-col items-center gap-0.5">
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            layoutId="mobile-tab-indicator"
+                            className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                          />
+                        )}
+                      </AnimatePresence>
+                      <motion.div
+                        whileTap={{ scale: 0.85 }}
+                        className={clsx(
+                          "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
+                          isActive ? "bg-primary/10" : "group-hover:bg-default-100"
+                        )}
+                      >
+                        <Icon
+                          size={20}
+                          strokeWidth={isActive ? 2.2 : 1.8}
+                          className={clsx(
+                            "transition-colors duration-200",
+                            isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                          )}
+                        />
+                      </motion.div>
+                      <span className={clsx(
+                        "text-[10px] font-medium leading-none transition-colors duration-200",
+                        isActive ? "text-primary" : "text-default-400 group-hover:text-default-600"
+                      )}>
+                        {item.label}
+                      </span>
+                    </div>
+                  </NextLink>
+                );
+              })}
+
+              {/* More button */}
+              <button
+                onClick={() => setMoreSheetOpen(prev => !prev)}
+                className="flex flex-col items-center justify-center flex-1 py-1 relative group"
+              >
+                <div className="relative flex flex-col items-center gap-0.5">
+                  <AnimatePresence>
+                    {isMoreSectionActive && !moreSheetOpen && (
+                      <motion.div
+                        layoutId="mobile-tab-indicator"
+                        className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-primary"
+                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                      />
+                    )}
+                  </AnimatePresence>
+                  <motion.div
+                    whileTap={{ scale: 0.85 }}
+                    animate={{ rotate: moreSheetOpen ? 90 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={clsx(
+                      "w-10 h-8 flex items-center justify-center rounded-xl transition-all duration-200",
+                      moreSheetOpen || isMoreSectionActive ? "bg-primary/10" : "group-hover:bg-default-100"
+                    )}
+                  >
+                    <MoreHorizontal
+                      size={20}
+                      strokeWidth={moreSheetOpen || isMoreSectionActive ? 2.2 : 1.8}
+                      className={clsx(
+                        "transition-colors duration-200",
+                        moreSheetOpen || isMoreSectionActive
+                          ? "text-primary"
+                          : "text-default-400 group-hover:text-default-600"
+                      )}
+                    />
+                  </motion.div>
+                  <span className={clsx(
+                    "text-[10px] font-medium leading-none transition-colors duration-200",
+                    moreSheetOpen || isMoreSectionActive
+                      ? "text-primary"
+                      : "text-default-400 group-hover:text-default-600"
+                  )}>
+                    More
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Desktop Sidebar */}
+      {/* ─── Desktop Sidebar ─────────────────────────────────────────────── */}
       <div
         className={clsx(
           "fixed top-0 left-0 h-full bg-background border-r border-divider z-50 transition-all duration-300 ease-in-out",
@@ -349,7 +756,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
             </NextLink>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
+          <ScrollShadow className="flex-1 py-4 scrollbar-hide">
             <nav className="flex flex-col gap-1 px-2">
               {siteConfig.navItems
                 .filter(item => {
@@ -590,7 +997,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   );
                 })}
             </nav>
-          </div>
+          </ScrollShadow>
 
           <div className="p-1 border-t border-divider">
             {user && (

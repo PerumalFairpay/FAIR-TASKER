@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
 import HRMLoading from "./assets/HRMLoading.json";
+import AIAssistantSidebar from "@/components/ai-assistant/AIAssistantSidebar";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -63,7 +64,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
     // Otherwise, render with sidebar (navbar)
     return (
-        <div className="relative flex flex-col h-screen overflow-hidden">
+        <div className="relative flex flex-col h-[100dvh] overflow-hidden">
             <Navbar isExpanded={isExpanded} onToggle={() => setIsExpanded(!isExpanded)} />
             <main className={clsx(
                 "flex-grow relative flex flex-col overflow-y-auto mb-16 lg:mb-0 transition-all duration-300 ease-in-out",
@@ -73,6 +74,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </div>
             </main>
+            {pathname !== "/ai-chat" && <div className="hidden lg:block"><AIAssistantSidebar /></div>}
         </div>
     );
 }
+

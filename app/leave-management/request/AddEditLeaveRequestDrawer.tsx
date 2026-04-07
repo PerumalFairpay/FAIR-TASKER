@@ -21,6 +21,7 @@ import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import { getLeaveTypesRequest } from "@/store/leaveType/action";
 import { getHolidaysRequest } from "@/store/holiday/action";
 import { getUserRequest } from "@/store/auth/action";
+import { getSettingsRequest } from "@/store/settings/action";
 import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
 import { Upload } from "lucide-react";
@@ -50,6 +51,9 @@ export default function AddEditLeaveRequestDrawer({
     const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
     const { holidays } = useSelector((state: RootState) => state.Holiday);
     const { user } = useSelector((state: RootState) => state.Auth);
+    const { publicSettings, settings } = useSelector((state: RootState) => state.Settings);
+
+    const [sandwichRuleEnabled, setSandwichRuleEnabled] = useState(false);
 
     const [formData, setFormData] = useState({
         employee_id: user?.employee_id || "",
@@ -82,8 +86,24 @@ export default function AddEditLeaveRequestDrawer({
             if (!user) {
                 dispatch(getUserRequest());
             }
+            if (!settings && !publicSettings) {
+                dispatch(getSettingsRequest());
+            }
         }
     }, [isOpen, dispatch]);
+
+    // Extract sandwich_rule from settings
+    useEffect(() => {
+        let isSandwichEnabled = false;
+        const allSettings = settings || publicSettings || {};
+        if (allSettings["Leave Management"]) {
+            const sandwichSetting = allSettings["Leave Management"].find((s: any) => s.key === "sandwich_rule");
+            if (sandwichSetting && sandwichSetting.value === true) {
+                isSandwichEnabled = true;
+            }
+        }
+        setSandwichRuleEnabled(isSandwichEnabled);
+    }, [settings, publicSettings]);
 
 
     useEffect(() => {
@@ -210,7 +230,7 @@ export default function AddEditLeaveRequestDrawer({
         }
 
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session") {
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session" || name === "employee_id") {
 
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
@@ -225,10 +245,36 @@ export default function AddEditLeaveRequestDrawer({
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    // Simple calendar day count
-                    const diffTime = d2.getTime() - d1.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    let total = diffDays > 0 ? diffDays : 0;
+                    // Get selected employee's weekly off days (0=Mon...6=Sun)
+                    const selectedEmp = (employees || []).find((e: any) => e.id === newData.employee_id);
+                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6]; // Default: Sunday
+
+                    // Iterate day-by-day
+                    let total = 0;
+                    const cursor = new Date(d1);
+                    while (cursor <= d2) {
+                        const jsDay = cursor.getDay();
+                        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+                        // Check if it's a holiday
+                        const dateStr = cursor.toISOString().split('T')[0];
+                        const isHoliday = holidays.some(
+                            (holiday: any) => holiday.date === dateStr && holiday.status === "Active"
+                        );
+
+                        const isWeeklyOff = weeklyOff.includes(pyDay);
+
+                        if (sandwichRuleEnabled) {
+                            // If sandwich rule is ON, all days within the leave range count
+                            total += 1;
+                        } else {
+                            // If OFF, only count working days
+                            if (!isHoliday && !isWeeklyOff) {
+                                total += 1;
+                            }
+                        }
+                        cursor.setDate(cursor.getDate() + 1);
+                    }
 
                     // Adjust for start/end sessions
                     if (newData.start_session === "Second Half") total -= 0.5;
@@ -267,10 +313,43 @@ export default function AddEditLeaveRequestDrawer({
     const startSessions = ["Full Day", "Second Half"];
     const endSessions = ["Full Day", "First Half"];
 
+    // Get selected employee's weekly off to disable those days on the calendar
+    const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
+    const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
+
+    const dynamicCalendarClass = React.useMemo(() => {
+        const classes = ["[&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"];
+
+        empWeeklyOff.forEach(pyDay => {
+            // Calendar grid columns (nth-child): 1=Sun, 2=Mon, 3=Tue, 4=Wed, 5=Thu, 6=Fri, 7=Sat
+            const nthChild = pyDay === 6 ? 1 : pyDay + 2;
+            classes.push(`[&_td:nth-child(${nthChild})_button]:!text-green-600`);
+            classes.push(`[&_td:nth-child(${nthChild})_span]:!text-green-600`);
+            classes.push(`[&_th:nth-child(${nthChild})]:!text-green-600`);
+        });
+
+        return classes.join(" ");
+    }, [empWeeklyOff]);
+
     const isDateUnavailable = (date: DateValue) => {
-        return holidays.some(
+        // Disable company holidays
+        const isHoliday = holidays.some(
             (holiday: any) => holiday.date === date.toString() && holiday.status === "Active"
         );
+        if (isHoliday) return true;
+
+        // Disable employee's weekly off days
+        const jsDate = new Date(date.year, date.month - 1, date.day);
+        const jsDay = jsDate.getDay();
+        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+        // If sandwich rule is enabled, we don't disable holidays or weekly offs
+        // on the calendar because they can be "sandwiched" and selected as part of the leave
+        if (sandwichRuleEnabled) {
+            return false;
+        }
+
+        return empWeeklyOff.includes(pyDay);
     };
 
     return (
@@ -349,6 +428,10 @@ export default function AddEditLeaveRequestDrawer({
                                             className="col-span-2"
                                             minValue={today(getLocalTimeZone())}
                                             allowsNonContiguousRanges
+                                            isDateUnavailable={isDateUnavailable}
+                                            calendarProps={{
+                                                className: dynamicCalendarClass
+                                            }}
                                         />
                                         <div className="col-span-1">
                                             <Select
@@ -386,7 +469,7 @@ export default function AddEditLeaveRequestDrawer({
                                         className="col-span-2"
                                         minValue={today(getLocalTimeZone())}
                                         calendarProps={{
-                                            className: "[&_td:nth-child(1)_button]:!text-green-600 [&_td:nth-child(1)_span]:!text-green-600 [&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"
+                                            className: dynamicCalendarClass
                                         }}
                                     />
                                 )}
@@ -541,6 +624,56 @@ export default function AddEditLeaveRequestDrawer({
                                 </>
                             )}
 
+                            {sandwichRuleEnabled && formData.leave_duration_type === "Multiple" && (() => {
+                                // Calculate how many days are added by the sandwich rule
+                                let addedDays = 0;
+                                let normalDays = 0;
+                                try {
+                                    const d1 = parseDate(formData.start_date);
+                                    const d2 = parseDate(formData.end_date);
+                                    const start = new Date(d1.year, d1.month - 1, d1.day);
+                                    const end = new Date(d2.year, d2.month - 1, d2.day);
+
+                                    const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
+                                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6];
+
+                                    const cursor = new Date(start);
+                                    while (cursor <= end) {
+                                        const jsDay = cursor.getDay();
+                                        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+
+                                        const dateStr = cursor.toISOString().split('T')[0];
+                                        const isHoliday = holidays.some(
+                                            (holiday: any) => holiday.date === dateStr && holiday.status === "Active"
+                                        );
+                                        const isOffDay = weeklyOff.includes(pyDay);
+
+                                        if (isHoliday || isOffDay) {
+                                            addedDays += 1;
+                                        } else {
+                                            normalDays += 1;
+                                        }
+                                        cursor.setDate(cursor.getDate() + 1);
+                                    }
+                                } catch (e) {
+                                    console.error(e);
+                                }
+
+                                if (addedDays > 0) {
+                                    return (
+                                        <Alert color="warning" title="Sandwich Rule Applied">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-sm">
+                                                    {addedDays} holiday/weekly off {addedDays === 1 ? 'day' : 'days'} between your leave dates
+                                                    will be counted as leave due to the Sandwich Rule.
+                                                </span>
+                                            </div>
+                                        </Alert>
+                                    );
+                                }
+                                return null;
+                            })()}
+
                             <Input
                                 label="Total Days"
                                 type="number"
@@ -563,7 +696,18 @@ export default function AddEditLeaveRequestDrawer({
                             />
 
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-default-700">Attachment (Optional)</label>
+                                <label className="text-sm font-medium text-default-700">
+                                    Attachment {(() => {
+                                        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                        const isRequired =
+                                            selectedType?.name === "Marriage Leave" ||
+                                            selectedType?.name === "Maternity Leave" ||
+                                            selectedType?.name === "Paternity Leave" ||
+                                            (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+
+                                        return isRequired ? <span className="text-danger">* (Required for this leave type)</span> : "(Optional)";
+                                    })()}
+                                </label>
                                 <FileUpload
                                     files={files}
                                     setFiles={setFiles}
@@ -579,7 +723,24 @@ export default function AddEditLeaveRequestDrawer({
                             <Button color="danger" variant="flat" onPress={onClose}>
                                 Cancel
                             </Button>
-                            <Button color="primary" onPress={handleSubmit} isLoading={loading}>
+                            <Button
+                                color="primary"
+                                onPress={() => {
+                                    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+                                    const isRequired =
+                                        selectedType?.name === "Marriage Leave" ||
+                                        selectedType?.name === "Maternity Leave" ||
+                                        selectedType?.name === "Paternity Leave" ||
+                                        (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+
+                                    if (isRequired && files.length === 0) {
+                                        alert("An attachment is required for this leave type/duration.");
+                                        return;
+                                    }
+                                    handleSubmit();
+                                }}
+                                isLoading={loading}
+                            >
                                 {mode === "create" ? "Submit Request" : "Update Request"}
                             </Button>
                         </DrawerFooter>

@@ -210,6 +210,7 @@ export default function AddEditDocumentDrawer({
                                 <SelectItem key="Active" textValue="Active">Active</SelectItem>
                                 <SelectItem key="Inactive" textValue="Inactive">Inactive</SelectItem>
                                 <SelectItem key="Expired" textValue="Expired">Expired</SelectItem>
+                                <SelectItem key="Archived" textValue="Archived">Archived</SelectItem>
                             </Select>
 
                             <Textarea

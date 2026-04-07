@@ -11,6 +11,8 @@ import {
     deleteNDARequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
+import { Card, CardBody } from "@heroui/card";
+import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
 import {
@@ -199,25 +201,26 @@ export default function NDAPage() {
                 <div className="p-6 text-center text-red-500">Access Denied</div>
             }
         >
-            <div className="p-6">
-                <div className="flex justify-between items-center mb-6">
+            <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                     <PageHeader title="NDA Management" />
                     <Button
                         color="primary"
                         variant="shadow"
-                        endContent={<PlusIcon size={16} />}
+                        startContent={<PlusIcon size={16} />}
                         onPress={onDrawerOpen}
+                        className="w-full sm:w-auto"
                     >
-                        Generate NDA Link
+                        Generate NDA
                     </Button>
                 </div>
 
 
-                <div className="flex flex-col gap-4 mb-4">
-                    <div className="flex justify-between items-center gap-3">
+                <div className="flex flex-col gap-4 mb-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
                         <Input
                             isClearable
-                            className="w-full sm:max-w-[44%]"
+                            className="col-span-1 sm:col-span-8 w-full"
                             placeholder="Search by name, email..."
                             startContent={<Search size={16} />}
                             value={search}
@@ -228,221 +231,360 @@ export default function NDAPage() {
                             }}
                             variant="bordered"
                         />
-                        <div className="flex gap-3">
-                            <Select
-                                className="w-full sm:min-w-[150px]"
-                                defaultSelectedKeys={["All"]}
-                                selectedKeys={[statusFilter]}
-                                onChange={(e) => {
-                                    setStatusFilter(e.target.value);
-                                    setPage(1);
-                                }}
-                                startContent={<Filter size={16} />}
-                                variant="bordered"
-                            >
-                                <SelectItem key="All">All Status</SelectItem>
-                                <SelectItem key="Pending">Pending</SelectItem>
-                                <SelectItem key="Document Uploaded">Document Uploaded</SelectItem>
-                                <SelectItem key="Signed">Signed</SelectItem>
-                                <SelectItem key="Expired">Expired</SelectItem>
-                            </Select>
-                        </div>
+                        <Select
+                            className="col-span-1 sm:col-span-4 w-full"
+                            defaultSelectedKeys={["All"]}
+                            selectedKeys={[statusFilter]}
+                            onChange={(e) => {
+                                setStatusFilter(e.target.value);
+                                setPage(1);
+                            }}
+                            startContent={<Filter size={16} />}
+                            variant="bordered"
+                            aria-label="Filter by status"
+                        >
+                            <SelectItem key="All">All Status</SelectItem>
+                            <SelectItem key="Pending">Pending</SelectItem>
+                            <SelectItem key="Document Uploaded">Document Uploaded</SelectItem>
+                            <SelectItem key="Signed">Signed</SelectItem>
+                            <SelectItem key="Expired">Expired</SelectItem>
+                        </Select>
                     </div>
                 </div>
 
-                {/* NDA List */}
-                <Table
-                    aria-label="NDA requests table"
-                    removeWrapper
-                    isHeaderSticky
-                    bottomContent={
-                        meta && meta.total_items > 0 ? (
-                            <TablePagination
-                                page={page}
-                                total={meta.total_pages}
-                                onChange={(p) => setPage(p)}
-                                limit={limit}
-                                onLimitChange={(l) => { setLimit(l); setPage(1); }}
-                            />
-                        ) : null
-                    }
-                >
-                    <TableHeader>
-                        <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
-                        <TableColumn>ROLE</TableColumn>
-                        <TableColumn>STATUS</TableColumn>
-                        <TableColumn width={200}>SYSTEM DETAILS</TableColumn>
-                        <TableColumn>DOCUMENTS</TableColumn>
-                        <TableColumn align="center">ACTIONS</TableColumn>
-                    </TableHeader>
-                    <TableBody
-                        items={ndaList || []}
-                        emptyContent={"No NDA requests found"}
-                        isLoading={getListLoading}
+                {/* Desktop View */}
+                <div className="hidden md:block">
+                    <Table
+                        aria-label="NDA requests table"
+                        removeWrapper
+                        isHeaderSticky
+                        bottomContent={
+                            meta && meta.total_items > 0 ? (
+                                <TablePagination
+                                    page={page}
+                                    total={meta.total_pages}
+                                    onChange={(p) => setPage(p)}
+                                    limit={limit}
+                                    onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                                />
+                            ) : null
+                        }
                     >
-                        {(item: any) => (
-                            <TableRow key={item.id}>
-                                <TableCell>
-                                    <div className="flex flex-col max-w-[250px]">
-                                        <p className="text-bold text-sm truncate" title={item.employee_name}>
-                                            {item.employee_name}
-                                        </p>
-                                        <p className="text-tiny text-default-400 truncate" title={item.email}>
-                                            {item.email}
-                                        </p>
-                                        <p className="text-tiny text-default-400 truncate" title={item.address}>
-                                            {item.address}
-                                        </p>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <span className="text-sm">{item.role}</span>
-                                </TableCell>
-                                <TableCell>
-                                    <Chip
-                                        color={getStatusColor(item.status)}
-                                        size="sm"
-                                        variant="flat"
-                                        startContent={
-                                            item.status === "Signed" ? (
-                                                <CheckCircle2 size={14} />
-                                            ) : item.status === "Pending" ? (
-                                                <Clock size={14} />
-                                            ) : (
-                                                <FileText size={14} />
-                                            )
-                                        }
-                                    >
-                                        {item.status}
-                                    </Chip>
-                                </TableCell>
-                                <TableCell>
-                                    {item.status === "Signed" && (item.browser || item.os || item.device_type || item.ip_address) ? (
-                                        <Tooltip
-                                            content={
-                                                <div className="px-1 py-2">
-                                                    <div className="text-small font-bold mb-2">System Details</div>
-                                                    <div className="flex flex-col gap-1.5">
-                                                        {item.browser && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-tiny text-default-400">Browser:</span>
-                                                                <span className="text-tiny font-medium">{item.browser}</span>
-                                                            </div>
-                                                        )}
-                                                        {item.os && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-tiny text-default-400">OS:</span>
-                                                                <span className="text-tiny font-medium">{item.os}</span>
-                                                            </div>
-                                                        )}
-                                                        {item.device_type && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-tiny text-default-400">Device:</span>
-                                                                <span className="text-tiny font-medium">{item.device_type}</span>
-                                                            </div>
-                                                        )}
-                                                        {item.ip_address && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-tiny text-default-400">IP:</span>
-                                                                <span className="text-tiny font-mono">{item.ip_address}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            }
-                                            placement="top"
-                                        >
-                                            <span className="text-sm font-medium cursor-help underline decoration-dotted">
-                                                {item.device_type || "Desktop"}
-                                            </span>
-                                        </Tooltip>
-                                    ) : (
-                                        <span className="text-default-300 text-sm">-</span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    {item.documents && item.documents.length > 0 ? (
-                                        <div
-                                            className="flex items-center gap-2 cursor-pointer text-primary hover:opacity-80 transition-opacity w-fit"
-                                            onClick={() => handleViewDocs(item)}
-                                        >
-                                            <FolderOpen size={18} />
-                                            <span className="text-small font-medium hover:underline">
-                                                {item.documents.length}
-                                            </span>
+                        <TableHeader>
+                            <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
+                            <TableColumn>ROLE</TableColumn>
+                            <TableColumn>STATUS</TableColumn>
+                            <TableColumn width={200}>SYSTEM DETAILS</TableColumn>
+                            <TableColumn>DOCUMENTS</TableColumn>
+                            <TableColumn align="center">ACTIONS</TableColumn>
+                        </TableHeader>
+                        <TableBody
+                            items={ndaList || []}
+                            emptyContent={"No NDA requests found"}
+                            isLoading={getListLoading}
+                        >
+                            {(item: any) => (
+                                <TableRow key={item.id}>
+                                    <TableCell>
+                                        <div className="flex flex-col max-w-[250px]">
+                                            <p className="text-bold text-sm truncate" title={item.employee_name}>
+                                                {item.employee_name}
+                                            </p>
+                                            <p className="text-tiny text-default-400 truncate" title={item.email}>
+                                                {item.email}
+                                            </p>
+                                            <p className="text-tiny text-default-400 truncate" title={item.address}>
+                                                {item.address}
+                                            </p>
                                         </div>
-                                    ) : (
-                                        <span className="text-default-300 text-sm">-</span>
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center justify-center gap-2">
-                                        {item.status !== "Signed" &&
-                                            <>
-                                                <Button
-                                                    isIconOnly
-                                                    size="sm"
-                                                    variant="light"
-                                                    onPress={() => handleCopyLink(item.token)}
-                                                    aria-label="Copy NDA link"
-                                                >
-                                                    <Copy size={16} />
-                                                </Button>
-                                                {item.status !== "Document Uploaded" && (
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="text-sm">{item.role}</span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Chip
+                                            color={getStatusColor(item.status)}
+                                            size="sm"
+                                            variant="flat"
+                                            startContent={
+                                                item.status === "Signed" ? (
+                                                    <CheckCircle2 size={14} />
+                                                ) : item.status === "Pending" ? (
+                                                    <Clock size={14} />
+                                                ) : (
+                                                    <FileText size={14} />
+                                                )
+                                            }
+                                        >
+                                            {item.status}
+                                        </Chip>
+                                    </TableCell>
+                                    <TableCell>
+                                        {item.status === "Signed" && (item.browser || item.os || item.device_type || item.ip_address) ? (
+                                            <Tooltip
+                                                content={
+                                                    <div className="px-1 py-2">
+                                                        <div className="text-small font-bold mb-2">System Details</div>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            {item.browser && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-tiny text-default-400">Browser:</span>
+                                                                    <span className="text-tiny font-medium">{item.browser}</span>
+                                                                </div>
+                                                            )}
+                                                            {item.os && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-tiny text-default-400">OS:</span>
+                                                                    <span className="text-tiny font-medium">{item.os}</span>
+                                                                </div>
+                                                            )}
+                                                            {item.device_type && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-tiny text-default-400">Device:</span>
+                                                                    <span className="text-tiny font-medium">{item.device_type}</span>
+                                                                </div>
+                                                            )}
+                                                            {item.ip_address && (
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-tiny text-default-400">IP:</span>
+                                                                    <span className="text-tiny font-mono">{item.ip_address}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                }
+                                                placement="top"
+                                            >
+                                                <span className="text-sm font-medium cursor-help underline decoration-dotted">
+                                                    {item.device_type || "Desktop"}
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <span className="text-default-300 text-sm">-</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {item.documents && item.documents.length > 0 ? (
+                                            <div
+                                                className="flex items-center gap-2 cursor-pointer text-primary hover:opacity-80 transition-opacity w-fit"
+                                                onClick={() => handleViewDocs(item)}
+                                            >
+                                                <FolderOpen size={18} />
+                                                <span className="text-small font-medium hover:underline">
+                                                    {item.documents.length}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-default-300 text-sm">-</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center justify-center gap-2">
+                                            {item.status !== "Signed" &&
+                                                <>
                                                     <Button
                                                         isIconOnly
                                                         size="sm"
                                                         variant="light"
-                                                        color="primary"
-                                                        onPress={() => handleRegenerateClick(item.id)}
-                                                        aria-label="Regenerate Link"
-                                                        title="Regenerate Link"
+                                                        onPress={() => handleCopyLink(item.token)}
+                                                        aria-label="Copy NDA link"
                                                     >
-                                                        <RefreshCw size={16} />
+                                                        <Copy size={16} />
                                                     </Button>
-                                                )}
-                                                <Button
-                                                    isIconOnly
-                                                    size="sm"
-                                                    variant="light"
-                                                    color="danger"
-                                                    onPress={() => handleDeleteClick(item.id)}
-                                                    aria-label="Delete NDA Request"
-                                                    title="Delete NDA Request"
-                                                >
-                                                    <Trash size={16} />
-                                                </Button>
-                                            </>
-                                        }
-                                        {item.status === "Signed" && item.signed_pdf_path && (
-                                            <div className="flex gap-1">
-                                                <Button
-                                                    isIconOnly
-                                                    size="sm"
-                                                    variant="light"
-                                                    onPress={() => setPreviewData({
-                                                        url: item.signed_pdf_path?.document_proof,
-                                                        type: 'application/pdf',
-                                                        name: `Signed_NDA_${item.employee_name}.pdf`,
-                                                    })}
-                                                    aria-label="View Signed PDF"
-                                                >
-                                                    <Eye size={18} className="text-default-500" />
-                                                </Button>
-                                                <PDFDownloadButton
-                                                    fileUrl={item.signed_pdf_path?.document_proof}
-                                                    baseName={item.employee_name}
-                                                    prefix="Signed_NDA"
-                                                    ariaLabel="Download Signed PDF"
-                                                />
+                                                    {item.status !== "Document Uploaded" && (
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="light"
+                                                            color="primary"
+                                                            onPress={() => handleRegenerateClick(item.id)}
+                                                            aria-label="Regenerate Link"
+                                                            title="Regenerate Link"
+                                                        >
+                                                            <RefreshCw size={16} />
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        isIconOnly
+                                                        size="sm"
+                                                        variant="light"
+                                                        color="danger"
+                                                        onPress={() => handleDeleteClick(item.id)}
+                                                        aria-label="Delete NDA Request"
+                                                        title="Delete NDA Request"
+                                                    >
+                                                        <Trash size={16} />
+                                                    </Button>
+                                                </>
+                                            }
+                                            {item.status === "Signed" && item.signed_pdf_path && (
+                                                <div className="flex gap-1">
+                                                    <Button
+                                                        isIconOnly
+                                                        size="sm"
+                                                        variant="light"
+                                                        onPress={() => setPreviewData({
+                                                            url: item.signed_pdf_path?.document_proof,
+                                                            type: 'application/pdf',
+                                                            name: `Signed_NDA_${item.employee_name}.pdf`,
+                                                        })}
+                                                        aria-label="View Signed PDF"
+                                                    >
+                                                        <Eye size={18} className="text-default-500" />
+                                                    </Button>
+                                                    <PDFDownloadButton
+                                                        fileUrl={item.signed_pdf_path?.document_proof}
+                                                        baseName={item.employee_name}
+                                                        prefix="Signed_NDA"
+                                                        ariaLabel="Download Signed PDF"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                {/* Mobile View */}
+                <div className="md:hidden space-y-4">
+                    {getListLoading ? (
+                        <div className="flex justify-center py-8">
+                            <span className="text-default-400">Loading NDA requests...</span>
+                        </div>
+                    ) : ndaList && ndaList.length > 0 ? (
+                        <>
+                            {ndaList.map((item: any) => (
+                                <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                                    <CardBody className="p-4 flex flex-col gap-4">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className="text-sm font-bold text-default-900">{item.employee_name}</h3>
+                                                <p className="text-tiny text-default-400">{item.email}</p>
+                                                <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">{item.role}</p>
                                             </div>
-                                        )}
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                                            <Chip
+                                                color={getStatusColor(item.status)}
+                                                size="sm"
+                                                variant="flat"
+                                                className="h-6"
+                                                startContent={
+                                                    item.status === "Signed" ? (
+                                                        <CheckCircle2 size={12} />
+                                                    ) : item.status === "Pending" ? (
+                                                        <Clock size={12} />
+                                                    ) : (
+                                                        <FileText size={12} />
+                                                    )
+                                                }
+                                            >
+                                                {item.status}
+                                            </Chip>
+                                        </div>
+
+                                        <Divider className="opacity-50" />
+
+                                        <div className="flex justify-between items-center bg-default-50 dark:bg-white/5 p-2 rounded-xl mt-1">
+                                            <div className="flex gap-6 items-center">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase">System</span>
+                                                    <span className="text-tiny">{item.device_type || "-"}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
+                                                    <span className="text-[9px] font-bold text-default-400 uppercase">Docs</span>
+                                                    {item.documents && item.documents.length > 0 ? (
+                                                        <div
+                                                            className="flex items-center gap-1.5 text-primary cursor-pointer"
+                                                            onClick={() => handleViewDocs(item)}
+                                                        >
+                                                            <FolderOpen size={14} />
+                                                            <span className="font-medium underline text-tiny">{item.documents.length}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-tiny text-default-300">-</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {item.status !== "Signed" && (
+                                                    <>
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="flat"
+                                                            onPress={() => handleCopyLink(item.token)}
+                                                            className="bg-white dark:bg-zinc-800"
+                                                        >
+                                                            <Copy size={16} />
+                                                        </Button>
+                                                        {item.status !== "Document Uploaded" && (
+                                                            <Button
+                                                                isIconOnly
+                                                                size="sm"
+                                                                variant="flat"
+                                                                color="primary"
+                                                                onPress={() => handleRegenerateClick(item.id)}
+                                                            >
+                                                                <RefreshCw size={16} />
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="flat"
+                                                            color="danger"
+                                                            onPress={() => handleDeleteClick(item.id)}
+                                                        >
+                                                            <Trash size={16} />
+                                                        </Button>
+                                                    </>
+                                                )}
+                                                {item.status === "Signed" && item.signed_pdf_path && (
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="flat"
+                                                            onPress={() => setPreviewData({
+                                                                url: item.signed_pdf_path?.document_proof,
+                                                                type: 'application/pdf',
+                                                                name: `Signed_NDA_${item.employee_name}.pdf`,
+                                                            })}
+                                                        >
+                                                            <Eye size={18} />
+                                                        </Button>
+                                                        <PDFDownloadButton
+                                                            fileUrl={item.signed_pdf_path?.document_proof}
+                                                            baseName={item.employee_name}
+                                                            prefix="Signed_NDA"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </CardBody>
+                                </Card>
+                            ))}
+                            {meta && meta.total_items > 0 && (
+                                <div className="mt-4 flex justify-center">
+                                    <TablePagination
+                                        page={page}
+                                        total={meta.total_pages}
+                                        onChange={(p) => setPage(p)}
+                                        limit={limit}
+                                        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                                    />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="text-center py-12 text-default-400">
+                            No NDA requests found
+                        </div>
+                    )}
+                </div>
 
                 {/* Generate NDA Drawer */}
                 <GenerateNDADrawer

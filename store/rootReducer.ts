@@ -28,6 +28,7 @@ import payslipComponentReducer from "./payslipComponent/reducer";
 import feedbackReducer from "./feedback/reducer";
 import shiftReducer from "./shift/reducer";
 import milestoneRoadmapReducer from "./milestoneRoadmap/reducer";
+import aiAssistantReducer from "./aiAssistant/reducer";
 
 const rootReducer = combineReducers({
   Shift: shiftReducer,
@@ -58,6 +59,7 @@ const rootReducer = combineReducers({
   PayslipComponent: payslipComponentReducer,
   Feedback: feedbackReducer,
   MilestoneRoadmap: milestoneRoadmapReducer,
+  AIAssistant: aiAssistantReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

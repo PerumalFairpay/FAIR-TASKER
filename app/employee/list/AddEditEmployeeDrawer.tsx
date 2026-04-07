@@ -20,6 +20,7 @@ import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landma
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
+import { CheckboxGroup, Checkbox } from "@heroui/checkbox";
 import FileUpload from "@/components/common/FileUpload";
 
 
@@ -198,7 +199,12 @@ export default function AddEditEmployeeDrawer({
 
         Object.keys(formData).forEach((key) => {
             if (formData[key] !== null && formData[key] !== undefined && !excludedKeys.includes(key)) {
-                data.append(key, formData[key]);
+                // Arrays (like weekly_off) must be serialized as JSON
+                if (Array.isArray(formData[key])) {
+                    data.append(key, JSON.stringify(formData[key]));
+                } else {
+                    data.append(key, formData[key]);
+                }
             }
         });
 
@@ -601,6 +607,41 @@ export default function AddEditEmployeeDrawer({
                                                 description="Unique integer ID from the biometric device"
                                                 type="number"
                                             />
+
+                                            {/* Weekly Off */}
+                                            <div className="md:col-span-2">
+                                                <label className="text-small font-medium text-foreground pb-1 block">
+                                                    Weekly Off Days
+                                                </label>
+                                                <CheckboxGroup
+                                                    orientation="horizontal"
+                                                    value={(formData.weekly_off ?? [6]).map(String)}
+                                                    onValueChange={(vals) =>
+                                                        setFormData((prev: any) => ({
+                                                            ...prev,
+                                                            weekly_off: vals.map(Number),
+                                                        }))
+                                                    }
+                                                    classNames={{ wrapper: "flex flex-wrap gap-3 mt-1" }}
+                                                >
+                                                    {[
+                                                        { label: "Mon", value: "0" },
+                                                        { label: "Tue", value: "1" },
+                                                        { label: "Wed", value: "2" },
+                                                        { label: "Thu", value: "3" },
+                                                        { label: "Fri", value: "4" },
+                                                        { label: "Sat", value: "5" },
+                                                        { label: "Sun", value: "6" },
+                                                    ].map((day) => (
+                                                        <Checkbox key={day.value} value={day.value}>
+                                                            {day.label}
+                                                        </Checkbox>
+                                                    ))}
+                                                </CheckboxGroup>
+                                                <p className="text-tiny text-default-400 mt-1">
+                                                    Select one or more days as this employee's weekly off.
+                                                </p>
+                                            </div>
 
                                             <Input
                                                 label="Notice Period"

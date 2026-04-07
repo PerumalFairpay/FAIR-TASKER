@@ -25,13 +25,19 @@ export type SiteConfig = {
 };
 
 export const siteConfig: SiteConfig = {
-  name: "Fair Tasker",
+  name: "FAIRPAY HRM",
   description: "Make beautiful websites regardless of your design experience.",
   navItems: [
     {
       label: "Dashboard",
       href: "/dashboard",
       icon: "LayoutDashboard",
+      allowedRoles: ["admin", "employee"],
+    },
+    {
+      label: "AI Chat",
+      href: "/ai-chat",
+      icon: "MessageSquare",
       allowedRoles: ["admin", "employee"],
     },
     {
@@ -226,7 +232,7 @@ export const siteConfig: SiteConfig = {
       label: "Resources",
       href: "/resources",
       icon: "Package",
-      allowedRoles: ["admin"],
+      allowedRoles: ["admin", "employee"],
       children: [
         {
           label: "Asset",
@@ -244,7 +250,7 @@ export const siteConfig: SiteConfig = {
           label: "Document",
           href: "/document/list",
           icon: "FileText",
-          allowedRoles: ["admin"],
+          allowedRoles: ["admin", "employee"],
         },
       ],
     },

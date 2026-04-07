@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { PageHeader } from "@/components/PageHeader";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Card, CardBody, CardHeader } from "@heroui/card";
@@ -201,22 +202,20 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
     return (
         <div className="min-h-screen font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
-                <div>
-                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        Admin Dashboard
-                    </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
-                        Welcome back, here's your organization overview.
-                    </p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 px-1">
+                <div className="flex-1">
+                    <PageHeader
+                        title="Admin Dashboard"
+                        description="Welcome back, here's your organization overview."
+                    />
                 </div>
 
-                <div className="text-right hidden sm:block">
-                    <div className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                <div className="w-full md:w-auto text-left md:text-right border-l-0 md:border-l md:pl-6 border-slate-200 dark:border-white/10">
+                    <div className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                         {currentDate ? format(currentDate, "hh:mm:ss a") : "--:--:-- --"}
                     </div>
-                    <div className="text-sm font-medium text-slate-500">
-                        {currentDate ? format(currentDate, "EEEE, MMMM do yyyy") : ""}
+                    <div className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-500">
+                        {currentDate ? format(currentDate, "EEEE, MMM d, yyyy") : ""}
                     </div>
                 </div>
             </div>

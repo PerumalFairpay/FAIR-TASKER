@@ -301,15 +301,16 @@ const TaskBoard = () => {
     };
 
     return (
-        <div className="h-full flex flex-col gap-6 p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                 <PageHeader
                     title="Task Management"
                     description="Manage your daily tasks and project progress"
                 />
 
-                <div className="flex gap-2 items-center">
-                    <div className="flex items-center bg-default-50 rounded-lg border border-default-200 p-0.5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto flex-wrap">
+                    {/* Date Navigation */}
+                    <div className="flex items-center bg-default-50 rounded-lg border border-default-200 p-0.5 justify-between sm:justify-start">
                         <Button
                             isIconOnly
                             variant="light"
@@ -342,98 +343,83 @@ const TaskBoard = () => {
                         </Button>
                     </div>
 
-                    {isAdmin && (
-                        <Select
-                            size="sm"
-                            variant="bordered"
-                            placeholder="Employee"
-                            className="w-40"
-                            selectedKeys={filterEmployee ? [filterEmployee] : []}
-                            onChange={(e) => setFilterEmployee(e.target.value)}
-                            aria-label="Filter by Employee"
+                    {/* Filters & Actions Group */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {isAdmin && (
+                            <Select
+                                size="sm"
+                                variant="bordered"
+                                placeholder="Employee"
+                                className="w-full sm:w-40"
+                                selectedKeys={filterEmployee ? [filterEmployee] : []}
+                                onChange={(e) => setFilterEmployee(e.target.value)}
+                                aria-label="Filter by Employee"
+                            >
+                                {employees.map((emp: any) => (
+                                    <SelectItem key={emp.id} textValue={emp.name}>
+                                        <div className="flex items-center gap-2">
+                                            <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
+                                            <span>{emp.name}</span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
+
+                        <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                            <Tooltip content="View Reports">
+                                <Button
+                                    variant="flat"
+                                    color="secondary"
+                                    isIconOnly
+                                    size="md"
+                                    onPress={() => window.location.href = "/task/reports"}
+                                    className="flex-1 sm:flex-none"
+                                >
+                                    <FileText size={18} />
+                                </Button>
+                            </Tooltip>
+
+                            <Tooltip content="Calendar View">
+                                <Button
+                                    variant="flat"
+                                    color="warning"
+                                    isIconOnly
+                                    size="md"
+                                    onPress={() => router.push("/task/board/calendar")}
+                                    className="flex-1 sm:flex-none"
+                                >
+                                    <CalendarIcon size={18} />
+                                </Button>
+                            </Tooltip>
+
+                            <Button
+                                isIconOnly
+                                variant="flat"
+                                color="default"
+                                className="min-w-10 w-10 h-10 border border-default-200"
+                                onPress={() => setIsRulesDrawerOpen(true)}
+                                aria-label="Task Rules"
+                            >
+                                <Info size={18} className="text-default-500" />
+                            </Button>
+                        </div>
+
+                        <Button
+                            color="primary"
+                            startContent={<Plus size={18} />}
+                            variant="shadow"
+                            onPress={handleCreateTask}
+                            className="w-full sm:w-auto font-semibold"
                         >
-                            {employees.map((emp: any) => (
-                                <SelectItem key={emp.id} textValue={emp.name}>
-                                    <div className="flex items-center gap-2">
-                                        <Avatar size="sm" src={emp.profile_picture} name={emp.name} className="w-6 h-6" />
-                                        <span>{emp.name}</span>
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </Select>
-                    )}
-
-                    {/* <Select
-                        size="sm"
-                        variant="bordered"
-                        placeholder="Priority"
-                        className="w-32"
-                        selectedKeys={filterPriority ? [filterPriority] : []}
-                        onChange={(e) => setFilterPriority(e.target.value)}
-                        aria-label="Filter by Priority"
-                    >
-                        <SelectItem key="Low">Low</SelectItem>
-                        <SelectItem key="Medium">Medium</SelectItem>
-                        <SelectItem key="High">High</SelectItem>
-                        <SelectItem key="Urgent">Urgent</SelectItem>
-                    </Select>
-
-                    <Select
-                        size="sm"
-                        variant="bordered"
-                        placeholder="Status"
-                        className="w-32"
-                        selectedKeys={filterStatus ? [filterStatus] : []}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        aria-label="Filter by Status"
-                    >
-                        <SelectItem key="Todo">Todo</SelectItem>
-                        <SelectItem key="In Progress">In Progress</SelectItem>
-                        <SelectItem key="Completed">Completed</SelectItem>
-                        <SelectItem key="Moved">Moved</SelectItem>
-                    </Select> */}
-
-                    <Button
-                        variant="flat"
-                        color="secondary"
-                        startContent={<FileText size={18} />}
-                        onPress={() => window.location.href = "/task/reports"}
-                    >
-                        View Reports
-                    </Button>
-                    <Button
-                        variant="flat"
-                        color="warning"
-                        startContent={<CalendarIcon size={18} />}
-                        onPress={() => router.push("/task/board/calendar")}
-                    >
-                        Calendar View
-                    </Button>
-
-                    <Button
-                        isIconOnly
-                        variant="flat"
-                        color="default"
-                        className="min-w-10 w-10 h-10 border border-default-200"
-                        onPress={() => setIsRulesDrawerOpen(true)}
-                        aria-label="Task Rules"
-                    >
-                        <Info size={18} className="text-default-500" />
-                    </Button>
-
-                    <Button
-                        color="primary"
-                        startContent={<Plus size={18} />}
-                        variant="shadow"
-                        onPress={handleCreateTask}
-                    >
-                        Create Task
-                    </Button>
+                            Create Task
+                        </Button>
+                    </div>
                 </div>
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex gap-6 overflow-x-auto pb-4 min-h-[calc(100vh-250px)]">
+                <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 min-h-[calc(100vh-280px)] scrollbar-hide">
                     {columns.map((column) => (
                         <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
                             <div className={clsx(

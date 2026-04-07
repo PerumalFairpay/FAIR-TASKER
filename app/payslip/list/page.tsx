@@ -9,6 +9,8 @@ import {
     TableCell,
 } from "@heroui/table";
 import { Button } from "@heroui/button";
+import { Card, CardBody } from "@heroui/card";
+import { Divider } from "@heroui/divider";
 import { Download, Plus, Search, Calendar, Filter, Edit } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPayslipsRequest, downloadPayslipRequest, createPayslipStates } from "../../../store/payslip/action";
@@ -95,15 +97,23 @@ const PayslipList = () => {
     }, [fetchPayslips, page, limit, search, month, year]);
 
     return (
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
             <div className="flex flex-col gap-4 mb-6">
-                <div className="flex justify-between items-center">
-                    <PageHeader title="Payslips (Admin)" />
-                    <Button color="primary" variant="shadow" endContent={<Plus size={16} />} onPress={handleOpen}>
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <PageHeader title="Payslips" />
+                    <Button
+                        color="primary"
+                        variant="shadow"
+                        endContent={<Plus size={16} />}
+                        onPress={handleOpen}
+                        className="w-full sm:w-auto"
+                    >
                         Generate Payslip
                     </Button>
                 </div>
 
+                {/* Filters */}
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                     <Input
                         classNames={{
@@ -161,67 +171,140 @@ const PayslipList = () => {
                 </div>
             </div>
 
-            <Table
-                aria-label="Payslips Table"
-                removeWrapper
-                isHeaderSticky
-                bottomContent={
-                    meta && meta.total_items > 0 && (
-                        <TablePagination
-                            page={page}
-                            total={meta.total_pages}
-                            onChange={(p) => setPage(p)}
-                            limit={limit}
-                            onLimitChange={(l) => { setLimit(l); setPage(1); }}
-                        />
-                    )
-                }
-            >
-                <TableHeader>
-                    <TableColumn>EMPLOYEE DETAILS</TableColumn>
-                    <TableColumn>MONTH/YEAR</TableColumn>
-                    <TableColumn>NET PAY</TableColumn>
-                    <TableColumn>GENERATED AT</TableColumn>
-                    <TableColumn align="center">ACTIONS</TableColumn>
-                </TableHeader>
-                <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
-                    {(item: any) => (
-                        <TableRow key={item.id}>
-                            <TableCell>
-                                <div className="flex flex-col gap-0.5 py-1">
-                                    <span className="font-semibold text-sm">{item.employee_name}</span>
-                                    <div className="flex flex-col text-xs text-default-400">
-                                        <span>ID: {item.employee_id}</span>
-                                        <span>Email: {item.employee_email}</span>
-                                        <span>Ph: {item.employee_mobile}</span>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+                <Table
+                    aria-label="Payslips Table"
+                    removeWrapper
+                    isHeaderSticky
+                    bottomContent={
+                        meta && meta.total_items > 0 && (
+                            <TablePagination
+                                page={page}
+                                total={meta.total_pages}
+                                onChange={(p) => setPage(p)}
+                                limit={limit}
+                                onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                            />
+                        )
+                    }
+                >
+                    <TableHeader>
+                        <TableColumn>EMPLOYEE DETAILS</TableColumn>
+                        <TableColumn>MONTH/YEAR</TableColumn>
+                        <TableColumn>NET PAY</TableColumn>
+                        <TableColumn>GENERATED AT</TableColumn>
+                        <TableColumn align="center">ACTIONS</TableColumn>
+                    </TableHeader>
+                    <TableBody items={payslips || []} emptyContent={"No payslips found"} isLoading={payslipListLoading}>
+                        {(item: any) => (
+                            <TableRow key={item.id}>
+                                <TableCell>
+                                    <div className="flex flex-col gap-0.5 py-1">
+                                        <span className="font-semibold text-sm">{item.employee_name}</span>
+                                        <div className="flex flex-col text-xs text-default-400">
+                                            <span>ID: {item.employee_id}</span>
+                                            <span>Email: {item.employee_email}</span>
+                                            <span>Ph: {item.employee_mobile}</span>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>{`${item.month} ${item.year}`}</TableCell>
+                                <TableCell>{`₹ ${item.net_pay.toFixed(2)}`}</TableCell>
+                                <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
+                                <TableCell>
+                                    <div className="flex justify-center gap-2">
+                                        <Button isIconOnly variant="light" onPress={() => handleEdit(item)}>
+                                            <Edit size={18} />
+                                        </Button>
+                                        <Button isIconOnly variant="light" onPress={() => dispatch(downloadPayslipRequest(item.id))}>
+                                            <Download size={18} />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile Card View — NDA style */}
+            <div className="md:hidden space-y-4">
+                {payslipListLoading ? (
+                    <div className="flex justify-center py-8 text-default-400">Loading payslips...</div>
+                ) : (payslips || []).length > 0 ? (
+                    (payslips as any[]).map((item: any) => (
+                        <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">
+                            <CardBody className="p-4 flex flex-col gap-4">
+                                {/* Header: Employee name + period chip */}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col gap-0.5 min-w-0">
+                                        <h3 className="text-sm font-bold text-default-900 truncate">{item.employee_name}</h3>
+                                        <p className="text-[10px] text-default-400 truncate">{item.employee_email}</p>
+                                        <p className="text-[10px] text-default-400">{item.employee_mobile || "-"}</p>
+                                    </div>
+                                    <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg shrink-0">
+                                        {item.month} {item.year}
+                                    </span>
+                                </div>
+
+                                <Divider className="opacity-50" />
+
+                                {/* NDA-style compact info bar */}
+                                <div className="flex justify-between items-center bg-default-50 dark:bg-white/5 p-2 rounded-xl">
+                                    <div className="flex gap-4 items-center">
+                                        {/* Net Pay */}
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase">Net Pay</span>
+                                            <span className="text-tiny font-bold text-primary">
+                                                ₹ {item.net_pay.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        {/* Generated */}
+                                        <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
+                                            <span className="text-[9px] font-bold text-default-400 uppercase">Generated</span>
+                                            <span className="text-tiny">{new Date(item.generated_at).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                    {/* Action Buttons */}
+                                    <div className="flex gap-2">
+                                        <Button
+                                            isIconOnly
+                                            size="sm"
+                                            variant="flat"
+                                            onPress={() => handleEdit(item)}
+                                            className="bg-white dark:bg-zinc-800"
+                                        >
+                                            <Edit size={14} className="text-default-400" />
+                                        </Button>
+                                        <Button
+                                            isIconOnly
+                                            size="sm"
+                                            variant="flat"
+                                            color="primary"
+                                            onPress={() => dispatch(downloadPayslipRequest(item.id))}
+                                        >
+                                            <Download size={14} />
+                                        </Button>
                                     </div>
                                 </div>
-                            </TableCell>
-                            <TableCell>{`${item.month} ${item.year}`}</TableCell>
-                            <TableCell>{`₹ ${item.net_pay.toFixed(2)}`}</TableCell>
-                            <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                                <div className="flex justify-center gap-2">
-                                    <Button
-                                        isIconOnly
-                                        variant="light"
-                                        onPress={() => handleEdit(item)}
-                                    >
-                                        <Edit size={18} />
-                                    </Button>
-                                    <Button
-                                        isIconOnly
-                                        variant="light"
-                                        onPress={() => dispatch(downloadPayslipRequest(item.id))}
-                                    >
-                                        <Download size={18} />
-                                    </Button>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                            </CardBody>
+                        </Card>
+                    ))
+                ) : (
+                    <div className="text-center py-12 text-default-400">No payslips found</div>
+                )}
+                {/* Mobile Pagination */}
+                {meta && meta.total_items > 0 && (
+                    <TablePagination
+                        page={page}
+                        total={meta.total_pages}
+                        onChange={(p) => setPage(p)}
+                        limit={limit}
+                        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                    />
+                )}
+            </div>
 
             <AddEditPayslipDrawer
                 isOpen={isOpen}
