@@ -17,6 +17,9 @@ import {
   REGENERATE_NDA_REQUEST,
   REGENERATE_NDA_SUCCESS,
   REGENERATE_NDA_FAILURE,
+  UPDATE_NDA_STATUS_REQUEST,
+  UPDATE_NDA_STATUS_SUCCESS,
+  UPDATE_NDA_STATUS_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -148,6 +151,23 @@ export const deleteNDASuccess = (id: string) => ({
 });
 export const deleteNDAFailure = (error: any) => ({
   type: DELETE_NDA_FAILURE,
+  payload: error,
+});
+
+// Update NDA Status
+export const updateNDAStatusRequest = (
+  ndaId: string,
+  payload: { status: string; rejection_reason?: string }
+) => ({
+  type: UPDATE_NDA_STATUS_REQUEST,
+  payload: { ndaId, ...payload },
+});
+export const updateNDAStatusSuccess = (response: any) => ({
+  type: UPDATE_NDA_STATUS_SUCCESS,
+  payload: response,
+});
+export const updateNDAStatusFailure = (error: any) => ({
+  type: UPDATE_NDA_STATUS_FAILURE,
   payload: error,
 });
 

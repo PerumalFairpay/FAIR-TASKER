@@ -9,12 +9,14 @@ import {
     clearNDAState,
     regenerateNDARequest,
     deleteNDARequest,
+    updateNDAStatusRequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Card, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
 import { Button } from "@heroui/button";
 import { Select, SelectItem } from "@heroui/select";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import {
     Table,
     TableHeader,
@@ -25,7 +27,7 @@ import {
 } from "@heroui/table";
 import { useDisclosure } from "@heroui/modal";
 import { Input } from "@heroui/input";
-import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw, Search, Filter, Trash } from "lucide-react";
+import { PlusIcon, CheckCircle2, Clock, FileText, Copy, FolderOpen, RefreshCw, Search, Filter, Trash, CheckCircle, XCircle, MoreVertical, AlertCircle } from "lucide-react";
 import TablePagination from "@/components/common/TablePagination";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
@@ -45,7 +47,8 @@ export default function NDAPage() {
         getListLoading, getListError,
         generateLoading, generateSuccess, generateError,
         regenerateLoading, regenerateSuccess, regenerateError,
-        deleteLoading, deleteSuccess, deleteError
+        deleteLoading, deleteSuccess, deleteError,
+        updateStatusLoading, updateStatusSuccess, updateStatusError
     } = useSelector(
         (state: RootState) => state.NDA
     );
@@ -64,6 +67,11 @@ export default function NDAPage() {
     // Delete State
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onOpenChange: onDeleteOpenChange, onClose: onDeleteClose } = useDisclosure();
+
+    // Review/Status Update State
+    const [statusUpdateId, setStatusUpdateId] = useState<string | null>(null);
+    const [rejectionReason, setRejectionReason] = useState("");
+    const { isOpen: isRejectOpen, onOpen: onRejectOpen, onOpenChange: onRejectOpenChange, onClose: onRejectClose } = useDisclosure();
 
     // Pagination & Filter State
     const [page, setPage] = useState(1);
@@ -85,8 +93,8 @@ export default function NDAPage() {
     }, [dispatch, page, limit, search, statusFilter]);
 
     useEffect(() => {
-        const successMessage = generateSuccess || regenerateSuccess || deleteSuccess;
-        const errorMessage = getListError || generateError || regenerateError || deleteError;
+        const successMessage = generateSuccess || regenerateSuccess || deleteSuccess || updateStatusSuccess;
+        const errorMessage = getListError || generateError || regenerateError || deleteError || updateStatusError;
 
         if (successMessage) {
             addToast({
@@ -146,6 +154,25 @@ export default function NDAPage() {
         }
     };
 
+    const handleStatusUpdate = (id: string, status: "Approved" | "Rejected", reason?: string) => {
+        if (status === "Rejected" && !reason) {
+            setStatusUpdateId(id);
+            setRejectionReason("");
+            onRejectOpen();
+            return;
+        }
+
+        dispatch(updateNDAStatusRequest(id, { 
+            status, 
+            ...(reason && { rejection_reason: reason }) 
+        }));
+        
+        if (status === "Rejected") {
+            onRejectClose();
+            setStatusUpdateId(null);
+        }
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case "Signed":
@@ -156,6 +183,10 @@ export default function NDAPage() {
                 return "warning";
             case "Document Uploaded":
                 return "secondary";
+            case "Approved":
+                return "success";
+            case "Rejected":
+                return "danger";
             default:
                 return "default";
         }
@@ -247,6 +278,8 @@ export default function NDAPage() {
                             <SelectItem key="Pending">Pending</SelectItem>
                             <SelectItem key="Document Uploaded">Document Uploaded</SelectItem>
                             <SelectItem key="Signed">Signed</SelectItem>
+                            <SelectItem key="Approved">Approved</SelectItem>
+                            <SelectItem key="Rejected">Rejected</SelectItem>
                             <SelectItem key="Expired">Expired</SelectItem>
                         </Select>
                     </div>
@@ -311,6 +344,10 @@ export default function NDAPage() {
                                                     <CheckCircle2 size={14} />
                                                 ) : item.status === "Pending" ? (
                                                     <Clock size={14} />
+                                                ) : item.status === "Approved" ? (
+                                                    <CheckCircle size={14} />
+                                                ) : item.status === "Rejected" ? (
+                                                    <XCircle size={14} />
                                                 ) : (
                                                     <FileText size={14} />
                                                 )
@@ -318,6 +355,14 @@ export default function NDAPage() {
                                         >
                                             {item.status}
                                         </Chip>
+                                        {item.status === "Rejected" && item.rejection_reason && (
+                                            <Tooltip content={item.rejection_reason}>
+                                                <div className="mt-1 flex items-center gap-1 text-danger cursor-help">
+                                                    <AlertCircle size={12} />
+                                                    <span className="text-[10px] font-medium">Reason</span>
+                                                </div>
+                                            </Tooltip>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         {item.status === "Signed" && (item.browser || item.os || item.device_type || item.ip_address) ? (
@@ -380,7 +425,7 @@ export default function NDAPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center justify-center gap-2">
-                                            {item.status !== "Signed" &&
+                                            {item.status !== "Signed" && item.status !== "Approved" &&
                                                 <>
                                                     <Button
                                                         isIconOnly
@@ -417,7 +462,7 @@ export default function NDAPage() {
                                                     </Button>
                                                 </>
                                             }
-                                            {item.status === "Signed" && item.signed_pdf_path && (
+                                            {(item.status === "Signed" || item.status === "Approved") && item.signed_pdf_path && (
                                                 <div className="flex gap-1">
                                                     <Button
                                                         isIconOnly
@@ -439,6 +484,42 @@ export default function NDAPage() {
                                                         ariaLabel="Download Signed PDF"
                                                     />
                                                 </div>
+                                            )}
+
+                                            {/* Review Dropdown */}
+                                            {(item.status === "Signed" || item.status === "Document Uploaded" || item.status === "Approved") && (
+                                                <Dropdown>
+                                                    <DropdownTrigger>
+                                                        <Button
+                                                            isIconOnly
+                                                            size="sm"
+                                                            variant="light"
+                                                            className="text-primary"
+                                                            aria-label="Review Actions"
+                                                        >
+                                                            <MoreVertical size={18} />
+                                                        </Button>
+                                                    </DropdownTrigger>
+                                                    <DropdownMenu
+                                                        aria-label="NDA Review Actions"
+                                                        onAction={(key) => handleStatusUpdate(item.id, key as "Approved" | "Rejected")}
+                                                    >
+                                                        <DropdownItem
+                                                            key="Approved"
+                                                            startContent={<CheckCircle size={16} className="text-success" />}
+                                                            className="text-success"
+                                                        >
+                                                            Approve
+                                                        </DropdownItem>
+                                                        <DropdownItem
+                                                            key="Rejected"
+                                                            startContent={<XCircle size={16} className="text-danger" />}
+                                                            className="text-danger"
+                                                        >
+                                                            Reject
+                                                        </DropdownItem>
+                                                    </DropdownMenu>
+                                                </Dropdown>
                                             )}
                                         </div>
                                     </TableCell>
@@ -475,6 +556,10 @@ export default function NDAPage() {
                                                         <CheckCircle2 size={12} />
                                                     ) : item.status === "Pending" ? (
                                                         <Clock size={12} />
+                                                    ) : item.status === "Approved" ? (
+                                                        <CheckCircle size={12} />
+                                                    ) : item.status === "Rejected" ? (
+                                                        <XCircle size={12} />
                                                     ) : (
                                                         <FileText size={12} />
                                                     )
@@ -508,7 +593,7 @@ export default function NDAPage() {
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
-                                                {item.status !== "Signed" && (
+                                                {item.status !== "Signed" && item.status !== "Approved" && (
                                                     <>
                                                         <Button
                                                             isIconOnly
@@ -541,8 +626,8 @@ export default function NDAPage() {
                                                         </Button>
                                                     </>
                                                 )}
-                                                {item.status === "Signed" && item.signed_pdf_path && (
-                                                    <div className="flex gap-2">
+                                            {(item.status === "Signed" || item.status === "Approved") && item.signed_pdf_path && (
+                                                <div className="flex gap-2">
                                                         <Button
                                                             isIconOnly
                                                             size="sm"
@@ -561,6 +646,42 @@ export default function NDAPage() {
                                                             prefix="Signed_NDA"
                                                         />
                                                     </div>
+                                                )}
+                                                {/* Review Dropdown for Mobile */}
+                                                {(item.status === "Signed" || item.status === "Document Uploaded" || item.status === "Approved") && (
+                                                    <Dropdown>
+                                                        <DropdownTrigger>
+                                                            <Button
+                                                                isIconOnly
+                                                                size="sm"
+                                                                variant="flat"
+                                                                color="primary"
+                                                                className="bg-primary/10"
+                                                                aria-label="Review Actions"
+                                                            >
+                                                                <MoreVertical size={16} />
+                                                            </Button>
+                                                        </DropdownTrigger>
+                                                        <DropdownMenu
+                                                            aria-label="NDA Review Actions"
+                                                            onAction={(key) => handleStatusUpdate(item.id, key as "Approved" | "Rejected")}
+                                                        >
+                                                            <DropdownItem
+                                                                key="Approved"
+                                                                startContent={<CheckCircle size={16} className="text-success" />}
+                                                                className="text-success"
+                                                            >
+                                                                Approve
+                                                            </DropdownItem>
+                                                            <DropdownItem
+                                                                key="Rejected"
+                                                                startContent={<XCircle size={16} className="text-danger" />}
+                                                                className="text-danger"
+                                                            >
+                                                                Reject
+                                                            </DropdownItem>
+                                                        </DropdownMenu>
+                                                    </Dropdown>
                                                 )}
                                             </div>
                                         </div>
@@ -717,6 +838,43 @@ export default function NDAPage() {
                                     </Button>
                                     <Button color="danger" onPress={confirmDelete}>
                                         Delete
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
+
+                {/* Reject Confirmation Modal with Reason */}
+                <Modal isOpen={isRejectOpen} onOpenChange={onRejectOpenChange} size="md">
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">Reject NDA Request</ModalHeader>
+                                <ModalBody className="flex flex-col gap-4">
+                                    <p className="text-sm text-default-500">
+                                        Please provide a reason for rejecting this NDA request. The employee will need to re-upload documents and re-sign.
+                                    </p>
+                                    <Input
+                                        label="Rejection Reason"
+                                        placeholder="Enter reason for rejection"
+                                        variant="bordered"
+                                        value={rejectionReason}
+                                        onValueChange={setRejectionReason}
+                                        isRequired
+                                    />
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Button variant="light" onPress={onClose}>
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        color="danger" 
+                                        onPress={() => statusUpdateId && handleStatusUpdate(statusUpdateId, "Rejected", rejectionReason)}
+                                        isDisabled={!rejectionReason.trim() || updateStatusLoading}
+                                        isLoading={updateStatusLoading}
+                                    >
+                                        Confirm Reject
                                     </Button>
                                 </ModalFooter>
                             </>
