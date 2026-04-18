@@ -12,7 +12,7 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight } from "lucide-react";
 import { Input, Textarea } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
@@ -657,21 +657,21 @@ export default function NDATokenPage() {
                                             {ndaData?.address || ndaData?.residential_address ? (
                                                 <>
                                                     <Button
-                                                        variant="flat"
                                                         color="primary"
-                                                        size="lg"
+                                                        size="md"
                                                         onPress={handleUpdateDetails}
                                                         isLoading={updateDetailsLoading}
-                                                        className="font-semibold"
+                                                        className="font-semibold shadow-lg shadow-primary/20 px-8"
                                                     >
                                                         Update Details
                                                     </Button>
                                                     <Button
                                                         color="primary"
-                                                        size="lg"
+                                                        variant="flat"
+                                                        size="md"
                                                         onPress={() => setActiveTab("documents")}
-                                                        className="font-semibold shadow-lg shadow-primary/20 px-8"
-                                                        endContent={<CheckCircle2 size={18} />}
+                                                        className="font-semibold px-8"
+                                                        endContent={<ChevronsRight size={18} />}
                                                     >
                                                         Next Step
                                                     </Button>
@@ -679,7 +679,7 @@ export default function NDATokenPage() {
                                             ) : (
                                                 <Button
                                                     color="primary"
-                                                    size="lg"
+                                                    size="md"
                                                     onPress={handleUpdateDetails}
                                                     isLoading={updateDetailsLoading}
                                                     className="font-semibold shadow-lg shadow-primary/20 px-8"
@@ -816,21 +816,9 @@ export default function NDATokenPage() {
                                     </div>
 
                                     <div className="flex justify-end mt-10 gap-3">
-                                        {ndaData?.status === "Document Uploaded" && (
-                                            <Button
-                                                color="primary"
-                                                variant="flat"
-                                                size="lg"
-                                                onPress={() => setActiveTab("review")}
-                                                className="font-semibold px-8"
-                                                endContent={<CheckCircle2 size={18} />}
-                                            >
-                                                Next Step
-                                            </Button>
-                                        )}
                                         <Button
                                             color="primary"
-                                            size="lg"
+                                            size="md"
                                             onPress={handleUpload}
                                             isLoading={uploadLoading}
                                             isDisabled={ndaData?.status === "Document Uploaded"}
@@ -839,6 +827,18 @@ export default function NDATokenPage() {
                                         >
                                             {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
+                                        {ndaData?.status === "Document Uploaded" && (
+                                            <Button
+                                                color="primary"
+                                                variant="flat"
+                                                size="md"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-8"
+                                                endContent={<ChevronsRight size={18} />}
+                                            >
+                                                Next Step
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </Tab>
@@ -863,7 +863,7 @@ export default function NDATokenPage() {
                                                 Thank you for signing the Non-Disclosure Agreement. A copy has been sent to the administration.
                                             </p>
                                             <Button
-                                                size="lg"
+                                                size="md"
                                                 variant="flat"
                                                 onClick={() => window.location.reload()}
                                             >
@@ -934,7 +934,7 @@ export default function NDATokenPage() {
 
                                                             <Button
                                                                 color="primary"
-                                                                size="lg"
+                                                                size="md"
                                                                 onPress={handleSaveSignature}
                                                                 isLoading={signLoading}
                                                                 isDisabled={ndaData?.status !== "Document Uploaded"}
@@ -1019,7 +1019,7 @@ export default function NDATokenPage() {
                                             type="submit"
                                             color="primary"
                                             fullWidth
-                                            size="lg"
+                                            size="md"
                                             isLoading={authLoading}
                                             className="font-semibold"
                                         >
