@@ -360,6 +360,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-default-100">
                 <div className="flex items-center gap-2">
                   <Image
+                    priority
                     src={resolvedTheme === "dark" ? FairPayMiniDarkLogo : FairPayMiniLogo}
                     alt="FairPay"
                     className="h-7 w-auto object-contain"
@@ -746,6 +747,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               href="/dashboard"
             >
               <Image
+                priority
                 src={isExpanded ? FairPayLogo : (resolvedTheme === "dark" ? FairPayMiniDarkLogo : FairPayMiniLogo)}
                 alt="FairPay"
                 className={clsx(
