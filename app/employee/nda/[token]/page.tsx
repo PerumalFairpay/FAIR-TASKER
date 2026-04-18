@@ -218,29 +218,28 @@ export default function NDATokenPage() {
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
     useEffect(() => {
         if (currentNDA) {
-            let data = currentNDA;
+            // Identify target data - it might be nested in 'nda' key or direct
+            const nda = currentNDA.nda || currentNDA;
+            const html = currentNDA.html_content;
 
-            if (currentNDA.html_content) {
-                setHtmlContent(currentNDA.html_content);
-                data = currentNDA.nda;
+            if (html) {
+                setHtmlContent(html);
                 setIsAuthenticated(true);
             }
-            else if (currentNDA.requires_auth) {
-                setNdaData(currentNDA.nda);
+            else if (nda.requires_auth) {
                 setIsAuthenticated(false);
-                return;
             }
 
-            setNdaData(data);
+            setNdaData(nda);
 
-            if (data?.required_documents) {
-                setRequiredDocuments(data.required_documents);
-                setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
+            if (nda?.required_documents) {
+                setRequiredDocuments(nda.required_documents);
+                setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
             }
 
-            if (data?.address) setAddress(data.address);
-            if (data?.residential_address) setResidentialAddress(data.residential_address);
-            if (data?.mobile) setMobile(data.mobile);
+            if (nda?.address) setAddress(nda.address);
+            if (nda?.residential_address) setResidentialAddress(nda.residential_address);
+            if (nda?.mobile) setMobile(nda.mobile);
         }
     }, [currentNDA]);
 
