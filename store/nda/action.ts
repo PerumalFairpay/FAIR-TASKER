@@ -177,7 +177,7 @@ export const updateNDAStatusFailure = (error: any) => ({
 // Update NDA Details (Address, etc)
 export const updateNDADetailsRequest = (
   token: string,
-  payload: { address?: string; residential_address?: string }
+  payload: { address?: string; residential_address?: string; mobile?: string }
 ) => ({
   type: UPDATE_NDA_DETAILS_REQUEST,
   payload: { token, ...payload },

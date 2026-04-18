@@ -192,9 +192,6 @@ export default function GenerateNDADrawer({
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Email is invalid";
         }
-        if (!formData.mobile.trim()) {
-            newErrors.mobile = "Mobile number is required";
-        }
         if (!formData.department.trim()) {
             newErrors.department = "Department is required";
         }
@@ -366,7 +363,6 @@ export default function GenerateNDADrawer({
                                         variant="bordered"
                                         value={formData.mobile}
                                         onChange={(e) => handleChange("mobile", e.target.value)}
-                                        isRequired
                                         isInvalid={!!errors.mobile}
                                         errorMessage={errors.mobile}
                                     />

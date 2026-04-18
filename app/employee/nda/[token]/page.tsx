@@ -187,6 +187,7 @@ export default function NDATokenPage() {
     const [activeTab, setActiveTab] = useState("details");
     const [address, setAddress] = useState("");
     const [residentialAddress, setResidentialAddress] = useState("");
+    const [mobile, setMobile] = useState("");
     const [sameAsAddress, setSameAsAddress] = useState(false);
 
     // Auth State
@@ -244,6 +245,7 @@ export default function NDATokenPage() {
 
             if (data?.address) setAddress(data.address);
             if (data?.residential_address) setResidentialAddress(data.residential_address);
+            if (data?.mobile) setMobile(data.mobile);
         }
     }, [currentNDA]);
 
@@ -279,10 +281,15 @@ export default function NDATokenPage() {
             addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
             return;
         }
+        if (!mobile.trim()) {
+            addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
+            return;
+        }
 
         dispatch(updateNDADetailsRequest(token, {
             address,
-            residential_address: residentialAddress
+            residential_address: residentialAddress,
+            mobile
         }));
     };
 
@@ -407,7 +414,8 @@ export default function NDATokenPage() {
 
                 if (data.data.nda?.address) setAddress(data.data.nda.address);
                 if (data.data.nda?.residential_address) setResidentialAddress(data.data.nda.residential_address);
-
+                if (data.data.nda?.mobile) setMobile(data.data.nda.mobile);
+ 
                 if (data.data.nda?.required_documents) {
                     setRequiredDocuments(data.data.nda.required_documents);
                     setUploadedFiles(data.data.nda.required_documents.map((name: string) => ({ name, file: null })));
@@ -635,6 +643,22 @@ export default function NDATokenPage() {
                                                                 ? "bg-gray-100 dark:bg-gray-900 border-gray-100 dark:border-gray-800 cursor-not-allowed text-gray-500 opacity-60"
                                                                 : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                                                             }`}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <Input
+                                                        label="Mobile Number"
+                                                        placeholder="Enter your mobile number"
+                                                        labelPlacement="outside"
+                                                        variant="bordered"
+                                                        value={mobile}
+                                                        onValueChange={setMobile}
+                                                        isRequired
+                                                        classNames={{
+                                                            inputWrapper: "h-12 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl"
+                                                        }}
+                                                        startContent={<span className="text-gray-400 text-sm font-semibold">+91</span>}
                                                     />
                                                 </div>
                                             </div>
