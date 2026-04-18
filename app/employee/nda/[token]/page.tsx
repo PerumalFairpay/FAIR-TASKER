@@ -979,10 +979,10 @@ export default function NDATokenPage() {
                                         priority
                                     />
                                 </div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Document Access</h1>
-                                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                                    Please verify your identity to access the Non-Disclosure Agreement for
-                                    <span className="font-semibold text-primary ms-2 mt-1">{ndaData?.employee_name}</span>
+                                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Confidential Document Access</h1>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                    Verify your identity to securely access the Non-Disclosure Agreement for
+                                    <span className="font-semibold text-primary ms-1">{ndaData?.employee_name}</span>
                                 </p>
                             </div>
 
@@ -1014,7 +1014,7 @@ export default function NDATokenPage() {
                                                 startContent={<span className="text-gray-400">@</span>}
                                             />
                                             <p className="text-xs text-gray-400 px-1">
-                                                Enter the email address provided during the request generation.
+                                                Please enter the registered email address where you received the access link.
                                             </p>
                                         </div>
                                     </CardBody>
