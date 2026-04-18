@@ -15,7 +15,7 @@ import {
     Briefcase, Calendar, Clock, CheckCircle,
     LayoutDashboard, Bell, Search, Menu,
     MoreVertical, ArrowUpRight, Sun, Moon,
-    Activity, ShieldCheck, AlertCircle, Target, ListTodo,
+    ShieldCheck, AlertCircle, Target, ListTodo,
     Bug, Users, ClipboardList, LogOut,
     Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint
 } from "lucide-react";
@@ -98,11 +98,7 @@ interface DashboardData {
         status: string;
         due_date: string;
     }>;
-    recent_activity: Array<{
-        type: string;
-        message: string;
-        time: string;
-    }>;
+
     upcoming_holidays: Array<{
         name: string;
         date: string;
@@ -931,64 +927,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </div>
                     </Card>
 
-                    {/* Recent Activity Feed (Redesigned) */}
-                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400 dark:text-slate-500" />
-                                Activity Feed
-                            </h3>
 
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activity.map((act, i) => {
-                                    const isTask = act.type === 'task';
-                                    const dateObj = new Date(act.time);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activity.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${isTask
-                                                    ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
-                                                    : 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-500'
-                                                    }`}>
-                                                    {isTask ? <CheckCircle size={14} strokeWidth={2.5} /> : <Calendar size={14} strokeWidth={2.5} />}
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-sm text-slate-700 dark:text-slate-200 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-300 dark:text-slate-700">•</span>
-                                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                                {data.recent_activity.length === 0 && (
-                                    <div className="text-center py-8 text-slate-400 text-sm">No recent activity</div>
-                                )}
-                            </div>
-                        </CardBody>
-                    </Card>
 
 
 
