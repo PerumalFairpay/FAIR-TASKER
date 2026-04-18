@@ -20,6 +20,9 @@ import {
   UPDATE_NDA_STATUS_REQUEST,
   UPDATE_NDA_STATUS_SUCCESS,
   UPDATE_NDA_STATUS_FAILURE,
+  UPDATE_NDA_DETAILS_REQUEST,
+  UPDATE_NDA_DETAILS_SUCCESS,
+  UPDATE_NDA_DETAILS_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -170,7 +173,24 @@ export const updateNDAStatusFailure = (error: any) => ({
   type: UPDATE_NDA_STATUS_FAILURE,
   payload: error,
 });
-
+ 
+// Update NDA Details (Address, etc)
+export const updateNDADetailsRequest = (
+  token: string,
+  payload: { address?: string; residential_address?: string }
+) => ({
+  type: UPDATE_NDA_DETAILS_REQUEST,
+  payload: { token, ...payload },
+});
+export const updateNDADetailsSuccess = (response: any) => ({
+  type: UPDATE_NDA_DETAILS_SUCCESS,
+  payload: response,
+});
+export const updateNDADetailsFailure = (error: any) => ({
+  type: UPDATE_NDA_DETAILS_FAILURE,
+  payload: error,
+});
+ 
 // Clear State
 export const clearNDAState = () => ({
   type: CLEAR_NDA_STATE,
