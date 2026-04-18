@@ -7,11 +7,12 @@ import {
     getNDAByTokenRequest,
     uploadNDADocumentsRequest,
     signNDARequest,
+    updateNDADetailsRequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
@@ -183,7 +184,10 @@ export default function NDATokenPage() {
 
 
     const [signature, setSignature] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState("documents");
+    const [activeTab, setActiveTab] = useState("details");
+    const [address, setAddress] = useState("");
+    const [residentialAddress, setResidentialAddress] = useState("");
+    const [sameAsAddress, setSameAsAddress] = useState(false);
 
     // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -197,7 +201,8 @@ export default function NDATokenPage() {
     const {
         getByTokenLoading, getByTokenError,
         uploadLoading, uploadSuccess, uploadError,
-        signLoading, signSuccess, signError
+        signLoading, signSuccess, signError,
+        updateDetailsLoading, updateDetailsSuccess, updateDetailsError
     } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
 
@@ -233,14 +238,19 @@ export default function NDATokenPage() {
 
             if (data?.status === "Document Uploaded") {
                 setActiveTab("review");
+            } else if (data?.address || data?.residential_address) {
+                setActiveTab("documents");
             }
+
+            if (data?.address) setAddress(data.address);
+            if (data?.residential_address) setResidentialAddress(data.residential_address);
         }
     }, [currentNDA]);
 
     useEffect(() => {
-        const successMessage = uploadSuccess || signSuccess;
-        const errorMessage = getByTokenError || uploadError || signError;
-
+        const successMessage = uploadSuccess || signSuccess || updateDetailsSuccess;
+        const errorMessage = getByTokenError || uploadError || signError || updateDetailsError;
+ 
         if (successMessage) {
             addToast({
                 title: "Success",
@@ -249,6 +259,9 @@ export default function NDATokenPage() {
             });
             if (successMessage.includes("signed")) {
                 setActiveTab("review");
+            }
+            if (successMessage.includes("details")) {
+                setActiveTab("documents");
             }
         }
         if (errorMessage) {
@@ -259,6 +272,22 @@ export default function NDATokenPage() {
             });
         }
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
+
+    const handleUpdateDetails = () => {
+        if (!address.trim()) {
+            addToast({ title: "Validation Error", description: "Office Address is required", color: "danger" });
+            return;
+        }
+        if (!residentialAddress.trim()) {
+            addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
+            return;
+        }
+
+        dispatch(updateNDADetailsRequest(token, {
+            address,
+            residential_address: residentialAddress
+        }));
+    };
 
     const handleUpload = () => {
         const missingDocs = uploadedFiles.filter(f => !f.file);
@@ -378,6 +407,9 @@ export default function NDATokenPage() {
             if (response.ok) {
                 setHtmlContent(data.data.html_content);
                 setNdaData(data.data.nda);
+
+                if (data.data.nda?.address) setAddress(data.data.nda.address);
+                if (data.data.nda?.residential_address) setResidentialAddress(data.data.nda.residential_address);
 
                 if (data.data.nda?.required_documents) {
                     setRequiredDocuments(data.data.nda.required_documents);
@@ -541,6 +573,91 @@ export default function NDATokenPage() {
                                     className="opacity-100 cursor-default mb-4 pointer-events-none data-[disabled=true]:opacity-100"
                                 />
                             )}
+                            <Tab
+                                key="details"
+                                title={
+                                    <div className="flex items-center space-x-2">
+                                        <MapPin size={20} />
+                                        <span>Personal Details</span>
+                                    </div>
+                                }
+                            >
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
+                                    <Card className="shadow-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                                        <CardHeader className="flex gap-3 px-6 pt-6 pb-0">
+                                            <div className="flex flex-col">
+                                                <p className="text-xl font-bold">Contact Information</p>
+                                                <p className="text-sm text-gray-500">Provide your address details to be included in the legal agreement</p>
+                                            </div>
+                                        </CardHeader>
+                                        <CardBody className="gap-6 p-6">
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <MapPin size={16} className="text-primary" />
+                                                        Permanent Address <span className="text-danger">*</span>
+                                                    </label>
+                                                    <textarea
+                                                        placeholder="Enter your full permanent address"
+                                                        value={address}
+                                                        onChange={(e) => {
+                                                            setAddress(e.target.value);
+                                                            if (sameAsAddress) setResidentialAddress(e.target.value);
+                                                        }}
+                                                        className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                                    />
+                                                </div>
+
+                                                <div className="flex items-center gap-2 px-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="sameAs"
+                                                        checked={sameAsAddress}
+                                                        onChange={(e) => {
+                                                            setSameAsAddress(e.target.checked);
+                                                            if (e.target.checked) setResidentialAddress(address);
+                                                        }}
+                                                        className="w-4 h-4 text-primary rounded border-gray-300 transition-colors"
+                                                    />
+                                                    <label htmlFor="sameAs" className="text-sm cursor-pointer select-none font-medium text-gray-600 dark:text-gray-400">
+                                                        Residential address same as permanent address
+                                                    </label>
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                        <Home size={16} className="text-primary" />
+                                                        Residential Address <span className="text-danger">*</span>
+                                                    </label>
+                                                    <textarea
+                                                        placeholder="Enter your current residential address"
+                                                        value={residentialAddress}
+                                                        onChange={(e) => setResidentialAddress(e.target.value)}
+                                                        disabled={sameAsAddress}
+                                                        className={`w-full min-h-[100px] p-4 border rounded-xl transition-all outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${sameAsAddress
+                                                                ? "bg-gray-100 dark:bg-gray-900 border-gray-100 dark:border-gray-800 cursor-not-allowed text-gray-500 opacity-60"
+                                                                : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                                                            }`}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardBody>
+                                        <CardFooter className="px-6 pb-6 pt-2 flex justify-end">
+                                            <Button
+                                                color="primary"
+                                                size="lg"
+                                                onPress={handleUpdateDetails}
+                                                isLoading={updateDetailsLoading}
+                                                className="font-semibold shadow-lg shadow-primary/20 px-8"
+                                                endContent={<CheckCircle2 size={18} />}
+                                            >
+                                                Save & Proceed
+                                            </Button>
+                                        </CardFooter>
+                                    </Card>
+                                </div>
+                            </Tab>
+
                             <Tab
                                 key="documents"
                                 title={

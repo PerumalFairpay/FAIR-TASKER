@@ -336,9 +336,7 @@ const ndaReducer = (
         updateDetailsLoading: false,
         updateDetailsSuccess:
           action.payload.message || "NDA details updated successfully",
-        currentNDA: state.currentNDA?.html_content
-          ? { ...state.currentNDA, nda: action.payload.data }
-          : action.payload.data,
+        currentNDA: action.payload.data,
       };
     case UPDATE_NDA_DETAILS_FAILURE:
       return {
