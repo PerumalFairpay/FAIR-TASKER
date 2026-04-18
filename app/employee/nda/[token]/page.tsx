@@ -237,12 +237,6 @@ export default function NDATokenPage() {
                 setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
             }
 
-            if (data?.status === "Document Uploaded") {
-                setActiveTab("review");
-            } else if (data?.address || data?.residential_address) {
-                setActiveTab("documents");
-            }
-
             if (data?.address) setAddress(data.address);
             if (data?.residential_address) setResidentialAddress(data.residential_address);
             if (data?.mobile) setMobile(data.mobile);
@@ -259,9 +253,7 @@ export default function NDATokenPage() {
                 description: successMessage,
                 color: "success",
             });
-            if (successMessage.includes("signed")) {
-                setActiveTab("review");
-            }
+            // Navigation is handled by manual button clicks now
         }
         if (errorMessage) {
             addToast({
@@ -825,7 +817,19 @@ export default function NDATokenPage() {
                                         )}
                                     </div>
 
-                                    <div className="flex justify-end mt-10">
+                                    <div className="flex justify-end mt-10 gap-3">
+                                        {ndaData?.status === "Document Uploaded" && (
+                                            <Button
+                                                color="primary"
+                                                variant="flat"
+                                                size="lg"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-8"
+                                                endContent={<CheckCircle2 size={18} />}
+                                            >
+                                                Next Step
+                                            </Button>
+                                        )}
                                         <Button
                                             color="primary"
                                             size="lg"
@@ -835,7 +839,7 @@ export default function NDATokenPage() {
                                             className="font-semibold px-8 shadow-lg shadow-primary/20"
                                             endContent={<CheckCircle2 size={18} />}
                                         >
-                                            {ndaData?.status === "Document Uploaded" ? "Uploaded" : "Upload & Proceed"}
+                                            {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
                                     </div>
                                 </div>
