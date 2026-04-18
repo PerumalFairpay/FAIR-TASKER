@@ -73,7 +73,13 @@ export default function UserPermissionsDrawer({
     }, [allPermissions]);
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onClose} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onClose} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>

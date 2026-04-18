@@ -286,7 +286,13 @@ export default function OnboardingPage() {
                 )}
             </div>
 
-            <Drawer isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen} size="lg">
+            <Drawer 
+                isOpen={isDrawerOpen} 
+                onOpenChange={setIsDrawerOpen} 
+                size="lg"
+                isDismissable={false}
+                shouldCloseOnInteractOutside={(element) => false}
+            >
                 <DrawerContent>
                     {(onClose) => (
                         <>

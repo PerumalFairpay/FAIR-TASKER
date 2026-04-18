@@ -275,7 +275,13 @@ export default function GenerateNDADrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
