@@ -531,7 +531,7 @@ export default function NDATokenPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="p-6 md:p-12"
+                    className="p-2 md:p-12"
                 >
                     <div className="max-w-8xl mx-auto">
                         <Tabs
@@ -580,18 +580,18 @@ export default function NDATokenPage() {
                                     </div>
                                 }
                             >
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
                                     <Card className="shadow-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                                         <CardHeader className="flex gap-3 px-6 pt-6 pb-0">
                                             <div className="flex flex-col">
-                                                <p className="text-xl font-bold">Contact Information</p>
-                                                <p className="text-sm text-gray-500">Provide your address details to be included in the legal agreement</p>
+                                                <p className="text-lg md:text-xl font-bold">Contact Information</p>
+                                                <p className="text-xs md:text-sm text-gray-500">Provide your address details to be included in the legal agreement</p>
                                             </div>
                                         </CardHeader>
                                         <CardBody className="gap-6 p-6">
                                             <div className="space-y-6">
                                                 <div className="flex flex-col gap-2">
-                                                    <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
                                                         Mobile Number <span className="text-danger">*</span>
                                                     </label>
                                                     <Input
@@ -605,7 +605,7 @@ export default function NDATokenPage() {
                                                 </div>
 
                                                 <div className="flex flex-col gap-2">
-                                                    <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
                                                         Permanent Address <span className="text-danger">*</span>
                                                     </label>
                                                     <Textarea
@@ -623,7 +623,7 @@ export default function NDATokenPage() {
 
                                                 <div className="flex flex-col gap-2">
                                                     <div className="flex items-center justify-between">
-                                                        <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                        <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
                                                             Residential Address <span className="text-danger">*</span>
                                                         </label>
                                                         <Checkbox
@@ -635,7 +635,7 @@ export default function NDATokenPage() {
                                                             size="sm"
                                                             color="primary"
                                                             classNames={{
-                                                                label: "text-xs font-medium text-gray-500 dark:text-gray-400"
+                                                                label: "text-[10px] md:text-xs font-medium text-gray-500 dark:text-gray-400"
                                                             }}
                                                         >
                                                             Same as permanent address
