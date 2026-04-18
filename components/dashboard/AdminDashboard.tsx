@@ -332,6 +332,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             </div>
                                         </div>
                                         <Progress
+                                            aria-label="On Time Attendance"
                                             size="sm"
                                             radius="sm"
                                             classNames={{
@@ -355,6 +356,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             </div>
                                         </div>
                                         <Progress
+                                            aria-label="Late Attendance"
                                             size="sm"
                                             radius="sm"
                                             classNames={{
@@ -378,6 +380,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             </div>
                                         </div>
                                         <Progress
+                                            aria-label="Absent Attendance"
                                             size="sm"
                                             radius="sm"
                                             classNames={{
@@ -1080,6 +1083,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.office} Staff</span>
                                 </div>
                                 <Progress
+                                    aria-label="Office Work Mode"
                                     value={data.employee_analytics.work_mode_distribution.office_percentage}
                                     size="sm" radius="full"
                                     classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-primary h-1.5" }}
@@ -1095,6 +1099,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.remote} Staff</span>
                                 </div>
                                 <Progress
+                                    aria-label="Remote Work Mode"
                                     value={data.employee_analytics.work_mode_distribution.remote_percentage}
                                     size="sm" radius="full"
                                     classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-secondary h-1.5" }}
@@ -1110,6 +1115,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <span className="text-[10px] font-semibold text-slate-400">{data.employee_analytics.work_mode_distribution.hybrid} Staff</span>
                                 </div>
                                 <Progress
+                                    aria-label="Hybrid Work Mode"
                                     value={data.employee_analytics.work_mode_distribution.hybrid_percentage}
                                     size="sm" radius="full"
                                     classNames={{ track: "bg-slate-100 h-1.5", indicator: "bg-warning h-1.5" }}
