@@ -207,7 +207,13 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     };
 
     return (
-        <Drawer isOpen={isOpen} onClose={onClose} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onClose={onClose} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 <form onSubmit={handleSubmit} className="h-full flex flex-col">
                     <DrawerHeader className="flex flex-col gap-1">
@@ -327,6 +333,9 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     minValue={isEditMode ? undefined : parseDate(todayStr)}
                                     isDisabled={anyLoading || isEditMode}
                                     className="flex-1"
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                                 <Input
                                     type="time"
@@ -349,6 +358,9 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
                                     className="flex-1"
                                     isDisabled={anyLoading}
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                                 <Input
                                     type="time"

@@ -132,7 +132,13 @@ export default function AddEditExpenseDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -195,6 +201,9 @@ export default function AddEditExpenseDrawer({
                                 variant="bordered"
                                 value={formData.date ? parseDate(formData.date) : today(getLocalTimeZone())}
                                 onChange={(date) => date && handleChange("date", date.toString())}
+                                popoverProps={{
+                                    shouldCloseOnInteractOutside: (element) => false
+                                }}
                             />
 
                             <Select

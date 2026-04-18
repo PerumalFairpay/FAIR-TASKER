@@ -148,7 +148,13 @@ export default function AddEditAssetDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="lg">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="lg"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -261,6 +267,9 @@ export default function AddEditAssetDrawer({
                                     variant="bordered"
                                     value={formData.purchase_date ? parseDate(formData.purchase_date) : today(getLocalTimeZone())}
                                     onChange={(date) => date && handleChange("purchase_date", date.toString())}
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
 
                                 <DatePicker
@@ -269,6 +278,9 @@ export default function AddEditAssetDrawer({
                                     variant="bordered"
                                     value={formData.warranty_expiry ? parseDate(formData.warranty_expiry) : null}
                                     onChange={(date) => date && handleChange("warranty_expiry", date.toString())}
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
 
                                 <Select

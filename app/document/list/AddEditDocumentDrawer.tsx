@@ -140,7 +140,13 @@ export default function AddEditDocumentDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -196,6 +202,9 @@ export default function AddEditDocumentDrawer({
                                 variant="bordered"
                                 value={formData.expiry_date ? parseDate(formData.expiry_date) : null}
                                 onChange={(date) => date && handleChange("expiry_date", date.toString())}
+                                popoverProps={{
+                                    shouldCloseOnInteractOutside: (element) => false
+                                }}
                             />
 
                             <Select

@@ -191,7 +191,13 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
     };
 
     return (
-        <Drawer isOpen={isOpen} onClose={onClose} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onClose={onClose} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 <form onSubmit={handleSubmit} className="h-full flex flex-col">
                     <DrawerHeader className="flex flex-col gap-1">
@@ -311,6 +317,9 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                                     minValue={isEditMode ? undefined : parseDate(todayStr)}
                                     isDisabled={anyLoading || isEditMode}
                                     className="flex-1"
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                             </div>
                             <div className="flex gap-4">
@@ -322,6 +331,9 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                                     minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
                                     className="flex-1"
                                     isDisabled={anyLoading}
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                             </div>
                         </div>

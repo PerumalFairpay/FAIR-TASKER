@@ -239,7 +239,13 @@ export default function AddEditEmployeeDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="xl">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="xl"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -378,6 +384,9 @@ export default function AddEditEmployeeDrawer({
                                                     onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
                                                     isRequired
                                                     description="Required for payslip generation"
+                                                    popoverProps={{
+                                                        shouldCloseOnInteractOutside: (element) => false
+                                                    }}
                                                 />
                                             </I18nProvider>
                                             <Select
@@ -548,6 +557,9 @@ export default function AddEditEmployeeDrawer({
                                                             }
                                                         }
                                                     }}
+                                                    popoverProps={{
+                                                        shouldCloseOnInteractOutside: (element) => false
+                                                    }}
                                                 />
                                             </I18nProvider>
                                             <I18nProvider locale="en-GB">
@@ -558,6 +570,9 @@ export default function AddEditEmployeeDrawer({
                                                     showMonthAndYearPickers
                                                     value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
                                                     onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
+                                                    popoverProps={{
+                                                        shouldCloseOnInteractOutside: (element) => false
+                                                    }}
                                                 />
                                             </I18nProvider>
                                             <Input

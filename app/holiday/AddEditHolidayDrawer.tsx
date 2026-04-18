@@ -77,7 +77,13 @@ export default function AddEditHolidayDrawer({
     const statuses = ["Active", "Inactive"];
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="sm"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -96,13 +102,16 @@ export default function AddEditHolidayDrawer({
                             />
 
                             <DatePicker
-                                label="Holiday Date"
-                                name="date"
-                                value={formData.date ? parseDate(formData.date) : null}
-                                onChange={(date) => handleSelectChange("date", date?.toString())}
-                                variant="bordered"
-                                isRequired
-                            />
+                                 label="Holiday Date"
+                                 name="date"
+                                 value={formData.date ? parseDate(formData.date) : null}
+                                 onChange={(date) => handleSelectChange("date", date?.toString())}
+                                 variant="bordered"
+                                 isRequired
+                                 popoverProps={{
+                                     shouldCloseOnInteractOutside: (element) => false
+                                 }}
+                             />
 
                             <Select
                                 label="Holiday Type"

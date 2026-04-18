@@ -353,7 +353,13 @@ export default function AddEditLeaveRequestDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -432,6 +438,9 @@ export default function AddEditLeaveRequestDrawer({
                                             calendarProps={{
                                                 className: dynamicCalendarClass
                                             }}
+                                            popoverProps={{
+                                                shouldCloseOnInteractOutside: (element) => false
+                                            }}
                                         />
                                         <div className="col-span-1">
                                             <Select
@@ -470,6 +479,9 @@ export default function AddEditLeaveRequestDrawer({
                                         minValue={today(getLocalTimeZone())}
                                         calendarProps={{
                                             className: dynamicCalendarClass
+                                        }}
+                                        popoverProps={{
+                                            shouldCloseOnInteractOutside: (element) => false
                                         }}
                                     />
                                 )}

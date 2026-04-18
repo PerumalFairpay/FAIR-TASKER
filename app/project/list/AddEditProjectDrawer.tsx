@@ -135,7 +135,13 @@ export default function AddEditProjectDrawer({
     const priorities = ["Low", "Medium", "High", "Urgent"];
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -186,6 +192,9 @@ export default function AddEditProjectDrawer({
                                     value={formData.start_date ? parseDate(formData.start_date) : null}
                                     onChange={(date) => handleSelectChange("start_date", date?.toString())}
                                     variant="bordered"
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                                 <DatePicker
                                     label="End Date"
@@ -193,6 +202,9 @@ export default function AddEditProjectDrawer({
                                     value={formData.end_date ? parseDate(formData.end_date) : null}
                                     onChange={(date) => handleSelectChange("end_date", date?.toString())}
                                     variant="bordered"
+                                    popoverProps={{
+                                        shouldCloseOnInteractOutside: (element) => false
+                                    }}
                                 />
                             </div>
 
