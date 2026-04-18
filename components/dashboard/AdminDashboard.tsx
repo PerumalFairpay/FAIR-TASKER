@@ -584,7 +584,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <p className="text-xs text-slate-400 dark:text-slate-500">Efficiency & Status Breakdown</p>
                             </div>
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full text-indigo-500">
-                                <Activity size={20} />
+                                <TrendingUp size={20} />
                             </div>
                         </CardHeader>
                         <CardBody className="px-6 py-4">
