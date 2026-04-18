@@ -696,6 +696,7 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="documents"
+                                isDisabled={!ndaData?.address || !ndaData?.residential_address}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <Upload size={20} />
@@ -846,6 +847,7 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="review"
+                                isDisabled={!ndaData?.address || !ndaData?.residential_address || ndaData?.status !== "Document Uploaded"}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <FileText size={20} />
