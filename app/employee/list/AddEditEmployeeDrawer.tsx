@@ -384,9 +384,9 @@ export default function AddEditEmployeeDrawer({
                                                     onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
                                                     isRequired
                                                     description="Required for payslip generation"
-                                                    popoverProps={{
-                                                        shouldCloseOnInteractOutside: (element) => false
-                                                    }}
+                                                    // popoverProps={{
+                                                    //     shouldCloseOnInteractOutside: (element) => false
+                                                    // }}
                                                 />
                                             </I18nProvider>
                                             <Select
