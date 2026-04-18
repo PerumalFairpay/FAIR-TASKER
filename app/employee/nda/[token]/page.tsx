@@ -12,7 +12,7 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw } from "lucide-react";
 import { Input, Textarea } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
@@ -661,7 +661,8 @@ export default function NDATokenPage() {
                                                         size="md"
                                                         onPress={handleUpdateDetails}
                                                         isLoading={updateDetailsLoading}
-                                                        className="font-semibold shadow-lg shadow-primary/20 px-8"
+                                                        className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
+                                                        startContent={<Save size={18} />}
                                                     >
                                                         Update Details
                                                     </Button>
@@ -670,7 +671,7 @@ export default function NDATokenPage() {
                                                         variant="flat"
                                                         size="md"
                                                         onPress={() => setActiveTab("documents")}
-                                                        className="font-semibold px-8"
+                                                        className="font-semibold px-4 md:px-8"
                                                         endContent={<ChevronsRight size={18} />}
                                                     >
                                                         Next Step
@@ -682,8 +683,8 @@ export default function NDATokenPage() {
                                                     size="md"
                                                     onPress={handleUpdateDetails}
                                                     isLoading={updateDetailsLoading}
-                                                    className="font-semibold shadow-lg shadow-primary/20 px-8"
-                                                    endContent={<CheckCircle2 size={18} />}
+                                                    className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
+                                                    startContent={<Save size={18} />}
                                                 >
                                                     Save & Proceed
                                                 </Button>
@@ -822,8 +823,8 @@ export default function NDATokenPage() {
                                             onPress={handleUpload}
                                             isLoading={uploadLoading}
                                             isDisabled={ndaData?.status === "Document Uploaded"}
-                                            className="font-semibold px-8 shadow-lg shadow-primary/20"
-                                            endContent={<CheckCircle2 size={18} />}
+                                            className="font-semibold px-4 md:px-8 shadow-lg shadow-primary/20"
+                                            startContent={ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />}
                                         >
                                             {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
@@ -833,7 +834,7 @@ export default function NDATokenPage() {
                                                 variant="flat"
                                                 size="md"
                                                 onPress={() => setActiveTab("review")}
-                                                className="font-semibold px-8"
+                                                className="font-semibold px-4 md:px-8"
                                                 endContent={<ChevronsRight size={18} />}
                                             >
                                                 Next Step
@@ -866,6 +867,7 @@ export default function NDATokenPage() {
                                                 size="md"
                                                 variant="flat"
                                                 onClick={() => window.location.reload()}
+                                                startContent={<RefreshCw size={18} />}
                                             >
                                                 Refresh Status
                                             </Button>
@@ -939,6 +941,7 @@ export default function NDATokenPage() {
                                                                 isLoading={signLoading}
                                                                 isDisabled={ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
+                                                                startContent={<PenTool size={18} />}
                                                             >
                                                                 {ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
@@ -1022,6 +1025,7 @@ export default function NDATokenPage() {
                                             size="md"
                                             isLoading={authLoading}
                                             className="font-semibold"
+                                            startContent={<ShieldCheck size={18} />}
                                         >
                                             Verify & Access
                                         </Button>
