@@ -260,9 +260,6 @@ export default function NDATokenPage() {
             if (successMessage.includes("signed")) {
                 setActiveTab("review");
             }
-            if (successMessage.includes("details")) {
-                setActiveTab("documents");
-            }
         }
         if (errorMessage) {
             addToast({
@@ -642,17 +639,41 @@ export default function NDATokenPage() {
                                                 </div>
                                             </div>
                                         </CardBody>
-                                        <CardFooter className="px-6 pb-6 pt-2 flex justify-end">
-                                            <Button
-                                                color="primary"
-                                                size="lg"
-                                                onPress={handleUpdateDetails}
-                                                isLoading={updateDetailsLoading}
-                                                className="font-semibold shadow-lg shadow-primary/20 px-8"
-                                                endContent={<CheckCircle2 size={18} />}
-                                            >
-                                                Save & Proceed
-                                            </Button>
+                                        <CardFooter className="px-6 pb-6 pt-2 flex justify-end gap-3">
+                                            {ndaData?.address || ndaData?.residential_address ? (
+                                                <>
+                                                    <Button
+                                                        variant="flat"
+                                                        color="primary"
+                                                        size="lg"
+                                                        onPress={handleUpdateDetails}
+                                                        isLoading={updateDetailsLoading}
+                                                        className="font-semibold"
+                                                    >
+                                                        Update Details
+                                                    </Button>
+                                                    <Button
+                                                        color="primary"
+                                                        size="lg"
+                                                        onPress={() => setActiveTab("documents")}
+                                                        className="font-semibold shadow-lg shadow-primary/20 px-8"
+                                                        endContent={<CheckCircle2 size={18} />}
+                                                    >
+                                                        Next Step
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <Button
+                                                    color="primary"
+                                                    size="lg"
+                                                    onPress={handleUpdateDetails}
+                                                    isLoading={updateDetailsLoading}
+                                                    className="font-semibold shadow-lg shadow-primary/20 px-8"
+                                                    endContent={<CheckCircle2 size={18} />}
+                                                >
+                                                    Save & Proceed
+                                                </Button>
+                                            )}
                                         </CardFooter>
                                     </Card>
                                 </div>
