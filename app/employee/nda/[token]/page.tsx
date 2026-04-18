@@ -137,28 +137,8 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
                     className="flex flex-col items-center gap-8 py-4"
                 >
                     <div className="space-y-1">
-                        <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">Authenticated Recipient</p>
-                        <p className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-                        <div className="flex flex-col items-center md:items-start gap-1">
-                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Organization</p>
-                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
-                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><FileText size={14} /></span>
-                                FairPay HRM
-                            </div>
-                        </div>
-
-                        <div className="w-px h-8 bg-gray-200 dark:bg-gray-800 hidden md:block" />
-
-                        <div className="flex flex-col items-center md:items-start gap-1">
-                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Registry</p>
-                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
-                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><ShieldCheck size={14} /></span>
-                                Legal NDA Form
-                            </div>
-                        </div>
+                        <p className="text-15px] text-gray-400">Authenticated Recipient</p>
+                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
                     </div>
                 </motion.div>
 
