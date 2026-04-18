@@ -13,7 +13,8 @@ import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
 import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home } from "lucide-react";
-import { Input } from "@heroui/input";
+import { Input, Textarea } from "@heroui/input";
+import { Checkbox } from "@heroui/checkbox";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
@@ -590,67 +591,64 @@ export default function NDATokenPage() {
                                         <CardBody className="gap-6 p-6">
                                             <div className="space-y-6">
                                                 <div className="flex flex-col gap-2">
-                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                        <MapPin size={16} className="text-primary" />
-                                                        Permanent Address <span className="text-danger">*</span>
+                                                    <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                        Mobile Number <span className="text-danger">*</span>
                                                     </label>
-                                                    <textarea
-                                                        placeholder="Enter your full permanent address"
-                                                        value={address}
-                                                        onChange={(e) => {
-                                                            setAddress(e.target.value);
-                                                            if (sameAsAddress) setResidentialAddress(e.target.value);
-                                                        }}
-                                                        className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
-                                                    />
-                                                </div>
-
-                                                <div className="flex items-center gap-2 px-1">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="sameAs"
-                                                        checked={sameAsAddress}
-                                                        onChange={(e) => {
-                                                            setSameAsAddress(e.target.checked);
-                                                            if (e.target.checked) setResidentialAddress(address);
-                                                        }}
-                                                        className="w-4 h-4 text-primary rounded border-gray-300 transition-colors"
-                                                    />
-                                                    <label htmlFor="sameAs" className="text-sm cursor-pointer select-none font-medium text-gray-600 dark:text-gray-400">
-                                                        Residential address same as permanent address
-                                                    </label>
-                                                </div>
-
-                                                <div className="flex flex-col gap-2">
-                                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                                        <Home size={16} className="text-primary" />
-                                                        Residential Address <span className="text-danger">*</span>
-                                                    </label>
-                                                    <textarea
-                                                        placeholder="Enter your current residential address"
-                                                        value={residentialAddress}
-                                                        onChange={(e) => setResidentialAddress(e.target.value)}
-                                                        disabled={sameAsAddress}
-                                                        className={`w-full min-h-[100px] p-4 border rounded-xl transition-all outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary ${sameAsAddress
-                                                                ? "bg-gray-100 dark:bg-gray-900 border-gray-100 dark:border-gray-800 cursor-not-allowed text-gray-500 opacity-60"
-                                                                : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
-                                                            }`}
-                                                    />
-                                                </div>
-
-                                                <div className="flex flex-col gap-2">
                                                     <Input
-                                                        label="Mobile Number"
                                                         placeholder="Enter your mobile number"
-                                                        labelPlacement="outside"
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         value={mobile}
                                                         onValueChange={setMobile}
                                                         isRequired
-                                                        classNames={{
-                                                            inputWrapper: "h-12 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl"
+                                                        
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                        Permanent Address <span className="text-danger">*</span>
+                                                    </label>
+                                                    <Textarea
+                                                        placeholder="Enter your full permanent address"
+                                                        variant="flat"
+                                                        isRequired
+                                                        value={address}
+                                                        onValueChange={(val) => {
+                                                            setAddress(val);
+                                                            if (sameAsAddress) setResidentialAddress(val);
                                                         }}
-                                                        startContent={<span className="text-gray-400 text-sm font-semibold">+91</span>}
+                                                        minRows={3}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-sm text-gray-600 dark:text-gray-400">
+                                                            Residential Address <span className="text-danger">*</span>
+                                                        </label>
+                                                        <Checkbox
+                                                            isSelected={sameAsAddress}
+                                                            onValueChange={(selected) => {
+                                                                setSameAsAddress(selected);
+                                                                if (selected) setResidentialAddress(address);
+                                                            }}
+                                                            size="sm"
+                                                            color="primary"
+                                                            classNames={{
+                                                                label: "text-xs font-medium text-gray-500 dark:text-gray-400"
+                                                            }}
+                                                        >
+                                                            Same as permanent address
+                                                        </Checkbox>
+                                                    </div>
+                                                    <Textarea
+                                                        placeholder="Enter your current residential address"
+                                                        variant="flat"
+                                                        isRequired
+                                                        value={residentialAddress}
+                                                        onValueChange={setResidentialAddress}
+                                                        isDisabled={sameAsAddress}
+                                                        minRows={3} 
                                                     />
                                                 </div>
                                             </div>
