@@ -13,7 +13,7 @@ import { Image } from "@heroui/image";
 import { Avatar } from "@heroui/avatar";
 import {
     Users, Briefcase, Calendar, CheckCircle, Clock, AlertCircle,
-    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, Activity, LayoutDashboard, ArrowUpRight, Bell
+    Building, TrendingUp, TrendingDown, UserPlus, UserMinus, UserCheck, Gift, LayoutDashboard, ArrowUpRight, Bell
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getBlogsRequest } from "@/store/blog/action";
@@ -155,13 +155,7 @@ interface AdminDashboardData {
         warnings: Array<any>;
         info: Array<any>;
     };
-    recent_activities: Array<{
-        type: string;
-        icon: string;
-        message: string;
-        timestamp: string;
-        priority: string;
-    }>;
+
     upcoming_events: {
         holidays: Array<{ name: string; date: string; days_until: number; type: string }>;
         birthdays: Array<{ name: string; date: string; days_until: number; profile_picture?: string }>;
@@ -485,7 +479,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <div className="mt-2 pt-4 border-t border-slate-50">
                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Attention Required</p>
                                     <div className="space-y-2">
-                                        {data.attendance_analytics.attendance_concerns.slice(0, 3).map((concern, idx) => (
+                                        {(data.attendance_analytics?.attendance_concerns || []).slice(0, 3).map((concern, idx) => (
                                             <div key={idx} className="flex justify-between items-center p-2 bg-rose-50/30 dark:bg-rose-500/5 rounded-lg border border-rose-50 dark:border-rose-500/10">
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{concern.name}</span>
@@ -590,14 +584,14 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <p className="text-xs text-slate-400 dark:text-slate-500">Efficiency & Status Breakdown</p>
                             </div>
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-full text-indigo-500">
-                                <Activity size={20} />
+                                <TrendingUp size={20} />
                             </div>
                         </CardHeader>
                         <CardBody className="px-6 py-4">
                             <div className="flex flex-col gap-6">
                                 {/* Top Section: Circular Graphs & Key Metrics */}
                                 <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
-                                    {/* Multi-Ring Activity Chart - Employee Dashboard Style */}
+                                    {/* Multi-Ring Chart - Employee Dashboard Style */}
                                     <div className="relative w-48 h-48 flex-shrink-0">
                                         <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
                                             {/* --- Ring 1: Completed (Outer) --- */}
@@ -771,7 +765,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <h3 className="font-bold text-pink-900 dark:text-pink-300 text-sm">Today's Birthdays</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4">
-                                {data.upcoming_events.birthdays.map((b, i) => (
+                                { (data.upcoming_events?.birthdays || []).map((b, i) => (
                                     <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
                                         <User
                                             name={b.name}
@@ -795,7 +789,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                 <h3 className="font-bold text-rose-900 dark:text-rose-300 text-sm">Action Required</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4 space-y-3">
-                                {data.alerts.critical.map((alert, idx) => (
+                                {(data.alerts?.critical || []).map((alert, idx) => (
                                     <div key={idx} className="flex gap-3 items-start bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-rose-100/50 dark:border-rose-500/20">
                                         <span className="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0"></span>
                                         <div>
@@ -804,7 +798,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                         </div>
                                     </div>
                                 ))}
-                                {data.alerts.warnings.map((alert, idx) => (
+                                {(data.alerts?.warnings || []).map((alert, idx) => (
                                     <div key={idx} className="flex gap-3 items-start bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-amber-100/50 dark:border-amber-500/20">
                                         <span className="mt-1.5 w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
                                         <div>
@@ -844,7 +838,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                     <TableColumn align="end">TYPE</TableColumn>
                                 </TableHeader>
                                 <TableBody emptyContent={<div className="text-center py-4 text-xs text-slate-400">No pending requests</div>}>
-                                    {data.leave_analytics.pending_requests.slice(0, 5).map((l) => (
+                                    {(data.leave_analytics?.pending_requests || []).slice(0, 5).map((l) => (
                                         <TableRow key={l.id} className="border-b border-slate-50 last:border-none group">
                                             <TableCell>
                                                 <div className="font-bold text-xs text-slate-700">{l.employee_name}</div>
@@ -881,7 +875,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </CardHeader>
                             <CardBody className="px-6 py-4 space-y-4">
                                 <div className="space-y-3">
-                                    {data.upcoming_events.holidays.map((h, idx) => {
+                                    {(data.upcoming_events?.holidays || []).map((h, idx) => {
                                         const date = new Date(h.date);
                                         return (
                                             <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/5">
@@ -911,58 +905,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </Card>
                     )}
 
-                    <Card className="shadow-none border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md min-h-[300px] flex flex-col">
-                        <CardHeader className="px-6 pt-6 pb-2 flex justify-between items-center bg-white dark:bg-transparent border-b border-slate-50 dark:border-white/5">
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm uppercase tracking-wide flex items-center gap-2">
-                                <Activity size={16} className="text-slate-400 dark:text-primary" />
-                                System Activity
-                            </h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-6 overflow-y-auto custom-scrollbar flex-1">
-                            <div className="space-y-0">
-                                {data.recent_activities.map((act, i) => {
-                                    const dateObj = new Date(act.timestamp);
-                                    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                                    const dateStr = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
 
-                                    return (
-                                        <div key={i} className="flex gap-4 group relative">
-                                            {/* Timeline Line */}
-                                            {i !== data.recent_activities.length - 1 && (
-                                                <div className="absolute left-[15px] top-8 bottom-[-8px] w-[2px] bg-slate-100 dark:bg-slate-800"></div>
-                                            )}
-
-                                            {/* Icon */}
-                                            <div className="relative z-10 flex-shrink-0">
-                                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm border ${act.priority === 'high' ? 'bg-rose-50 dark:bg-rose-500/10 border-rose-100 dark:border-rose-500/20 text-rose-500' :
-                                                    act.priority === 'medium' ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20 text-amber-500' :
-                                                        'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-500'
-                                                    }`}>
-                                                    <Activity size={14} strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-
-                                            {/* Content */}
-                                            <div className="pb-6 pt-0.5 flex-1 min-w-0">
-                                                <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-snug">
-                                                    {act.message}
-                                                </p>
-                                                <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[9px] text-slate-500 dark:text-slate-400 font-semibold bg-slate-100/50 dark:bg-white/5 px-1.5 py-0.5 rounded">
-                                                        {dateStr}
-                                                    </span>
-                                                    <span className="text-[9px] text-slate-300 dark:text-slate-700">•</span>
-                                                    <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
-                                                        {timeStr}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardBody>
-                    </Card>
 
 
 
@@ -986,7 +929,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                         </CardHeader>
                         <CardBody className="px-5 py-2">
                             <div className="space-y-4 mb-2">
-                                {data.employee_analytics.recent_hires.length > 0 ? data.employee_analytics.recent_hires.slice(0, 3).map((hire, i) => (
+                                {(data.employee_analytics?.recent_hires || []).length > 0 ? (data.employee_analytics?.recent_hires || []).slice(0, 3).map((hire, i) => (
                                     <div key={i} className="flex items-center gap-3">
                                         <User
                                             name={hire.name}
@@ -1025,7 +968,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                             </CardHeader>
                             <CardBody className="px-5 py-2">
                                 <div className="space-y-3 mb-2">
-                                    {data.employee_analytics.upcoming_confirmations.map((conf, i) => (
+                                    {(data.employee_analytics?.upcoming_confirmations || []).map((conf, i) => (
                                         <div key={i} className="flex items-center gap-3 p-2 bg-purple-50/50 dark:bg-purple-500/10 rounded-xl border border-purple-50 dark:border-purple-500/20">
                                             <User
                                                 name={conf.name}
@@ -1041,7 +984,7 @@ export default function AdminDashboard({ data }: { data: AdminDashboardData }) {
                                             />
                                         </div>
                                     ))}
-                                    {data.employee_analytics.upcoming_exits.map((exit, i) => (
+                                    {(data.employee_analytics?.upcoming_exits || []).map((exit, i) => (
                                         <div key={i} className="flex items-center gap-3 p-2 bg-rose-50/50 rounded-xl border border-rose-50">
                                             <User
                                                 name={exit.name}
