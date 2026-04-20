@@ -504,13 +504,17 @@ export default function NDAPage() {
                                                         aria-label="NDA Review Actions"
                                                         onAction={(key) => handleStatusUpdate(item.id, key as "Approved" | "Rejected")}
                                                     >
-                                                        <DropdownItem
-                                                            key="Approved"
-                                                            startContent={<CheckCircle size={16} className="text-success" />}
-                                                            className="text-success"
-                                                        >
-                                                            Approve
-                                                        </DropdownItem>
+                                                        {item.status === "Signed" ? (
+                                                            <DropdownItem
+                                                                key="Approved"
+                                                                startContent={<CheckCircle size={16} className="text-success" />}
+                                                                className="text-success"
+                                                            >
+                                                                Approve
+                                                            </DropdownItem>
+                                                        ) : (
+                                                            <DropdownItem key="no-action" className="hidden" aria-hidden="true" />
+                                                        )}
                                                         <DropdownItem
                                                             key="Rejected"
                                                             startContent={<XCircle size={16} className="text-danger" />}
@@ -666,13 +670,17 @@ export default function NDAPage() {
                                                             aria-label="NDA Review Actions"
                                                             onAction={(key) => handleStatusUpdate(item.id, key as "Approved" | "Rejected")}
                                                         >
-                                                            <DropdownItem
-                                                                key="Approved"
-                                                                startContent={<CheckCircle size={16} className="text-success" />}
-                                                                className="text-success"
-                                                            >
-                                                                Approve
-                                                            </DropdownItem>
+                                                            {item.status === "Signed" ? (
+                                                                <DropdownItem
+                                                                    key="Approved"
+                                                                    startContent={<CheckCircle size={16} className="text-success" />}
+                                                                    className="text-success"
+                                                                >
+                                                                    Approve
+                                                                </DropdownItem>
+                                                            ) : (
+                                                                <DropdownItem key="no-action" className="hidden" aria-hidden="true" />
+                                                            )}
                                                             <DropdownItem
                                                                 key="Rejected"
                                                                 startContent={<XCircle size={16} className="text-danger" />}

@@ -23,6 +23,9 @@ import {
   UPDATE_NDA_STATUS_REQUEST,
   UPDATE_NDA_STATUS_SUCCESS,
   UPDATE_NDA_STATUS_FAILURE,
+  UPDATE_NDA_DETAILS_REQUEST,
+  UPDATE_NDA_DETAILS_SUCCESS,
+  UPDATE_NDA_DETAILS_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -61,6 +64,10 @@ interface NDAState {
   updateStatusLoading: boolean;
   updateStatusError: string | null;
   updateStatusSuccess: string | null;
+
+  updateDetailsLoading: boolean;
+  updateDetailsError: string | null;
+  updateDetailsSuccess: string | null;
 
   meta: {
     current_page: number;
@@ -104,6 +111,10 @@ const initialNDAState: NDAState = {
   updateStatusLoading: false,
   updateStatusError: null,
   updateStatusSuccess: null,
+
+  updateDetailsLoading: false,
+  updateDetailsError: null,
+  updateDetailsSuccess: null,
 
   meta: {
     current_page: 1,
@@ -311,6 +322,29 @@ const ndaReducer = (
         updateStatusError: action.payload,
       };
 
+    // Update NDA Details
+    case UPDATE_NDA_DETAILS_REQUEST:
+      return {
+        ...state,
+        updateDetailsLoading: true,
+        updateDetailsError: null,
+        updateDetailsSuccess: null,
+      };
+    case UPDATE_NDA_DETAILS_SUCCESS:
+      return {
+        ...state,
+        updateDetailsLoading: false,
+        updateDetailsSuccess:
+          action.payload.message || "NDA details updated successfully",
+        currentNDA: action.payload.data,
+      };
+    case UPDATE_NDA_DETAILS_FAILURE:
+      return {
+        ...state,
+        updateDetailsLoading: false,
+        updateDetailsError: action.payload,
+      };
+
     // Clear State
     case CLEAR_NDA_STATE:
       return {
@@ -329,6 +363,8 @@ const ndaReducer = (
         deleteSuccess: null,
         updateStatusError: null,
         updateStatusSuccess: null,
+        updateDetailsError: null,
+        updateDetailsSuccess: null,
         currentNDA: null,
         generatedLink: null,
       };

@@ -1074,7 +1074,13 @@ export default function AttendancePage() {
             </Modal>
 
             {/* Edit Attendance Drawer (Admin only) */}
-            <Drawer isOpen={isEditOpen} onClose={onEditClose} size="md">
+            <Drawer 
+                isOpen={isEditOpen} 
+                onOpenChange={onEditClose} 
+                size="md"
+                isDismissable={false}
+                shouldCloseOnInteractOutside={(element) => false}
+            >
                 <DrawerContent>
                     {(onClose) => (
                         <>

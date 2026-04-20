@@ -82,7 +82,13 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
     };
 
     return (
-        <Drawer isOpen={isOpen} onClose={onClose} size="xl">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onClose} 
+            size="xl"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 <form onSubmit={handleSubmit} className="h-full flex flex-col">
                     <DrawerHeader className="flex flex-col gap-1">

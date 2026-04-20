@@ -9,6 +9,7 @@ import {
   REGENERATE_NDA_REQUEST,
   DELETE_NDA_REQUEST,
   UPDATE_NDA_STATUS_REQUEST,
+  UPDATE_NDA_DETAILS_REQUEST,
 } from "./actionType";
 import {
   generateNDASuccess,
@@ -28,6 +29,8 @@ import {
   deleteNDAFailure,
   updateNDAStatusSuccess,
   updateNDAStatusFailure,
+  updateNDADetailsSuccess,
+  updateNDADetailsFailure,
 } from "./action";
 import api, { publicApi } from "../api";
 
@@ -78,6 +81,13 @@ function updateNDAStatusApi(
   payload: { status: string; rejection_reason?: string },
 ) {
   return api.patch(`/nda/${ndaId}/status`, payload);
+}
+ 
+function updateNDADetailsApi(
+  token: string,
+  payload: { address?: string; residential_address?: string },
+) {
+  return publicApi.patch(`/nda/update/${token}`, payload);
 }
 
 // Sagas
@@ -195,6 +205,20 @@ function* onUpdateNDAStatus({ payload }: any): SagaIterator {
     );
   }
 }
+ 
+function* onUpdateNDADetails({ payload }: any): SagaIterator {
+  try {
+    const { token, ...data } = payload;
+    const response = yield call(updateNDADetailsApi, token, data);
+    yield put(updateNDADetailsSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      updateNDADetailsFailure(
+        error.response?.data?.message || "Failed to update NDA details",
+      ),
+    );
+  }
+}
 
 export default function* ndaSaga(): SagaIterator {
   yield takeEvery(GENERATE_NDA_REQUEST, onGenerateNDA);
@@ -205,4 +229,5 @@ export default function* ndaSaga(): SagaIterator {
   yield takeEvery(DELETE_NDA_REQUEST, onDeleteNDA);
   yield takeEvery(SIGN_NDA_REQUEST, onSignNDA);
   yield takeEvery(UPDATE_NDA_STATUS_REQUEST, onUpdateNDAStatus);
+  yield takeEvery(UPDATE_NDA_DETAILS_REQUEST, onUpdateNDADetails);
 }

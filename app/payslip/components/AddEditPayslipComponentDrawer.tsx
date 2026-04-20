@@ -100,7 +100,13 @@ export default function AddEditPayslipComponentDrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onClose={onClose} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onClose} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 <DrawerHeader className="flex flex-col gap-1">
                     {selectedComponent ? "Edit Component" : "Add Component"}
