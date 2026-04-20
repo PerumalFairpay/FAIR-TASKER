@@ -7,12 +7,14 @@ import {
     getNDAByTokenRequest,
     uploadNDADocumentsRequest,
     signNDARequest,
+    updateNDADetailsRequest,
 } from "@/store/nda/action";
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye } from "lucide-react";
-import { Input } from "@heroui/input";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw } from "lucide-react";
+import { Input, Textarea } from "@heroui/input";
+import { Checkbox } from "@heroui/checkbox";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
@@ -135,28 +137,8 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
                     className="flex flex-col items-center gap-8 py-4"
                 >
                     <div className="space-y-1">
-                        <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">Authenticated Recipient</p>
-                        <p className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
-                    </div>
-
-                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-                        <div className="flex flex-col items-center md:items-start gap-1">
-                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Organization</p>
-                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
-                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><FileText size={14} /></span>
-                                FairPay HRM
-                            </div>
-                        </div>
-
-                        <div className="w-px h-8 bg-gray-200 dark:bg-gray-800 hidden md:block" />
-
-                        <div className="flex flex-col items-center md:items-start gap-1">
-                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Registry</p>
-                            <div className="flex items-center gap-2 text-sm font-semibold text-primary/80">
-                                <span className="p-1.5 bg-primary/5 rounded-lg border border-primary/10"><ShieldCheck size={14} /></span>
-                                Legal NDA Form
-                            </div>
-                        </div>
+                        <p className="text-15px] text-gray-400">Authenticated Recipient</p>
+                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
                     </div>
                 </motion.div>
 
@@ -183,7 +165,11 @@ export default function NDATokenPage() {
 
 
     const [signature, setSignature] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState("documents");
+    const [activeTab, setActiveTab] = useState("details");
+    const [address, setAddress] = useState("");
+    const [residentialAddress, setResidentialAddress] = useState("");
+    const [mobile, setMobile] = useState("");
+    const [sameAsAddress, setSameAsAddress] = useState(false);
 
     // Auth State
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -197,7 +183,8 @@ export default function NDATokenPage() {
     const {
         getByTokenLoading, getByTokenError,
         uploadLoading, uploadSuccess, uploadError,
-        signLoading, signSuccess, signError
+        signLoading, signSuccess, signError,
+        updateDetailsLoading, updateDetailsSuccess, updateDetailsError
     } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
 
@@ -211,45 +198,42 @@ export default function NDATokenPage() {
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
     useEffect(() => {
         if (currentNDA) {
-            let data = currentNDA;
+            // Identify target data - it might be nested in 'nda' key or direct
+            const nda = currentNDA.nda || currentNDA;
+            const html = currentNDA.html_content;
 
-            if (currentNDA.html_content) {
-                setHtmlContent(currentNDA.html_content);
-                data = currentNDA.nda;
+            if (html) {
+                setHtmlContent(html);
                 setIsAuthenticated(true);
             }
-            else if (currentNDA.requires_auth) {
-                setNdaData(currentNDA.nda);
+            else if (nda.requires_auth) {
                 setIsAuthenticated(false);
-                return;
             }
 
-            setNdaData(data);
+            setNdaData(nda);
 
-            if (data?.required_documents) {
-                setRequiredDocuments(data.required_documents);
-                setUploadedFiles(data.required_documents.map((name: string) => ({ name, file: null })));
+            if (nda?.required_documents) {
+                setRequiredDocuments(nda.required_documents);
+                setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
             }
 
-            if (data?.status === "Document Uploaded") {
-                setActiveTab("review");
-            }
+            if (nda?.address) setAddress(nda.address);
+            if (nda?.residential_address) setResidentialAddress(nda.residential_address);
+            if (nda?.mobile) setMobile(nda.mobile);
         }
     }, [currentNDA]);
 
     useEffect(() => {
-        const successMessage = uploadSuccess || signSuccess;
-        const errorMessage = getByTokenError || uploadError || signError;
-
+        const successMessage = uploadSuccess || signSuccess || updateDetailsSuccess;
+        const errorMessage = getByTokenError || uploadError || signError || updateDetailsError;
+ 
         if (successMessage) {
             addToast({
                 title: "Success",
                 description: successMessage,
                 color: "success",
             });
-            if (successMessage.includes("signed")) {
-                setActiveTab("review");
-            }
+            // Navigation is handled by manual button clicks now
         }
         if (errorMessage) {
             addToast({
@@ -259,6 +243,27 @@ export default function NDATokenPage() {
             });
         }
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
+
+    const handleUpdateDetails = () => {
+        if (!address.trim()) {
+            addToast({ title: "Validation Error", description: "Office Address is required", color: "danger" });
+            return;
+        }
+        if (!residentialAddress.trim()) {
+            addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
+            return;
+        }
+        if (!mobile.trim()) {
+            addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
+            return;
+        }
+
+        dispatch(updateNDADetailsRequest(token, {
+            address,
+            residential_address: residentialAddress,
+            mobile
+        }));
+    };
 
     const handleUpload = () => {
         const missingDocs = uploadedFiles.filter(f => !f.file);
@@ -379,6 +384,10 @@ export default function NDATokenPage() {
                 setHtmlContent(data.data.html_content);
                 setNdaData(data.data.nda);
 
+                if (data.data.nda?.address) setAddress(data.data.nda.address);
+                if (data.data.nda?.residential_address) setResidentialAddress(data.data.nda.residential_address);
+                if (data.data.nda?.mobile) setMobile(data.data.nda.mobile);
+ 
                 if (data.data.nda?.required_documents) {
                     setRequiredDocuments(data.data.nda.required_documents);
                     setUploadedFiles(data.data.nda.required_documents.map((name: string) => ({ name, file: null })));
@@ -501,7 +510,7 @@ export default function NDATokenPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="p-6 md:p-12"
+                    className="p-2 md:p-12"
                 >
                     <div className="max-w-8xl mx-auto">
                         <Tabs
@@ -542,7 +551,131 @@ export default function NDATokenPage() {
                                 />
                             )}
                             <Tab
+                                key="details"
+                                title={
+                                    <div className="flex items-center space-x-2">
+                                        <MapPin size={20} />
+                                        <span>Personal Details</span>
+                                    </div>
+                                }
+                            >
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto">
+                                    <Card className="shadow-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+                                        <CardHeader className="flex gap-3 px-6 pt-6 pb-0">
+                                            <div className="flex flex-col">
+                                                <p className="text-lg md:text-xl font-bold">Contact Information</p>
+                                                <p className="text-xs md:text-sm text-gray-500">Provide your address details to be included in the legal agreement</p>
+                                            </div>
+                                        </CardHeader>
+                                        <CardBody className="gap-6 p-6">
+                                            <div className="space-y-6">
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                        Mobile Number <span className="text-danger">*</span>
+                                                    </label>
+                                                    <Input
+                                                        placeholder="Enter your mobile number"
+                                                        variant="flat"
+                                                        value={mobile}
+                                                        onValueChange={setMobile}
+                                                        isRequired
+                                                        
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                        Permanent Address <span className="text-danger">*</span>
+                                                    </label>
+                                                    <Textarea
+                                                        placeholder="Enter your full permanent address"
+                                                        variant="flat"
+                                                        isRequired
+                                                        value={address}
+                                                        onValueChange={(val) => {
+                                                            setAddress(val);
+                                                            if (sameAsAddress) setResidentialAddress(val);
+                                                        }}
+                                                        minRows={3}
+                                                    />
+                                                </div>
+
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                            Residential Address <span className="text-danger">*</span>
+                                                        </label>
+                                                        <Checkbox
+                                                            isSelected={sameAsAddress}
+                                                            onValueChange={(selected) => {
+                                                                setSameAsAddress(selected);
+                                                                if (selected) setResidentialAddress(address);
+                                                            }}
+                                                            size="sm"
+                                                            color="primary"
+                                                            classNames={{
+                                                                label: "text-[10px] md:text-xs font-medium text-gray-500 dark:text-gray-400"
+                                                            }}
+                                                        >
+                                                            Same as permanent address
+                                                        </Checkbox>
+                                                    </div>
+                                                    <Textarea
+                                                        placeholder="Enter your current residential address"
+                                                        variant="flat"
+                                                        isRequired
+                                                        value={residentialAddress}
+                                                        onValueChange={setResidentialAddress}
+                                                        isDisabled={sameAsAddress}
+                                                        minRows={3} 
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardBody>
+                                        <CardFooter className="px-6 pb-6 pt-2 flex justify-end gap-3">
+                                            {ndaData?.address || ndaData?.residential_address ? (
+                                                <>
+                                                    <Button
+                                                        color="primary"
+                                                        size="md"
+                                                        onPress={handleUpdateDetails}
+                                                        isLoading={updateDetailsLoading}
+                                                        className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
+                                                        startContent={<Save size={18} />}
+                                                    >
+                                                        Update Details
+                                                    </Button>
+                                                    <Button
+                                                        color="primary"
+                                                        variant="flat"
+                                                        size="md"
+                                                        onPress={() => setActiveTab("documents")}
+                                                        className="font-semibold px-4 md:px-8"
+                                                        endContent={<ChevronsRight size={18} />}
+                                                    >
+                                                        Next Step
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <Button
+                                                    color="primary"
+                                                    size="md"
+                                                    onPress={handleUpdateDetails}
+                                                    isLoading={updateDetailsLoading}
+                                                    className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
+                                                    startContent={<Save size={18} />}
+                                                >
+                                                    Save & Proceed
+                                                </Button>
+                                            )}
+                                        </CardFooter>
+                                    </Card>
+                                </div>
+                            </Tab>
+
+                            <Tab
                                 key="documents"
+                                isDisabled={!ndaData?.address || !ndaData?.residential_address}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <Upload size={20} />
@@ -663,24 +796,37 @@ export default function NDATokenPage() {
                                         )}
                                     </div>
 
-                                    <div className="flex justify-end mt-10">
+                                    <div className="flex justify-end mt-10 gap-3">
                                         <Button
                                             color="primary"
-                                            size="lg"
+                                            size="md"
                                             onPress={handleUpload}
                                             isLoading={uploadLoading}
                                             isDisabled={ndaData?.status === "Document Uploaded"}
-                                            className="font-semibold px-8 shadow-lg shadow-primary/20"
-                                            endContent={<CheckCircle2 size={18} />}
+                                            className="font-semibold px-4 md:px-8 shadow-lg shadow-primary/20"
+                                            startContent={ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />}
                                         >
-                                            {ndaData?.status === "Document Uploaded" ? "Uploaded" : "Upload & Proceed"}
+                                            {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
+                                        {ndaData?.status === "Document Uploaded" && (
+                                            <Button
+                                                color="primary"
+                                                variant="flat"
+                                                size="md"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-4 md:px-8"
+                                                endContent={<ChevronsRight size={18} />}
+                                            >
+                                                Next Step
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
                             </Tab>
 
                             <Tab
                                 key="review"
+                                isDisabled={!ndaData?.address || !ndaData?.residential_address || ndaData?.status !== "Document Uploaded"}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <FileText size={20} />
@@ -699,9 +845,10 @@ export default function NDATokenPage() {
                                                 Thank you for signing the Non-Disclosure Agreement. A copy has been sent to the administration.
                                             </p>
                                             <Button
-                                                size="lg"
+                                                size="md"
                                                 variant="flat"
                                                 onClick={() => window.location.reload()}
+                                                startContent={<RefreshCw size={18} />}
                                             >
                                                 Refresh Status
                                             </Button>
@@ -770,11 +917,12 @@ export default function NDATokenPage() {
 
                                                             <Button
                                                                 color="primary"
-                                                                size="lg"
+                                                                size="md"
                                                                 onPress={handleSaveSignature}
                                                                 isLoading={signLoading}
                                                                 isDisabled={ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
+                                                                startContent={<PenTool size={18} />}
                                                             >
                                                                 {ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
@@ -811,10 +959,10 @@ export default function NDATokenPage() {
                                         priority
                                     />
                                 </div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Secure Document Access</h1>
-                                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                                    Please verify your identity to access the Non-Disclosure Agreement for
-                                    <span className="font-semibold text-primary ms-2 mt-1">{ndaData?.employee_name}</span>
+                                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Confidential Document Access</h1>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                    Verify your identity to securely access the Non-Disclosure Agreement for
+                                    <span className="font-semibold text-primary ms-1">{ndaData?.employee_name}</span>
                                 </p>
                             </div>
 
@@ -846,7 +994,7 @@ export default function NDATokenPage() {
                                                 startContent={<span className="text-gray-400">@</span>}
                                             />
                                             <p className="text-xs text-gray-400 px-1">
-                                                Enter the email address provided during the request generation.
+                                                Please enter the registered email address where you received the access link.
                                             </p>
                                         </div>
                                     </CardBody>
@@ -855,9 +1003,10 @@ export default function NDATokenPage() {
                                             type="submit"
                                             color="primary"
                                             fullWidth
-                                            size="lg"
+                                            size="md"
                                             isLoading={authLoading}
                                             className="font-semibold"
+                                            startContent={<ShieldCheck size={18} />}
                                         >
                                             Verify & Access
                                         </Button>

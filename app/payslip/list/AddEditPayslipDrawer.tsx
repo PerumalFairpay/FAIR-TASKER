@@ -252,7 +252,13 @@ const AddEditPayslipDrawer = ({ isOpen, onOpenChange, onSuccess, mode, payslip }
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="2xl">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="2xl"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>

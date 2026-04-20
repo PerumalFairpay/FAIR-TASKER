@@ -34,7 +34,13 @@ export default function AddEditPermissionDrawer({
     onSubmit,
 }: AddEditPermissionDrawerProps) {
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="sm"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>

@@ -192,22 +192,12 @@ export default function GenerateNDADrawer({
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Email is invalid";
         }
-        if (!formData.mobile.trim()) {
-            newErrors.mobile = "Mobile number is required";
-        }
         if (!formData.department.trim()) {
             newErrors.department = "Department is required";
         }
         if (!formData.role.trim()) {
             newErrors.role = "Role is required";
         }
-        if (!formData.address.trim()) {
-            newErrors.address = "Address is required";
-        }
-        if (!formData.residential_address.trim()) {
-            newErrors.residential_address = "Residential Address is required";
-        }
-
         setErrors(newErrors);
         return !Object.values(newErrors).some((error) => error !== "");
     };
@@ -285,7 +275,13 @@ export default function GenerateNDADrawer({
     };
 
     return (
-        <Drawer isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+        <Drawer 
+            isOpen={isOpen} 
+            onOpenChange={onOpenChange} 
+            size="md"
+            isDismissable={false}
+            shouldCloseOnInteractOutside={(element) => false}
+        >
             <DrawerContent>
                 {(onClose) => (
                     <>
@@ -373,7 +369,6 @@ export default function GenerateNDADrawer({
                                         variant="bordered"
                                         value={formData.mobile}
                                         onChange={(e) => handleChange("mobile", e.target.value)}
-                                        isRequired
                                         isInvalid={!!errors.mobile}
                                         errorMessage={errors.mobile}
                                     />
@@ -422,7 +417,6 @@ export default function GenerateNDADrawer({
                                         variant="bordered"
                                         value={formData.address}
                                         onChange={(e) => handleChange("address", e.target.value)}
-                                        isRequired
                                         isInvalid={!!errors.address}
                                         errorMessage={errors.address}
                                         minRows={3}
@@ -453,7 +447,6 @@ export default function GenerateNDADrawer({
                                                 setIsSameAddress(false);
                                             }
                                         }}
-                                        isRequired
                                         isInvalid={!!errors.residential_address}
                                         errorMessage={errors.residential_address}
                                         minRows={3}
