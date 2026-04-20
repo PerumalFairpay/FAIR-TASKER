@@ -423,7 +423,7 @@ export default function NDAPage() {
                                             <span className="text-default-300 text-sm">-</span>
                                         )}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell> 
                                         <div className="flex items-center justify-center gap-2">
                                             {item.status !== "Signed" && item.status !== "Approved" &&
                                                 <>
