@@ -212,7 +212,6 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
             onClose={onClose} 
             size="md"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 <form onSubmit={handleSubmit} className="h-full flex flex-col">
@@ -334,7 +333,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     isDisabled={anyLoading || isEditMode}
                                     className="flex-1"
                                     popoverProps={{
-                                        shouldCloseOnInteractOutside: (element) => false
+                                        isDismissable: false
                                     }}
                                 />
                                 <Input
@@ -359,7 +358,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
                                     className="flex-1"
                                     isDisabled={anyLoading}
                                     popoverProps={{
-                                        shouldCloseOnInteractOutside: (element) => false
+                                        isDismissable: false
                                     }}
                                 />
                                 <Input

@@ -358,7 +358,6 @@ export default function AddEditLeaveRequestDrawer({
             onOpenChange={onOpenChange} 
             size="md"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 {(onClose) => (
@@ -439,7 +438,7 @@ export default function AddEditLeaveRequestDrawer({
                                                 className: dynamicCalendarClass
                                             }}
                                             popoverProps={{
-                                                shouldCloseOnInteractOutside: (element) => false
+                                            isDismissable: false
                                             }}
                                         />
                                         <div className="col-span-1">
@@ -481,7 +480,7 @@ export default function AddEditLeaveRequestDrawer({
                                             className: dynamicCalendarClass
                                         }}
                                         popoverProps={{
-                                            shouldCloseOnInteractOutside: (element) => false
+                                            isDismissable: false
                                         }}
                                     />
                                 )}

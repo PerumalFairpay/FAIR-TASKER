@@ -244,7 +244,6 @@ export default function AddEditEmployeeDrawer({
             onOpenChange={onOpenChange} 
             size="xl"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 {(onClose) => (
@@ -384,9 +383,6 @@ export default function AddEditEmployeeDrawer({
                                                     onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
                                                     isRequired
                                                     description="Required for payslip generation"
-                                                    // popoverProps={{
-                                                    //     shouldCloseOnInteractOutside: (element) => false
-                                                    // }}
                                                 />
                                             </I18nProvider>
                                             <Select
@@ -558,7 +554,7 @@ export default function AddEditEmployeeDrawer({
                                                         }
                                                     }}
                                                     popoverProps={{
-                                                        shouldCloseOnInteractOutside: (element) => false
+                                                        isDismissable: false
                                                     }}
                                                 />
                                             </I18nProvider>
@@ -571,7 +567,7 @@ export default function AddEditEmployeeDrawer({
                                                     value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
                                                     onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
                                                     popoverProps={{
-                                                        shouldCloseOnInteractOutside: (element) => false
+                                                        isDismissable: false
                                                     }}
                                                 />
                                             </I18nProvider>

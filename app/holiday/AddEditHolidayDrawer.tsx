@@ -82,7 +82,6 @@ export default function AddEditHolidayDrawer({
             onOpenChange={onOpenChange} 
             size="sm"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 {(onClose) => (
@@ -109,7 +108,7 @@ export default function AddEditHolidayDrawer({
                                  variant="bordered"
                                  isRequired
                                  popoverProps={{
-                                     shouldCloseOnInteractOutside: (element) => false
+                                     isDismissable: false
                                  }}
                              />
 

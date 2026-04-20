@@ -140,7 +140,6 @@ export default function AddEditProjectDrawer({
             onOpenChange={onOpenChange} 
             size="md"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 {(onClose) => (
@@ -193,7 +192,7 @@ export default function AddEditProjectDrawer({
                                     onChange={(date) => handleSelectChange("start_date", date?.toString())}
                                     variant="bordered"
                                     popoverProps={{
-                                        shouldCloseOnInteractOutside: (element) => false
+                                        isDismissable: false
                                     }}
                                 />
                                 <DatePicker
@@ -203,7 +202,7 @@ export default function AddEditProjectDrawer({
                                     onChange={(date) => handleSelectChange("end_date", date?.toString())}
                                     variant="bordered"
                                     popoverProps={{
-                                        shouldCloseOnInteractOutside: (element) => false
+                                        isDismissable: false
                                     }}
                                 />
                             </div>
