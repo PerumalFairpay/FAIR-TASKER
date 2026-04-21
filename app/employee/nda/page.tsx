@@ -365,7 +365,7 @@ export default function NDAPage() {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        {item.status === "Signed" && (item.browser || item.os || item.device_type || item.ip_address) ? (
+                                        {(item.status === "Signed" || item.status === "Approved") && (item.browser || item.os || item.device_type || item.ip_address) ? (
                                             <Tooltip
                                                 content={
                                                     <div className="px-1 py-2">
