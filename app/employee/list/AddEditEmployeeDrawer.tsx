@@ -379,8 +379,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
-                                                    onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
+                                                    value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null as any}
+                                                    onChange={(date: any) => handleChange("date_of_birth", date?.toString() || "")}
                                                     isRequired
                                                     description="Required for payslip generation"
                                                 />
@@ -536,8 +536,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null}
-                                                    onChange={(date) => {
+                                                    value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null as any}
+                                                    onChange={(date: any) => {
                                                         const newDate = date?.toString() || "";
                                                         handleChange("date_of_joining", newDate);
                                                         if (confirmationPeriod && newDate) {
@@ -564,8 +564,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
-                                                    onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
+                                                    value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null as any}
+                                                    onChange={(date: any) => handleConfirmationDateChange(date?.toString() || "")}
                                                     popoverProps={{
                                                         isDismissable: false
                                                     }}
