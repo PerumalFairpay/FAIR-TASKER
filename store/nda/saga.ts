@@ -10,6 +10,7 @@ import {
   DELETE_NDA_REQUEST,
   UPDATE_NDA_STATUS_REQUEST,
   UPDATE_NDA_DETAILS_REQUEST,
+  GET_APPROVED_NDA_LIST_REQUEST,
 } from "./actionType";
 import {
   generateNDASuccess,
@@ -31,6 +32,8 @@ import {
   updateNDAStatusFailure,
   updateNDADetailsSuccess,
   updateNDADetailsFailure,
+  getApprovedNDAListSuccess,
+  getApprovedNDAListFailure,
 } from "./action";
 import api, { publicApi } from "../api";
 
@@ -89,6 +92,10 @@ function updateNDADetailsApi(
   payload: { address?: string; residential_address?: string },
 ) {
   return publicApi.patch(`/nda/update/${token}`, payload);
+}
+
+function getApprovedNDAListApi() {
+  return api.get("/nda/approved-list");
 }
 
 // Sagas
@@ -221,6 +228,19 @@ function* onUpdateNDADetails({ payload }: any): SagaIterator {
   }
 }
 
+function* onGetApprovedNDAList(): SagaIterator {
+  try {
+    const response = yield call(getApprovedNDAListApi);
+    yield put(getApprovedNDAListSuccess(response.data));
+  } catch (error: any) {
+    yield put(
+      getApprovedNDAListFailure(
+        error.response?.data?.message || "Failed to fetch approved NDAs",
+      ),
+    );
+  }
+}
+
 export default function* ndaSaga(): SagaIterator {
   yield takeEvery(GENERATE_NDA_REQUEST, onGenerateNDA);
   yield takeEvery(GET_NDA_LIST_REQUEST, onGetNDAList);
@@ -231,4 +251,5 @@ export default function* ndaSaga(): SagaIterator {
   yield takeEvery(SIGN_NDA_REQUEST, onSignNDA);
   yield takeEvery(UPDATE_NDA_STATUS_REQUEST, onUpdateNDAStatus);
   yield takeEvery(UPDATE_NDA_DETAILS_REQUEST, onUpdateNDADetails);
+  yield takeEvery(GET_APPROVED_NDA_LIST_REQUEST, onGetApprovedNDAList);
 }

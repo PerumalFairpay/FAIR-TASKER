@@ -23,6 +23,9 @@ import {
   UPDATE_NDA_DETAILS_REQUEST,
   UPDATE_NDA_DETAILS_SUCCESS,
   UPDATE_NDA_DETAILS_FAILURE,
+  GET_APPROVED_NDA_LIST_REQUEST,
+  GET_APPROVED_NDA_LIST_SUCCESS,
+  GET_APPROVED_NDA_LIST_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
@@ -189,6 +192,19 @@ export const updateNDADetailsSuccess = (response: any) => ({
 });
 export const updateNDADetailsFailure = (error: any) => ({
   type: UPDATE_NDA_DETAILS_FAILURE,
+  payload: error,
+});
+
+// Get Approved NDA List for Dropdown
+export const getApprovedNDAListRequest = () => ({
+  type: GET_APPROVED_NDA_LIST_REQUEST,
+});
+export const getApprovedNDAListSuccess = (response: any) => ({
+  type: GET_APPROVED_NDA_LIST_SUCCESS,
+  payload: response,
+});
+export const getApprovedNDAListFailure = (error: any) => ({
+  type: GET_APPROVED_NDA_LIST_FAILURE,
   payload: error,
 });
  
