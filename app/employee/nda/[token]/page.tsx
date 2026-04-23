@@ -26,7 +26,7 @@ import SignaturePad from "react-signature-canvas";
 import Image from "next/image";
 import logo from "@/app/assets/FairPay.png";
 
-const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: string, onComplete: () => void }) => {
+const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: string, lastName: string, onComplete: () => void }) => {
     const [progress, setProgress] = useState(0);
     const [statusIndex, setStatusIndex] = useState(0);
 
@@ -139,7 +139,7 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
                 >
                     <div className="space-y-1">
                         <p className="text-15px] text-gray-400">Authenticated Recipient</p>
-                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
+                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{firstName} {lastName}</p>
                     </div>
                 </motion.div>
 
@@ -204,9 +204,9 @@ export default function NDATokenPage() {
 
     const formatAddress = (addr: any) => {
         const parts = [];
-        if (addr.door_no) parts.push(addr.door_no);
         const careOf = addr.care_of_name ? `${addr.care_of_type} ${addr.care_of_name}` : "";
         if (careOf) parts.push(careOf);
+        if (addr.door_no) parts.push(addr.door_no);
         if (addr.street) parts.push(addr.street);
         if (addr.city) parts.push(addr.city);
         if (addr.state) {
@@ -295,6 +295,8 @@ export default function NDATokenPage() {
             return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
         };
 
+        // Address fields are now optional
+        /*
         if (isAddressEmpty(permaAddr)) {
             addToast({ title: "Validation Error", description: "Permanent Address is required", color: "danger" });
             return;
@@ -303,6 +305,7 @@ export default function NDATokenPage() {
             addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
             return;
         }
+        */
         if (!mobile.trim()) {
             addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
             return;
@@ -541,7 +544,8 @@ export default function NDATokenPage() {
             <AnimatePresence>
                 {showIntroAnimation && (
                     <VerificationOverlay
-                        employeeName={ndaData?.employee_name || "User"}
+                        firstName={ndaData?.first_name || "User"}
+                        lastName={ndaData?.last_name || ""}
                         onComplete={() => {
                             setShowIntroAnimation(false);
                             setIsAuthenticated(true);
@@ -1066,7 +1070,7 @@ export default function NDATokenPage() {
                                                             Document Preview
                                                         </span>
                                                         <span className="bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-mono border border-gray-100 dark:border-gray-700 shadow-sm">
-                                                            {ndaData?.employee_name}
+                                                            {ndaData?.first_name} {ndaData?.last_name}
                                                         </span>
                                                     </div>
                                                     <div className="w-full h-[75vh] lg:h-[calc(100vh-200px)] min-h-[600px] bg-white relative">
@@ -1165,7 +1169,7 @@ export default function NDATokenPage() {
                                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Confidential Document Access</h1>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     Verify your identity to securely access the Non-Disclosure Agreement for
-                                    <span className="font-semibold text-primary ms-1">{ndaData?.employee_name}</span>
+                                    <span className="font-semibold text-primary ms-1">{ndaData?.first_name} {ndaData?.last_name}</span>
                                 </p>
                             </div>
 

@@ -115,7 +115,8 @@ export default function NDAPage() {
     }, [generateSuccess, regenerateSuccess, deleteSuccess, getListError, generateError, regenerateError, deleteError, dispatch]);
 
     const handleGenerate = (data: {
-        employee_name: string;
+        first_name: string;
+        last_name: string;
         email: string;
         mobile: string;
         role: string;
@@ -203,7 +204,8 @@ export default function NDAPage() {
                 name: doc.document_name || `Document ${index + 1}`,
                 type: doc.file_type || 'application/pdf'
             }));
-            setViewDocs({ docs, title: `${item.employee_name}'s Documents` });
+            const employee_name = `${item.first_name} ${item.last_name}`.trim();
+            setViewDocs({ docs, title: `${employee_name}'s Documents` });
             onDocsOpen();
         }
     };
@@ -320,8 +322,8 @@ export default function NDAPage() {
                                 <TableRow key={item.id}>
                                     <TableCell>
                                         <div className="flex flex-col max-w-[250px]">
-                                            <p className="text-bold text-sm truncate" title={item.employee_name}>
-                                                {item.employee_name}
+                                            <p className="text-bold text-sm truncate" title={`${item.first_name} ${item.last_name}`}>
+                                                {item.first_name} {item.last_name}
                                             </p>
                                             <p className="text-tiny text-default-400 truncate" title={item.email}>
                                                 {item.email}
@@ -471,7 +473,7 @@ export default function NDAPage() {
                                                         onPress={() => setPreviewData({
                                                             url: item.signed_pdf_path?.document_proof,
                                                             type: 'application/pdf',
-                                                            name: `Signed_NDA_${item.employee_name}.pdf`,
+                                                            name: `Signed_NDA_${item.first_name}_${item.last_name}.pdf`,
                                                         })}
                                                         aria-label="View Signed PDF"
                                                     >
@@ -479,7 +481,7 @@ export default function NDAPage() {
                                                     </Button>
                                                     <PDFDownloadButton
                                                         fileUrl={item.signed_pdf_path?.document_proof}
-                                                        baseName={item.employee_name}
+                                                        baseName={`${item.first_name}_${item.last_name}`}
                                                         prefix="Signed_NDA"
                                                         ariaLabel="Download Signed PDF"
                                                     />
@@ -546,7 +548,7 @@ export default function NDAPage() {
                                     <CardBody className="p-4 flex flex-col gap-4">
                                         <div className="flex justify-between items-start">
                                             <div className="flex flex-col gap-1">
-                                                <h3 className="text-sm font-bold text-default-900">{item.employee_name}</h3>
+                                                <h3 className="text-sm font-bold text-default-900">{item.first_name} {item.last_name}</h3>
                                                 <p className="text-tiny text-default-400">{item.email}</p>
                                                 <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">{item.role}</p>
                                             </div>
@@ -639,14 +641,14 @@ export default function NDAPage() {
                                                             onPress={() => setPreviewData({
                                                                 url: item.signed_pdf_path?.document_proof,
                                                                 type: 'application/pdf',
-                                                                name: `Signed_NDA_${item.employee_name}.pdf`,
+                                                                name: `Signed_NDA_${item.first_name}_${item.last_name}.pdf`,
                                                             })}
                                                         >
                                                             <Eye size={18} />
                                                         </Button>
                                                         <PDFDownloadButton
                                                             fileUrl={item.signed_pdf_path?.document_proof}
-                                                            baseName={item.employee_name}
+                                                            baseName={`${item.first_name}_${item.last_name}`}
                                                             prefix="Signed_NDA"
                                                         />
                                                     </div>

@@ -22,7 +22,8 @@ interface GenerateNDADrawerProps {
     generatedLink: string | null;
     loading: boolean;
     onSubmit: (data: {
-        employee_name: string;
+        first_name: string;
+        last_name: string;
         email: string;
         mobile: string;
         role: string;
@@ -56,7 +57,8 @@ export default function GenerateNDADrawer({
     };
 
     const [formData, setFormData] = useState({
-        employee_name: "",
+        first_name: "",
+        last_name: "",
         email: "",
         mobile: "",
         department: "",
@@ -76,7 +78,8 @@ export default function GenerateNDADrawer({
     });
 
     const [errors, setErrors] = useState({
-        employee_name: "",
+        first_name: "",
+        last_name: "",
         email: "",
         mobile: "",
         department: "",
@@ -122,7 +125,8 @@ export default function GenerateNDADrawer({
             // Reset form when drawer closes
             setTimeout(() => {
                 setFormData({
-                    employee_name: "",
+                    first_name: "",
+                    last_name: "",
                     email: "",
                     mobile: "",
                     department: "",
@@ -141,7 +145,8 @@ export default function GenerateNDADrawer({
                     ],
                 });
                 setErrors({
-                    employee_name: "",
+                    first_name: "",
+                    last_name: "",
                     email: "",
                     mobile: "",
                     department: "",
@@ -199,7 +204,8 @@ export default function GenerateNDADrawer({
 
     const validate = () => {
         const newErrors = {
-            employee_name: "",
+            first_name: "",
+            last_name: "",
             email: "",
             mobile: "",
             department: "",
@@ -208,8 +214,11 @@ export default function GenerateNDADrawer({
             residential_address: "",
         };
 
-        if (!formData.employee_name.trim()) {
-            newErrors.employee_name = "Employee name is required";
+        if (!formData.first_name.trim()) {
+            newErrors.first_name = "First name is required";
+        }
+        if (!formData.last_name.trim()) {
+            newErrors.last_name = "Last name is required";
         }
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
@@ -228,12 +237,15 @@ export default function GenerateNDADrawer({
             return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
         };
 
+        // Address fields are optional as per latest requirement
+        /*
         if (isAddressEmpty(formData.address)) {
             newErrors.address = "Address details are required";
         }
         if (!isSameAddress && isAddressEmpty(formData.residential_address)) {
             newErrors.residential_address = "Residential address details are required";
         }
+        */
 
         setErrors(newErrors);
         return !Object.values(newErrors).some((error) => error !== "");
@@ -243,10 +255,10 @@ export default function GenerateNDADrawer({
         if (validate()) {
             const formatAddress = (addr: any) => {
                 const parts = [];
-                if (addr.door_no) parts.push(addr.door_no);
-                
                 const careOf = addr.care_of_name ? `${addr.care_of_type} ${addr.care_of_name}` : "";
                 if (careOf) parts.push(careOf);
+
+                if (addr.door_no) parts.push(addr.door_no);
                 
                 if (addr.street) parts.push(addr.street);
                 if (addr.city) parts.push(addr.city);
@@ -398,19 +410,34 @@ export default function GenerateNDADrawer({
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-6">
-                                    <Input
-                                        label="Employee Name"
-                                        placeholder="Enter employee full name"
-                                        labelPlacement="outside"
-                                        variant="bordered"
-                                        value={formData.employee_name}
-                                        onChange={(e) =>
-                                            handleChange("employee_name", e.target.value)
-                                        }
-                                        isRequired
-                                        isInvalid={!!errors.employee_name}
-                                        errorMessage={errors.employee_name}
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Input
+                                            label="First Name"
+                                            placeholder="First Name"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.first_name}
+                                            onChange={(e) =>
+                                                handleChange("first_name", e.target.value)
+                                            }
+                                            isRequired
+                                            isInvalid={!!errors.first_name}
+                                            errorMessage={errors.first_name}
+                                        />
+                                        <Input
+                                            label="Last Name"
+                                            placeholder="Last Name"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.last_name}
+                                            onChange={(e) =>
+                                                handleChange("last_name", e.target.value)
+                                            }
+                                            isRequired
+                                            isInvalid={!!errors.last_name}
+                                            errorMessage={errors.last_name}
+                                        />
+                                    </div>
                                     <Input
                                         label="Email"
                                         type="email"
