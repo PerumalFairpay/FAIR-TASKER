@@ -188,8 +188,8 @@ export default function AddEditProjectDrawer({
                                 <DatePicker
                                     label="Start Date"
                                     name="start_date"
-                                    value={formData.start_date ? parseDate(formData.start_date) : null}
-                                    onChange={(date) => handleSelectChange("start_date", date?.toString())}
+                                    value={formData.start_date ? parseDate(formData.start_date) : null as any}
+                                    onChange={(date: any) => handleSelectChange("start_date", date?.toString())}
                                     variant="bordered"
                                     popoverProps={{
                                         isDismissable: false
@@ -198,8 +198,8 @@ export default function AddEditProjectDrawer({
                                 <DatePicker
                                     label="End Date"
                                     name="end_date"
-                                    value={formData.end_date ? parseDate(formData.end_date) : null}
-                                    onChange={(date) => handleSelectChange("end_date", date?.toString())}
+                                    value={formData.end_date ? parseDate(formData.end_date) : null as any}
+                                    onChange={(date: any) => handleSelectChange("end_date", date?.toString())}
                                     variant="bordered"
                                     popoverProps={{
                                         isDismissable: false

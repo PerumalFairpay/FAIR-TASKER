@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEodReportsRequest } from "@/store/task/action";
@@ -28,7 +29,7 @@ import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
-import ShowMoreText from "react-show-more-text";
+const ShowMoreText = dynamic(() => import("react-show-more-text"), { ssr: false });
 import parse from "html-react-parser";
 import { debounce } from "lodash";
 import EodReportDetailDrawer from "./EodReportDetailDrawer";

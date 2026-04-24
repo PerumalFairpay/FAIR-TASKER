@@ -26,11 +26,15 @@ import {
   UPDATE_NDA_DETAILS_REQUEST,
   UPDATE_NDA_DETAILS_SUCCESS,
   UPDATE_NDA_DETAILS_FAILURE,
+  GET_APPROVED_NDA_LIST_REQUEST,
+  GET_APPROVED_NDA_LIST_SUCCESS,
+  GET_APPROVED_NDA_LIST_FAILURE,
   CLEAR_NDA_STATE,
 } from "./actionType";
 
 interface NDAState {
   ndaList: any[];
+  approvedNDAList: any[];
   currentNDA: any | null;
   generatedLink: string | null;
 
@@ -69,6 +73,9 @@ interface NDAState {
   updateDetailsError: string | null;
   updateDetailsSuccess: string | null;
 
+  getApprovedLoading: boolean;
+  getApprovedError: string | null;
+
   meta: {
     current_page: number;
     total_pages: number;
@@ -79,6 +86,7 @@ interface NDAState {
 
 const initialNDAState: NDAState = {
   ndaList: [],
+  approvedNDAList: [],
   currentNDA: null,
   generatedLink: null,
 
@@ -115,6 +123,9 @@ const initialNDAState: NDAState = {
   updateDetailsLoading: false,
   updateDetailsError: null,
   updateDetailsSuccess: null,
+
+  getApprovedLoading: false,
+  getApprovedError: null,
 
   meta: {
     current_page: 1,
@@ -345,6 +356,26 @@ const ndaReducer = (
         updateDetailsError: action.payload,
       };
 
+    // Get Approved NDA List
+    case GET_APPROVED_NDA_LIST_REQUEST:
+      return {
+        ...state,
+        getApprovedLoading: true,
+        getApprovedError: null,
+      };
+    case GET_APPROVED_NDA_LIST_SUCCESS:
+      return {
+        ...state,
+        getApprovedLoading: false,
+        approvedNDAList: action.payload.data || [],
+      };
+    case GET_APPROVED_NDA_LIST_FAILURE:
+      return {
+        ...state,
+        getApprovedLoading: false,
+        getApprovedError: action.payload,
+      };
+
     // Clear State
     case CLEAR_NDA_STATE:
       return {
@@ -365,8 +396,10 @@ const ndaReducer = (
         updateStatusSuccess: null,
         updateDetailsError: null,
         updateDetailsSuccess: null,
+        getApprovedError: null,
         currentNDA: null,
         generatedLink: null,
+        approvedNDAList: [],
       };
 
     default:

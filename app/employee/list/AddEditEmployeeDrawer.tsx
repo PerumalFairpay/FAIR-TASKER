@@ -5,6 +5,7 @@ import { getRolesRequest } from "@/store/role/action";
 import { getDepartmentsRequest } from "@/store/department/action";
 import { getEmployeeRequest, clearEmployeeDetails } from "@/store/employee/action";
 import { getShiftsRequest } from "@/store/shift/action";
+import { getApprovedNDAListRequest } from "@/store/nda/action";
 import {
     Drawer,
     DrawerContent,
@@ -47,6 +48,7 @@ export default function AddEditEmployeeDrawer({
     const { shifts } = useSelector((state: any) => state.Shift || { shifts: [] });
     const { employee: fetchedEmployee, getLoading: fetchingEmployee } = useSelector((state: RootState) => state.Employee);
     const { assets } = useSelector((state: RootState) => state.Asset || { assets: [] });
+    const { approvedNDAList } = useSelector((state: RootState) => state.NDA);
 
     const [formData, setFormData] = useState<any>({});
     const [profileFiles, setProfileFiles] = useState<any[]>([]);
@@ -90,6 +92,7 @@ export default function AddEditEmployeeDrawer({
             dispatch(getRolesRequest());
             dispatch(getDepartmentsRequest());
             dispatch(getShiftsRequest());
+            dispatch(getApprovedNDAListRequest());
             if (mode === "edit" && selectedEmployee?.id) {
                 dispatch(getEmployeeRequest(selectedEmployee.id));
             }
@@ -312,16 +315,42 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("email", e.target.value)}
                                                 isRequired
                                             />
-                                            <Input
-                                                label="Personal Email"
-                                                placeholder="john.doe@gmail.com"
-                                                type="email"
-                                                labelPlacement="outside"
-                                                variant="bordered"
-                                                value={formData.personal_email || ""}
-                                                onChange={(e) => handleChange("personal_email", e.target.value)}
-                                                description="Used to fetching NDA documents"
-                                            />
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-small font-medium text-foreground">
+                                                    Personal Email
+                                                </label>
+                                                <Select
+                                                    placeholder="Select Personal Email"
+                                                    labelPlacement="outside"
+                                                    variant="bordered"
+                                                    selectedKeys={formData.personal_email ? [formData.personal_email] : []}
+                                                    onChange={(e) => {
+                                                        const selectedEmail = e.target.value;
+                                                        handleChange("personal_email", selectedEmail);
+                                                        if (mode === "create") {
+                                                            const selectedNDA = (approvedNDAList || []).find((nda: any) => nda.email === selectedEmail);
+                                                            if (selectedNDA) {
+                                                                setFormData((prev: any) => ({
+                                                                    ...prev,
+                                                                    personal_email: selectedEmail,
+                                                                    first_name: selectedNDA.first_name || prev.first_name,
+                                                                    last_name: selectedNDA.last_name || prev.last_name,
+                                                                    name: `${selectedNDA.first_name || ""} ${selectedNDA.last_name || ""}`.trim() || prev.name,
+                                                                    mobile: selectedNDA.mobile || prev.mobile,
+                                                                    address: selectedNDA.address || prev.address,
+                                                                }));
+                                                            }
+                                                        }
+                                                    }}
+                                                    description="Used to fetching NDA documents"
+                                                >
+                                                    {(approvedNDAList || []).map((nda: any) => (
+                                                        <SelectItem key={nda.email} textValue={nda.email}>
+                                                            {nda.email} ({nda.first_name} {nda.last_name})
+                                                        </SelectItem>
+                                                    ))}
+                                                </Select>
+                                            </div>
                                             {mode === "create" && (
                                                 <>
                                                     <Input
@@ -379,8 +408,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
-                                                    onChange={(date) => handleChange("date_of_birth", date?.toString() || "")}
+                                                    value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null as any}
+                                                    onChange={(date: any) => handleChange("date_of_birth", date?.toString() || "")}
                                                     isRequired
                                                     description="Required for payslip generation"
                                                 />
@@ -536,8 +565,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null}
-                                                    onChange={(date) => {
+                                                    value={formData.date_of_joining ? parseDate(formData.date_of_joining) : null as any}
+                                                    onChange={(date: any) => {
                                                         const newDate = date?.toString() || "";
                                                         handleChange("date_of_joining", newDate);
                                                         if (confirmationPeriod && newDate) {
@@ -564,8 +593,8 @@ export default function AddEditEmployeeDrawer({
                                                     labelPlacement="outside"
                                                     variant="bordered"
                                                     showMonthAndYearPickers
-                                                    value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null}
-                                                    onChange={(date) => handleConfirmationDateChange(date?.toString() || "")}
+                                                    value={formData.confirmation_date ? parseDate(formData.confirmation_date) : null as any}
+                                                    onChange={(date: any) => handleConfirmationDateChange(date?.toString() || "")}
                                                     popoverProps={{
                                                         isDismissable: false
                                                     }}

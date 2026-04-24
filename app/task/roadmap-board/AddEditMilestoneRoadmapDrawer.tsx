@@ -303,8 +303,8 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                             <div className="flex gap-4">
                                 <DatePicker
                                     label="Start Date"
-                                    value={formData.start_date ? parseDate(formData.start_date) : undefined}
-                                    onChange={(date) => {
+                                    value={formData.start_date ? parseDate(formData.start_date) : undefined as any}
+                                    onChange={(date: any) => {
                                         const newStartStr = date ? date.toString() : "";
                                         let newEndStr = formData.end_date;
                                         if (newStartStr && formData.end_date && newStartStr > formData.end_date) {
@@ -313,7 +313,7 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                                         setFormData({ ...formData, start_date: newStartStr, end_date: newEndStr });
                                     }}
                                     isRequired
-                                    minValue={isEditMode ? undefined : parseDate(todayStr)}
+                                    minValue={(isEditMode ? undefined : parseDate(todayStr)) as any}
                                     isDisabled={anyLoading || isEditMode}
                                     className="flex-1"
                                     popoverProps={{
@@ -324,10 +324,10 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                             <div className="flex gap-4">
                                 <DatePicker
                                     label="End Date"
-                                    value={formData.end_date ? parseDate(formData.end_date) : undefined}
-                                    onChange={(date) => setFormData({ ...formData, end_date: date ? date.toString() : "" })}
+                                    value={formData.end_date ? parseDate(formData.end_date) : undefined as any}
+                                    onChange={(date: any) => setFormData({ ...formData, end_date: date ? date.toString() : "" })}
                                     isRequired
-                                    minValue={formData.start_date ? parseDate(formData.start_date) : undefined}
+                                    minValue={(formData.start_date ? parseDate(formData.start_date) : undefined) as any}
                                     className="flex-1"
                                     isDisabled={anyLoading}
                                     popoverProps={{
