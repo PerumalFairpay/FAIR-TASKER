@@ -22,7 +22,8 @@ interface GenerateNDADrawerProps {
     generatedLink: string | null;
     loading: boolean;
     onSubmit: (data: {
-        employee_name: string;
+        first_name: string;
+        last_name: string;
         email: string;
         mobile: string;
         role: string;
@@ -45,14 +46,25 @@ export default function GenerateNDADrawer({
 
     const [newDoc, setNewDoc] = useState("");
     const [isExperience, setIsExperience] = useState(false);
+    const initialAddress = {
+        door_no: "",
+        care_of_type: "S/o",
+        care_of_name: "",
+        street: "",
+        city: "",
+        state: "",
+        pincode: "",
+    };
+
     const [formData, setFormData] = useState({
-        employee_name: "",
+        first_name: "",
+        last_name: "",
         email: "",
         mobile: "",
         department: "",
         role: "",
-        address: "",
-        residential_address: "",
+        address: { ...initialAddress },
+        residential_address: { ...initialAddress },
         expires_in_hours: 48,
         required_documents: [
             "10th Marksheet",
@@ -66,7 +78,8 @@ export default function GenerateNDADrawer({
     });
 
     const [errors, setErrors] = useState({
-        employee_name: "",
+        first_name: "",
+        last_name: "",
         email: "",
         mobile: "",
         department: "",
@@ -112,13 +125,14 @@ export default function GenerateNDADrawer({
             // Reset form when drawer closes
             setTimeout(() => {
                 setFormData({
-                    employee_name: "",
+                    first_name: "",
+                    last_name: "",
                     email: "",
                     mobile: "",
                     department: "",
                     role: "",
-                    address: "",
-                    residential_address: "",
+                    address: { ...initialAddress },
+                    residential_address: { ...initialAddress },
                     expires_in_hours: 48,
                     required_documents: [
                         "10th Marksheet",
@@ -131,7 +145,8 @@ export default function GenerateNDADrawer({
                     ],
                 });
                 setErrors({
-                    employee_name: "",
+                    first_name: "",
+                    last_name: "",
                     email: "",
                     mobile: "",
                     department: "",
@@ -173,9 +188,24 @@ export default function GenerateNDADrawer({
         }
     };
 
+    const handleAddressChange = (name: 'address' | 'residential_address', field: string, value: string) => {
+        setFormData((prev) => ({
+            ...prev,
+            [name]: {
+                ...(prev[name] as any),
+                [field]: value
+            }
+        }));
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
+    };
+
     const validate = () => {
         const newErrors = {
-            employee_name: "",
+            first_name: "",
+            last_name: "",
             email: "",
             mobile: "",
             department: "",
@@ -184,8 +214,11 @@ export default function GenerateNDADrawer({
             residential_address: "",
         };
 
-        if (!formData.employee_name.trim()) {
-            newErrors.employee_name = "Employee name is required";
+        if (!formData.first_name.trim()) {
+            newErrors.first_name = "First name is required";
+        }
+        if (!formData.last_name.trim()) {
+            newErrors.last_name = "Last name is required";
         }
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
@@ -198,14 +231,55 @@ export default function GenerateNDADrawer({
         if (!formData.role.trim()) {
             newErrors.role = "Role is required";
         }
+
+        // Basic address validation: require at least one of Building, Street, or City
+        const isAddressEmpty = (addr: any) => {
+            return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
+        };
+
+        // Address fields are optional as per latest requirement
+        /*
+        if (isAddressEmpty(formData.address)) {
+            newErrors.address = "Address details are required";
+        }
+        if (!isSameAddress && isAddressEmpty(formData.residential_address)) {
+            newErrors.residential_address = "Residential address details are required";
+        }
+        */
+
         setErrors(newErrors);
         return !Object.values(newErrors).some((error) => error !== "");
     };
 
     const handleSubmit = () => {
         if (validate()) {
-            const { department, ...submitData } = formData as any;
-            onSubmit(submitData);
+            const formatAddress = (addr: any) => {
+                const parts = [];
+                const careOf = addr.care_of_name ? `${addr.care_of_type} ${addr.care_of_name}` : "";
+                if (careOf) parts.push(careOf);
+
+                if (addr.door_no) parts.push(addr.door_no);
+                
+                if (addr.street) parts.push(addr.street);
+                if (addr.city) parts.push(addr.city);
+                if (addr.state) {
+                    if (addr.pincode) {
+                        parts.push(`${addr.state} - ${addr.pincode}`);
+                    } else {
+                        parts.push(addr.state);
+                    }
+                } else if (addr.pincode) {
+                    parts.push(addr.pincode);
+                }
+                return parts.join(", ");
+            };
+
+            const { department, address, residential_address, ...rest } = formData as any;
+            onSubmit({
+                ...rest,
+                address: formatAddress(address),
+                residential_address: formatAddress(residential_address),
+            });
         }
     };
 
@@ -336,19 +410,34 @@ export default function GenerateNDADrawer({
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-6">
-                                    <Input
-                                        label="Employee Name"
-                                        placeholder="Enter employee full name"
-                                        labelPlacement="outside"
-                                        variant="bordered"
-                                        value={formData.employee_name}
-                                        onChange={(e) =>
-                                            handleChange("employee_name", e.target.value)
-                                        }
-                                        isRequired
-                                        isInvalid={!!errors.employee_name}
-                                        errorMessage={errors.employee_name}
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Input
+                                            label="First Name"
+                                            placeholder="First Name"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.first_name}
+                                            onChange={(e) =>
+                                                handleChange("first_name", e.target.value)
+                                            }
+                                            isRequired
+                                            isInvalid={!!errors.first_name}
+                                            errorMessage={errors.first_name}
+                                        />
+                                        <Input
+                                            label="Last Name"
+                                            placeholder="Last Name"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.last_name}
+                                            onChange={(e) =>
+                                                handleChange("last_name", e.target.value)
+                                            }
+                                            isRequired
+                                            isInvalid={!!errors.last_name}
+                                            errorMessage={errors.last_name}
+                                        />
+                                    </div>
                                     <Input
                                         label="Email"
                                         type="email"
@@ -409,17 +498,91 @@ export default function GenerateNDADrawer({
                                             </SelectItem>
                                         ))}
                                     </Select>
-                                    <Textarea
-                                        label="Address"
-                                        placeholder="Enter employee address"
-                                        labelPlacement="outside"
-                                        variant="bordered"
-                                        value={formData.address}
-                                        onChange={(e) => handleChange("address", e.target.value)}
-                                        isInvalid={!!errors.address}
-                                        errorMessage={errors.address}
-                                        minRows={3}
-                                    />
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold mb-1">
+                                            <MapPin size={18} />
+                                            <span className="text-sm">Office / Permanent Address</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input
+                                                label="Building / Door No"
+                                                placeholder="e.g. 42B, Tower 1"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address.door_no}
+                                                onChange={(e) => handleAddressChange("address", "door_no", e.target.value)}
+                                            />
+                                            <div className="flex flex-col">
+                                                <div className="flex items-end">
+                                                    <Select
+                                                        label="S/o, D/o, W/o Name"
+                                                        labelPlacement="outside"
+                                                        placeholder="S/o"
+                                                        variant="bordered"
+                                                        className="w-24"
+                                                        classNames={{
+                                                            trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
+                                                            label: "text-small font-medium text-foreground whitespace-nowrap",
+                                                        }}
+                                                        selectedKeys={[formData.address.care_of_type]}
+                                                        onChange={(e) => handleAddressChange("address", "care_of_type", e.target.value)}
+                                                    >
+                                                        <SelectItem key="S/o" textValue="S/o">S/o</SelectItem>
+                                                        <SelectItem key="D/o" textValue="D/o">D/o</SelectItem>
+                                                        <SelectItem key="W/o" textValue="W/o">W/o</SelectItem>
+                                                        <SelectItem key="C/o" textValue="C/o">C/o</SelectItem>
+                                                    </Select>
+                                                    <Input
+                                                        placeholder="Father/Guardian Name"
+                                                        variant="bordered"
+                                                        className="flex-1"
+                                                        classNames={{
+                                                            inputWrapper: "rounded-l-none h-[40px] shadow-none",
+                                                        }}
+                                                        value={formData.address.care_of_name}
+                                                        onChange={(e) => handleAddressChange("address", "care_of_name", e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Input
+                                            label="Street / Area / Colony"
+                                            placeholder="Enter street and locality"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.address.street}
+                                            onChange={(e) => handleAddressChange("address", "street", e.target.value)}
+                                        />
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <Input
+                                                label="City"
+                                                placeholder="City"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address.city}
+                                                onChange={(e) => handleAddressChange("address", "city", e.target.value)}
+                                            />
+                                            <Input
+                                                label="State"
+                                                placeholder="State"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address.state}
+                                                onChange={(e) => handleAddressChange("address", "state", e.target.value)}
+                                            />
+                                            <Input
+                                                label="Pincode"
+                                                placeholder="Pincode"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.address.pincode}
+                                                onChange={(e) => handleAddressChange("address", "pincode", e.target.value)}
+                                            />
+                                        </div>
+                                        {errors.address && (
+                                            <p className="text-tiny text-danger mt-1 font-medium">{errors.address}</p>
+                                        )}
+                                    </div>
                                     <div className="flex items-center gap-2">
                                         <Checkbox
                                             size="sm"
@@ -434,23 +597,98 @@ export default function GenerateNDADrawer({
                                             Same as Address
                                         </Checkbox>
                                     </div>
-                                    <Textarea
-                                        label="Residential Address"
-                                        placeholder="Enter employee residential address"
-                                        labelPlacement="outside"
-                                        variant="bordered"
-                                        value={formData.residential_address}
-                                        onChange={(e) => {
-                                            handleChange("residential_address", e.target.value);
-                                            if (isSameAddress && e.target.value !== formData.address) {
-                                                setIsSameAddress(false);
-                                            }
-                                        }}
-                                        isInvalid={!!errors.residential_address}
-                                        errorMessage={errors.residential_address}
-                                        minRows={3}
-                                        isDisabled={isSameAddress}
-                                    />
+                                    <div className={`flex flex-col gap-4 transition-opacity ${isSameAddress ? "opacity-50 pointer-events-none" : ""}`}>
+                                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold mb-1">
+                                            <MapPin size={18} />
+                                            <span className="text-sm">Residential Address</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input
+                                                label="Building / Door No"
+                                                placeholder="e.g. 42B, Tower 1"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.residential_address.door_no}
+                                                onChange={(e) => handleAddressChange("residential_address", "door_no", e.target.value)}
+                                                isDisabled={isSameAddress}
+                                            />
+                                            <div className="flex flex-col">
+                                                <div className="flex items-end">
+                                                    <Select
+                                                        label="S/o, D/o, W/o Name"
+                                                        labelPlacement="outside"
+                                                        placeholder="S/o"
+                                                        variant="bordered"
+                                                        className="w-24"
+                                                        classNames={{
+                                                            trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
+                                                            label: "text-small font-medium text-foreground whitespace-nowrap",
+                                                        }}
+                                                        selectedKeys={[formData.residential_address.care_of_type]}
+                                                        onChange={(e) => handleAddressChange("residential_address", "care_of_type", e.target.value)}
+                                                        isDisabled={isSameAddress}
+                                                    >
+                                                        <SelectItem key="S/o" textValue="S/o">S/o</SelectItem>
+                                                        <SelectItem key="D/o" textValue="D/o">D/o</SelectItem>
+                                                        <SelectItem key="W/o" textValue="W/o">W/o</SelectItem>
+                                                        <SelectItem key="C/o" textValue="C/o">C/o</SelectItem>
+                                                    </Select>
+                                                    <Input
+                                                        placeholder="Father/Guardian Name"
+                                                        variant="bordered"
+                                                        className="flex-1"
+                                                        classNames={{
+                                                            inputWrapper: "rounded-l-none h-[40px] shadow-none",
+                                                        }}
+                                                        value={formData.residential_address.care_of_name}
+                                                        onChange={(e) => handleAddressChange("residential_address", "care_of_name", e.target.value)}
+                                                        isDisabled={isSameAddress}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Input
+                                            label="Street / Area / Colony"
+                                            placeholder="Enter street and locality"
+                                            labelPlacement="outside"
+                                            variant="bordered"
+                                            value={formData.residential_address.street}
+                                            onChange={(e) => handleAddressChange("residential_address", "street", e.target.value)}
+                                            isDisabled={isSameAddress}
+                                        />
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <Input
+                                                label="City"
+                                                placeholder="City"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.residential_address.city}
+                                                onChange={(e) => handleAddressChange("residential_address", "city", e.target.value)}
+                                                isDisabled={isSameAddress}
+                                            />
+                                            <Input
+                                                label="State"
+                                                placeholder="State"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.residential_address.state}
+                                                onChange={(e) => handleAddressChange("residential_address", "state", e.target.value)}
+                                                isDisabled={isSameAddress}
+                                            />
+                                            <Input
+                                                label="Pincode"
+                                                placeholder="Pincode"
+                                                labelPlacement="outside"
+                                                variant="bordered"
+                                                value={formData.residential_address.pincode}
+                                                onChange={(e) => handleAddressChange("residential_address", "pincode", e.target.value)}
+                                                isDisabled={isSameAddress}
+                                            />
+                                        </div>
+                                        {errors.residential_address && (
+                                            <p className="text-tiny text-danger mt-1 font-medium">{errors.residential_address}</p>
+                                        )}
+                                    </div>
 
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">

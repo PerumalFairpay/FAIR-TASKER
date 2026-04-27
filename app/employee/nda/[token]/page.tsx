@@ -14,6 +14,7 @@ import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
 import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw } from "lucide-react";
 import { Input, Textarea } from "@heroui/input";
+import { Select, SelectItem } from "@heroui/select";
 import { Checkbox } from "@heroui/checkbox";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import FileUpload from "@/components/common/FileUpload";
@@ -25,7 +26,7 @@ import SignaturePad from "react-signature-canvas";
 import Image from "next/image";
 import logo from "@/app/assets/FairPay.png";
 
-const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: string, onComplete: () => void }) => {
+const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: string, lastName: string, onComplete: () => void }) => {
     const [progress, setProgress] = useState(0);
     const [statusIndex, setStatusIndex] = useState(0);
 
@@ -138,7 +139,7 @@ const VerificationOverlay = ({ employeeName, onComplete }: { employeeName: strin
                 >
                     <div className="space-y-1">
                         <p className="text-15px] text-gray-400">Authenticated Recipient</p>
-                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{employeeName}</p>
+                        <p className="text-4xl text-gray-900 dark:text-white tracking-tight">{firstName} {lastName}</p>
                     </div>
                 </motion.div>
 
@@ -166,8 +167,18 @@ export default function NDATokenPage() {
 
     const [signature, setSignature] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState("details");
-    const [address, setAddress] = useState("");
-    const [residentialAddress, setResidentialAddress] = useState("");
+    const initialAddress = {
+        door_no: "",
+        care_of_type: "S/o",
+        care_of_name: "",
+        street: "",
+        city: "",
+        state: "",
+        pincode: "",
+    };
+
+    const [permaAddr, setPermaAddr] = useState({ ...initialAddress });
+    const [resAddr, setResAddr] = useState({ ...initialAddress });
     const [mobile, setMobile] = useState("");
     const [sameAsAddress, setSameAsAddress] = useState(false);
 
@@ -178,6 +189,34 @@ export default function NDATokenPage() {
     const [authError, setAuthError] = useState("");
     const [showIntroAnimation, setShowIntroAnimation] = useState(false);
     const [previewFile, setPreviewFile] = useState<{ url: string, type: string, name: string } | null>(null);
+
+    const handleAddressChange = (type: 'permanent' | 'residential', field: string, value: string) => {
+        if (type === 'permanent') {
+            setPermaAddr(prev => {
+                const next = { ...prev, [field]: value };
+                if (sameAsAddress) setResAddr(next);
+                return next;
+            });
+        } else {
+            setResAddr(prev => ({ ...prev, [field]: value }));
+        }
+    };
+
+    const formatAddress = (addr: any) => {
+        const parts = [];
+        const careOf = addr.care_of_name ? `${addr.care_of_type} ${addr.care_of_name}` : "";
+        if (careOf) parts.push(careOf);
+        if (addr.door_no) parts.push(addr.door_no);
+        if (addr.street) parts.push(addr.street);
+        if (addr.city) parts.push(addr.city);
+        if (addr.state) {
+            if (addr.pincode) parts.push(`${addr.state} - ${addr.pincode}`);
+            else parts.push(addr.state);
+        } else if (addr.pincode) {
+            parts.push(addr.pincode);
+        }
+        return parts.join(", ");
+    };
 
     // Using Redux for loading/error states and actions
     const {
@@ -217,8 +256,15 @@ export default function NDATokenPage() {
                 setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
             }
 
-            if (nda?.address) setAddress(nda.address);
-            if (nda?.residential_address) setResidentialAddress(nda.residential_address);
+            if (nda?.address) {
+                // If the address contains commas, it might be the formatted string.
+                // We'll just put the whole string in the 'street' field as a fallback
+                // if we can't reliably parse it into granular fields.
+                setPermaAddr(prev => ({ ...prev, street: nda.address }));
+            }
+            if (nda?.residential_address) {
+                setResAddr(prev => ({ ...prev, street: nda.residential_address }));
+            }
             if (nda?.mobile) setMobile(nda.mobile);
         }
     }, [currentNDA]);
@@ -245,22 +291,29 @@ export default function NDATokenPage() {
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
 
     const handleUpdateDetails = () => {
-        if (!address.trim()) {
-            addToast({ title: "Validation Error", description: "Office Address is required", color: "danger" });
+        const isAddressEmpty = (addr: any) => {
+            return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
+        };
+
+        // Address fields are now optional
+        /*
+        if (isAddressEmpty(permaAddr)) {
+            addToast({ title: "Validation Error", description: "Permanent Address is required", color: "danger" });
             return;
         }
-        if (!residentialAddress.trim()) {
+        if (!sameAsAddress && isAddressEmpty(resAddr)) {
             addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
             return;
         }
+        */
         if (!mobile.trim()) {
             addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
             return;
         }
 
         dispatch(updateNDADetailsRequest(token, {
-            address,
-            residential_address: residentialAddress,
+            address: formatAddress(permaAddr),
+            residential_address: formatAddress(resAddr),
             mobile
         }));
     };
@@ -384,8 +437,8 @@ export default function NDATokenPage() {
                 setHtmlContent(data.data.html_content);
                 setNdaData(data.data.nda);
 
-                if (data.data.nda?.address) setAddress(data.data.nda.address);
-                if (data.data.nda?.residential_address) setResidentialAddress(data.data.nda.residential_address);
+                if (data.data.nda?.address) setPermaAddr(prev => ({ ...prev, street: data.data.nda.address }));
+                if (data.data.nda?.residential_address) setResAddr(prev => ({ ...prev, street: data.data.nda.residential_address }));
                 if (data.data.nda?.mobile) setMobile(data.data.nda.mobile);
  
                 if (data.data.nda?.required_documents) {
@@ -491,7 +544,8 @@ export default function NDATokenPage() {
             <AnimatePresence>
                 {showIntroAnimation && (
                     <VerificationOverlay
-                        employeeName={ndaData?.employee_name || "User"}
+                        firstName={ndaData?.first_name || "User"}
+                        lastName={ndaData?.last_name || ""}
                         onComplete={() => {
                             setShowIntroAnimation(false);
                             setIsAuthenticated(true);
@@ -569,47 +623,118 @@ export default function NDATokenPage() {
                                         </CardHeader>
                                         <CardBody className="gap-6 p-6">
                                             <div className="space-y-6">
-                                                <div className="flex flex-col gap-2">
-                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
-                                                        Mobile Number <span className="text-danger">*</span>
-                                                    </label>
                                                     <Input
+                                                        label="Mobile Number"
                                                         placeholder="Enter your mobile number"
-                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        variant="bordered"
                                                         value={mobile}
                                                         onValueChange={setMobile}
                                                         isRequired
-                                                        
                                                     />
+
+                                                {/* Granular Permanent Address */}
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold mb-1">
+                                                        <MapPin size={18} />
+                                                        <span className="text-sm">Permanent Address</span>
+                                                    </div>
+                                                    
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <Input
+                                                            label="Building / Door No"
+                                                            placeholder="e.g. 42B, Tower 1"
+                                                            labelPlacement="outside"
+                                                            variant="bordered"
+                                                            value={permaAddr.door_no}
+                                                            onChange={(e) => handleAddressChange("permanent", "door_no", e.target.value)}
+                                                        />
+
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-end">
+                                                                <Select
+                                                                    label="S/o, D/o, W/o Name"
+                                                                    labelPlacement="outside"
+                                                                    placeholder="S/o"
+                                                                    variant="bordered"
+                                                                    className="w-24"
+                                                                    classNames={{
+                                                                        trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
+                                                                        label: "text-small font-medium text-foreground whitespace-nowrap",
+                                                                    }}
+                                                                    selectedKeys={[permaAddr.care_of_type]}
+                                                                    onChange={(e) => handleAddressChange("permanent", "care_of_type", e.target.value)}
+                                                                >
+                                                                    <SelectItem key="S/o" textValue="S/o">S/o</SelectItem>
+                                                                    <SelectItem key="D/o" textValue="D/o">D/o</SelectItem>
+                                                                    <SelectItem key="W/o" textValue="W/o">W/o</SelectItem>
+                                                                    <SelectItem key="C/o" textValue="C/o">C/o</SelectItem>
+                                                                </Select>
+                                                                <Input
+                                                                    placeholder="Father/Guardian Name"
+                                                                    variant="bordered"
+                                                                    className="flex-1"
+                                                                    classNames={{
+                                                                        inputWrapper: "rounded-l-none h-[40px] shadow-none",
+                                                                    }}
+                                                                    value={permaAddr.care_of_name}
+                                                                    onChange={(e) => handleAddressChange("permanent", "care_of_name", e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <Input
+                                                        label="Street / Area / Colony"
+                                                        placeholder="Enter street and locality"
+                                                        labelPlacement="outside"
+                                                        variant="bordered"
+                                                        value={permaAddr.street}
+                                                        onChange={(e) => handleAddressChange("permanent", "street", e.target.value)}
+                                                    />
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <Input
+                                                            label="City"
+                                                            placeholder="City"
+                                                            labelPlacement="outside"
+                                                            variant="bordered"
+                                                            value={permaAddr.city}
+                                                            onChange={(e) => handleAddressChange("permanent", "city", e.target.value)}
+                                                        />
+
+                                                        <Input
+                                                            label="State"
+                                                            placeholder="State"
+                                                            labelPlacement="outside"
+                                                            variant="bordered"
+                                                            value={permaAddr.state}
+                                                            onChange={(e) => handleAddressChange("permanent", "state", e.target.value)}
+                                                        />
+
+                                                        <Input
+                                                            label="Pincode"
+                                                            placeholder="Pincode"
+                                                            labelPlacement="outside"
+                                                            variant="bordered"
+                                                            value={permaAddr.pincode}
+                                                            onChange={(e) => handleAddressChange("permanent", "pincode", e.target.value)}
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                <div className="flex flex-col gap-2">
-                                                    <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
-                                                        Permanent Address <span className="text-danger">*</span>
-                                                    </label>
-                                                    <Textarea
-                                                        placeholder="Enter your full permanent address"
-                                                        variant="flat"
-                                                        isRequired
-                                                        value={address}
-                                                        onValueChange={(val) => {
-                                                            setAddress(val);
-                                                            if (sameAsAddress) setResidentialAddress(val);
-                                                        }}
-                                                        minRows={3}
-                                                    />
-                                                </div>
-
-                                                <div className="flex flex-col gap-2">
+                                                {/* Granular Residential Address */}
+                                                <div className="flex flex-col gap-4 mt-6">
                                                     <div className="flex items-center justify-between">
-                                                        <label className="text-xs md:text-sm font-medium text-gray-600 dark:text-gray-400">
-                                                            Residential Address <span className="text-danger">*</span>
-                                                        </label>
+                                                        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold">
+                                                            <Home size={18} />
+                                                            <span className="text-sm">Residential Address</span>
+                                                        </div>
                                                         <Checkbox
                                                             isSelected={sameAsAddress}
                                                             onValueChange={(selected) => {
                                                                 setSameAsAddress(selected);
-                                                                if (selected) setResidentialAddress(address);
+                                                                if (selected) setResAddr(permaAddr);
                                                             }}
                                                             size="sm"
                                                             color="primary"
@@ -620,15 +745,97 @@ export default function NDATokenPage() {
                                                             Same as permanent address
                                                         </Checkbox>
                                                     </div>
-                                                    <Textarea
-                                                        placeholder="Enter your current residential address"
-                                                        variant="flat"
-                                                        isRequired
-                                                        value={residentialAddress}
-                                                        onValueChange={setResidentialAddress}
-                                                        isDisabled={sameAsAddress}
-                                                        minRows={3} 
-                                                    />
+
+                                                    <div className={`flex flex-col gap-4 transition-opacity ${sameAsAddress ? "opacity-50 pointer-events-none" : ""}`}>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <Input
+                                                                label="Building / Door No"
+                                                                placeholder="e.g. 42B, Tower 1"
+                                                                labelPlacement="outside"
+                                                                variant="bordered"
+                                                                value={resAddr.door_no}
+                                                                onChange={(e) => handleAddressChange("residential", "door_no", e.target.value)}
+                                                                isDisabled={sameAsAddress}
+                                                            />
+
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-end">
+                                                                    <Select
+                                                                        label="S/o, D/o, W/o Name"
+                                                                        labelPlacement="outside"
+                                                                        placeholder="S/o"
+                                                                        variant="bordered"
+                                                                        className="w-24"
+                                                                        classNames={{
+                                                                            trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
+                                                                            label: "text-small font-medium text-foreground whitespace-nowrap",
+                                                                        }}
+                                                                        selectedKeys={[resAddr.care_of_type]}
+                                                                        onChange={(e) => handleAddressChange("residential", "care_of_type", e.target.value)}
+                                                                        isDisabled={sameAsAddress}
+                                                                    >
+                                                                        <SelectItem key="S/o" textValue="S/o">S/o</SelectItem>
+                                                                        <SelectItem key="D/o" textValue="D/o">D/o</SelectItem>
+                                                                        <SelectItem key="W/o" textValue="W/o">W/o</SelectItem>
+                                                                        <SelectItem key="C/o" textValue="C/o">C/o</SelectItem>
+                                                                    </Select>
+                                                                    <Input
+                                                                        placeholder="Father/Guardian Name"
+                                                                        variant="bordered"
+                                                                        className="flex-1"
+                                                                        classNames={{
+                                                                            inputWrapper: "rounded-l-none h-[40px] shadow-none",
+                                                                        }}
+                                                                        value={resAddr.care_of_name}
+                                                                        onChange={(e) => handleAddressChange("residential", "care_of_name", e.target.value)}
+                                                                        isDisabled={sameAsAddress}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <Input
+                                                            label="Street / Area / Colony"
+                                                            placeholder="Enter street and locality"
+                                                            labelPlacement="outside"
+                                                            variant="bordered"
+                                                            value={resAddr.street}
+                                                            onChange={(e) => handleAddressChange("residential", "street", e.target.value)}
+                                                            isDisabled={sameAsAddress}
+                                                        />
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <Input
+                                                                label="City"
+                                                                placeholder="City"
+                                                                labelPlacement="outside"
+                                                                variant="bordered"
+                                                                value={resAddr.city}
+                                                                onChange={(e) => handleAddressChange("residential", "city", e.target.value)}
+                                                                isDisabled={sameAsAddress}
+                                                            />
+
+                                                            <Input
+                                                                label="State"
+                                                                placeholder="State"
+                                                                labelPlacement="outside"
+                                                                variant="bordered"
+                                                                value={resAddr.state}
+                                                                onChange={(e) => handleAddressChange("residential", "state", e.target.value)}
+                                                                isDisabled={sameAsAddress}
+                                                            />
+
+                                                            <Input
+                                                                label="Pincode"
+                                                                placeholder="Pincode"
+                                                                labelPlacement="outside"
+                                                                variant="bordered"
+                                                                value={resAddr.pincode}
+                                                                onChange={(e) => handleAddressChange("residential", "pincode", e.target.value)}
+                                                                isDisabled={sameAsAddress}
+                                                            />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </CardBody>
@@ -863,7 +1070,7 @@ export default function NDATokenPage() {
                                                             Document Preview
                                                         </span>
                                                         <span className="bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-mono border border-gray-100 dark:border-gray-700 shadow-sm">
-                                                            {ndaData?.employee_name}
+                                                            {ndaData?.first_name} {ndaData?.last_name}
                                                         </span>
                                                     </div>
                                                     <div className="w-full h-[75vh] lg:h-[calc(100vh-200px)] min-h-[600px] bg-white relative">
@@ -962,7 +1169,7 @@ export default function NDATokenPage() {
                                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Confidential Document Access</h1>
                                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                     Verify your identity to securely access the Non-Disclosure Agreement for
-                                    <span className="font-semibold text-primary ms-1">{ndaData?.employee_name}</span>
+                                    <span className="font-semibold text-primary ms-1">{ndaData?.first_name} {ndaData?.last_name}</span>
                                 </p>
                             </div>
 
