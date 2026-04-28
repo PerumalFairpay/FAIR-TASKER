@@ -328,8 +328,8 @@ export default function NDAPage() {
                                             <p className="text-tiny text-default-400 truncate" title={item.email}>
                                                 {item.email}
                                             </p>
-                                            <p className="text-tiny text-default-400 truncate" title={item.address}>
-                                                {item.address}
+                                            <p className="text-tiny text-default-400 truncate" title={item.address?.perma_street ? `${item.address.perma_door_no}, ${item.address.perma_street}, ${item.address.perma_city}` : item.address?.permanent_address}>
+                                                {item.address?.perma_street ? `${item.address.perma_door_no}, ${item.address.perma_street}, ${item.address.perma_city}` : item.address?.permanent_address}
                                             </p>
                                         </div>
                                     </TableCell>

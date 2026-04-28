@@ -257,14 +257,36 @@ export default function NDATokenPage() {
                 setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
             }
 
-            if (nda?.address) {
-                // If the address contains commas, it might be the formatted string.
-                // We'll just put the whole string in the 'street' field as a fallback
-                // if we can't reliably parse it into granular fields.
-                setPermaAddr(prev => ({ ...prev, street: nda.address }));
+            // Support both new nested format and legacy flat format
+            const addr = nda?.address;
+            const resAddr_ = nda?.residential_address;
+
+            if (addr?.perma_door_no || addr?.perma_street || addr?.perma_city) {
+                setPermaAddr({
+                    door_no: addr.perma_door_no || "",
+                    care_of_type: addr.perma_care_of_type || "S/o",
+                    care_of_name: addr.perma_care_of_name || "",
+                    street: addr.perma_street || "",
+                    city: addr.perma_city || "",
+                    state: addr.perma_state || "",
+                    pincode: addr.perma_pincode || "",
+                });
+            } else if (addr?.permanent_address) {
+                setPermaAddr(prev => ({ ...prev, street: addr.permanent_address }));
             }
-            if (nda?.residential_address) {
-                setResAddr(prev => ({ ...prev, street: nda.residential_address }));
+
+            if (resAddr_?.res_door_no || resAddr_?.res_street || resAddr_?.res_city) {
+                setResAddr({
+                    door_no: resAddr_.res_door_no || "",
+                    care_of_type: resAddr_.res_care_of_type || "S/o",
+                    care_of_name: resAddr_.res_care_of_name || "",
+                    street: resAddr_.res_street || "",
+                    city: resAddr_.res_city || "",
+                    state: resAddr_.res_state || "",
+                    pincode: resAddr_.res_pincode || "",
+                });
+            } else if (resAddr_?.residential_address) {
+                setResAddr(prev => ({ ...prev, street: resAddr_.residential_address }));
             }
             if (nda?.mobile) setMobile(nda.mobile);
         }
@@ -315,7 +337,21 @@ export default function NDATokenPage() {
         dispatch(updateNDADetailsRequest(token, {
             address: formatAddress(permaAddr),
             residential_address: formatAddress(resAddr),
-            mobile
+            mobile,
+            perma_door_no: permaAddr.door_no,
+            perma_care_of_type: permaAddr.care_of_type,
+            perma_care_of_name: permaAddr.care_of_name,
+            perma_street: permaAddr.street,
+            perma_city: permaAddr.city,
+            perma_state: permaAddr.state,
+            perma_pincode: permaAddr.pincode,
+            res_door_no: resAddr.door_no,
+            res_care_of_type: resAddr.care_of_type,
+            res_care_of_name: resAddr.care_of_name,
+            res_street: resAddr.street,
+            res_city: resAddr.city,
+            res_state: resAddr.state,
+            res_pincode: resAddr.pincode,
         }));
     };
 

@@ -279,6 +279,20 @@ export default function GenerateNDADrawer({
                 ...rest,
                 address: formatAddress(address),
                 residential_address: formatAddress(residential_address),
+                perma_door_no: address.door_no,
+                perma_care_of_type: address.care_of_type,
+                perma_care_of_name: address.care_of_name,
+                perma_street: address.street,
+                perma_city: address.city,
+                perma_state: address.state,
+                perma_pincode: address.pincode,
+                res_door_no: residential_address.door_no,
+                res_care_of_type: residential_address.care_of_type,
+                res_care_of_name: residential_address.care_of_name,
+                res_street: residential_address.street,
+                res_city: residential_address.city,
+                res_state: residential_address.state,
+                res_pincode: residential_address.pincode,
             });
         }
     };
