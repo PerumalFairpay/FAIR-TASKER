@@ -236,32 +236,26 @@ export default function NDATokenPage() {
     }, [token, dispatch]);
 
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
-    useEffect(() => {
-        if (currentNDA) {
-            // Identify target data - it might be nested in 'nda' key or direct
-            const nda = currentNDA.nda || currentNDA;
-            const html = currentNDA.html_content;
 
-            if (html) {
-                setHtmlContent(html);
-                setIsAuthenticated(true);
-            }
-            else if (nda.requires_auth) {
-                setIsAuthenticated(false);
-            }
+    const syncNDAState = (nda: any, html?: string) => {
+        if (!nda) return;
 
-            setNdaData(nda);
+        if (html) setHtmlContent(html);
+        setNdaData(nda);
 
-            if (nda?.required_documents) {
-                setRequiredDocuments(nda.required_documents);
-                setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
-            }
+        if (nda?.required_documents) {
+            setRequiredDocuments(nda.required_documents);
+            setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
+        }
 
-            // Support both new nested format and legacy flat format
-            const addr = nda?.address;
-            const resAddr_ = nda?.residential_address;
+        if (nda?.mobile) setMobile(nda.mobile);
 
-            if (addr?.perma_door_no || addr?.perma_street || addr?.perma_city) {
+        // Support both new nested format and legacy flat format
+        const addr = nda?.address;
+        const resAddr_ = nda?.residential_address;
+
+        if (addr) {
+            if (typeof addr === 'object' && (addr.perma_door_no || addr.perma_street || addr.perma_city)) {
                 setPermaAddr({
                     door_no: addr.perma_door_no || "",
                     care_of_type: addr.perma_care_of_type || "S/o",
@@ -271,11 +265,15 @@ export default function NDATokenPage() {
                     state: addr.perma_state || "",
                     pincode: addr.perma_pincode || "",
                 });
-            } else if (addr?.permanent_address) {
+            } else if (typeof addr === 'object' && addr.permanent_address) {
                 setPermaAddr(prev => ({ ...prev, street: addr.permanent_address }));
+            } else if (typeof addr === 'string') {
+                setPermaAddr(prev => ({ ...prev, street: addr }));
             }
+        }
 
-            if (resAddr_?.res_door_no || resAddr_?.res_street || resAddr_?.res_city) {
+        if (resAddr_) {
+            if (typeof resAddr_ === 'object' && (resAddr_.res_door_no || resAddr_.res_street || resAddr_.res_city)) {
                 setResAddr({
                     door_no: resAddr_.res_door_no || "",
                     care_of_type: resAddr_.res_care_of_type || "S/o",
@@ -285,10 +283,26 @@ export default function NDATokenPage() {
                     state: resAddr_.res_state || "",
                     pincode: resAddr_.res_pincode || "",
                 });
-            } else if (resAddr_?.residential_address) {
+            } else if (typeof resAddr_ === 'object' && resAddr_.residential_address) {
                 setResAddr(prev => ({ ...prev, street: resAddr_.residential_address }));
+            } else if (typeof resAddr_ === 'string') {
+                setResAddr(prev => ({ ...prev, street: resAddr_ }));
             }
-            if (nda?.mobile) setMobile(nda.mobile);
+        }
+    };
+
+    useEffect(() => {
+        if (currentNDA) {
+            const nda = currentNDA.nda || currentNDA;
+            const html = currentNDA.html_content;
+
+            if (html) {
+                setIsAuthenticated(true);
+            } else if (nda.requires_auth) {
+                setIsAuthenticated(false);
+            }
+
+            syncNDAState(nda, html);
         }
     }, [currentNDA]);
 
@@ -481,17 +495,7 @@ export default function NDATokenPage() {
             const data = await response.json();
 
             if (response.ok) {
-                setHtmlContent(data.data.html_content);
-                setNdaData(data.data.nda);
-
-                if (data.data.nda?.address) setPermaAddr(prev => ({ ...prev, street: data.data.nda.address }));
-                if (data.data.nda?.residential_address) setResAddr(prev => ({ ...prev, street: data.data.nda.residential_address }));
-                if (data.data.nda?.mobile) setMobile(data.data.nda.mobile);
- 
-                if (data.data.nda?.required_documents) {
-                    setRequiredDocuments(data.data.nda.required_documents);
-                    setUploadedFiles(data.data.nda.required_documents.map((name: string) => ({ name, file: null })));
-                }
+                syncNDAState(data.data.nda, data.data.html_content);
 
                 // Start verification animation instead of showing content immediately
                 setShowIntroAnimation(true);
