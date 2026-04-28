@@ -22,7 +22,8 @@ import FilePreviewModal from "@/components/common/FilePreviewModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { addToast } from "@heroui/toast";
-import SignaturePad from "react-signature-canvas";
+import dynamic from "next/dynamic";
+const SignaturePad = dynamic(() => import("react-signature-canvas"), { ssr: false }) as any;
 import Image from "next/image";
 import logo from "@/app/assets/FairPay.png";
 
@@ -396,7 +397,7 @@ export default function NDATokenPage() {
     };
 
     const handleSaveSignature = async () => {
-        if (sigPad.current?.isEmpty()) {
+        if (!sigPad.current || sigPad.current.isEmpty()) {
             addToast({
                 title: "Warning",
                 description: "Please sign before submitting",
@@ -404,7 +405,17 @@ export default function NDATokenPage() {
             });
             return;
         }
-        const sigData = sigPad.current?.getTrimmedCanvas().toDataURL("image/png");
+
+        let sigData;
+        try {
+            // getTrimmedCanvas() can fail in some production environments due to bundling issues with its dependencies
+            sigData = sigPad.current.getTrimmedCanvas().toDataURL("image/png");
+        } catch (error) {
+            console.error("Signature trimming failed, falling back to full canvas:", error);
+            // Fallback to untrimmed canvas if getTrimmedCanvas fails
+            sigData = sigPad.current.toDataURL("image/png");
+        }
+
         const deviceDetails = await getDeviceDetails();
 
         setSignature(sigData);
