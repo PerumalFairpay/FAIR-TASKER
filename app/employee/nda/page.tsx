@@ -124,6 +124,7 @@ export default function NDAPage() {
         residential_address: string;
         expires_in_hours: number;
         required_documents: string[];
+        nda_date?: string;
     }) => {
         dispatch(generateNDARequest(data));
     };

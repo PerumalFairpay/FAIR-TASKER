@@ -15,6 +15,8 @@ import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock, Plus, X } from "luc
 import { Select, SelectItem } from "@heroui/select";
 import { Checkbox } from "@heroui/checkbox";
 import { addToast } from "@heroui/toast";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
 
 interface GenerateNDADrawerProps {
     isOpen: boolean;
@@ -31,6 +33,7 @@ interface GenerateNDADrawerProps {
         residential_address: string;
         expires_in_hours: number;
         required_documents: string[];
+        nda_date?: string;
     }) => void;
 }
 
@@ -75,6 +78,13 @@ export default function GenerateNDADrawer({
             "Adhar",
             "PAN Card"
         ],
+        nda_date: (() => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        })(),
     });
 
     const [errors, setErrors] = useState({
@@ -143,6 +153,13 @@ export default function GenerateNDADrawer({
                         "Adhar",
                         "PAN Card"
                     ],
+                    nda_date: (() => {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    })(),
                 });
                 setErrors({
                     first_name: "",
@@ -279,6 +296,7 @@ export default function GenerateNDADrawer({
                 ...rest,
                 address: formatAddress(address),
                 residential_address: formatAddress(residential_address),
+                nda_date: formData.nda_date ? formData.nda_date.split('-').reverse().join('/') : undefined,
                 perma_door_no: address.door_no,
                 perma_care_of_type: address.care_of_type,
                 perma_care_of_name: address.care_of_name,
@@ -515,7 +533,7 @@ export default function GenerateNDADrawer({
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold mb-1">
                                             <MapPin size={18} />
-                                            <span className="text-sm">Office / Permanent Address</span>
+                                            <span className="text-sm">Permanent Address</span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <Input
@@ -776,6 +794,22 @@ export default function GenerateNDADrawer({
                                         <SelectItem key="48">2 Days</SelectItem>
                                         <SelectItem key="168">7 Days</SelectItem>
                                     </Select>
+
+                                    <DatePicker
+                                        label="NDA Date"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.nda_date ? parseDate(formData.nda_date) : null}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                handleChange("nda_date", date.toString());
+                                            } else {
+                                                handleChange("nda_date", "");
+                                            }
+                                        }}
+                                        description="Custom date for the NDA document (optional)"
+                                        showMonthAndYearPickers
+                                    />
                                 </div>
                             )}
                         </DrawerBody>
