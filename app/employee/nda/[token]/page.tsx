@@ -340,6 +340,8 @@ export default function NDATokenPage() {
                 title: "Success",
                 description: successMessage,
                 color: "success",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             // Navigation is handled by manual button clicks now
         }
@@ -348,6 +350,8 @@ export default function NDATokenPage() {
                 title: "Error",
                 description: typeof errorMessage === "string" ? errorMessage : "An error occurred",
                 color: "danger",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
         }
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
@@ -387,6 +391,8 @@ export default function NDATokenPage() {
                 title: "Missing Documents",
                 description: `Please upload: ${missingDocs.map(d => d.name).join(", ")}`,
                 color: "warning",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             return;
         }
@@ -462,6 +468,8 @@ export default function NDATokenPage() {
                 title: "Warning",
                 description: "Please sign before submitting",
                 color: "warning",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             return;
         }
@@ -515,6 +523,8 @@ export default function NDATokenPage() {
                     title: "Access Denied",
                     description: data.message || "Invalid Email Address",
                     color: "danger",
+                    timeout: 3000,
+                    shouldShowTimeoutProgress: true,
                 });
             }
         } catch (err) {
@@ -543,6 +553,8 @@ export default function NDATokenPage() {
                     title: "Error",
                     description: "Failed to download PDF",
                     color: "danger",
+                    timeout: 3000,
+                    shouldShowTimeoutProgress: true,
                 });
             }
         } catch (error) {
@@ -551,6 +563,8 @@ export default function NDATokenPage() {
                 title: "Error",
                 description: "Error downloading PDF",
                 color: "danger",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
         }
     };
@@ -666,6 +680,8 @@ export default function NDATokenPage() {
                                 title: "Access Granted",
                                 description: "You can now view and sign the document.",
                                 color: "success",
+                                timeout: 3000,
+                                shouldShowTimeoutProgress: true,
                             });
                         }}
                     />
