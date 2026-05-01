@@ -10,6 +10,7 @@ import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
 import HRMLoading from "./assets/HRMLoading.json";
 import AIAssistantSidebar from "@/components/ai-assistant/AIAssistantSidebar";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -24,6 +25,20 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     useEffect(() => { 
         if (!isNDATokenPage) {
             dispatch(getUserRequest());
+        }
+
+        // Register Service Worker for PWA
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function() {
+                navigator.serviceWorker.register("/sw.js").then(
+                    function(registration) {
+                        console.log("ServiceWorker registration successful with scope: ", registration.scope);
+                    },
+                    function(err) {
+                        console.log("ServiceWorker registration failed: ", err);
+                    }
+                );
+            });
         }
     }, [dispatch, isNDATokenPage]);
 
@@ -70,6 +85,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                 </div>
             </main>
             {pathname !== "/ai-chat" && <div className="hidden lg:block"><AIAssistantSidebar /></div>}
+            <PWAInstallPrompt />
         </div>
     );
 }
