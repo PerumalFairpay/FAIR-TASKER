@@ -19,7 +19,7 @@ import {
     Camera, Lock, User as UserIcon, Upload,
     FileText, Shield, Mail, Phone,
     Briefcase, CheckCircle2,
-    BadgeCheck, ExternalLink, Eye, EyeOff, KeyRound
+    BadgeCheck, ExternalLink, Eye, EyeOff, KeyRound, RefreshCw
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { motion } from "framer-motion";
@@ -120,6 +120,7 @@ export default function ProfilePage() {
     useEffect(() => {
         if (profileSuccess) {
             setDocumentProof(null);
+            setProfilePic(null);
             if (docInputRef.current) {
                 docInputRef.current.value = "";
             }
@@ -215,33 +216,66 @@ export default function ProfilePage() {
                     <CardBody className="p-6 md:p-8">
                         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                             {/* Avatar */}
-                            <div className="relative group shrink-0">
-                                {isLoadingInitial ? (
-                                    <Skeleton className="rounded-full w-24 h-24 md:w-32 md:h-32" />
-                                ) : (
-                                    <Avatar
-                                        src={profilePicPreview || user?.profile_picture || ""}
-                                        name={(formData.first_name || "").charAt(0).toUpperCase()}
-                                        className="w-24 h-24 md:w-32 md:h-32 text-2xl"
-                                        isBordered
-                                        color="primary"
+                            <div className="flex flex-col items-center gap-3 shrink-0">
+                                <div className="relative group">
+                                    {isLoadingInitial ? (
+                                        <Skeleton className="rounded-full w-24 h-24 md:w-32 md:h-32" />
+                                    ) : (
+                                        <Avatar
+                                            src={profilePicPreview || user?.profile_picture || ""}
+                                            name={(formData.first_name || "").charAt(0).toUpperCase()}
+                                            className="w-24 h-24 md:w-32 md:h-32 text-2xl"
+                                            isBordered
+                                            color="primary"
+                                        />
+                                    )}
+                                    <Button
+                                        isIconOnly
+                                        className="absolute bottom-0 right-0 rounded-full bg-content1 text-default-600 shadow-lg border border-default-200 hover:text-primary"
+                                        size="sm"
+                                        onPress={() => fileInputRef.current?.click()}
+                                    >
+                                        <Camera size={14} />
+                                    </Button>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        hidden
+                                        accept="image/*"
+                                        onChange={(e) => handleFileChange(e, "profile")}
                                     />
+                                </div>
+                                {profilePic && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="flex gap-2"
+                                    >
+                                        <Button
+                                            color="primary"
+                                            variant="solid"
+                                            size="sm"
+                                            onPress={() => handleProfileSubmit()}
+                                            isLoading={profileLoading}
+                                            startContent={!profileLoading && <Upload size={14} />}
+                                            className="font-medium h-8 rounded-lg shadow-lg shadow-primary/30"
+                                        >
+                                            Save Photo
+                                        </Button>
+                                        <Button
+                                            color="danger"
+                                            variant="flat"
+                                            size="sm"
+                                            onPress={() => {
+                                                setProfilePic(null);
+                                                setProfilePicPreview(profile?.profile_picture || user?.profile_picture || null);
+                                            }}
+                                            className="h-8 w-8 min-w-0 p-0 rounded-lg"
+                                        >
+                                            ×
+                                        </Button>
+                                    </motion.div>
                                 )}
-                                <Button
-                                    isIconOnly
-                                    className="absolute bottom-0 right-0 rounded-full bg-content1 text-default-600 shadow-lg border border-default-200 hover:text-primary"
-                                    size="sm"
-                                    onPress={() => fileInputRef.current?.click()}
-                                >
-                                    <Camera size={14} />
-                                </Button>
-                                <input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    hidden
-                                    accept="image/*"
-                                    onChange={(e) => handleFileChange(e, "profile")}
-                                />
                             </div>
 
                             {/* Name & Basic Info */}
@@ -257,15 +291,6 @@ export default function ProfilePage() {
                                             <h2 className="text-2xl font-bold text-foreground">
                                                 {formData.name}
                                             </h2>
-                                            {/* <div className="flex items-center justify-center md:justify-start gap-2 text-default-500 font-medium mt-1">
-                                                <span>{formData.designation || "Employee"}</span>
-                                                {formData.department && (
-                                                    <>
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-default-300"></span>
-                                                        <span>{formData.department}</span>
-                                                    </>
-                                                )}
-                                            </div> */}
                                         </div>
 
                                         <Divider className="opacity-50" />
