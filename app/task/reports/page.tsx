@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEodReportsRequest } from "@/store/task/action";
@@ -29,10 +28,45 @@ import { getProjectsSummaryRequest } from "@/store/project/action";
 import { getEmployeesSummaryRequest } from "@/store/employee/action";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
-const ShowMoreText = dynamic(() => import("react-show-more-text"), { ssr: false });
 import parse from "html-react-parser";
 import { debounce } from "lodash";
 import EodReportDetailDrawer from "./EodReportDetailDrawer";
+
+const ExpandableText = ({ children, lines = 2 }: { children: React.ReactNode, lines?: number }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showButton, setShowButton] = useState(false);
+    const textRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const element = textRef.current;
+        if (element) {
+            const isOverflowing = element.scrollHeight > element.clientHeight;
+            setShowButton(isOverflowing || isExpanded);
+        }
+    }, [children, isExpanded]);
+
+    return (
+        <div className="relative">
+            <div 
+                ref={textRef}
+                className={isExpanded ? "" : `line-clamp-2`}
+            >
+                {children}
+            </div>
+            {showButton && (
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                    }}
+                    className="text-primary cursor-pointer hover:underline text-[10px] font-bold block mt-1 uppercase tracking-tighter"
+                >
+                    {isExpanded ? "Read less" : "Read more"}
+                </button>
+            )}
+        </div>
+    );
+};
 
 const EODReportsPage = () => {
     const dispatch = useDispatch();
@@ -353,18 +387,9 @@ const EODReportsPage = () => {
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     {item.summary ? (
-                                        <ShowMoreText
-                                            lines={2}
-                                            more="Read more"
-                                            less="Read less"
-                                            className="content-css"
-                                            anchorClass="text-primary cursor-pointer hover:underline text-[10px] font-bold block mt-1 uppercase tracking-tighter"
-                                            expanded={false}
-                                            width={250}
-                                            truncatedEndingComponent={"... "}
-                                        >
+                                        <ExpandableText lines={2}>
                                             {parse(item.summary)}
-                                        </ShowMoreText>
+                                        </ExpandableText>
                                     ) : (
                                         <span className="italic text-default-400 text-[10px]">No summary provided</span>
                                     )}
