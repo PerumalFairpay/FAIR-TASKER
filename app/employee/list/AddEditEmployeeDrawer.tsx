@@ -141,7 +141,7 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...fetchedEmployee });
         } else if (isOpen && mode === "create") {
             if (Object.keys(formData).length === 0) {
-                setFormData({ status: "Onboarding" });
+                setFormData({ status: "Onboarding", role: "employee" });
             }
         }
     }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
@@ -478,7 +478,7 @@ export default function AddEditEmployeeDrawer({
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <Input
                                                 label="Employee ID"
-                                                placeholder="EMP001"
+                                                placeholder="FPAY01"
                                                 labelPlacement="outside"
                                                 variant="bordered"
                                                 value={formData.employee_no_id || ""}
