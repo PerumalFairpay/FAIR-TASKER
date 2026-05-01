@@ -1198,17 +1198,7 @@ export default function NDATokenPage() {
                                     </div>
 
                                     <div className="flex justify-end mt-10 gap-3">
-                                        {requiredDocuments.length === 0 && (
-                                            <Button
-                                                color="default"
-                                                variant="flat"
-                                                size="md"
-                                                onPress={() => setActiveTab("review")}
-                                                className="font-semibold px-4 md:px-8"
-                                            >
-                                                Skip Documents
-                                            </Button>
-                                        )}
+                                       
                                         <Button
                                             color="primary"
                                             size="md"
@@ -1220,6 +1210,19 @@ export default function NDATokenPage() {
                                         >
                                             {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
+
+                                         {requiredDocuments.length === 0 && (
+                                            <Button
+                                                color="default"
+                                                variant="flat"
+                                                size="md"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-4 md:px-8"
+                                            >
+                                                Skip Documents
+                                            </Button>
+                                        )}
+                                        
                                         {ndaData?.status === "Document Uploaded" && (
                                             <Button
                                                 color="primary"
@@ -1332,11 +1335,11 @@ export default function NDATokenPage() {
                                                                 size="md"
                                                                 onPress={handleSaveSignature}
                                                                 isLoading={signLoading}
-                                                                isDisabled={ndaData?.status !== "Document Uploaded"}
+                                                                isDisabled={requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
                                                                 startContent={<PenTool size={18} />}
                                                             >
-                                                                {ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
+                                                                {requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
                                                             <Button
                                                                 variant="flat"
