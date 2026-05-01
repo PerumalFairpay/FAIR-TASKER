@@ -75,7 +75,7 @@ export default function AddEditEmployeeDrawer({
             children.forEach((child: any) => {
                 descendants.push({
                     ...child,
-                    displayName: level > 0 ? `${".".repeat(level * 4)} ${child.name}` : child.name
+                    level: level
                 });
                 traverse(child.id, level + 1);
             });
@@ -512,8 +512,20 @@ export default function AddEditEmployeeDrawer({
                                                 isDisabled={!formData.department || designationOptions.length === 0}
                                             >
                                                 {designationOptions.map((desig: any) => (
-                                                    <SelectItem key={desig.name} textValue={desig.name}>
-                                                        {desig.displayName}
+                                                    <SelectItem 
+                                                        key={desig.name} 
+                                                        textValue={desig.name}
+                                                    >
+                                                        <div className="flex items-center w-full text-left">
+                                                            {desig.level > 0 && (
+                                                                <span className="text-default-400 mr-1.5 flex-shrink-0">
+                                                                    {"\u00A0".repeat((desig.level - 1) * 2)}└─
+                                                                </span>
+                                                            )}
+                                                            <span className={`truncate ${desig.level > 0 ? "text-default-600 text-small" : "font-medium"}`}>
+                                                                {desig.name}
+                                                            </span>
+                                                        </div>
                                                     </SelectItem>
                                                 ))}
                                             </Select>
