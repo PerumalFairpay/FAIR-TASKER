@@ -72,11 +72,8 @@ export default function GenerateNDADrawer({
         required_documents: [
             "10th Marksheet",
             "12th Marksheet",
-            "TC",
             "Degree Certificate",
-            "Cumulative Certificate",
-            "Adhar",
-            "PAN Card"
+            "Adhar"
         ],
         nda_date: (() => {
             const now = new Date();
@@ -147,11 +144,8 @@ export default function GenerateNDADrawer({
                     required_documents: [
                         "10th Marksheet",
                         "12th Marksheet",
-                        "TC",
                         "Degree Certificate",
-                        "Cumulative Certificate",
-                        "Adhar",
-                        "PAN Card"
+                        "Adhar"
                     ],
                     nda_date: (() => {
                         const now = new Date();
@@ -368,6 +362,14 @@ export default function GenerateNDADrawer({
             ...prev,
             required_documents: prev.required_documents.filter(doc => doc !== docToRemove)
         }));
+    };
+
+    const handleClearDocuments = () => {
+        setFormData(prev => ({
+            ...prev,
+            required_documents: []
+        }));
+        setIsExperience(false);
     };
 
     const experienceDocs = [
@@ -736,7 +738,18 @@ export default function GenerateNDADrawer({
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">
                                             <label className="text-sm font-medium text-foreground">Required Documents</label>
-                                            <span className="text-tiny text-default-400">{formData.required_documents.length} selected</span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-tiny text-default-400">{formData.required_documents.length} selected</span>
+                                                {formData.required_documents.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleClearDocuments}
+                                                        className="text-tiny text-danger hover:text-danger-600 font-semibold transition-colors uppercase tracking-wider"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="flex gap-2">
