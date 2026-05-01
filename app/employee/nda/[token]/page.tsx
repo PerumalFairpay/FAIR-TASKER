@@ -1028,7 +1028,7 @@ export default function NDATokenPage() {
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <Upload size={20} />
-                                        <span>Upload Documents</span>
+                                        <span>Documents</span>
                                     </div>
                                 }
                             >
@@ -1193,7 +1193,7 @@ export default function NDATokenPage() {
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <FileText size={20} />
-                                        <span>Review & Sign</span>
+                                        <span>Agreement</span>
                                     </div>
                                 }
                             >
@@ -1223,7 +1223,7 @@ export default function NDATokenPage() {
                                                     <div className="bg-gray-50/50 dark:bg-gray-800/50 p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center backdrop-blur-sm">
                                                         <span className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-200">
                                                             <FileText size={18} className="text-primary" />
-                                                            Document Preview
+                                                            NDA Preview
                                                         </span>
                                                         <span className="bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-mono border border-gray-100 dark:border-gray-700 shadow-sm">
                                                             {ndaData?.first_name} {ndaData?.last_name}
