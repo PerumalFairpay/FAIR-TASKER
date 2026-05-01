@@ -105,7 +105,8 @@ const iconMap: Record<string, any> = {
   UserMinus,
   SettingsIcon,
   Settings,
-  MessageSquare
+  MessageSquare,
+  Webhook
 };
 
 // Left & right flanking items around the center AI Chat FAB

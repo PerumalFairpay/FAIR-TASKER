@@ -35,12 +35,6 @@ export const siteConfig: SiteConfig = {
       allowedRoles: ["admin", "employee"],
     },
     {
-      label: "AI Chat",
-      href: "/ai-chat",
-      icon: "MessageSquare",
-      allowedRoles: ["admin", "employee"],
-    },
-    {
       label: "Employee",
       href: "/employee",
       icon: "Users",
@@ -174,6 +168,12 @@ export const siteConfig: SiteConfig = {
           permission: "nav:milestone",
         },
       ],
+    },
+    {
+      label: "Astro",
+      href: "/ai-chat",
+      icon: "Webhook",
+      allowedRoles: ["admin", "employee"],
     },
     {
       label: "Payroll",
