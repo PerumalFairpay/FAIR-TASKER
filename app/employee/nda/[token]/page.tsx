@@ -1198,6 +1198,17 @@ export default function NDATokenPage() {
                                     </div>
 
                                     <div className="flex justify-end mt-10 gap-3">
+                                        {requiredDocuments.length === 0 && (
+                                            <Button
+                                                color="default"
+                                                variant="flat"
+                                                size="md"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-4 md:px-8"
+                                            >
+                                                Skip Documents
+                                            </Button>
+                                        )}
                                         <Button
                                             color="primary"
                                             size="md"
@@ -1227,7 +1238,7 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="review"
-                                isDisabled={!ndaData?.address || !ndaData?.residential_address || ndaData?.status !== "Document Uploaded"}
+                                isDisabled={!isAPIDataComplete || (requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded" && ndaData?.status !== "Signed")}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <FileText size={20} />
