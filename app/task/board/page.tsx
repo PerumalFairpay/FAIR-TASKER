@@ -46,6 +46,14 @@ const TaskBoard = () => {
     const [isEodDrawerOpen, setIsEodDrawerOpen] = useState(false);
     const [isRulesDrawerOpen, setIsRulesDrawerOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        containerRef.current.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+        containerRef.current.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+    };
     const [eodDrawerTasks, setEodDrawerTasks] = useState<any[]>([]);
     const [eodDrawerInitialReports, setEodDrawerInitialReports] = useState<Record<string, any>>({});
 
@@ -301,8 +309,12 @@ const TaskBoard = () => {
     };
 
     return (
-        <div className="h-full flex flex-col gap-4 sm:gap-6 p-4 sm:p-6">
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+        <div 
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            className="h-full min-h-screen flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 bg-white dark:bg-[#09090b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
+        >
+            <div className="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                 <PageHeader
                     title="Task Management"
                     description="Manage your daily tasks and project progress"
@@ -419,7 +431,7 @@ const TaskBoard = () => {
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 min-h-[calc(100vh-280px)] scrollbar-hide">
+                <div className="relative z-10 flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 min-h-[calc(100vh-280px)] scrollbar-hide">
                     {columns.map((column) => (
                         <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
                             <div className={clsx(

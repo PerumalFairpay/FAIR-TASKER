@@ -35,10 +35,8 @@ export default function OnboardingPage() {
 
     const DEFAULT_ONBOARDING_TASKS = [
         "Document Verification",
-        "IT Induction",
-        "Email Creation",
-        "Badge Creation",
-        // "Stationary Allocation",
+       
+        "Email Creation",  
         "Laptop Allocation",
         "Monitor Allocation",
         "Headset Allocation",
@@ -114,7 +112,7 @@ export default function OnboardingPage() {
         setNewTaskName("");
     };
 
-    const handleTaskAction = (action: 'add' | 'delete' | 'toggle', payload?: any) => {
+    const handleTaskAction = (action: 'add' | 'delete' | 'toggle' | 'selectAll', payload?: any) => {
         if (action === 'add' && newTaskName) {
             setOnboardingTasks([...onboardingTasks, { name: newTaskName, status: "Pending", completed_at: null }]);
             setNewTaskName("");
@@ -127,6 +125,13 @@ export default function OnboardingPage() {
                     ? { ...t, status: t.status === "Completed" ? "Pending" : "Completed", completed_at: t.status === "Pending" ? new Date().toISOString() : null }
                     : t
             ));
+        } else if (action === 'selectAll') {
+            const isSelected = payload;
+            setOnboardingTasks(onboardingTasks.map(t => ({
+                ...t,
+                status: isSelected ? "Completed" : "Pending",
+                completed_at: isSelected ? (t.status === "Pending" ? new Date().toISOString() : t.completed_at) : null
+            })));
         }
     };
 
@@ -291,7 +296,6 @@ export default function OnboardingPage() {
                 onOpenChange={setIsDrawerOpen} 
                 size="lg"
                 isDismissable={false}
-                shouldCloseOnInteractOutside={(element) => false}
             >
                 <DrawerContent>
                     {(onClose) => (
@@ -324,7 +328,19 @@ export default function OnboardingPage() {
                                     </div>
 
                                     <div className="flex justify-between items-center mb-4">
-                                        <h3 className="text-lg font-semibold">Checklist</h3>
+                                        <div className="flex items-center gap-4">
+                                            <h3 className="text-lg font-semibold">Checklist</h3>
+                                            {onboardingTasks.length > 0 && (
+                                                <Checkbox
+                                                    size="sm"
+                                                    isSelected={onboardingTasks.length > 0 && onboardingTasks.every(t => t.status === "Completed")}
+                                                    isIndeterminate={onboardingTasks.length > 0 && onboardingTasks.some(t => t.status === "Completed") && !onboardingTasks.every(t => t.status === "Completed")}
+                                                    onValueChange={(isSelected) => handleTaskAction('selectAll', isSelected)}
+                                                >
+                                                    Select All
+                                                </Checkbox>
+                                            )}
+                                        </div>
                                         <Button
                                             size="sm"
                                             color="primary"
@@ -425,7 +441,7 @@ export default function OnboardingPage() {
                                     onPress={handleCompleteOnboarding}
                                     isLoading={isCompletingOnboarding}
                                     isDisabled={calculateProgress(onboardingTasks) < 100}
-                                    className="w-full sm:w-auto font-bold"
+                                    className="w-full sm:w-auto"
                                 >
                                     Complete Onboarding
                                 </Button>

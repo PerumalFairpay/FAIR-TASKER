@@ -43,7 +43,7 @@ function generateNDAApi(payload: {
   last_name: string;
   email: string;
   mobile: string;
-  role: string;
+  designation: string;
   address?: string;
   residential_address?: string;
   expires_in_hours: number;

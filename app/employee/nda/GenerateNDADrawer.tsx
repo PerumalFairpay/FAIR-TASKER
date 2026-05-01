@@ -15,6 +15,8 @@ import { User, Briefcase, MapPin, Copy, CheckCircle2, Clock, Plus, X } from "luc
 import { Select, SelectItem } from "@heroui/select";
 import { Checkbox } from "@heroui/checkbox";
 import { addToast } from "@heroui/toast";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
 
 interface GenerateNDADrawerProps {
     isOpen: boolean;
@@ -26,11 +28,12 @@ interface GenerateNDADrawerProps {
         last_name: string;
         email: string;
         mobile: string;
-        role: string;
+        designation: string;
         address: string;
         residential_address: string;
         expires_in_hours: number;
         required_documents: string[];
+        nda_date?: string;
     }) => void;
 }
 
@@ -62,19 +65,23 @@ export default function GenerateNDADrawer({
         email: "",
         mobile: "",
         department: "",
-        role: "",
+        designation: "",
         address: { ...initialAddress },
         residential_address: { ...initialAddress },
         expires_in_hours: 48,
         required_documents: [
             "10th Marksheet",
             "12th Marksheet",
-            "TC",
             "Degree Certificate",
-            "Cumulative Certificate",
-            "Adhar",
-            "PAN Card"
+            "Adhar"
         ],
+        nda_date: (() => {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        })(),
     });
 
     const [errors, setErrors] = useState({
@@ -83,7 +90,7 @@ export default function GenerateNDADrawer({
         email: "",
         mobile: "",
         department: "",
-        role: "",
+        designation: "",
         address: "",
         residential_address: "",
     });
@@ -109,7 +116,7 @@ export default function GenerateNDADrawer({
             children.forEach((child: any) => {
                 descendants.push({
                     ...child,
-                    displayName: level > 0 ? `${".".repeat(level * 4)} ${child.name}` : child.name
+                    level: level
                 });
                 traverse(child.id, level + 1);
             });
@@ -130,19 +137,23 @@ export default function GenerateNDADrawer({
                     email: "",
                     mobile: "",
                     department: "",
-                    role: "",
+                    designation: "",
                     address: { ...initialAddress },
                     residential_address: { ...initialAddress },
                     expires_in_hours: 48,
                     required_documents: [
                         "10th Marksheet",
                         "12th Marksheet",
-                        "TC",
                         "Degree Certificate",
-                        "Cumulative Certificate",
-                        "Adhar",
-                        "PAN Card"
+                        "Adhar"
                     ],
+                    nda_date: (() => {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                    })(),
                 });
                 setErrors({
                     first_name: "",
@@ -150,7 +161,7 @@ export default function GenerateNDADrawer({
                     email: "",
                     mobile: "",
                     department: "",
-                    role: "",
+                    designation: "",
                     address: "",
                     residential_address: "",
                 });
@@ -209,7 +220,7 @@ export default function GenerateNDADrawer({
             email: "",
             mobile: "",
             department: "",
-            role: "",
+            designation: "",
             address: "",
             residential_address: "",
         };
@@ -228,8 +239,8 @@ export default function GenerateNDADrawer({
         if (!formData.department.trim()) {
             newErrors.department = "Department is required";
         }
-        if (!formData.role.trim()) {
-            newErrors.role = "Role is required";
+        if (!formData.designation.trim()) {
+            newErrors.designation = "Designation is required";
         }
 
         // Basic address validation: require at least one of Building, Street, or City
@@ -275,11 +286,37 @@ export default function GenerateNDADrawer({
             };
 
             const { department, address, residential_address, ...rest } = formData as any;
-            onSubmit({
+            const payload: any = {
                 ...rest,
                 address: formatAddress(address),
                 residential_address: formatAddress(residential_address),
-            });
+                nda_date: formData.nda_date ? formData.nda_date.split('-').reverse().join('/') : undefined,
+                perma_door_no: address.door_no,
+                perma_care_of_type: address.care_of_name ? address.care_of_type : "",
+                perma_care_of_name: address.care_of_name,
+                perma_street: address.street,
+                perma_city: address.city,
+                perma_state: address.state,
+                perma_pincode: address.pincode,
+                res_door_no: residential_address.door_no,
+                res_care_of_type: residential_address.care_of_name ? residential_address.care_of_type : "",
+                res_care_of_name: residential_address.care_of_name,
+                res_street: residential_address.street,
+                res_city: residential_address.city,
+                res_state: residential_address.state,
+                res_pincode: residential_address.pincode,
+            };
+
+            // Filter out empty strings, null, undefined, and empty arrays
+            const filteredPayload = Object.fromEntries(
+                Object.entries(payload).filter(([_, value]) => {
+                    if (value === "" || value === null || value === undefined) return false;
+                    if (Array.isArray(value) && value.length === 0) return false;
+                    return true;
+                })
+            );
+
+            onSubmit(filteredPayload as any);
         }
     };
 
@@ -325,6 +362,14 @@ export default function GenerateNDADrawer({
             ...prev,
             required_documents: prev.required_documents.filter(doc => doc !== docToRemove)
         }));
+    };
+
+    const handleClearDocuments = () => {
+        setFormData(prev => ({
+            ...prev,
+            required_documents: []
+        }));
+        setIsExperience(false);
     };
 
     const experienceDocs = [
@@ -468,7 +513,7 @@ export default function GenerateNDADrawer({
                                         selectedKeys={formData.department ? [formData.department] : []}
                                         onChange={(e) => {
                                             handleChange("department", e.target.value);
-                                            handleChange("role", ""); // Reset role when department changes
+                                            handleChange("designation", ""); // Reset designation when department changes
                                         }}
                                         isRequired
                                         isInvalid={!!errors.department}
@@ -481,27 +526,39 @@ export default function GenerateNDADrawer({
                                         ))}
                                     </Select>
                                     <Select
-                                        label="Role"
-                                        placeholder="Select Role/Designation"
+                                        label="Designation"
+                                        placeholder="Select Designation"
                                         labelPlacement="outside"
                                         variant="bordered"
-                                        selectedKeys={formData.role ? [formData.role] : []}
-                                        onChange={(e) => handleChange("role", e.target.value)}
+                                        selectedKeys={formData.designation ? [formData.designation] : []}
+                                        onChange={(e) => handleChange("designation", e.target.value)}
                                         isRequired
-                                        isInvalid={!!errors.role}
-                                        errorMessage={errors.role}
+                                        isInvalid={!!errors.designation}
+                                        errorMessage={errors.designation}
                                         isDisabled={!formData.department || designationOptions.length === 0}
                                     >
                                         {designationOptions.map((desig: any) => (
-                                            <SelectItem key={desig.name} textValue={desig.name}>
-                                                {desig.displayName}
+                                            <SelectItem 
+                                                key={desig.name} 
+                                                textValue={desig.name}
+                                            >
+                                                <div className="flex items-center w-full text-left">
+                                                    {desig.level > 0 && (
+                                                        <span className="text-default-400 mr-1.5 flex-shrink-0">
+                                                            {"\u00A0".repeat((desig.level - 1) * 2)}└─
+                                                        </span>
+                                                    )}
+                                                    <span className={`truncate ${desig.level > 0 ? "text-default-600 text-small" : "font-medium"}`}>
+                                                        {desig.name}
+                                                    </span>
+                                                </div>
                                             </SelectItem>
                                         ))}
                                     </Select>
                                     <div className="flex flex-col gap-4">
                                         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-bold mb-1">
                                             <MapPin size={18} />
-                                            <span className="text-sm">Office / Permanent Address</span>
+                                            <span className="text-sm">Permanent Address</span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <Input
@@ -693,7 +750,18 @@ export default function GenerateNDADrawer({
                                     <div className="space-y-3">
                                         <div className="flex justify-between items-end">
                                             <label className="text-sm font-medium text-foreground">Required Documents</label>
-                                            <span className="text-tiny text-default-400">{formData.required_documents.length} selected</span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-tiny text-default-400">{formData.required_documents.length} selected</span>
+                                                {formData.required_documents.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleClearDocuments}
+                                                        className="text-tiny text-danger hover:text-danger-600 font-semibold transition-colors uppercase tracking-wider"
+                                                    >
+                                                        Clear
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="flex gap-2">
@@ -762,6 +830,22 @@ export default function GenerateNDADrawer({
                                         <SelectItem key="48">2 Days</SelectItem>
                                         <SelectItem key="168">7 Days</SelectItem>
                                     </Select>
+
+                                    <DatePicker
+                                        label="NDA Date"
+                                        labelPlacement="outside"
+                                        variant="bordered"
+                                        value={formData.nda_date ? parseDate(formData.nda_date) : null}
+                                        onChange={(date) => {
+                                            if (date) {
+                                                handleChange("nda_date", date.toString());
+                                            } else {
+                                                handleChange("nda_date", "");
+                                            }
+                                        }}
+                                        description="Custom date for the NDA document (optional)"
+                                        showMonthAndYearPickers
+                                    />
                                 </div>
                             )}
                         </DrawerBody>

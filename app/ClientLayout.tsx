@@ -21,8 +21,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
     const { user, getUserLoading, logoutSuccess, getUserError } = useSelector((state: AppState) => state.Auth);
 
-    useEffect(() => {
-        // Skip getUserRequest for public NDA token pages
+    useEffect(() => { 
         if (!isNDATokenPage) {
             dispatch(getUserRequest());
         }
@@ -34,8 +33,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             dispatch(clearAuth());
         }
     }, [logoutSuccess, getUserError, user, isLoginPage, router, dispatch]);
-
-    // Skip authentication check for NDA token pages
+ 
     if (!isLoginPage && !isNDATokenPage && !user) {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -44,14 +42,12 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
                         animationData={HRMLoading}
                         loop={true}
                         className="w-52 h-52"
-                    />
-                    {/* <p className="text-gray-500 font-medium -mt-8">Loading ...</p> */}
+                    /> 
                 </div>
             </div>
         );
     }
-
-    // If it's the login page or NDA token page, render full width without sidebar
+ 
     if (isLoginPage || isNDATokenPage) {
         return (
             <div className="relative flex flex-col min-h-screen">
@@ -61,8 +57,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
             </div>
         );
     }
-
-    // Otherwise, render with sidebar (navbar)
+ 
     return (
         <div className="relative flex flex-col h-[100dvh] overflow-hidden">
             <Navbar isExpanded={isExpanded} onToggle={() => setIsExpanded(!isExpanded)} />

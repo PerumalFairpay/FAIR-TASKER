@@ -17,13 +17,23 @@ import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Tabs, Tab } from "@heroui/tabs";
-import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landmark } from "lucide-react";
+import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landmark, RefreshCw } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
 import { parseDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
 import { CheckboxGroup, Checkbox } from "@heroui/checkbox";
 import FileUpload from "@/components/common/FileUpload";
 
+
+
+const generateRandomPassword = (length = 10) => {
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
+};
 
 interface AddEditEmployeeDrawerProps {
     isOpen: boolean;
@@ -75,7 +85,7 @@ export default function AddEditEmployeeDrawer({
             children.forEach((child: any) => {
                 descendants.push({
                     ...child,
-                    displayName: level > 0 ? `${".".repeat(level * 4)} ${child.name}` : child.name
+                    level: level
                 });
                 traverse(child.id, level + 1);
             });
@@ -86,6 +96,16 @@ export default function AddEditEmployeeDrawer({
 
     const toggleVisibility = () => setIsVisible(!isVisible);
     const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible);
+
+    const handleRefreshPassword = () => {
+        const randomPassword = generateRandomPassword();
+        setFormData((prev: any) => ({
+            ...prev,
+            password: randomPassword,
+            confirm_password: randomPassword
+        }));
+        setIsVisible(true);
+    };
 
     useEffect(() => {
         if (isOpen) {
@@ -141,7 +161,14 @@ export default function AddEditEmployeeDrawer({
             setFormData({ ...fetchedEmployee });
         } else if (isOpen && mode === "create") {
             if (Object.keys(formData).length === 0) {
-                setFormData({ status: "Onboarding" });
+                const randomPassword = generateRandomPassword();
+                setFormData({ 
+                    status: "Onboarding", 
+                    role: "employee",
+                    password: randomPassword,
+                    confirm_password: randomPassword
+                });
+                setIsVisible(true);
             }
         }
     }, [fetchedEmployee, isOpen, mode, departments, rootDepartments]);
@@ -363,13 +390,18 @@ export default function AddEditEmployeeDrawer({
                                                         onChange={(e) => handleChange("password", e.target.value)}
                                                         isRequired
                                                         endContent={
-                                                            <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-                                                                {isVisible ? (
-                                                                    <EyeOff className="text-2xl text-default-400 pointer-events-none" />
-                                                                ) : (
-                                                                    <Eye className="text-2xl text-default-400 pointer-events-none" />
-                                                                )}
-                                                            </button>
+                                                            <div className="flex items-center gap-1">
+                                                                <button className="focus:outline-none" type="button" onClick={handleRefreshPassword} title="Generate random password">
+                                                                    <RefreshCw className="text-xl text-default-400 hover:text-primary transition-colors" size={18} />
+                                                                </button>
+                                                                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                                                                    {isVisible ? (
+                                                                        <EyeOff className="text-2xl text-default-400 pointer-events-none" />
+                                                                    ) : (
+                                                                        <Eye className="text-2xl text-default-400 pointer-events-none" />
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                         }
                                                     />
                                                     <Input
@@ -478,7 +510,7 @@ export default function AddEditEmployeeDrawer({
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <Input
                                                 label="Employee ID"
-                                                placeholder="EMP001"
+                                                placeholder="FPAY01"
                                                 labelPlacement="outside"
                                                 variant="bordered"
                                                 value={formData.employee_no_id || ""}
@@ -512,8 +544,20 @@ export default function AddEditEmployeeDrawer({
                                                 isDisabled={!formData.department || designationOptions.length === 0}
                                             >
                                                 {designationOptions.map((desig: any) => (
-                                                    <SelectItem key={desig.name} textValue={desig.name}>
-                                                        {desig.displayName}
+                                                    <SelectItem 
+                                                        key={desig.name} 
+                                                        textValue={desig.name}
+                                                    >
+                                                        <div className="flex items-center w-full text-left">
+                                                            {desig.level > 0 && (
+                                                                <span className="text-default-400 mr-1.5 flex-shrink-0">
+                                                                    {"\u00A0".repeat((desig.level - 1) * 2)}└─
+                                                                </span>
+                                                            )}
+                                                            <span className={`truncate ${desig.level > 0 ? "text-default-600 text-small" : "font-medium"}`}>
+                                                                {desig.name}
+                                                            </span>
+                                                        </div>
                                                     </SelectItem>
                                                 ))}
                                             </Select>

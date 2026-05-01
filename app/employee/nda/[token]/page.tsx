@@ -22,7 +22,8 @@ import FilePreviewModal from "@/components/common/FilePreviewModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { addToast } from "@heroui/toast";
-import SignaturePad from "react-signature-canvas";
+import dynamic from "next/dynamic";
+const SignaturePad = dynamic(() => import("react-signature-canvas"), { ssr: false }) as any;
 import Image from "next/image";
 import logo from "@/app/assets/FairPay.png";
 
@@ -40,7 +41,7 @@ const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: s
 
     useEffect(() => {
         const duration = 4000;
-        const interval = 800; // time per status
+        const interval = 800;  
 
         const statusTimer = setInterval(() => {
             setStatusIndex((prev) => (prev < statuses.length - 1 ? prev + 1 : prev));
@@ -67,8 +68,7 @@ const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: s
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center p-4 text-center overflow-hidden"
-        >
-            {/* Background elements for rich aesthetics */}
+        > 
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
@@ -189,6 +189,7 @@ export default function NDATokenPage() {
     const [authError, setAuthError] = useState("");
     const [showIntroAnimation, setShowIntroAnimation] = useState(false);
     const [previewFile, setPreviewFile] = useState<{ url: string, type: string, name: string } | null>(null);
+    const [showErrors, setShowErrors] = useState(false);
 
     const handleAddressChange = (type: 'permanent' | 'residential', field: string, value: string) => {
         if (type === 'permanent') {
@@ -227,6 +228,31 @@ export default function NDATokenPage() {
     } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
 
+    const isContactInfoFilled =
+        mobile.trim() !== "" &&
+        permaAddr.door_no.trim() !== "" &&
+        permaAddr.care_of_name.trim() !== "" &&
+        permaAddr.street.trim() !== "" &&
+        permaAddr.city.trim() !== "" &&
+        permaAddr.state.trim() !== "" &&
+        permaAddr.pincode.trim() !== "" &&
+        (sameAsAddress || (
+            resAddr.door_no.trim() !== "" &&
+            resAddr.care_of_name.trim() !== "" &&
+            resAddr.street.trim() !== "" &&
+            resAddr.city.trim() !== "" &&
+            resAddr.state.trim() !== "" &&
+            resAddr.pincode.trim() !== ""
+        ));
+
+    const isAPIDataComplete = !!(
+        ndaData?.mobile &&
+        ndaData?.address &&
+        ndaData?.residential_address &&
+        (typeof ndaData.address === 'object' ? ndaData.address.perma_door_no : true) &&
+        (typeof ndaData.residential_address === 'object' ? ndaData.residential_address.res_door_no : true)
+    );
+
     // Fetch NDA data
     useEffect(() => {
         if (token) {
@@ -235,37 +261,73 @@ export default function NDATokenPage() {
     }, [token, dispatch]);
 
     const { currentNDA } = useSelector((state: RootState) => state.NDA);
+
+    const syncNDAState = (nda: any, html?: string) => {
+        if (!nda) return;
+
+        if (html) setHtmlContent(html);
+        setNdaData(nda);
+
+        if (nda?.required_documents) {
+            setRequiredDocuments(nda.required_documents);
+            setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
+        }
+
+        if (nda?.mobile) setMobile(nda.mobile);
+
+        // Support both new nested format and legacy flat format
+        const addr = nda?.address;
+        const resAddr_ = nda?.residential_address;
+
+        if (addr) {
+            if (typeof addr === 'object' && (addr.perma_door_no || addr.perma_street || addr.perma_city)) {
+                setPermaAddr({
+                    door_no: addr.perma_door_no || "",
+                    care_of_type: addr.perma_care_of_type || "S/o",
+                    care_of_name: addr.perma_care_of_name || "",
+                    street: addr.perma_street || "",
+                    city: addr.perma_city || "",
+                    state: addr.perma_state || "",
+                    pincode: addr.perma_pincode || "",
+                });
+            } else if (typeof addr === 'object' && addr.permanent_address) {
+                setPermaAddr(prev => ({ ...prev, street: addr.permanent_address }));
+            } else if (typeof addr === 'string') {
+                setPermaAddr(prev => ({ ...prev, street: addr }));
+            }
+        }
+
+        if (resAddr_) {
+            if (typeof resAddr_ === 'object' && (resAddr_.res_door_no || resAddr_.res_street || resAddr_.res_city)) {
+                setResAddr({
+                    door_no: resAddr_.res_door_no || "",
+                    care_of_type: resAddr_.res_care_of_type || "S/o",
+                    care_of_name: resAddr_.res_care_of_name || "",
+                    street: resAddr_.res_street || "",
+                    city: resAddr_.res_city || "",
+                    state: resAddr_.res_state || "",
+                    pincode: resAddr_.res_pincode || "",
+                });
+            } else if (typeof resAddr_ === 'object' && resAddr_.residential_address) {
+                setResAddr(prev => ({ ...prev, street: resAddr_.residential_address }));
+            } else if (typeof resAddr_ === 'string') {
+                setResAddr(prev => ({ ...prev, street: resAddr_ }));
+            }
+        }
+    };
+
     useEffect(() => {
         if (currentNDA) {
-            // Identify target data - it might be nested in 'nda' key or direct
             const nda = currentNDA.nda || currentNDA;
             const html = currentNDA.html_content;
 
             if (html) {
-                setHtmlContent(html);
                 setIsAuthenticated(true);
-            }
-            else if (nda.requires_auth) {
+            } else if (nda.requires_auth) {
                 setIsAuthenticated(false);
             }
 
-            setNdaData(nda);
-
-            if (nda?.required_documents) {
-                setRequiredDocuments(nda.required_documents);
-                setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
-            }
-
-            if (nda?.address) {
-                // If the address contains commas, it might be the formatted string.
-                // We'll just put the whole string in the 'street' field as a fallback
-                // if we can't reliably parse it into granular fields.
-                setPermaAddr(prev => ({ ...prev, street: nda.address }));
-            }
-            if (nda?.residential_address) {
-                setResAddr(prev => ({ ...prev, street: nda.residential_address }));
-            }
-            if (nda?.mobile) setMobile(nda.mobile);
+            syncNDAState(nda, html);
         }
     }, [currentNDA]);
 
@@ -278,6 +340,8 @@ export default function NDATokenPage() {
                 title: "Success",
                 description: successMessage,
                 color: "success",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             // Navigation is handled by manual button clicks now
         }
@@ -286,35 +350,36 @@ export default function NDATokenPage() {
                 title: "Error",
                 description: typeof errorMessage === "string" ? errorMessage : "An error occurred",
                 color: "danger",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
         }
-    }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
+    }, [uploadSuccess, signSuccess, updateDetailsSuccess, getByTokenError, uploadError, signError, updateDetailsError]);
 
     const handleUpdateDetails = () => {
-        const isAddressEmpty = (addr: any) => {
-            return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
-        };
-
-        // Address fields are now optional
-        /*
-        if (isAddressEmpty(permaAddr)) {
-            addToast({ title: "Validation Error", description: "Permanent Address is required", color: "danger" });
-            return;
-        }
-        if (!sameAsAddress && isAddressEmpty(resAddr)) {
-            addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
-            return;
-        }
-        */
-        if (!mobile.trim()) {
-            addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
+        if (!isContactInfoFilled) {
+            setShowErrors(true);
             return;
         }
 
         dispatch(updateNDADetailsRequest(token, {
             address: formatAddress(permaAddr),
             residential_address: formatAddress(resAddr),
-            mobile
+            mobile,
+            perma_door_no: permaAddr.door_no,
+            perma_care_of_type: permaAddr.care_of_type,
+            perma_care_of_name: permaAddr.care_of_name,
+            perma_street: permaAddr.street,
+            perma_city: permaAddr.city,
+            perma_state: permaAddr.state,
+            perma_pincode: permaAddr.pincode,
+            res_door_no: resAddr.door_no,
+            res_care_of_type: resAddr.care_of_type,
+            res_care_of_name: resAddr.care_of_name,
+            res_street: resAddr.street,
+            res_city: resAddr.city,
+            res_state: resAddr.state,
+            res_pincode: resAddr.pincode,
         }));
     };
 
@@ -326,6 +391,8 @@ export default function NDATokenPage() {
                 title: "Missing Documents",
                 description: `Please upload: ${missingDocs.map(d => d.name).join(", ")}`,
                 color: "warning",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             return;
         }
@@ -396,15 +463,27 @@ export default function NDATokenPage() {
     };
 
     const handleSaveSignature = async () => {
-        if (sigPad.current?.isEmpty()) {
+        if (!sigPad.current || sigPad.current.isEmpty()) {
             addToast({
                 title: "Warning",
                 description: "Please sign before submitting",
                 color: "warning",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
             return;
         }
-        const sigData = sigPad.current?.getTrimmedCanvas().toDataURL("image/png");
+
+        let sigData;
+        try {
+            // getTrimmedCanvas() can fail in some production environments due to bundling issues with its dependencies
+            sigData = sigPad.current.getTrimmedCanvas().toDataURL("image/png");
+        } catch (error) {
+            console.error("Signature trimming failed, falling back to full canvas:", error);
+            // Fallback to untrimmed canvas if getTrimmedCanvas fails
+            sigData = sigPad.current.toDataURL("image/png");
+        }
+
         const deviceDetails = await getDeviceDetails();
 
         setSignature(sigData);
@@ -434,17 +513,7 @@ export default function NDATokenPage() {
             const data = await response.json();
 
             if (response.ok) {
-                setHtmlContent(data.data.html_content);
-                setNdaData(data.data.nda);
-
-                if (data.data.nda?.address) setPermaAddr(prev => ({ ...prev, street: data.data.nda.address }));
-                if (data.data.nda?.residential_address) setResAddr(prev => ({ ...prev, street: data.data.nda.residential_address }));
-                if (data.data.nda?.mobile) setMobile(data.data.nda.mobile);
- 
-                if (data.data.nda?.required_documents) {
-                    setRequiredDocuments(data.data.nda.required_documents);
-                    setUploadedFiles(data.data.nda.required_documents.map((name: string) => ({ name, file: null })));
-                }
+                syncNDAState(data.data.nda, data.data.html_content);
 
                 // Start verification animation instead of showing content immediately
                 setShowIntroAnimation(true);
@@ -454,6 +523,8 @@ export default function NDATokenPage() {
                     title: "Access Denied",
                     description: data.message || "Invalid Email Address",
                     color: "danger",
+                    timeout: 3000,
+                    shouldShowTimeoutProgress: true,
                 });
             }
         } catch (err) {
@@ -482,6 +553,8 @@ export default function NDATokenPage() {
                     title: "Error",
                     description: "Failed to download PDF",
                     color: "danger",
+                    timeout: 3000,
+                    shouldShowTimeoutProgress: true,
                 });
             }
         } catch (error) {
@@ -490,6 +563,8 @@ export default function NDATokenPage() {
                 title: "Error",
                 description: "Error downloading PDF",
                 color: "danger",
+                timeout: 3000,
+                shouldShowTimeoutProgress: true,
             });
         }
     };
@@ -502,6 +577,13 @@ export default function NDATokenPage() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
 
     if (getByTokenError && getByTokenError.includes("expired")) {
         return (
@@ -540,7 +622,52 @@ export default function NDATokenPage() {
         );
     }
     return (
-        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
+        <div className="relative min-h-screen bg-white dark:bg-black overflow-hidden">
+            {/* Dynamic Background Elements */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                {/* Stylistic SVGs */}
+                <div className="absolute inset-0 opacity-20 dark:opacity-30">
+                    <svg
+                        className="absolute -top-[10%] -left-[5%] h-[60%] w-[60%] text-blue-600/30"
+                        viewBox="0 0 200 200"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.1,41.4C64.8,53.7,53.8,63.7,40.9,71.1C28,78.5,14,83.2,-0.2,83.5C-14.4,83.8,-28.8,79.7,-42,72.6C-55.2,65.5,-67.2,55.3,-75.4,42.4C-83.6,29.5,-88,14.8,-88.4,-0.2C-88.8,-15.3,-85.1,-30.5,-76.8,-43.3C-68.5,-56.1,-55.6,-66.4,-41.7,-73.8C-27.8,-81.2,-13.9,-85.7,0.4,-86.3C14.7,-87,29.4,-83.7,44.7,-76.4Z"
+                            transform="translate(100 100)"
+                        />
+                    </svg>
+
+                    <svg
+                        className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[70%] text-purple-600/30"
+                        viewBox="0 0 200 200"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            fill="currentColor"
+                            d="M39.6,-67.3C50.2,-58.5,57.1,-46.1,64.2,-33.6C71.3,-21.1,78.7,-8.5,80.1,5.3C81.5,19.1,76.8,34.1,68.1,46C59.4,57.9,46.7,66.6,33.1,71.5C19.5,76.4,5,77.5,-10.1,75.4C-25.2,73.3,-40.8,68,-52.7,58.3C-64.6,48.6,-72.7,34.4,-77.1,19.3C-81.5,4.2,-82.1,-11.8,-76.9,-25.9C-71.7,-40,-60.7,-52.1,-47.8,-59.8C-34.9,-67.5,-20.1,-70.7,-4.8,-62.4C10.5,-54.1,28.9,-76.1,39.6,-67.3Z"
+                            transform="translate(100 100)"
+                        />
+                    </svg>
+                </div>
+                {/* Animated Orbs */}
+                <motion.div
+                    className="absolute -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-blue-600/15 blur-[120px] opacity-20"
+                />
+                <motion.div
+                    className="absolute -bottom-40 -right-20 h-[700px] w-[700px] rounded-full bg-purple-600/15 blur-[130px] opacity-15"
+                />
+                <motion.div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[800px] w-[800px] rounded-full bg-indigo-500/10 blur-[150px] opacity-10"
+                />
+
+                {/* Subtle Grid Pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+            </div>
+            
             <AnimatePresence>
                 {showIntroAnimation && (
                     <VerificationOverlay
@@ -553,6 +680,8 @@ export default function NDATokenPage() {
                                 title: "Access Granted",
                                 description: "You can now view and sign the document.",
                                 color: "success",
+                                timeout: 3000,
+                                shouldShowTimeoutProgress: true,
                             });
                         }}
                     />
@@ -573,11 +702,11 @@ export default function NDATokenPage() {
                             variant="solid"
                             isVertical={isVertical}
                             classNames={{
-                                base: "flex flex-col md:flex-row gap-8 md:gap-16",
-                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-12 z-40 backdrop-blur-md mb-6 md:mb-0",
+                                base: "flex flex-col md:flex-row gap-4 md:gap-16",
+                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-1.5 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-12 z-40 backdrop-blur-md mb-4 md:mb-0",
                                 cursor: "rounded-xl bg-white dark:bg-gray-700 shadow-md",
-                                tab: "h-11 md:h-14 px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
-                                tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-xs md:text-sm",
+                                tab: "h-9 md:h-14 px-3 md:px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
+                                tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-[11px] md:text-sm",
                                 panel: "flex-1 p-0 w-full md:ml-4"
                             }}
                             selectedKey={activeTab}
@@ -609,7 +738,7 @@ export default function NDATokenPage() {
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <MapPin size={20} />
-                                        <span>Personal Details</span>
+                                        <span>Details</span>
                                     </div>
                                 }
                             >
@@ -627,10 +756,11 @@ export default function NDATokenPage() {
                                                         label="Mobile Number"
                                                         placeholder="Enter your mobile number"
                                                         labelPlacement="outside"
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         value={mobile}
                                                         onValueChange={setMobile}
                                                         isRequired
+                                                        isInvalid={showErrors && !mobile.trim()}
                                                     />
 
                                                 {/* Granular Permanent Address */}
@@ -645,9 +775,11 @@ export default function NDATokenPage() {
                                                             label="Building / Door No"
                                                             placeholder="e.g. 42B, Tower 1"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.door_no}
                                                             onChange={(e) => handleAddressChange("permanent", "door_no", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.door_no.trim()}
                                                         />
 
                                                         <div className="flex flex-col">
@@ -656,8 +788,10 @@ export default function NDATokenPage() {
                                                                     label="S/o, D/o, W/o Name"
                                                                     labelPlacement="outside"
                                                                     placeholder="S/o"
-                                                                    variant="bordered"
+                                                                    variant="flat"
                                                                     className="w-24"
+                                                                    isRequired
+                                                                    isInvalid={showErrors && !permaAddr.care_of_type}
                                                                     classNames={{
                                                                         trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
                                                                         label: "text-small font-medium text-foreground whitespace-nowrap",
@@ -672,13 +806,15 @@ export default function NDATokenPage() {
                                                                 </Select>
                                                                 <Input
                                                                     placeholder="Father/Guardian Name"
-                                                                    variant="bordered"
+                                                                    variant="flat"
                                                                     className="flex-1"
                                                                     classNames={{
                                                                         inputWrapper: "rounded-l-none h-[40px] shadow-none",
                                                                     }}
                                                                     value={permaAddr.care_of_name}
                                                                     onChange={(e) => handleAddressChange("permanent", "care_of_name", e.target.value)}
+                                                                    isRequired
+                                                                    isInvalid={showErrors && !permaAddr.care_of_name.trim()}
                                                                 />
                                                             </div>
                                                         </div>
@@ -688,9 +824,11 @@ export default function NDATokenPage() {
                                                         label="Street / Area / Colony"
                                                         placeholder="Enter street and locality"
                                                         labelPlacement="outside"
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         value={permaAddr.street}
                                                         onChange={(e) => handleAddressChange("permanent", "street", e.target.value)}
+                                                        isRequired
+                                                        isInvalid={showErrors && !permaAddr.street.trim()}
                                                     />
 
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -698,27 +836,33 @@ export default function NDATokenPage() {
                                                             label="City"
                                                             placeholder="City"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.city}
                                                             onChange={(e) => handleAddressChange("permanent", "city", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.city.trim()}
                                                         />
 
                                                         <Input
                                                             label="State"
                                                             placeholder="State"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.state}
                                                             onChange={(e) => handleAddressChange("permanent", "state", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.state.trim()}
                                                         />
 
                                                         <Input
                                                             label="Pincode"
                                                             placeholder="Pincode"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.pincode}
                                                             onChange={(e) => handleAddressChange("permanent", "pincode", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.pincode.trim()}
                                                         />
                                                     </div>
                                                 </div>
@@ -752,10 +896,12 @@ export default function NDATokenPage() {
                                                                 label="Building / Door No"
                                                                 placeholder="e.g. 42B, Tower 1"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.door_no}
                                                                 onChange={(e) => handleAddressChange("residential", "door_no", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.door_no.trim()}
                                                             />
 
                                                             <div className="flex flex-col">
@@ -764,8 +910,10 @@ export default function NDATokenPage() {
                                                                         label="S/o, D/o, W/o Name"
                                                                         labelPlacement="outside"
                                                                         placeholder="S/o"
-                                                                        variant="bordered"
+                                                                        variant="flat"
                                                                         className="w-24"
+                                                                        isRequired={!sameAsAddress}
+                                                                        isInvalid={showErrors && !sameAsAddress && !resAddr.care_of_type}
                                                                         classNames={{
                                                                             trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
                                                                             label: "text-small font-medium text-foreground whitespace-nowrap",
@@ -781,7 +929,7 @@ export default function NDATokenPage() {
                                                                     </Select>
                                                                     <Input
                                                                         placeholder="Father/Guardian Name"
-                                                                        variant="bordered"
+                                                                        variant="flat"
                                                                         className="flex-1"
                                                                         classNames={{
                                                                             inputWrapper: "rounded-l-none h-[40px] shadow-none",
@@ -789,6 +937,8 @@ export default function NDATokenPage() {
                                                                         value={resAddr.care_of_name}
                                                                         onChange={(e) => handleAddressChange("residential", "care_of_name", e.target.value)}
                                                                         isDisabled={sameAsAddress}
+                                                                        isRequired={!sameAsAddress}
+                                                                        isInvalid={showErrors && !sameAsAddress && !resAddr.care_of_name.trim()}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -798,10 +948,12 @@ export default function NDATokenPage() {
                                                             label="Street / Area / Colony"
                                                             placeholder="Enter street and locality"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={resAddr.street}
                                                             onChange={(e) => handleAddressChange("residential", "street", e.target.value)}
                                                             isDisabled={sameAsAddress}
+                                                            isRequired={!sameAsAddress}
+                                                            isInvalid={showErrors && !sameAsAddress && !resAddr.street.trim()}
                                                         />
 
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -809,30 +961,36 @@ export default function NDATokenPage() {
                                                                 label="City"
                                                                 placeholder="City"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.city}
                                                                 onChange={(e) => handleAddressChange("residential", "city", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.city.trim()}
                                                             />
 
                                                             <Input
                                                                 label="State"
                                                                 placeholder="State"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.state}
                                                                 onChange={(e) => handleAddressChange("residential", "state", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.state.trim()}
                                                             />
 
                                                             <Input
                                                                 label="Pincode"
                                                                 placeholder="Pincode"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.pincode}
                                                                 onChange={(e) => handleAddressChange("residential", "pincode", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.pincode.trim()}
                                                             />
                                                         </div>
                                                     </div>
@@ -840,7 +998,7 @@ export default function NDATokenPage() {
                                             </div>
                                         </CardBody>
                                         <CardFooter className="px-6 pb-6 pt-2 flex justify-end gap-3">
-                                            {ndaData?.address || ndaData?.residential_address ? (
+                                            {isAPIDataComplete ? (
                                                 <>
                                                     <Button
                                                         color="primary"
@@ -848,7 +1006,7 @@ export default function NDATokenPage() {
                                                         onPress={handleUpdateDetails}
                                                         isLoading={updateDetailsLoading}
                                                         className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
-                                                        startContent={<Save size={18} />}
+                                                        startContent={!updateDetailsLoading && <Save size={18} />}
                                                     >
                                                         Update Details
                                                     </Button>
@@ -870,7 +1028,7 @@ export default function NDATokenPage() {
                                                     onPress={handleUpdateDetails}
                                                     isLoading={updateDetailsLoading}
                                                     className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
-                                                    startContent={<Save size={18} />}
+                                                    startContent={!updateDetailsLoading && <Save size={18} />}
                                                 >
                                                     Save & Proceed
                                                 </Button>
@@ -882,11 +1040,11 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="documents"
-                                isDisabled={!ndaData?.address || !ndaData?.residential_address}
+                                isDisabled={!isAPIDataComplete}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <Upload size={20} />
-                                        <span>Upload Documents</span>
+                                        <span>Documents</span>
                                     </div>
                                 }
                             >
@@ -1004,6 +1162,7 @@ export default function NDATokenPage() {
                                     </div>
 
                                     <div className="flex justify-end mt-10 gap-3">
+                                       
                                         <Button
                                             color="primary"
                                             size="md"
@@ -1011,10 +1170,23 @@ export default function NDATokenPage() {
                                             isLoading={uploadLoading}
                                             isDisabled={ndaData?.status === "Document Uploaded"}
                                             className="font-semibold px-4 md:px-8 shadow-lg shadow-primary/20"
-                                            startContent={ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />}
+                                            startContent={!uploadLoading && (ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />)}
                                         >
                                             {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
+
+                                         {requiredDocuments.length === 0 && (
+                                            <Button
+                                                color="default"
+                                                variant="flat"
+                                                size="md"
+                                                onPress={() => setActiveTab("review")}
+                                                className="font-semibold px-4 md:px-8"
+                                            >
+                                                Skip Documents
+                                            </Button>
+                                        )}
+                                        
                                         {ndaData?.status === "Document Uploaded" && (
                                             <Button
                                                 color="primary"
@@ -1033,11 +1205,11 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="review"
-                                isDisabled={!ndaData?.address || !ndaData?.residential_address || ndaData?.status !== "Document Uploaded"}
+                                isDisabled={!isAPIDataComplete || (requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded" && ndaData?.status !== "Signed")}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <FileText size={20} />
-                                        <span>Review & Sign</span>
+                                        <span>Agreement</span>
                                     </div>
                                 }
                             >
@@ -1067,7 +1239,7 @@ export default function NDATokenPage() {
                                                     <div className="bg-gray-50/50 dark:bg-gray-800/50 p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center backdrop-blur-sm">
                                                         <span className="flex items-center gap-2 font-semibold text-gray-700 dark:text-gray-200">
                                                             <FileText size={18} className="text-primary" />
-                                                            Document Preview
+                                                            NDA Preview
                                                         </span>
                                                         <span className="bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-mono border border-gray-100 dark:border-gray-700 shadow-sm">
                                                             {ndaData?.first_name} {ndaData?.last_name}
@@ -1127,11 +1299,11 @@ export default function NDATokenPage() {
                                                                 size="md"
                                                                 onPress={handleSaveSignature}
                                                                 isLoading={signLoading}
-                                                                isDisabled={ndaData?.status !== "Document Uploaded"}
+                                                                isDisabled={requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
-                                                                startContent={<PenTool size={18} />}
+                                                                startContent={!signLoading && <PenTool size={18} />}
                                                             >
-                                                                {ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
+                                                                {requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
                                                             <Button
                                                                 variant="flat"
@@ -1153,7 +1325,7 @@ export default function NDATokenPage() {
                 </motion.div>
             ) : (
                 !showIntroAnimation && (
-                    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
+                    <div className="relative min-h-screen flex flex-col items-center justify-center p-4">
                         <div className="w-full max-w-md">
                             <div className="text-center mb-8">
                                 <div className="mb-6 flex justify-center">
@@ -1173,39 +1345,37 @@ export default function NDATokenPage() {
                                 </p>
                             </div>
 
-                            <Card className="shadow-lg border border-gray-100 dark:border-gray-800">
-                                <form onSubmit={handleLogin}>
-                                    <CardBody className="gap-4 p-6">
+                            <Card className="shadow-lg border border-gray-100 dark:border-gray-800" suppressHydrationWarning>
+                                <form onSubmit={handleLogin} suppressHydrationWarning>
+                                    <CardBody className="gap-4 p-6" suppressHydrationWarning>
                                         {authError && (
                                             <div className="bg-danger-50 text-danger-600 p-3 rounded-lg text-sm flex items-center gap-2">
                                                 <AlertTriangle size={16} />
                                                 {authError}
                                             </div>
                                         )}
-                                        <div className="space-y-2">
+                                        <div className="space-y-2" suppressHydrationWarning>
                                             <Input
+                                                id="login-email"
                                                 label="Email Address"
                                                 placeholder="Enter your email"
                                                 type="email"
-                                                variant="bordered"
+                                                variant="flat"
                                                 labelPlacement="outside"
                                                 value={loginEmail}
                                                 onValueChange={(val) => {
                                                     setLoginEmail(val);
                                                     setAuthError("");
                                                 }}
-                                                isRequired
-                                                classNames={{
-                                                    inputWrapper: "h-12"
-                                                }}
-                                                startContent={<span className="text-gray-400">@</span>}
+                                                isRequired                                                
+                                                suppressHydrationWarning
                                             />
                                             <p className="text-xs text-gray-400 px-1">
                                                 Please enter the registered email address where you received the access link.
                                             </p>
                                         </div>
                                     </CardBody>
-                                    <CardFooter className="px-6 pb-6 pt-0">
+                                    <CardFooter className="px-6 pb-6 pt-0" suppressHydrationWarning>
                                         <Button
                                             type="submit"
                                             color="primary"
@@ -1213,7 +1383,8 @@ export default function NDATokenPage() {
                                             size="md"
                                             isLoading={authLoading}
                                             className="font-semibold"
-                                            startContent={<ShieldCheck size={18} />}
+                                            startContent={!authLoading && <ShieldCheck size={18} />}
+                                            suppressHydrationWarning
                                         >
                                             Verify & Access
                                         </Button>
@@ -1228,6 +1399,7 @@ export default function NDATokenPage() {
                     </div>
                 )
             )}
+
 
             <FilePreviewModal
                 isOpen={!!previewFile}

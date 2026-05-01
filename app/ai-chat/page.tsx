@@ -7,7 +7,8 @@ import {
     Trash2,
     Bot,
     Webhook,
-    User
+    User,
+    ChevronDown
 } from "lucide-react";
 import { Button } from "@heroui/button";
 import { Textarea } from "@heroui/input";
@@ -29,6 +30,7 @@ export default function AIChatPage() {
     const [inputValue, setInputValue] = useState("");
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { isOpen: isClearModalOpen, onOpen, onOpenChange } = useDisclosure();
 
     const { user } = useSelector((state: AppState) => state.Auth);
@@ -66,11 +68,22 @@ export default function AIChatPage() {
     const handleClearChat = () => {
         dispatch(clearChatHistory());
     };
+    
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        containerRef.current.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+        containerRef.current.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+    };
 
     if (!user) return null;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] transition-colors duration-500">
+        <div 
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
+        >
             {/* Header - Transparent and simple */}
             <header className="flex items-center justify-between px-6 py-3 z-30">
                 <div className="flex items-center gap-2">
@@ -171,7 +184,7 @@ export default function AIChatPage() {
                                     onKeyDown={handleKeyDown}
                                     onSubmit={handleSubmit}
                                     isLoading={isLoading}
-                                    placeholder="Ask anything"
+                                    placeholder="How can I help you today?"
                                 />
                             </motion.div>
                         </motion.div>
@@ -203,10 +216,10 @@ export default function AIChatPage() {
                                                 msg.role === "user" ? "items-end" : "items-start"
                                             )}>
                                                 <div className={clsx(
-                                                    "px-5 py-3 rounded-2xl text-[15px] leading-relaxed transition-all",
+                                                    "text-[15px] leading-relaxed transition-all",
                                                     msg.role === "user"
-                                                        ? "bg-default-100 text-default-900 shadow-sm"
-                                                        : "bg-transparent text-default-800 dark:text-default-200"
+                                                        ? "px-5 py-3 bg-default-900 dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none shadow-sm"
+                                                        : "text-default-800 dark:text-default-200 py-1"
                                                 )}>
                                                     {msg.role === "user" ? (
                                                         <span className="whitespace-pre-wrap">{msg.content}</span>
@@ -265,7 +278,7 @@ export default function AIChatPage() {
                                         onKeyDown={handleKeyDown}
                                         onSubmit={handleSubmit}
                                         isLoading={isLoading}
-                                        placeholder="Ask anything"
+                                        placeholder="How can I help you today?"
                                         compact
                                     />
                                 </div>
@@ -295,70 +308,103 @@ interface SearchBarProps {
 }
 
 function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholder, compact }: SearchBarProps) {
+    const { user } = useSelector((state: AppState) => state.Auth);
     return (
         <form
             onSubmit={onSubmit}
-            className="flex items-center gap-2 w-full group"
+            className="flex flex-col w-full group relative"
         >
             <div
                 className={clsx(
-                    "relative flex-1 flex items-center transition-all duration-400 ease-in-out",
-                    "bg-white/80 dark:bg-default-50/50 backdrop-blur-xl",
-                    "border border-default-200 dark:border-white/10",
-                    "focus-within:border-primary-500/50 focus-within:ring-2 focus-within:ring-primary-500/5",
-                    "rounded-[2.5rem]",
-                    compact ? "py-0.5 px-3" : "py-1 px-5"
+                    "relative flex flex-col transition-all duration-500 ease-in-out",
+                    "bg-white dark:bg-[#18181b]/50 backdrop-blur-2xl",
+                    "border border-default-200 dark:border-white/5",
+                    "focus-within:border-default-400 dark:focus-within:border-white/10",
+                    "rounded-[1.25rem] shadow-sm overflow-hidden",
+                    compact ? "p-3 min-h-[100px]" : "p-5 min-h-[140px]"
                 )}
             >
-                <Textarea
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onKeyDown={onKeyDown}
-                    placeholder={placeholder}
-                    minRows={1}
-                    maxRows={6}
-                    variant="bordered"
-                    color="primary"
-                    className="flex-1"
-                    classNames={{
-                        base: "border-none shadow-none",
-                        inputWrapper: [
-                            "bg-transparent",
-                            "border-none",
-                            "shadow-none",
-                            "group-data-[focus=true]:bg-transparent",
-                            "hover:bg-transparent",
-                            "data-[hover=true]:bg-transparent",
-                            "p-0",
-                            "min-h-[40px]",
-                        ].join(" "),
-                        input: clsx(
-                            "text-[15px] py-2 lg:py-2.5 resize-none bg-transparent leading-relaxed font-medium",
-                            compact ? "lg:py-1.5" : ""
-                        ),
-                    }}
-                />
-            </div>
+                <div className="flex-1 w-full">
+                    <Textarea
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        onKeyDown={onKeyDown}
+                        placeholder={placeholder}
+                        minRows={1}
+                        maxRows={8}
+                        variant="flat"
+                        className="w-full"
+                        classNames={{
+                            base: "bg-transparent",
+                            inputWrapper: [
+                                "bg-transparent",
+                                "border-none",
+                                "shadow-none",
+                                "group-data-[focus=true]:bg-transparent",
+                                "hover:bg-transparent",
+                                "data-[hover=true]:bg-transparent",
+                                "p-0",
+                                "min-h-0"
+                            ].join(" "),
+                            input: clsx(
+                                "text-[16px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-default-100 placeholder:text-default-400 font-normal",
+                                compact ? "text-[15px]" : ""
+                            ),
+                        }}
+                    />
+                </div>
 
-            <Button
-                isIconOnly
-                type="submit"
-                isDisabled={!value.trim() || isLoading}
-                className={clsx(
-                    "rounded-full transition-all duration-300 active:scale-95 shrink-0",
-                    value.trim()
-                        ? "bg-primary-500 text-white"
-                        : "bg-default-200 text-default-400 dark:bg-default-100 dark:text-default-500",
-                    compact ? "h-11 w-11" : "h-12 w-12"
-                )}
-                size="md"
-            >
-                {isLoading ? (
-                    <Loader2 size={20} className="animate-spin" />
-                ) : (
-                    <SendHorizontal size={20} className={value.trim() ? "translate-x-0.5" : ""} />
-                )}
-            </Button>
+                <div className="flex items-center justify-between mt-2 pt-2 gap-4">
+                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-0.5">
+                        {(user?.role?.toLowerCase() === "admin" 
+                            ? [
+                                "Pending leave requests",
+                                "Attendance summary",
+                                "Generate reports",
+                                "Manage onboarding"
+                            ] 
+                            : [
+                                "Summarize my tasks",
+                                "Draft an email",
+                                "Explain policies",
+                                "Onboarding help"
+                            ]
+                        ).map((rec) => (
+                            <button
+                                key={rec}
+                                type="button"
+                                onClick={() => onChange(rec)}
+                                className="px-3.5 py-1.5 rounded-full bg-default-100/40 dark:bg-white/5 hover:bg-default-200/60 dark:hover:bg-white/10 text-default-500 hover:text-default-900 dark:text-default-400 dark:hover:text-white text-[12px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/10 active:scale-95"
+                            >
+                                {rec}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 min-h-[32px]">
+                        <div className="flex items-center gap-1">
+                            <Button
+                                isIconOnly
+                                type="submit"
+                                isDisabled={!value.trim() || isLoading}
+                                className={clsx(
+                                    "h-8 w-8 rounded-full transition-all shrink-0",
+                                    value.trim()
+                                        ? "bg-default-900 dark:bg-white text-white dark:text-black hover:opacity-90"
+                                        : "bg-default-100 dark:bg-white/5 text-default-400"
+                                )}
+                                size="sm"
+                            >
+                                {isLoading ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                    <SendHorizontal size={16} />
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </form>
     );
 }

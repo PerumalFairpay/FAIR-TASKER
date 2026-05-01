@@ -53,8 +53,7 @@ export default function OffboardingPage() {
     const { isOpen: isReturnModalOpen, onOpen: onReturnModalOpen, onOpenChange: onReturnModalOpenChange } = useDisclosure();
 
     const DEFAULT_OFFBOARDING_TASKS = [
-        "Revoke System Access",
-        "Exit Interview",
+        "Revoke System Access", 
         "ID Card Return",
         "Full & Final Settlement",
         "Collect Laptop",
@@ -178,7 +177,7 @@ export default function OffboardingPage() {
         setTimeout(() => setReturningAssetId(null), 1000);
     };
 
-    const handleTaskAction = (action: 'add' | 'delete' | 'toggle', payload?: any) => {
+    const handleTaskAction = (action: 'add' | 'delete' | 'toggle' | 'selectAll', payload?: any) => {
         if (action === 'add' && newTaskName) {
             setOffboardingTasks([...offboardingTasks, { name: newTaskName, status: "Pending", completed_at: null }]);
             setNewTaskName("");
@@ -191,6 +190,13 @@ export default function OffboardingPage() {
                     ? { ...t, status: t.status === "Completed" ? "Pending" : "Completed", completed_at: t.status === "Pending" ? new Date().toISOString() : null }
                     : t
             ));
+        } else if (action === 'selectAll') {
+            const isSelected = payload;
+            setOffboardingTasks(offboardingTasks.map(t => ({
+                ...t,
+                status: isSelected ? "Completed" : "Pending",
+                completed_at: isSelected ? (t.status === "Pending" ? new Date().toISOString() : t.completed_at) : null
+            })));
         }
     };
 
@@ -512,7 +518,19 @@ export default function OffboardingPage() {
                                             </div>
 
                                             <div className="flex justify-between items-center mb-4">
-                                                <h3 className="text-lg font-semibold">Checklist</h3>
+                                                <div className="flex items-center gap-4">
+                                                    <h3 className="text-lg font-semibold">Checklist</h3>
+                                                    {offboardingTasks.length > 0 && (
+                                                        <Checkbox
+                                                            size="sm"
+                                                            isSelected={offboardingTasks.length > 0 && offboardingTasks.every(t => t.status === "Completed")}
+                                                            isIndeterminate={offboardingTasks.length > 0 && offboardingTasks.some(t => t.status === "Completed") && !offboardingTasks.every(t => t.status === "Completed")}
+                                                            onValueChange={(isSelected) => handleTaskAction('selectAll', isSelected)}
+                                                        >
+                                                            Select All
+                                                        </Checkbox>
+                                                    )}
+                                                </div>
                                                 <Button
                                                     size="sm"
                                                     color="primary"
@@ -616,7 +634,7 @@ export default function OffboardingPage() {
                                     onPress={handleCompleteOffboarding}
                                     isLoading={isCompletingOffboarding}
                                     isDisabled={!isReadyToComplete()}
-                                    className="w-full sm:w-auto font-bold"
+                                    className="w-full sm:w-auto"
                                 >
                                     Complete Offboarding
                                 </Button>
