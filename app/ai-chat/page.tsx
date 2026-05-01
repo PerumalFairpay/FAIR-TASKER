@@ -308,6 +308,7 @@ interface SearchBarProps {
 }
 
 function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholder, compact }: SearchBarProps) {
+    const { user } = useSelector((state: AppState) => state.Auth);
     return (
         <form
             onSubmit={onSubmit}
@@ -355,12 +356,20 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
 
                 <div className="flex items-center justify-between mt-2 pt-2 gap-4">
                     <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-0.5">
-                        {[
-                            "Summarize my tasks",
-                            "Draft an email",
-                            "Explain policies",
-                            "Onboarding help"
-                        ].map((rec) => (
+                        {(user?.role?.toLowerCase() === "admin" 
+                            ? [
+                                "Pending leave requests",
+                                "Attendance summary",
+                                "Generate reports",
+                                "Manage onboarding"
+                            ] 
+                            : [
+                                "Summarize my tasks",
+                                "Draft an email",
+                                "Explain policies",
+                                "Onboarding help"
+                            ]
+                        ).map((rec) => (
                             <button
                                 key={rec}
                                 type="button"
