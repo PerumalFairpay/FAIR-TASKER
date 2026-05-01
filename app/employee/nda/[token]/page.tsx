@@ -189,6 +189,7 @@ export default function NDATokenPage() {
     const [authError, setAuthError] = useState("");
     const [showIntroAnimation, setShowIntroAnimation] = useState(false);
     const [previewFile, setPreviewFile] = useState<{ url: string, type: string, name: string } | null>(null);
+    const [showErrors, setShowErrors] = useState(false);
 
     const handleAddressChange = (type: 'permanent' | 'residential', field: string, value: string) => {
         if (type === 'permanent') {
@@ -226,6 +227,31 @@ export default function NDATokenPage() {
         updateDetailsLoading, updateDetailsSuccess, updateDetailsError
     } = useSelector((state: RootState) => state.NDA);
     const sigPad = useRef<any>(null);
+
+    const isContactInfoFilled =
+        mobile.trim() !== "" &&
+        permaAddr.door_no.trim() !== "" &&
+        permaAddr.care_of_name.trim() !== "" &&
+        permaAddr.street.trim() !== "" &&
+        permaAddr.city.trim() !== "" &&
+        permaAddr.state.trim() !== "" &&
+        permaAddr.pincode.trim() !== "" &&
+        (sameAsAddress || (
+            resAddr.door_no.trim() !== "" &&
+            resAddr.care_of_name.trim() !== "" &&
+            resAddr.street.trim() !== "" &&
+            resAddr.city.trim() !== "" &&
+            resAddr.state.trim() !== "" &&
+            resAddr.pincode.trim() !== ""
+        ));
+
+    const isAPIDataComplete = !!(
+        ndaData?.mobile &&
+        ndaData?.address &&
+        ndaData?.residential_address &&
+        (typeof ndaData.address === 'object' ? ndaData.address.perma_door_no : true) &&
+        (typeof ndaData.residential_address === 'object' ? ndaData.residential_address.res_door_no : true)
+    );
 
     // Fetch NDA data
     useEffect(() => {
@@ -327,23 +353,8 @@ export default function NDATokenPage() {
     }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
 
     const handleUpdateDetails = () => {
-        const isAddressEmpty = (addr: any) => {
-            return !addr.door_no.trim() && !addr.street.trim() && !addr.city.trim();
-        };
-
-        // Address fields are now optional
-        /*
-        if (isAddressEmpty(permaAddr)) {
-            addToast({ title: "Validation Error", description: "Permanent Address is required", color: "danger" });
-            return;
-        }
-        if (!sameAsAddress && isAddressEmpty(resAddr)) {
-            addToast({ title: "Validation Error", description: "Residential Address is required", color: "danger" });
-            return;
-        }
-        */
-        if (!mobile.trim()) {
-            addToast({ title: "Validation Error", description: "Mobile Number is required", color: "danger" });
+        if (!isContactInfoFilled) {
+            setShowErrors(true);
             return;
         }
 
@@ -785,6 +796,7 @@ export default function NDATokenPage() {
                                                         value={mobile}
                                                         onValueChange={setMobile}
                                                         isRequired
+                                                        isInvalid={showErrors && !mobile.trim()}
                                                     />
 
                                                 {/* Granular Permanent Address */}
@@ -802,6 +814,8 @@ export default function NDATokenPage() {
                                                             variant="flat"
                                                             value={permaAddr.door_no}
                                                             onChange={(e) => handleAddressChange("permanent", "door_no", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.door_no.trim()}
                                                         />
 
                                                         <div className="flex flex-col">
@@ -812,6 +826,8 @@ export default function NDATokenPage() {
                                                                     placeholder="S/o"
                                                                     variant="flat"
                                                                     className="w-24"
+                                                                    isRequired
+                                                                    isInvalid={showErrors && !permaAddr.care_of_type}
                                                                     classNames={{
                                                                         trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
                                                                         label: "text-small font-medium text-foreground whitespace-nowrap",
@@ -833,6 +849,8 @@ export default function NDATokenPage() {
                                                                     }}
                                                                     value={permaAddr.care_of_name}
                                                                     onChange={(e) => handleAddressChange("permanent", "care_of_name", e.target.value)}
+                                                                    isRequired
+                                                                    isInvalid={showErrors && !permaAddr.care_of_name.trim()}
                                                                 />
                                                             </div>
                                                         </div>
@@ -845,6 +863,8 @@ export default function NDATokenPage() {
                                                         variant="flat"
                                                         value={permaAddr.street}
                                                         onChange={(e) => handleAddressChange("permanent", "street", e.target.value)}
+                                                        isRequired
+                                                        isInvalid={showErrors && !permaAddr.street.trim()}
                                                     />
 
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -855,6 +875,8 @@ export default function NDATokenPage() {
                                                             variant="flat"
                                                             value={permaAddr.city}
                                                             onChange={(e) => handleAddressChange("permanent", "city", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.city.trim()}
                                                         />
 
                                                         <Input
@@ -864,6 +886,8 @@ export default function NDATokenPage() {
                                                             variant="flat"
                                                             value={permaAddr.state}
                                                             onChange={(e) => handleAddressChange("permanent", "state", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.state.trim()}
                                                         />
 
                                                         <Input
@@ -873,6 +897,8 @@ export default function NDATokenPage() {
                                                             variant="flat"
                                                             value={permaAddr.pincode}
                                                             onChange={(e) => handleAddressChange("permanent", "pincode", e.target.value)}
+                                                            isRequired
+                                                            isInvalid={showErrors && !permaAddr.pincode.trim()}
                                                         />
                                                     </div>
                                                 </div>
@@ -910,6 +936,8 @@ export default function NDATokenPage() {
                                                                 value={resAddr.door_no}
                                                                 onChange={(e) => handleAddressChange("residential", "door_no", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.door_no.trim()}
                                                             />
 
                                                             <div className="flex flex-col">
@@ -920,6 +948,8 @@ export default function NDATokenPage() {
                                                                         placeholder="S/o"
                                                                         variant="flat"
                                                                         className="w-24"
+                                                                        isRequired={!sameAsAddress}
+                                                                        isInvalid={showErrors && !sameAsAddress && !resAddr.care_of_type}
                                                                         classNames={{
                                                                             trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
                                                                             label: "text-small font-medium text-foreground whitespace-nowrap",
@@ -943,6 +973,8 @@ export default function NDATokenPage() {
                                                                         value={resAddr.care_of_name}
                                                                         onChange={(e) => handleAddressChange("residential", "care_of_name", e.target.value)}
                                                                         isDisabled={sameAsAddress}
+                                                                        isRequired={!sameAsAddress}
+                                                                        isInvalid={showErrors && !sameAsAddress && !resAddr.care_of_name.trim()}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -956,6 +988,8 @@ export default function NDATokenPage() {
                                                             value={resAddr.street}
                                                             onChange={(e) => handleAddressChange("residential", "street", e.target.value)}
                                                             isDisabled={sameAsAddress}
+                                                            isRequired={!sameAsAddress}
+                                                            isInvalid={showErrors && !sameAsAddress && !resAddr.street.trim()}
                                                         />
 
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -967,6 +1001,8 @@ export default function NDATokenPage() {
                                                                 value={resAddr.city}
                                                                 onChange={(e) => handleAddressChange("residential", "city", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.city.trim()}
                                                             />
 
                                                             <Input
@@ -977,6 +1013,8 @@ export default function NDATokenPage() {
                                                                 value={resAddr.state}
                                                                 onChange={(e) => handleAddressChange("residential", "state", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.state.trim()}
                                                             />
 
                                                             <Input
@@ -987,6 +1025,8 @@ export default function NDATokenPage() {
                                                                 value={resAddr.pincode}
                                                                 onChange={(e) => handleAddressChange("residential", "pincode", e.target.value)}
                                                                 isDisabled={sameAsAddress}
+                                                                isRequired={!sameAsAddress}
+                                                                isInvalid={showErrors && !sameAsAddress && !resAddr.pincode.trim()}
                                                             />
                                                         </div>
                                                     </div>
@@ -994,7 +1034,7 @@ export default function NDATokenPage() {
                                             </div>
                                         </CardBody>
                                         <CardFooter className="px-6 pb-6 pt-2 flex justify-end gap-3">
-                                            {ndaData?.address || ndaData?.residential_address ? (
+                                            {isAPIDataComplete ? (
                                                 <>
                                                     <Button
                                                         color="primary"
