@@ -1006,7 +1006,7 @@ export default function NDATokenPage() {
                                                         onPress={handleUpdateDetails}
                                                         isLoading={updateDetailsLoading}
                                                         className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
-                                                        startContent={<Save size={18} />}
+                                                        startContent={!updateDetailsLoading && <Save size={18} />}
                                                     >
                                                         Update Details
                                                     </Button>
@@ -1028,7 +1028,7 @@ export default function NDATokenPage() {
                                                     onPress={handleUpdateDetails}
                                                     isLoading={updateDetailsLoading}
                                                     className="font-semibold shadow-lg shadow-primary/20 px-4 md:px-8"
-                                                    startContent={<Save size={18} />}
+                                                    startContent={!updateDetailsLoading && <Save size={18} />}
                                                 >
                                                     Save & Proceed
                                                 </Button>
@@ -1170,7 +1170,7 @@ export default function NDATokenPage() {
                                             isLoading={uploadLoading}
                                             isDisabled={ndaData?.status === "Document Uploaded"}
                                             className="font-semibold px-4 md:px-8 shadow-lg shadow-primary/20"
-                                            startContent={ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />}
+                                            startContent={!uploadLoading && (ndaData?.status === "Document Uploaded" ? <CheckCircle2 size={18} /> : <Upload size={18} />)}
                                         >
                                             {ndaData?.status === "Document Uploaded" ? "Uploaded Successfully" : "Upload Documents"}
                                         </Button>
@@ -1301,7 +1301,7 @@ export default function NDATokenPage() {
                                                                 isLoading={signLoading}
                                                                 isDisabled={requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded"}
                                                                 className="w-full font-semibold shadow-lg shadow-primary/20"
-                                                                startContent={<PenTool size={18} />}
+                                                                startContent={!signLoading && <PenTool size={18} />}
                                                             >
                                                                 {requiredDocuments.length > 0 && ndaData?.status !== "Document Uploaded" ? "Please Upload Document" : "Submit Signature"}
                                                             </Button>
@@ -1383,7 +1383,7 @@ export default function NDATokenPage() {
                                             size="md"
                                             isLoading={authLoading}
                                             className="font-semibold"
-                                            startContent={<ShieldCheck size={18} />}
+                                            startContent={!authLoading && <ShieldCheck size={18} />}
                                             suppressHydrationWarning
                                         >
                                             Verify & Access
