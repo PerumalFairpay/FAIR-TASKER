@@ -312,12 +312,14 @@ export default function ProfilePage() {
                     <Tabs
                         aria-label="Profile Sections"
                         color="primary"
-                        variant="underlined"
+                        variant="solid"
+                        size="sm"
                         classNames={{
-                            tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider mb-8",
-                            cursor: "w-full bg-primary h-[3px]",
-                            tab: "max-w-fit px-0 h-10 text-default-500 text-base font-medium data-[selected=true]:text-primary mb-2",
-                            tabContent: "group-data-[selected=true]:text-primary"
+                            base: "mb-8",
+                            tabList: "bg-default-100/80 dark:bg-default-50 p-1 rounded-xl border border-default-200/50 dark:border-white/5 shadow-sm backdrop-blur-md",
+                            cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
+                            tab: "h-8 px-4",
+                            tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
                         }}
                     >
                         <Tab
@@ -442,10 +444,10 @@ export default function ProfilePage() {
                                                         name="first_name"
                                                         value={formData.first_name}
                                                         onChange={handleInputChange}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                     <Input
                                                         label="Last Name"
@@ -453,10 +455,10 @@ export default function ProfilePage() {
                                                         name="last_name"
                                                         value={formData.last_name}
                                                         onChange={handleInputChange}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                     <Input
                                                         label="Display Name"
@@ -464,10 +466,10 @@ export default function ProfilePage() {
                                                         name="name"
                                                         value={formData.name}
                                                         onChange={handleInputChange}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                     <div className="space-y-2">
                                                         <DatePicker
@@ -475,7 +477,7 @@ export default function ProfilePage() {
                                                             labelPlacement="outside"
                                                             value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
                                                             onChange={handleDateChange}
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             radius="sm"
                                                             showMonthAndYearPickers
                                                             className="w-full"
@@ -487,9 +489,9 @@ export default function ProfilePage() {
                                                         labelPlacement="outside"
                                                         selectedKeys={formData.gender ? [formData.gender] : []}
                                                         onChange={(e) => handleSelectChange("gender", e.target.value)}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         radius="sm"
-                                                        classNames={{ trigger: "bg-default-50 border-1" }}
+                                                        classNames={{ trigger: "bg-default-100" }}
                                                     >
                                                         <SelectItem key="Male">Male</SelectItem>
                                                         <SelectItem key="Female">Female</SelectItem>
@@ -501,10 +503,10 @@ export default function ProfilePage() {
                                                         name="marital_status"
                                                         value={formData.marital_status}
                                                         onChange={handleInputChange}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                     <Input
                                                         label="Address"
@@ -512,11 +514,11 @@ export default function ProfilePage() {
                                                         name="address"
                                                         value={formData.address}
                                                         onChange={handleInputChange}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
                                                         className="md:col-span-2"
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
 
@@ -533,10 +535,10 @@ export default function ProfilePage() {
                                                             name="emergency_contact_name"
                                                             value={formData.emergency_contact_name}
                                                             onChange={handleInputChange}
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             radius="sm"
                                                             startContent={<UserIcon size={16} className="text-default-400" />}
-                                                            classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                            classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                         />
                                                         <Input
                                                             label="Contact Number"
@@ -545,10 +547,10 @@ export default function ProfilePage() {
                                                             name="emergency_contact_number"
                                                             value={formData.emergency_contact_number}
                                                             onChange={handleInputChange}
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             radius="sm"
                                                             startContent={<Phone size={16} className="text-default-400" />}
-                                                            classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                            classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                         />
                                                     </div>
                                                 </div>
@@ -636,7 +638,7 @@ export default function ProfilePage() {
                                                     placeholder="Enter your current password"
                                                     value={passwordData.current_password}
                                                     onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
-                                                    variant="bordered"
+                                                    variant="flat"
                                                     radius="sm"
                                                     isRequired
                                                     startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
@@ -649,7 +651,7 @@ export default function ProfilePage() {
                                                             )}
                                                         </button>
                                                     }
-                                                    classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                 />
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <Input
@@ -659,7 +661,7 @@ export default function ProfilePage() {
                                                         placeholder="Enter new password"
                                                         value={passwordData.new_password}
                                                         onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         radius="sm"
                                                         isRequired
                                                         startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
@@ -672,7 +674,7 @@ export default function ProfilePage() {
                                                                 )}
                                                             </button>
                                                         }
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                     <Input
                                                         type={isVisible.confirm ? "text" : "password"}
@@ -681,7 +683,7 @@ export default function ProfilePage() {
                                                         placeholder="Retype password"
                                                         value={passwordData.confirm_password}
                                                         onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         radius="sm"
                                                         isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
                                                         errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
@@ -696,7 +698,7 @@ export default function ProfilePage() {
                                                                 )}
                                                             </button>
                                                         }
-                                                        classNames={{ inputWrapper: "bg-default-50 border-1 group-data-[focus=true]:border-primary" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
                                                 <div className="flex justify-end pt-4">
