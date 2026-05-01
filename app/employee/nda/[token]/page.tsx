@@ -686,11 +686,11 @@ export default function NDATokenPage() {
                             variant="solid"
                             isVertical={isVertical}
                             classNames={{
-                                base: "flex flex-col md:flex-row gap-8 md:gap-16",
-                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-2 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-12 z-40 backdrop-blur-md mb-6 md:mb-0",
+                                base: "flex flex-col md:flex-row gap-4 md:gap-16",
+                                tabList: "bg-gray-100/80 dark:bg-gray-800/60 p-1.5 rounded-2xl w-full md:w-56 flex-shrink-0 border border-gray-200/50 dark:border-gray-700/50 shadow-inner h-fit sticky top-4 md:top-12 z-40 backdrop-blur-md mb-4 md:mb-0",
                                 cursor: "rounded-xl bg-white dark:bg-gray-700 shadow-md",
-                                tab: "h-11 md:h-14 px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
-                                tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-xs md:text-sm",
+                                tab: "h-9 md:h-14 px-3 md:px-4 rounded-xl transition-all data-[selected=true]:shadow-sm justify-start",
+                                tabContent: "font-semibold text-gray-500 dark:text-gray-400 group-data-[selected=true]:text-primary text-[11px] md:text-sm",
                                 panel: "flex-1 p-0 w-full md:ml-4"
                             }}
                             selectedKey={activeTab}
@@ -722,7 +722,7 @@ export default function NDATokenPage() {
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <MapPin size={20} />
-                                        <span>Personal Details</span>
+                                        <span>Details</span>
                                     </div>
                                 }
                             >
