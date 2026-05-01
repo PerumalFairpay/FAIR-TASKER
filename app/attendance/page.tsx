@@ -1079,7 +1079,6 @@ export default function AttendancePage() {
                 onOpenChange={onEditClose} 
                 size="md"
                 isDismissable={false}
-                shouldCloseOnInteractOutside={(element) => false}
             >
                 <DrawerContent>
                     {(onClose) => (

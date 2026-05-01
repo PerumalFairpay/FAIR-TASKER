@@ -87,7 +87,6 @@ const EodReportDrawer = ({ isOpen, onClose, tasks, initialReports }: EodReportDr
             onOpenChange={onClose} 
             size="xl"
             isDismissable={false}
-            shouldCloseOnInteractOutside={(element) => false}
         >
             <DrawerContent>
                 <form onSubmit={handleSubmit} className="h-full flex flex-col">
