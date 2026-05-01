@@ -781,7 +781,7 @@ export default function NDATokenPage() {
                                                         label="Mobile Number"
                                                         placeholder="Enter your mobile number"
                                                         labelPlacement="outside"
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         value={mobile}
                                                         onValueChange={setMobile}
                                                         isRequired
@@ -799,7 +799,7 @@ export default function NDATokenPage() {
                                                             label="Building / Door No"
                                                             placeholder="e.g. 42B, Tower 1"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.door_no}
                                                             onChange={(e) => handleAddressChange("permanent", "door_no", e.target.value)}
                                                         />
@@ -810,7 +810,7 @@ export default function NDATokenPage() {
                                                                     label="S/o, D/o, W/o Name"
                                                                     labelPlacement="outside"
                                                                     placeholder="S/o"
-                                                                    variant="bordered"
+                                                                    variant="flat"
                                                                     className="w-24"
                                                                     classNames={{
                                                                         trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
@@ -826,7 +826,7 @@ export default function NDATokenPage() {
                                                                 </Select>
                                                                 <Input
                                                                     placeholder="Father/Guardian Name"
-                                                                    variant="bordered"
+                                                                    variant="flat"
                                                                     className="flex-1"
                                                                     classNames={{
                                                                         inputWrapper: "rounded-l-none h-[40px] shadow-none",
@@ -842,7 +842,7 @@ export default function NDATokenPage() {
                                                         label="Street / Area / Colony"
                                                         placeholder="Enter street and locality"
                                                         labelPlacement="outside"
-                                                        variant="bordered"
+                                                        variant="flat"
                                                         value={permaAddr.street}
                                                         onChange={(e) => handleAddressChange("permanent", "street", e.target.value)}
                                                     />
@@ -852,7 +852,7 @@ export default function NDATokenPage() {
                                                             label="City"
                                                             placeholder="City"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.city}
                                                             onChange={(e) => handleAddressChange("permanent", "city", e.target.value)}
                                                         />
@@ -861,7 +861,7 @@ export default function NDATokenPage() {
                                                             label="State"
                                                             placeholder="State"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.state}
                                                             onChange={(e) => handleAddressChange("permanent", "state", e.target.value)}
                                                         />
@@ -870,7 +870,7 @@ export default function NDATokenPage() {
                                                             label="Pincode"
                                                             placeholder="Pincode"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={permaAddr.pincode}
                                                             onChange={(e) => handleAddressChange("permanent", "pincode", e.target.value)}
                                                         />
@@ -906,7 +906,7 @@ export default function NDATokenPage() {
                                                                 label="Building / Door No"
                                                                 placeholder="e.g. 42B, Tower 1"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.door_no}
                                                                 onChange={(e) => handleAddressChange("residential", "door_no", e.target.value)}
                                                                 isDisabled={sameAsAddress}
@@ -918,7 +918,7 @@ export default function NDATokenPage() {
                                                                         label="S/o, D/o, W/o Name"
                                                                         labelPlacement="outside"
                                                                         placeholder="S/o"
-                                                                        variant="bordered"
+                                                                        variant="flat"
                                                                         className="w-24"
                                                                         classNames={{
                                                                             trigger: "rounded-r-none border-r-0 h-[40px] shadow-none",
@@ -935,7 +935,7 @@ export default function NDATokenPage() {
                                                                     </Select>
                                                                     <Input
                                                                         placeholder="Father/Guardian Name"
-                                                                        variant="bordered"
+                                                                        variant="flat"
                                                                         className="flex-1"
                                                                         classNames={{
                                                                             inputWrapper: "rounded-l-none h-[40px] shadow-none",
@@ -952,7 +952,7 @@ export default function NDATokenPage() {
                                                             label="Street / Area / Colony"
                                                             placeholder="Enter street and locality"
                                                             labelPlacement="outside"
-                                                            variant="bordered"
+                                                            variant="flat"
                                                             value={resAddr.street}
                                                             onChange={(e) => handleAddressChange("residential", "street", e.target.value)}
                                                             isDisabled={sameAsAddress}
@@ -963,7 +963,7 @@ export default function NDATokenPage() {
                                                                 label="City"
                                                                 placeholder="City"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.city}
                                                                 onChange={(e) => handleAddressChange("residential", "city", e.target.value)}
                                                                 isDisabled={sameAsAddress}
@@ -973,7 +973,7 @@ export default function NDATokenPage() {
                                                                 label="State"
                                                                 placeholder="State"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.state}
                                                                 onChange={(e) => handleAddressChange("residential", "state", e.target.value)}
                                                                 isDisabled={sameAsAddress}
@@ -983,7 +983,7 @@ export default function NDATokenPage() {
                                                                 label="Pincode"
                                                                 placeholder="Pincode"
                                                                 labelPlacement="outside"
-                                                                variant="bordered"
+                                                                variant="flat"
                                                                 value={resAddr.pincode}
                                                                 onChange={(e) => handleAddressChange("residential", "pincode", e.target.value)}
                                                                 isDisabled={sameAsAddress}
@@ -1342,18 +1342,14 @@ export default function NDATokenPage() {
                                                 label="Email Address"
                                                 placeholder="Enter your email"
                                                 type="email"
-                                                variant="bordered"
+                                                variant="flat"
                                                 labelPlacement="outside"
                                                 value={loginEmail}
                                                 onValueChange={(val) => {
                                                     setLoginEmail(val);
                                                     setAuthError("");
                                                 }}
-                                                isRequired
-                                                classNames={{
-                                                    inputWrapper: "h-12"
-                                                }}
-                                               
+                                                isRequired                                                
                                                 suppressHydrationWarning
                                             />
                                             <p className="text-xs text-gray-400 px-1">
