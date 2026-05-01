@@ -1024,7 +1024,7 @@ export default function NDATokenPage() {
 
                             <Tab
                                 key="documents"
-                                isDisabled={!ndaData?.address || !ndaData?.residential_address}
+                                isDisabled={!isAPIDataComplete}
                                 title={
                                     <div className="flex items-center space-x-2">
                                         <Upload size={20} />
