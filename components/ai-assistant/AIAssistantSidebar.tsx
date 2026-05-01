@@ -17,6 +17,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import { sendChatQuery } from "@/store/aiAssistant/action";
 
+import clsx from "clsx";
+
 export default function AIAssistantSidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [inputValue, setInputValue] = useState("");
@@ -36,8 +38,8 @@ export default function AIAssistantSidebar() {
         }
     }, [messages, isOpen, isLoading]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e?: React.FormEvent) => {
+        e?.preventDefault();
         if (!inputValue.trim() || isLoading) return;
 
         const userMessage = inputValue.trim();
@@ -51,7 +53,7 @@ export default function AIAssistantSidebar() {
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
-            handleSubmit(e as any);
+            handleSubmit();
         }
     };
 
@@ -76,30 +78,21 @@ export default function AIAssistantSidebar() {
                 isOpen={isOpen}
                 onOpenChange={setIsOpen}
                 placement="right"
-                size="md"
+                size="lg"
                 backdrop="transparent"
                 classNames={{
-                    base: "max-w-[400px] border-l border-default-200 dark:border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.1)]",
+                    base: "max-w-[500px] border-l border-default-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.1)]",
                 }}
             >
                 <DrawerContent className="bg-white/90 dark:bg-[#09090b]/95 backdrop-blur-xl">
                     <div className="flex flex-col h-full">
-                        <DrawerHeader className="flex flex-col gap-1 border-b border-default-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-md p-5">
+                        <DrawerHeader className="flex flex-col gap-1 border-b border-default-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-md px-5 py-3">
                             <div className="flex justify-between items-center w-full">
-                                <div className="flex items-center gap-3">
-                                    {/* <Badge content="" color="success" shape="circle" placement="bottom-right" className="border-2 border-white dark:border-default-100"> */}
-                                    <Avatar
-                                        icon={<Webhook size={22} />}
-                                        className="bg-default-100 dark:bg-default-50 text-default-700 dark:text-default-200 border border-default-200 dark:border-white/10"
-                                        size="md"
-                                    />
-                                    {/* </Badge> */}
-                                    <div>
-                                        <h3 className="font-bold text-lg tracking-tight text-default-900 dark:text-default-100">ASTRO</h3>
-                                        <p className="text-default-500 text-xs flex items-center gap-1">
-                                            <Webhook size={10} className="text-default-400" /> Ai Assistant
-                                        </p>
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-default-100 dark:bg-white/5 rounded-lg shrink-0">
+                                        <Webhook size={18} className="text-default-600 dark:text-default-400" />
                                     </div>
+                                    <h3 className="font-semibold text-sm tracking-tight text-default-900 dark:text-default-100">Astro</h3>
                                 </div>
                                 <Button
                                     isIconOnly
@@ -132,9 +125,9 @@ export default function AIAssistantSidebar() {
                                                     />
                                                 )}
                                                 <div
-                                                    className={`max-w-[92%] text-sm transition-all ${msg.role === "user"
-                                                        ? "p-4 bg-default-100 dark:bg-default-200 text-default-900 rounded-2xl rounded-tr-none shadow-sm"
-                                                        : "py-2 px-1 text-default-800 dark:text-default-900 w-full"
+                                                    className={`max-w-[92%] text-[15px] transition-all ${msg.role === "user"
+                                                        ? "px-4 py-2.5 bg-default-900 dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none shadow-sm"
+                                                        : "py-1 px-1 text-default-800 dark:text-default-200 w-full"
                                                         }`}
                                                 >
                                                     {msg.role === "user" ? (
@@ -189,42 +182,124 @@ export default function AIAssistantSidebar() {
                         </DrawerBody>
 
                         <DrawerFooter className="p-4 bg-white/70 dark:bg-white/[0.02] border-t border-default-200/50 dark:border-white/5 backdrop-blur-md">
-                            <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
-                                <div className="flex gap-2 items-end w-full">
-                                    <div className="relative flex-grow group">
-                                        <Textarea
-                                            placeholder="Ask something..."
-                                            value={inputValue}
-                                            onChange={(e) => setInputValue(e.target.value)}
-                                            onKeyDown={handleKeyDown}
-                                            minRows={1}
-                                            maxRows={5}
-                                            fullWidth
-                                            variant="bordered"
-                                            color="primary"
-                                            className="transition-all"
-                                            classNames={{
-                                                inputWrapper: "bg-default-100/50 focus-within:bg-default-100/80 border-default-200 dark:border-default-100 rounded-xl pl-4 py-2 min-h-unit-12 items-center",
-                                                input: "text-small py-0",
-                                            }}
-                                        />
-                                    </div>
-                                    <Button
-                                        isIconOnly
-                                        type="submit"
-                                        color="primary"
-                                        size="md"
-                                        isDisabled={!inputValue.trim() || isLoading}
-                                        className="shrink-0 rounded-xl h-12 w-12 transition-all"
-                                    >
-                                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : <SendHorizontal size={18} />}
-                                    </Button>
-                                </div>
-                            </form>
+                            <SearchBar
+                                value={inputValue}
+                                onChange={setInputValue}
+                                onKeyDown={handleKeyDown}
+                                onSubmit={handleSubmit}
+                                isLoading={isLoading}
+                                placeholder="How can I help you today?"
+                                user={user}
+                            />
                         </DrawerFooter>
                     </div>
                 </DrawerContent>
             </Drawer>
         </>
+    );
+}
+
+interface SearchBarProps {
+    value: string;
+    onChange: (val: string) => void;
+    onKeyDown: (e: React.KeyboardEvent) => void;
+    onSubmit: (e?: React.FormEvent) => void;
+    isLoading: boolean;
+    placeholder: string;
+    user: any;
+}
+
+function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholder, user }: SearchBarProps) {
+    return (
+        <form
+            onSubmit={(e) => onSubmit(e)}
+            className="flex flex-col w-full group relative"
+        >
+            <div
+                className={clsx(
+                    "relative flex flex-col transition-all duration-500 ease-in-out",
+                    "bg-white dark:bg-[#18181b]/50 backdrop-blur-2xl",
+                    "border border-default-200 dark:border-white/5",
+                    "focus-within:border-default-400 dark:focus-within:border-white/10",
+                    "rounded-2xl shadow-sm overflow-hidden p-3 min-h-[100px]"
+                )}
+            >
+                <div className="flex-1 w-full">
+                    <Textarea
+                        value={value}
+                        onChange={(e) => onChange(e.target.value)}
+                        onKeyDown={onKeyDown}
+                        placeholder={placeholder}
+                        minRows={1}
+                        maxRows={8}
+                        variant="flat"
+                        className="w-full"
+                        classNames={{
+                            base: "bg-transparent",
+                            inputWrapper: [
+                                "bg-transparent",
+                                "border-none",
+                                "shadow-none",
+                                "group-data-[focus=true]:bg-transparent",
+                                "hover:bg-transparent",
+                                "data-[hover=true]:bg-transparent",
+                                "p-0",
+                                "min-h-0"
+                            ].join(" "),
+                            input: "text-[15px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-default-100 placeholder:text-default-400 font-normal",
+                        }}
+                    />
+                </div>
+
+                <div className="flex items-center justify-between mt-2 pt-2 gap-4">
+                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-0.5">
+                        {(user?.role?.toLowerCase() === "admin"
+                            ? [
+                                "Pending leave",
+                                "Attendance",
+                                "Reports",
+                                "Onboarding"
+                            ]
+                            : [
+                                "My tasks",
+                                "Draft email",
+                                "Policies",
+                                "Help"
+                            ]
+                        ).map((rec) => (
+                            <button
+                                key={rec}
+                                type="button"
+                                onClick={() => onChange(rec)}
+                                className="px-3 py-1 rounded-full bg-default-100/40 dark:bg-white/5 hover:bg-default-200/60 dark:hover:bg-white/10 text-default-500 hover:text-default-900 dark:text-default-400 dark:hover:text-white text-[11px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/10 active:scale-95"
+                            >
+                                {rec}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 min-h-[32px]">
+                        <Button
+                            isIconOnly
+                            type="submit"
+                            isDisabled={!value.trim() || isLoading}
+                            className={clsx(
+                                "h-8 w-8 rounded-full transition-all shrink-0",
+                                value.trim()
+                                    ? "bg-default-900 dark:bg-white text-white dark:text-black hover:opacity-90"
+                                    : "bg-default-100 dark:bg-white/5 text-default-400"
+                            )}
+                            size="sm"
+                        >
+                            {isLoading ? (
+                                <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                                <SendHorizontal size={16} />
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </form>
     );
 }
