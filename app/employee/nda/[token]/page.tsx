@@ -41,7 +41,7 @@ const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: s
 
     useEffect(() => {
         const duration = 4000;
-        const interval = 800; // time per status
+        const interval = 800;  
 
         const statusTimer = setInterval(() => {
             setStatusIndex((prev) => (prev < statuses.length - 1 ? prev + 1 : prev));
@@ -68,8 +68,7 @@ const VerificationOverlay = ({ firstName, lastName, onComplete }: { firstName: s
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-center p-4 text-center overflow-hidden"
-        >
-            {/* Background elements for rich aesthetics */}
+        > 
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
@@ -553,6 +552,13 @@ export default function NDATokenPage() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    if (!isMounted) return null;
 
     if (getByTokenError && getByTokenError.includes("expired")) {
         return (
@@ -1224,17 +1230,18 @@ export default function NDATokenPage() {
                                 </p>
                             </div>
 
-                            <Card className="shadow-lg border border-gray-100 dark:border-gray-800">
-                                <form onSubmit={handleLogin}>
-                                    <CardBody className="gap-4 p-6">
+                            <Card className="shadow-lg border border-gray-100 dark:border-gray-800" suppressHydrationWarning>
+                                <form onSubmit={handleLogin} suppressHydrationWarning>
+                                    <CardBody className="gap-4 p-6" suppressHydrationWarning>
                                         {authError && (
                                             <div className="bg-danger-50 text-danger-600 p-3 rounded-lg text-sm flex items-center gap-2">
                                                 <AlertTriangle size={16} />
                                                 {authError}
                                             </div>
                                         )}
-                                        <div className="space-y-2">
+                                        <div className="space-y-2" suppressHydrationWarning>
                                             <Input
+                                                id="login-email"
                                                 label="Email Address"
                                                 placeholder="Enter your email"
                                                 type="email"
@@ -1250,13 +1257,14 @@ export default function NDATokenPage() {
                                                     inputWrapper: "h-12"
                                                 }}
                                                 startContent={<span className="text-gray-400">@</span>}
+                                                suppressHydrationWarning
                                             />
                                             <p className="text-xs text-gray-400 px-1">
                                                 Please enter the registered email address where you received the access link.
                                             </p>
                                         </div>
                                     </CardBody>
-                                    <CardFooter className="px-6 pb-6 pt-0">
+                                    <CardFooter className="px-6 pb-6 pt-0" suppressHydrationWarning>
                                         <Button
                                             type="submit"
                                             color="primary"
@@ -1265,6 +1273,7 @@ export default function NDATokenPage() {
                                             isLoading={authLoading}
                                             className="font-semibold"
                                             startContent={<ShieldCheck size={18} />}
+                                            suppressHydrationWarning
                                         >
                                             Verify & Access
                                         </Button>
@@ -1279,6 +1288,7 @@ export default function NDATokenPage() {
                     </div>
                 )
             )}
+
 
             <FilePreviewModal
                 isOpen={!!previewFile}
