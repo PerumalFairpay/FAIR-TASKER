@@ -613,16 +613,7 @@ export default function NDATokenPage() {
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 {/* Stylistic SVGs */}
                 <div className="absolute inset-0 opacity-20 dark:opacity-30">
-                    <motion.svg
-                        animate={{
-                            rotate: 360,
-                            scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                            duration: 25,
-                            repeat: Infinity,
-                            ease: "linear",
-                        }}
+                    <svg
                         className="absolute -top-[10%] -left-[5%] h-[60%] w-[60%] text-blue-600/30"
                         viewBox="0 0 200 200"
                         fill="none"
@@ -633,18 +624,9 @@ export default function NDATokenPage() {
                             d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,88.5,-0.9C87,14.6,81.4,29.1,73.1,41.4C64.8,53.7,53.8,63.7,40.9,71.1C28,78.5,14,83.2,-0.2,83.5C-14.4,83.8,-28.8,79.7,-42,72.6C-55.2,65.5,-67.2,55.3,-75.4,42.4C-83.6,29.5,-88,14.8,-88.4,-0.2C-88.8,-15.3,-85.1,-30.5,-76.8,-43.3C-68.5,-56.1,-55.6,-66.4,-41.7,-73.8C-27.8,-81.2,-13.9,-85.7,0.4,-86.3C14.7,-87,29.4,-83.7,44.7,-76.4Z"
                             transform="translate(100 100)"
                         />
-                    </motion.svg>
+                    </svg>
 
-                    <motion.svg
-                        animate={{
-                            rotate: -360,
-                            scale: [1, 1.2, 1],
-                        }}
-                        transition={{
-                            duration: 35,
-                            repeat: Infinity,
-                            ease: "linear",
-                        }}
+                    <svg
                         className="absolute -bottom-[20%] -right-[10%] h-[70%] w-[70%] text-purple-600/30"
                         viewBox="0 0 200 200"
                         fill="none"
@@ -655,51 +637,17 @@ export default function NDATokenPage() {
                             d="M39.6,-67.3C50.2,-58.5,57.1,-46.1,64.2,-33.6C71.3,-21.1,78.7,-8.5,80.1,5.3C81.5,19.1,76.8,34.1,68.1,46C59.4,57.9,46.7,66.6,33.1,71.5C19.5,76.4,5,77.5,-10.1,75.4C-25.2,73.3,-40.8,68,-52.7,58.3C-64.6,48.6,-72.7,34.4,-77.1,19.3C-81.5,4.2,-82.1,-11.8,-76.9,-25.9C-71.7,-40,-60.7,-52.1,-47.8,-59.8C-34.9,-67.5,-20.1,-70.7,-4.8,-62.4C10.5,-54.1,28.9,-76.1,39.6,-67.3Z"
                             transform="translate(100 100)"
                         />
-                    </motion.svg>
+                    </svg>
                 </div>
-
                 {/* Animated Orbs */}
                 <motion.div
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        x: [0, 50, 0],
-                        y: [0, -30, 0],
-                        opacity: [0.2, 0.4, 0.2],
-                    }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                    className="absolute -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-blue-600/15 blur-[120px]"
+                    className="absolute -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-blue-600/15 blur-[120px] opacity-20"
                 />
                 <motion.div
-                    animate={{
-                        scale: [1, 1.3, 1],
-                        x: [0, -40, 0],
-                        y: [0, 60, 0],
-                        opacity: [0.15, 0.35, 0.15],
-                    }}
-                    transition={{
-                        duration: 12,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1
-                    }}
-                    className="absolute -bottom-40 -right-20 h-[700px] w-[700px] rounded-full bg-purple-600/15 blur-[130px]"
+                    className="absolute -bottom-40 -right-20 h-[700px] w-[700px] rounded-full bg-purple-600/15 blur-[130px] opacity-15"
                 />
                 <motion.div
-                    animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.1, 0.25, 0.1],
-                    }}
-                    transition={{
-                        duration: 15,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 2
-                    }}
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[800px] w-[800px] rounded-full bg-indigo-500/10 blur-[150px]"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[800px] w-[800px] rounded-full bg-indigo-500/10 blur-[150px] opacity-10"
                 />
 
                 {/* Subtle Grid Pattern */}
