@@ -38,4 +38,36 @@
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: #cbd5e1; /* default-300 equivalent */
   }
+
+  .bg-dot-grid-interactive {
+    --mouse-x: -500px;
+    --mouse-y: -500px;
+    background-image: radial-gradient(circle, #f1f5f9 0.75px, transparent 0.75px);
+    background-size: 12px 12px;
+    position: relative;
+  }
+
+  .bg-dot-grid-interactive::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #cbd5e1 0.75px, transparent 0.75px);
+    background-size: 12px 12px;
+    mask-image: radial-gradient(
+      circle 180px at var(--mouse-x) var(--mouse-y),
+      black 0%,
+      rgba(0, 0, 0, 0.4) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .dark .bg-dot-grid-interactive {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0.75px, transparent 0.75px);
+  }
+
+  .dark .bg-dot-grid-interactive::before {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0.75px, transparent 0.75px);
+  }
 }

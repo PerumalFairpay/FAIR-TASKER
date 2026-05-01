@@ -30,6 +30,7 @@ export default function AIChatPage() {
     const [inputValue, setInputValue] = useState("");
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { isOpen: isClearModalOpen, onOpen, onOpenChange } = useDisclosure();
 
     const { user } = useSelector((state: AppState) => state.Auth);
@@ -67,11 +68,22 @@ export default function AIChatPage() {
     const handleClearChat = () => {
         dispatch(clearChatHistory());
     };
+    
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        containerRef.current.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+        containerRef.current.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+    };
 
     if (!user) return null;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] transition-colors duration-500">
+        <div 
+            ref={containerRef}
+            onMouseMove={handleMouseMove}
+            className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
+        >
             {/* Header - Transparent and simple */}
             <header className="flex items-center justify-between px-6 py-3 z-30">
                 <div className="flex items-center gap-2">
