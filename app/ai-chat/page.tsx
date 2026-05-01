@@ -216,10 +216,10 @@ export default function AIChatPage() {
                                                 msg.role === "user" ? "items-end" : "items-start"
                                             )}>
                                                 <div className={clsx(
-                                                    "px-5 py-3 rounded-2xl text-[15px] leading-relaxed transition-all",
+                                                    "text-[15px] leading-relaxed transition-all",
                                                     msg.role === "user"
-                                                        ? "bg-default-100 text-default-900 shadow-sm"
-                                                        : "bg-transparent text-default-800 dark:text-default-200"
+                                                        ? "px-5 py-3 bg-default-900 dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none shadow-sm"
+                                                        : "text-default-800 dark:text-default-200 py-1"
                                                 )}>
                                                     {msg.role === "user" ? (
                                                         <span className="whitespace-pre-wrap">{msg.content}</span>
