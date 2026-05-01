@@ -119,7 +119,7 @@ export default function NDAPage() {
         last_name: string;
         email: string;
         mobile: string;
-        role: string;
+        designation: string;
         address: string;
         residential_address: string;
         expires_in_hours: number;
@@ -308,7 +308,7 @@ export default function NDAPage() {
                     >
                         <TableHeader>
                             <TableColumn width={250}>EMPLOYEE DETAILS</TableColumn>
-                            <TableColumn>ROLE</TableColumn>
+                            <TableColumn>DESIGNATION</TableColumn>
                             <TableColumn>STATUS</TableColumn>
                             <TableColumn width={200}>SYSTEM DETAILS</TableColumn>
                             <TableColumn>DOCUMENTS</TableColumn>
@@ -335,7 +335,7 @@ export default function NDAPage() {
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <span className="text-sm">{item.role}</span>
+                                        <span className="text-sm">{item.designation}</span>
                                     </TableCell>
                                     <TableCell>
                                         <Chip
@@ -551,7 +551,7 @@ export default function NDAPage() {
                                             <div className="flex flex-col gap-1">
                                                 <h3 className="text-sm font-bold text-default-900">{item.first_name} {item.last_name}</h3>
                                                 <p className="text-tiny text-default-400">{item.email}</p>
-                                                <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">{item.role}</p>
+                                                <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">{item.designation}</p>
                                             </div>
                                             <Chip
                                                 color={getStatusColor(item.status)}

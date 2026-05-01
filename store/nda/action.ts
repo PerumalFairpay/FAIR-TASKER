@@ -35,7 +35,7 @@ export const generateNDARequest = (payload: {
   last_name: string;
   email: string;
   mobile: string;
-  role: string;
+  designation: string;
   address?: string;
   residential_address?: string;
   perma_door_no?: string;

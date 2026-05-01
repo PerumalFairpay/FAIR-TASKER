@@ -28,7 +28,7 @@ interface GenerateNDADrawerProps {
         last_name: string;
         email: string;
         mobile: string;
-        role: string;
+        designation: string;
         address: string;
         residential_address: string;
         expires_in_hours: number;
@@ -65,7 +65,7 @@ export default function GenerateNDADrawer({
         email: "",
         mobile: "",
         department: "",
-        role: "",
+        designation: "",
         address: { ...initialAddress },
         residential_address: { ...initialAddress },
         expires_in_hours: 48,
@@ -93,7 +93,7 @@ export default function GenerateNDADrawer({
         email: "",
         mobile: "",
         department: "",
-        role: "",
+        designation: "",
         address: "",
         residential_address: "",
     });
@@ -140,7 +140,7 @@ export default function GenerateNDADrawer({
                     email: "",
                     mobile: "",
                     department: "",
-                    role: "",
+                    designation: "",
                     address: { ...initialAddress },
                     residential_address: { ...initialAddress },
                     expires_in_hours: 48,
@@ -167,7 +167,7 @@ export default function GenerateNDADrawer({
                     email: "",
                     mobile: "",
                     department: "",
-                    role: "",
+                    designation: "",
                     address: "",
                     residential_address: "",
                 });
@@ -226,7 +226,7 @@ export default function GenerateNDADrawer({
             email: "",
             mobile: "",
             department: "",
-            role: "",
+            designation: "",
             address: "",
             residential_address: "",
         };
@@ -245,8 +245,8 @@ export default function GenerateNDADrawer({
         if (!formData.department.trim()) {
             newErrors.department = "Department is required";
         }
-        if (!formData.role.trim()) {
-            newErrors.role = "Role is required";
+        if (!formData.designation.trim()) {
+            newErrors.designation = "Designation is required";
         }
 
         // Basic address validation: require at least one of Building, Street, or City
@@ -511,7 +511,7 @@ export default function GenerateNDADrawer({
                                         selectedKeys={formData.department ? [formData.department] : []}
                                         onChange={(e) => {
                                             handleChange("department", e.target.value);
-                                            handleChange("role", ""); // Reset role when department changes
+                                            handleChange("designation", ""); // Reset designation when department changes
                                         }}
                                         isRequired
                                         isInvalid={!!errors.department}
@@ -524,15 +524,15 @@ export default function GenerateNDADrawer({
                                         ))}
                                     </Select>
                                     <Select
-                                        label="Role"
-                                        placeholder="Select Role/Designation"
+                                        label="Designation"
+                                        placeholder="Select Designation"
                                         labelPlacement="outside"
                                         variant="bordered"
-                                        selectedKeys={formData.role ? [formData.role] : []}
-                                        onChange={(e) => handleChange("role", e.target.value)}
+                                        selectedKeys={formData.designation ? [formData.designation] : []}
+                                        onChange={(e) => handleChange("designation", e.target.value)}
                                         isRequired
-                                        isInvalid={!!errors.role}
-                                        errorMessage={errors.role}
+                                        isInvalid={!!errors.designation}
+                                        errorMessage={errors.designation}
                                         isDisabled={!formData.department || designationOptions.length === 0}
                                     >
                                         {designationOptions.map((desig: any) => (
