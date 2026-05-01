@@ -354,7 +354,7 @@ export default function NDATokenPage() {
                 shouldShowTimeoutProgress: true,
             });
         }
-    }, [uploadSuccess, signSuccess, getByTokenError, uploadError, signError]);
+    }, [uploadSuccess, signSuccess, updateDetailsSuccess, getByTokenError, uploadError, signError, updateDetailsError]);
 
     const handleUpdateDetails = () => {
         if (!isContactInfoFilled) {
