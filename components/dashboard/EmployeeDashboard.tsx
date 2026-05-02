@@ -386,12 +386,12 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 1: Profile & Quick Stats (Span 4) --- */}
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-6">
                     {/* Profile Card */}
-                    <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[40px] group">
+                    <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-3xl group">
                         {/* Background Image */}
                         <img
                             src={data.profile.profile_picture?.replace("host.docker.internal", "localhost")}
                             alt={data.profile.name}
-                            className="absolute inset-0 w-full h-full object-cover"
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
                         />
 
                         {/* Gradient Overlay - Smooth fade at bottom */}
@@ -399,10 +399,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"></div>
 
                         {/* Content */}
-                        <div className="absolute bottom-0 left-0 right-0 p-8 flex justify-between items-end z-10">
+                        <div className="absolute bottom-0 left-0 right-0 px-8 pb-4 flex justify-between items-end z-10">
                             <div className="flex flex-col gap-1">
-                                <h3 className="text-3xl font-medium text-white tracking-wide">{data.profile.name}</h3>
-                                <p className="text-white/90 text-sm font-light tracking-wide">{data.profile.designation} • {data.profile.department}</p>
+
+                                <p className="text-white/90 text-sm font-light tracking-wide">{data.profile.designation}</p>
                             </div>
                         </div>
                     </Card>
@@ -654,7 +654,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
 
                     {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-[24px] flex flex-col">
+                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-2xl flex flex-col">
                         {/* Top Section: Overview */}
                         <div className="px-8 pt-8 pb-4">
                             <div className="flex justify-between items-start mb-6">
@@ -877,7 +877,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         isPressable={false}
                                     >
                                         {/* Card Image Area */}
-                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-[16px] bg-slate-100 dark:bg-zinc-800">
+                                        <div className="relative w-full aspect-[2/1] overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-800">
                                             <Image
                                                 removeWrapper
                                                 alt={blog.title}
