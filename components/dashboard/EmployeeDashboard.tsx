@@ -662,8 +662,11 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <h3 className="text-xl font-medium text-slate-800 dark:text-slate-100 tracking-tight">Task Overview</h3>
                                     <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Completion Status</p>
                                 </div>
-                                <div className="p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm border border-slate-100 dark:border-white/5">
-                                    <span className="text-slate-800 dark:text-slate-100 font-bold px-1">{data.task_metrics.total_assigned} Total</span>
+                                <div className="text-right">
+                                    <span className="text-3xl font-bold text-slate-800 dark:text-slate-100 leading-none">
+                                        {data.task_metrics.total_assigned}
+                                    </span>
+                                    <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Total Tasks</p>
                                 </div>
                             </div>
 
