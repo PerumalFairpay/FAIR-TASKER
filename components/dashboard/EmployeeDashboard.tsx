@@ -408,54 +408,51 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
 
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md h-auto">
-                        <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-6 pt-5 pb-0">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Time Tracker</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500">Work efficiency metrics</p>
+                                <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Work Hours</h3>
                             </div>
-                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-full text-primary">
-                                <Clock size={20} />
-                            </div>
+                            <Clock size={16} className="text-slate-400" />
                         </CardHeader>
-                        <CardBody className="px-6 py-4">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="relative flex items-center justify-center w-32 h-32 mx-auto">
-                                    {/* Circular Progress Placeholder - CSS based or SVG */}
-                                    {/* Circular Progress Premium */}
-                                    <svg className="w-full h-full transform -rotate-90 group-hover:scale-105 transition-transform duration-500">
-                                        <defs>
-                                            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#3b82f6" />
-                                                <stop offset="100%" stopColor="#2563eb" />
-                                            </linearGradient>
-                                        </defs>
-                                        <circle cx="64" cy="64" r="56" strokeWidth="12" fill="none" className="stroke-slate-100 dark:stroke-white/5" />
-                                        <circle cx="64" cy="64" r="56" strokeWidth="12" fill="none"
-                                            stroke="url(#timeGradient)"
-                                            strokeDasharray={351}
-                                            strokeDashoffset={351 - (351 * (Math.min(elapsedSeconds / 3600, 9) / 9))}
-                                            strokeLinecap="round"
-                                            className="transition-all duration-1000 ease-out"
-                                            style={{ filter: "drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))" }}
-                                        />
-                                    </svg>
-                                    <div className="absolute flex flex-col items-center">
-                                        <span className="text-xl font-bold text-slate-800 dark:text-white tabular-nums tracking-tight">
-                                            {formatDuration(elapsedSeconds)}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase mt-1">Today</span>
-                                    </div>
+                        <CardBody className="px-6 py-6 flex flex-col gap-6">
+                            {/* Today Time */}
+                            <div>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-bold text-slate-900 dark:text-white tabular-nums tracking-tight">
+                                        {formatDuration(elapsedSeconds)}
+                                    </span>
                                 </div>
+                                <p className="text-[11px] text-slate-400 font-medium uppercase tracking-widest mt-1">Today's Session</p>
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/5 text-center">
-                                    <span className="block text-xl font-bold text-slate-700 dark:text-slate-200">{data.work_hours.this_week}h</span>
-                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">This Week</span>
+
+                            {/* Daily Progress Bar */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Daily Goal (9h)</span>
+                                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{Math.round(Math.min((elapsedSeconds / (9 * 3600)) * 100, 100))}%</span>
                                 </div>
-                                <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/5 text-center">
-                                    <span className="block text-xl font-bold text-slate-700 dark:text-slate-200">{data.work_hours.this_month}h</span>
-                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">This Month</span>
+                                <Progress 
+                                    size="sm"
+                                    radius="full"
+                                    value={(elapsedSeconds / (9 * 3600)) * 100}
+                                    classNames={{
+                                        base: "max-w-full",
+                                        track: "bg-slate-100 dark:bg-white/10",
+                                        indicator: "bg-slate-800 dark:bg-white"
+                                    }}
+                                />
+                            </div>
+
+                            {/* Week/Month Stats Grid */}
+                            <div className="grid grid-cols-2 gap-6 pt-2 border-t border-slate-50 dark:border-white/5">
+                                <div>
+                                    <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.work_hours.this_week}h</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">This Week</p>
+                                </div>
+                                <div>
+                                    <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.work_hours.this_month}h</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">This Month</p>
                                 </div>
                             </div>
                         </CardBody>
