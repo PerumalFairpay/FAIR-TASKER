@@ -66,6 +66,7 @@ interface DashboardData {
         role: string;
         status: string;
         deadline: string;
+        logo?: string;
     }>;
     task_metrics: {
         total_assigned: number;
@@ -807,8 +808,17 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 {(data.projects || []).map((project, i) => (
                                     <div key={i} className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">
-                                                {project.name.charAt(0)}
+                                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm border border-slate-100 dark:border-white/10">
+                                                {project.logo ? (
+                                                    <Image
+                                                        removeWrapper
+                                                        alt={project.name}
+                                                        className="w-full h-full object-cover"
+                                                        src={project.logo.replace("host.docker.internal", "localhost")}
+                                                    />
+                                                ) : (
+                                                    project.name.charAt(0)
+                                                )}
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 leading-none">{project.name}</p>
