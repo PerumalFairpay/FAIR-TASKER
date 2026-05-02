@@ -60,25 +60,7 @@ interface DashboardData {
         leave_days: number;
         total_working_days: number;
     };
-    leave_details: {
-        summary: {
-            total_allowed: number;
-            total_taken: number;
-            total_remaining: number;
-            pending_requests: number;
-        };
-        balance: Array<{
-            type: string;
-            balance: number;
-            total: number;
-            used: number;
-        }>;
-        recent_requests_status: Array<{
-            type: string;
-            status: string;
-            date: string;
-        }>;
-    };
+
     projects: Array<{
         name: string;
         role: string;
@@ -92,12 +74,7 @@ interface DashboardData {
         completed: number;
         overdue: number;
     };
-    recent_tasks: Array<{
-        task_name: string;
-        priority: string;
-        status: string;
-        due_date: string;
-    }>;
+
 
     upcoming_holidays: Array<{
         name: string;
@@ -698,7 +675,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
                     {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible min-h-[620px] rounded-[24px] flex flex-col">
+                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-[24px] flex flex-col">
                         {/* Top Section: Overview */}
                         <div className="px-8 pt-8 pb-4">
                             <div className="flex justify-between items-start mb-6">
@@ -832,99 +809,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             )}
                         </div>
 
-                        {/* Bottom Section: Dark Task Card */}
-                        <div className="bg-gradient-to-br from-[#18181b] to-black border border-white/10 rounded-[28px] p-7 text-white flex flex-col mx-1 mb-2 flex-1 mt-auto relative overflow-hidden">
-                            {/* Decorative Background Glow */}
-                            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
-                            <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
 
-                            {/* Header */}
-                            <div className="relative flex justify-between items-end mb-8 mt-1 px-1 z-10">
-                                <div>
-                                    <h3 className="text-xl font-light text-slate-200 tracking-wide">My Tasks</h3>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1 font-medium">Pending Priorities</p>
-                                </div>
-                                <div className="flex items-baseline gap-1.5">
-                                    <span className="text-4xl font-extralight text-white tracking-tight">
-                                        {data.task_metrics.completed}
-                                    </span>
-                                    <span className="text-lg font-light text-slate-500">
-                                        /{data.task_metrics.total_assigned}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Task List */}
-                            <div className="relative space-y-3 pr-1 z-10 mt-2">
-                                {(data.recent_tasks || []).slice(0, 5).map((task, idx) => {
-                                    const isCompleted = task.status.toLowerCase() === 'completed';
-                                    const isInProgress = task.status.toLowerCase() === 'in progress';
-                                    const isBug = task.task_name.toLowerCase().includes('bug');
-                                    const isMeeting = task.task_name.toLowerCase().includes('meeting');
-
-                                    return (
-                                        <div key={idx} className="group flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 hover:shadow-lg hover:shadow-black/20 cursor-default">
-                                            {/* Icon Circle */}
-                                            <div className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isCompleted
-                                                ? 'bg-emerald-500/20 text-emerald-400'
-                                                : isInProgress
-                                                    ? 'bg-blue-500/20 text-blue-400'
-                                                    : 'bg-zinc-800 text-zinc-400'
-                                                }`}>
-
-                                                {/* Icons with dynamic stroke */}
-                                                {isBug ? <Bug size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
-                                                    isMeeting ? <Users size={18} strokeWidth={isCompleted ? 2.5 : 2} /> :
-                                                        <ClipboardList size={18} strokeWidth={isCompleted ? 2.5 : 2} />}
-                                            </div>
-
-                                            {/* Text Content */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-start justify-between">
-                                                    <p className={`text-sm font-medium truncate ${isCompleted ? 'text-zinc-500 line-through decoration-zinc-600' : 'text-zinc-100 group-hover:text-white'
-                                                        }`}>
-                                                        {task.task_name}
-                                                    </p>
-                                                </div>
-
-                                                <div className="flex items-center gap-3 mt-1.5">
-                                                    <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-medium">
-                                                        <Calendar size={12} className={isCompleted ? "opacity-50" : "text-zinc-400"} />
-                                                        <span className={isCompleted ? "opacity-50" : ""}>
-                                                            {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className={`h-1 w-1 rounded-full bg-zinc-700`}></div>
-
-                                                    <div className={`px-2 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wider border ${task.priority.toLowerCase() === 'high'
-                                                        ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                                                        : 'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'
-                                                        }`}>
-                                                        {task.priority}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Status Indicator (Right Side) */}
-                                            <div className="pl-2">
-                                                {isCompleted ? (
-                                                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
-                                                        <CheckCircle size={14} className="text-emerald-400" />
-                                                    </div>
-                                                ) : isInProgress ? (
-                                                    <div className="w-6 h-6 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center relative shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-6 h-6 rounded-full border-2 border-zinc-700/50 group-hover:border-zinc-500"></div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
                     </Card>
 
 
@@ -961,177 +846,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </Card>
                     )}
 
-                    {/* Leave Balance Section */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between px-6 pt-6">
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Leave Balance</h3>
-                        </CardHeader>
-                        <CardBody className="px-6 py-4 space-y-5">
-                            <div className="flex justify-between items-center bg-slate-50 dark:bg-white/5 p-3 rounded-xl border border-slate-100 dark:border-white/5">
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.leave_details.summary.total_allowed}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Total</p>
-                                </div>
-                                <div className="w-[1px] h-8 bg-slate-200 dark:bg-white/10"></div>
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-primary">{data.leave_details.summary.total_remaining}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Left</p>
-                                </div>
-                                <div className="w-[1px] h-8 bg-slate-200 dark:bg-white/10"></div>
-                                <div className="text-center px-2">
-                                    <p className="text-2xl font-bold text-slate-800 dark:text-white">{data.leave_details.summary.total_taken}</p>
-                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold">Used</p>
-                                </div>
-                            </div>
 
-                            <div className="space-y-4">
-                                {(data.leave_details?.balance || []).map((item, idx) => {
-                                    const typeName = item.type.toLowerCase();
-
-                                    let config = {
-                                        icon: <Briefcase size={18} strokeWidth={2.5} />,
-                                        bg: "bg-primary-50 dark:bg-primary-500/10",
-                                        text: "text-primary",
-                                        progressFrom: "from-primary-400",
-                                        progressTo: "to-primary-600",
-                                        shadow: "shadow-primary/25"
-                                    };
-
-                                    if (typeName.includes("sick")) {
-                                        config = {
-                                            icon: <HeartPulse size={18} strokeWidth={2.5} />, // Changed to HeartPulse for Sick
-                                            bg: "bg-rose-50 dark:bg-rose-500/10",
-                                            text: "text-rose-500",
-                                            progressFrom: "from-rose-400",
-                                            progressTo: "to-rose-600",
-                                            shadow: "shadow-rose-200"
-                                        };
-                                    } else if (typeName.includes("casual")) {
-                                        config = {
-                                            icon: <Sun size={18} strokeWidth={2.5} />,
-                                            bg: "bg-orange-50 dark:bg-orange-500/10",
-                                            text: "text-orange-500",
-                                            progressFrom: "from-orange-400",
-                                            progressTo: "to-orange-600",
-                                            shadow: "shadow-orange-200"
-                                        };
-                                    } else if (typeName.includes("earned") || typeName.includes("privilege")) {
-                                        config = {
-                                            icon: <Award size={18} strokeWidth={2.5} />,
-                                            bg: "bg-emerald-50 dark:bg-emerald-500/10",
-                                            text: "text-emerald-500",
-                                            progressFrom: "from-emerald-400",
-                                            progressTo: "to-emerald-600",
-                                            shadow: "shadow-emerald-200"
-                                        };
-                                    } else if (typeName.includes("compensatory") || typeName.includes("comp")) {
-                                        config = {
-                                            icon: <RefreshCw size={18} strokeWidth={2.5} />,
-                                            bg: "bg-cyan-50 dark:bg-cyan-500/10",
-                                            text: "text-cyan-500",
-                                            progressFrom: "from-cyan-400",
-                                            progressTo: "to-cyan-600",
-                                            shadow: "shadow-cyan-200"
-                                        };
-                                    } else if (typeName.includes("loss of pay") || typeName.includes("lop")) {
-                                        config = {
-                                            icon: <Ban size={18} strokeWidth={2.5} />,
-                                            bg: "bg-slate-100 dark:bg-slate-700/30",
-                                            text: "text-slate-500",
-                                            progressFrom: "from-slate-400",
-                                            progressTo: "to-slate-600",
-                                            shadow: "shadow-slate-200"
-                                        };
-                                    } else if (typeName.includes("maternity") || typeName.includes("paternity")) {
-                                        config = {
-                                            icon: <Baby size={18} strokeWidth={2.5} />,
-                                            bg: "bg-pink-50 dark:bg-pink-500/10",
-                                            text: "text-pink-500",
-                                            progressFrom: "from-pink-400",
-                                            progressTo: "to-pink-600",
-                                            shadow: "shadow-pink-200"
-                                        };
-                                    } else if (typeName.includes("permission")) {
-                                        config = {
-                                            icon: <FileText size={18} strokeWidth={2.5} />,
-                                            bg: "bg-violet-50 dark:bg-violet-500/10",
-                                            text: "text-violet-500",
-                                            progressFrom: "from-violet-400",
-                                            progressTo: "to-violet-600",
-                                            shadow: "shadow-violet-200"
-                                        };
-                                    }
-
-                                    return (
-                                        <div key={idx} className="flex items-center gap-3">
-                                            <div className={`p-2.5 rounded-xl flex items-center justify-center flex-shrink-0 ${config.bg} ${config.text}`}>
-                                                {config.icon}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-end mb-1.5">
-                                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wide">{item.type}</span>
-                                                    <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500">{item.balance}/{item.total} Days</span>
-                                                </div>
-                                                <Progress
-                                                    value={(item.balance / item.total) * 100}
-                                                    size="sm"
-                                                    radius="full"
-                                                    classNames={{
-                                                        track: "bg-slate-100 dark:bg-white/10 h-1.5",
-                                                        indicator: `bg-gradient-to-r ${config.progressFrom} ${config.progressTo} ${config.shadow} h-1.5 shadow-sm`
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {/* Recent Leave Request Status */}
-                            {(data.leave_details?.recent_requests_status || []).length > 0 && (
-                                <div className="mt-6 pt-5 border-t border-slate-100/80 dark:border-white/10">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Recent Requests</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        {(data.leave_details?.recent_requests_status || []).slice(0, 3).map((req, i) => {
-                                            const isApproved = req.status.toLowerCase() === 'approved';
-                                            const isPending = req.status.toLowerCase() === 'pending';
-                                            const isRejected = req.status.toLowerCase() === 'rejected';
-
-                                            return (
-                                                <div key={i} className="group flex items-center gap-3 p-2 rounded-xl cursor-default border border-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                                                    <div className={`w-9 h-9 rounded-full flex items-center justify-center border shadow-sm ${isApproved ? 'bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
-                                                        isPending ? 'bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
-                                                            'bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
-                                                        }`}>
-                                                        {isApproved ? <CheckCircle size={15} strokeWidth={2.5} /> :
-                                                            isPending ? <Clock size={15} strokeWidth={2.5} /> :
-                                                                <AlertCircle size={15} strokeWidth={2.5} />}
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex justify-between items-center mb-0.5">
-                                                            <p className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">{req.type}</p>
-                                                            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400' :
-                                                                isPending ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-400' :
-                                                                    'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400'
-                                                                }`}>
-                                                                {req.status}
-                                                            </span>
-                                                        </div>
-                                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
-                                                            {new Date(req.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-                        </CardBody>
-                    </Card>
 
 
 
