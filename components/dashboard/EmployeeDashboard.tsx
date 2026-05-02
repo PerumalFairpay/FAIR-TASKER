@@ -461,71 +461,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
-                    {/* Projects List */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex gap-3 px-5 pt-5 pb-2">
-                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg text-primary">
-                                <Briefcase size={18} />
-                            </div>
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 pt-1">Active Projects</h3>
-                        </CardHeader>
-                        <CardBody className="px-5 py-4">
-                            <div className="space-y-4">
-                                {(data.projects || []).map((project, i) => (
-                                    <div key={i} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">
-                                                {project.name.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 leading-none">{project.name}</p>
-                                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{project.role}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                                                'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
-                                            }`}>
-                                            {project.status}
-                                        </div>
-                                    </div>
-                                ))}
-                                {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
-                            </div>
-                        </CardBody>
-                    </Card>
 
-                    {/* Upcoming Holidays */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
-                                    <Calendar size={18} />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Upcoming Holidays</h3>
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 pb-5 pt-2 space-y-4">
-                            {(data.upcoming_holidays || []).length > 0 ? (
-                                (data.upcoming_holidays || []).slice(0, 3).map((holiday, idx) => (
-                                    <div key={idx} className="flex items-center gap-4 group cursor-default">
-                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
-                                            <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                            <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{holiday.name}</p>
-                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="py-2 text-center">
-                                    <p className="text-sm text-slate-400 italic">No upcoming holidays</p>
-                                </div>
-                            )}
-                        </CardBody>
-                    </Card>
+
+
 
 
                 </div>
@@ -674,6 +612,50 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
+                    {/* Upcoming Holidays */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
+                                    <Calendar size={18} />
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Upcoming Holidays</h3>
+                            </div>
+                        </CardHeader>
+                        <CardBody className="px-5 pb-5 pt-2 space-y-4">
+                            {(data.upcoming_holidays || []).length > 0 ? (
+                                (data.upcoming_holidays || []).slice(0, 3).map((holiday, idx) => (
+                                    <div key={idx} className="flex items-center gap-4 group cursor-default">
+                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
+                                            <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                            <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{holiday.name}</p>
+                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-2 text-center">
+                                    <p className="text-sm text-slate-400 italic">No upcoming holidays</p>
+                                </div>
+                            )}
+                        </CardBody>
+                    </Card>
+
+
+
+
+
+
+
+                </div>
+
+
+                {/* --- Column 3: Stats & Lists (Span 3) --- */}
+                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+
                     {/* Tasks Widget - Integrated with Data */}
                     <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-[24px] flex flex-col">
                         {/* Top Section: Overview */}
@@ -812,15 +794,39 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                     </Card>
 
-
-
-
-
-                </div>
-
-
-                {/* --- Column 3: Stats & Lists (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    {/* Projects List */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex gap-3 px-5 pt-5 pb-2">
+                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg text-primary">
+                                <Briefcase size={18} />
+                            </div>
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 pt-1">Active Projects</h3>
+                        </CardHeader>
+                        <CardBody className="px-5 py-4">
+                            <div className="space-y-4">
+                                {(data.projects || []).map((project, i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm">
+                                                {project.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 leading-none">{project.name}</p>
+                                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{project.role}</p>
+                                            </div>
+                                        </div>
+                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                                'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
+                                            }`}>
+                                            {project.status}
+                                        </div>
+                                    </div>
+                                ))}
+                                {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
+                            </div>
+                        </CardBody>
+                    </Card>
 
                     {/* Birthdays */}
                     {(data.birthdays || []).length > 0 && (
