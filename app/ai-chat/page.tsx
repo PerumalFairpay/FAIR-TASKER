@@ -143,18 +143,6 @@ export default function AIChatPage() {
                                         className="relative group shrink-0"
                                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                     >
-                                        <motion.div
-                                            animate={{
-                                                scale: [1, 1.2, 1],
-                                                rotate: [0, 10, -10, 0],
-                                            }}
-                                            transition={{
-                                                repeat: Infinity,
-                                                duration: 4,
-                                                ease: "easeInOut"
-                                            }}
-                                            className="absolute -inset-1 bg-gradient-to-r from-default-300 to-default-900 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 dark:from-default-400 dark:to-white"
-                                        ></motion.div>
                                         <Webhook size={28} className="relative text-default-900 dark:text-default-100" />
                                     </motion.div>
                                     <motion.h3
@@ -168,7 +156,7 @@ export default function AIChatPage() {
                                     initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                                    className="text-4xl lg:text-5xl font-medium tracking-tight bg-gradient-to-br from-default-800 to-default-500 dark:from-default-100 dark:to-default-400 bg-clip-text text-transparent pb-2 leading-tight"
+                                    className="text-2xl lg:text-3xl font-normal tracking-tight bg-gradient-to-br from-default-800 to-default-500 dark:from-default-100 dark:to-default-400 bg-clip-text text-transparent leading-tight"
                                 >
                                     Where should we start?
                                 </motion.h2>
