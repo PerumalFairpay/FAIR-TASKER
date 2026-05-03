@@ -777,7 +777,6 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         variant="splitted"
                         className="px-0 gap-4"
                         selectionMode="multiple"
-                        defaultExpandedKeys={["task-overview", "active-projects", "upcoming-holidays"]}
                         itemClasses={{
                             base: "bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md border border-slate-100 dark:border-white/5 shadow-sm rounded-2xl group",
                             title: "font-semibold text-slate-800 dark:text-slate-100",
