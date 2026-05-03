@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
-import { Progress } from "@heroui/progress";
+import { Progress, CircularProgress } from "@heroui/progress";
 import { User } from "@heroui/user";
 import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
@@ -432,33 +432,43 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
                             <Clock size={16} className="text-slate-400" />
                         </CardHeader>
-                        <CardBody className="px-6 py-6 flex flex-col gap-6">
-                            {/* Today Time */}
-                            <div>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold text-slate-900 dark:text-white tabular-nums tracking-tight">
-                                        {formatDuration(elapsedSeconds)}
-                                    </span>
+                        <CardBody className="px-6 py-6">
+                            <div className="flex items-center gap-6">
+                                {/* Circular Progress Gauge */}
+                                <div className="relative flex-shrink-0">
+                                    <CircularProgress
+                                        aria-label="Daily Goal"
+                                        size="lg"
+                                        value={Math.min((elapsedSeconds / (9 * 3600)) * 100, 100)}
+                                        color="primary"
+                                        showValueLabel={false}
+                                        classNames={{
+                                            svg: "w-24 h-24 transform -rotate-90",
+                                            indicator: "stroke-slate-800 dark:stroke-white",
+                                            track: "stroke-slate-100 dark:stroke-white/10",
+                                        }}
+                                        strokeWidth={4}
+                                    />
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-lg font-bold text-slate-800 dark:text-white leading-none">
+                                            {Math.round(Math.min((elapsedSeconds / (9 * 3600)) * 100, 100))}%
+                                        </span>
+                                    </div>
                                 </div>
-                                <p className="text-[11px] text-slate-400 font-medium uppercase tracking-widest mt-1">Today's Session</p>
-                            </div>
 
-                            {/* Daily Progress Bar */}
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Daily Goal (9h)</span>
-                                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{Math.round(Math.min((elapsedSeconds / (9 * 3600)) * 100, 100))}%</span>
+                                {/* Today Time */}
+                                <div className="flex-1">
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums tracking-tighter">
+                                            {formatDuration(elapsedSeconds)}
+                                        </span>
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Today's Session</p>
+                                    <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 dark:bg-white/5 rounded-full border border-slate-100 dark:border-white/10">
+                                        <Target size={10} className="text-primary" />
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">Goal: 9h</span>
+                                    </div>
                                 </div>
-                                <Progress
-                                    size="sm"
-                                    radius="full"
-                                    value={(elapsedSeconds / (9 * 3600)) * 100}
-                                    classNames={{
-                                        base: "max-w-full",
-                                        track: "bg-slate-100 dark:bg-white/10",
-                                        indicator: "bg-slate-800 dark:bg-white"
-                                    }}
-                                />
                             </div>
 
                             {/* Week/Month Stats Grid */}
