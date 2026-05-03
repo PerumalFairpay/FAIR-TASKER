@@ -403,7 +403,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 1: Profile & Quick Stats (Span 4) --- */}
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
                     {/* Profile Card */}
-                    <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-3xl group">
+                    <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-2xl group">
                         {/* Background Image */}
                         <img
                             src={data.profile.profile_picture?.replace("host.docker.internal", "localhost")}
@@ -425,7 +425,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
 
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md rounded-2xl">
                         <CardHeader className="flex justify-between items-center px-6 pt-5 pb-0">
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Work Hours</h3>
@@ -486,7 +486,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
                      
-                        <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10">
+                        <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10 rounded-2xl">
                             <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
                                 <div className="p-1.5 bg-pink-100 dark:bg-pink-500/20 rounded-lg text-pink-500">
                                     <Bell size={16} />
@@ -519,7 +519,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 2: Stats & Metrics (Span 5) --- */}
                 <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-4">
                     {/* Attendance Overview Card (Premium Style) */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-visible">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-visible rounded-2xl">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
                                 <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Monthly Attendance</h3>
@@ -719,7 +719,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     </Card>
 
                     {/* Ultra-Compact Leave Insights Card */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md rounded-2xl">
                         <CardHeader className="flex justify-between items-center px-6 pt-5 pb-0 border-none">
                             <div className="flex items-center gap-2">
                                 <div className="p-1.5 bg-primary-50 dark:bg-primary-500/10 rounded-lg text-primary">
@@ -1028,9 +1028,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             {blogs.slice(0, 1).map((blog, i) => (
                                 <Link href={`/feeds/${blog.id}`} key={i} className="block group">
                                     <Card
-                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
+                                        className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer rounded-2xl"
                                         style={{
-                                            borderRadius: "24px",
                                             boxShadow: '0px 0.6px 0.6px 0px rgba(0,0,0,0.02), 0px 2px 2px 0px rgba(0,0,0,0.04), 0px 4px 10px 0px rgba(0,0,0,0.06)'
                                         }}
                                         isPressable={false}
