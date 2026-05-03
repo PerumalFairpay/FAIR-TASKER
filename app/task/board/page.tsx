@@ -422,7 +422,7 @@ const TaskBoard = () => {
                             startContent={<Plus size={18} />}
                             variant="shadow"
                             onPress={handleCreateTask}
-                            className="w-full sm:w-auto font-semibold"
+                            className="w-full sm:w-auto"
                         >
                             Create Task
                         </Button>
