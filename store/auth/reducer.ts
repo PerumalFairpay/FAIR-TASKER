@@ -10,6 +10,7 @@ import {
   GET_USER_SUCCESS,
   GET_USER_FAILURE,
 } from "./actionType";
+import { UPDATE_PROFILE_SUCCESS } from "../profile/actionType";
 
 interface AuthState {
   loginLoading: boolean;
@@ -127,6 +128,15 @@ const authReducer = (
         logoutError: null,
         loginSuccess: null,
         logoutSuccess: null,
+      };
+
+    case UPDATE_PROFILE_SUCCESS:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...action.payload.data,
+        },
       };
 
     default:
