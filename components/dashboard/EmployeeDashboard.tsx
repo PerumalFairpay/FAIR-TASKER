@@ -954,7 +954,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 </Link>
                             </div>
 
-                            {blogs.slice(0, 3).map((blog, i) => (
+                            {blogs.slice(0, 1).map((blog, i) => (
                                 <Link href={`/feeds/${blog.id}`} key={i} className="block group">
                                     <Card
                                         className="bg-white dark:bg-[#1a1a1a] border border-transparent p-2 group cursor-pointer"
