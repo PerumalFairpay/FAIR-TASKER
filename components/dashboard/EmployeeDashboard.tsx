@@ -11,6 +11,7 @@ import { Chip } from "@heroui/chip";
 import { Button } from "@heroui/button";
 import { Image } from "@heroui/image";
 import { Avatar } from "@heroui/avatar";
+import { Accordion, AccordionItem } from "@heroui/accordion";
 import {
     Briefcase, Calendar, Clock, CheckCircle,
     LayoutDashboard, Bell, Search, Menu,
@@ -713,197 +714,204 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 3: Stats & Lists (Span 3) --- */}
                 <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
 
-                    {/* Tasks Widget - Integrated with Data */}
-                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-2xl flex flex-col">
-                        {/* Top Section: Overview */}
-                        <div className="px-6 pt-6 pb-2">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 className="text-lg font-medium text-slate-800 dark:text-slate-100 tracking-tight">Task Overview</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">Completion Status</p>
+                    {/* Unified Card for Tasks and Projects */}
+                    <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md rounded-2xl overflow-hidden">
+                        <Accordion 
+                            variant="light"
+                            className="px-0"
+                            selectionMode="multiple"
+                            defaultExpandedKeys={["task-overview", "active-projects"]}
+                            itemClasses={{
+                                base: "px-2 border-b border-slate-100 dark:border-white/5 last:border-none",
+                                title: "font-bold text-slate-800 dark:text-slate-100",
+                                trigger: "px-4 py-4",
+                                content: "px-4 pb-6 pt-0",
+                                indicator: "text-slate-400"
+                            }}
+                        >
+                            {/* Task Overview Item */}
+                            <AccordionItem
+                                key="task-overview"
+                                aria-label="Task Overview"
+                                title="Task Overview"
+                                subtitle="Completion Status"
+                                startContent={
+                                    <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
+                                        <ListTodo size={18} />
+                                    </div>
+                                }
+                            >
+                                <div className="flex flex-col gap-4 mt-2">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="text-slate-500 dark:text-slate-400 text-[10px] uppercase tracking-wider font-bold">Metrics Overview</p>
+                                        <div className="text-right">
+                                            <span className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                                                {data.task_metrics.total_assigned}
+                                            </span>
+                                            <span className="text-slate-400 text-[10px] ml-1 uppercase font-bold">Tasks</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-around gap-2 mb-4">
+                                        {/* Activity Rings Chart */}
+                                        <div className="relative w-32 h-32 flex-shrink-0">
+                                            <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
+                                                {/* --- Ring 1: Completed (Outer) --- */}
+                                                <circle cx="64" cy="64" r="56" stroke="#d1fae5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
+                                                <circle
+                                                    cx="64" cy="64" r="56"
+                                                    stroke="#10b981"
+                                                    strokeWidth="8"
+                                                    fill="none"
+                                                    strokeDasharray={352}
+                                                    strokeDashoffset={352 - (352 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
+                                                    strokeLinecap="round"
+                                                />
+
+                                                {/* --- Ring 2: Pending (Middle) --- */}
+                                                <circle cx="64" cy="64" r="42" stroke="#ffedd5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
+                                                <circle
+                                                    cx="64" cy="64" r="42"
+                                                    stroke="#f97316"
+                                                    strokeWidth="8"
+                                                    fill="none"
+                                                    strokeDasharray={264}
+                                                    strokeDashoffset={264 - (264 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
+                                                    strokeLinecap="round"
+                                                />
+
+                                                {/* --- Ring 3: In Progress (Inner) --- */}
+                                                <circle cx="64" cy="64" r="28" stroke="#dbeafe" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
+                                                <circle
+                                                    cx="64" cy="64" r="28"
+                                                    stroke="#3b82f6"
+                                                    strokeWidth="8"
+                                                    fill="none"
+                                                    strokeDasharray={176}
+                                                    strokeDashoffset={176 - (176 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
+                                                    strokeLinecap="round"
+                                                />
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                                <div className="bg-white dark:bg-white/10 p-2 rounded-full shadow-sm text-primary">
+                                                    <ListTodo size={20} className="text-primary dark:text-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Legend Stats */}
+                                        <div className="flex flex-col gap-2.5 min-w-[120px]">
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <CheckCircle size={10} className="text-emerald-500" />
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.completed}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-full h-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                                    </div>
+                                                    <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Clock size={10} className="text-orange-500" />
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.pending}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-full h-1 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                                    </div>
+                                                    <span className="text-[10px] font-medium text-orange-600 dark:text-orange-400 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Activity size={10} className="text-blue-500" />
+                                                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
+                                                    </div>
+                                                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.in_progress}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-full h-1 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
+                                                    </div>
+                                                    <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {data.task_metrics.overdue > 0 && (
+                                        <div className="flex items-center justify-between bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-2 rounded-xl transition-none">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full">
+                                                    <AlertCircle size={14} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Attention Needed</p>
+                                                    <p className="text-[9px] text-red-600 dark:text-red-400 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
-                                <div className="text-right">
-                                    <span className="text-2xl text-slate-800 dark:text-slate-100 leading-none">
-                                        {data.task_metrics.total_assigned}
-                                    </span>
-                                    <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">Total Tasks</p>
+                            </AccordionItem>
+
+                            {/* Active Projects Item */}
+                            <AccordionItem
+                                key="active-projects"
+                                aria-label="Active Projects"
+                                title="Active Projects"
+                                subtitle={`${(data.projects || []).length} Assigned Projects`}
+                                startContent={
+                                    <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
+                                        <Briefcase size={18} />
+                                    </div>
+                                }
+                            >
+                                <div className="space-y-4 mt-2">
+                                    {(data.projects || []).map((project, i) => (
+                                        <div key={i} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm border border-slate-100 dark:border-white/10">
+                                                    {project.logo ? (
+                                                        <Image
+                                                            removeWrapper
+                                                            alt={project.name}
+                                                            className="w-full h-full object-cover"
+                                                            src={project.logo.replace("host.docker.internal", "localhost")}
+                                                        />
+                                                    ) : (
+                                                        project.name.charAt(0)
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 leading-none">{project.name}</p>
+                                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{project.role}</p>
+                                                </div>
+                                            </div>
+                                            <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                                project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                                    'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
+                                                }`}>
+                                                {project.status}
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
                                 </div>
-                            </div>
-
-                            <div className="flex items-center justify-around gap-2 mb-4 mt-2">
-                                {/* Activity Rings Chart */}
-                                <div className="relative w-32 h-32 flex-shrink-0">
-                                    <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
-                                        {/* --- Ring 1: Completed (Outer) --- */}
-                                        {/* Background */}
-                                        <circle cx="64" cy="64" r="56" stroke="#d1fae5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
-                                        {/* Progress */}
-                                        <circle
-                                            cx="64" cy="64" r="56"
-                                            stroke="#10b981"
-                                            strokeWidth="8"
-                                            fill="none"
-                                            strokeDasharray={352} // 2 * pi * 56
-                                            strokeDashoffset={352 - (352 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
-                                            strokeLinecap="round"
-                                            className=""
-                                        />
-
-                                        {/* --- Ring 2: Pending (Middle) --- */}
-                                        {/* Background */}
-                                        <circle cx="64" cy="64" r="42" stroke="#ffedd5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
-                                        {/* Progress */}
-                                        <circle
-                                            cx="64" cy="64" r="42"
-                                            stroke="#f97316" // Orange for visibility
-                                            strokeWidth="8"
-                                            fill="none"
-                                            strokeDasharray={264} // 2 * pi * 42
-                                            strokeDashoffset={264 - (264 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
-                                            strokeLinecap="round"
-                                            className=""
-                                        />
-
-                                        {/* --- Ring 3: In Progress (Inner) --- */}
-                                        {/* Background */}
-                                        <circle cx="64" cy="64" r="28" stroke="#dbeafe" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
-                                        {/* Progress */}
-                                        <circle
-                                            cx="64" cy="64" r="28"
-                                            stroke="#3b82f6"
-                                            strokeWidth="8"
-                                            fill="none"
-                                            strokeDasharray={176} // 2 * pi * 28
-                                            strokeDashoffset={176 - (176 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
-                                            strokeLinecap="round"
-                                            className=""
-                                        />
-                                    </svg>
-
-                                    {/* Central Icon */}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <div className="bg-white dark:bg-white/10 p-2 rounded-full shadow-sm text-primary">
-                                            <ListTodo size={20} className="text-primary dark:text-white" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Legend Stats */}
-                                <div className="flex flex-col gap-2.5 min-w-[120px]">
-                                    {/* Completed (Outer) */}
-                                    <div className="flex flex-col">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1.5">
-                                                <CheckCircle size={10} className="text-emerald-500" />
-                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.completed}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-full h-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
-                                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
-                                            </div>
-                                            <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Pending (Middle) */}
-                                    <div className="flex flex-col">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1.5">
-                                                <Clock size={10} className="text-orange-500" />
-                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.pending}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-full h-1 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
-                                                <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
-                                            </div>
-                                            <span className="text-[10px] font-medium text-orange-600 dark:text-orange-400 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
-                                        </div>
-                                    </div>
-
-                                    {/* In Progress (Inner) */}
-                                    <div className="flex flex-col">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1.5">
-                                                <Activity size={10} className="text-blue-500" />
-                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.in_progress}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-full h-1 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
-                                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
-                                            </div>
-                                            <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Overdue Alert Banner */}
-                            {data.task_metrics.overdue > 0 && (
-                                <div className="flex items-center justify-between bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-2 rounded-xl mb-2 transition-none">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full">
-                                            <AlertCircle size={14} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Attention Needed</p>
-                                            <p className="text-[9px] text-red-600 dark:text-red-400 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            )}
-                        </div>
-
-
-                    </Card>
-
-                    {/* Projects List */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex gap-3 px-5 pt-5 pb-2">
-                            <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-lg text-primary">
-                                <Briefcase size={18} />
-                            </div>
-                            <h3 className="font-bold text-slate-800 dark:text-slate-100 pt-1">Active Projects</h3>
-                        </CardHeader>
-                        <CardBody className="px-5 py-4">
-                            <div className="space-y-4">
-                                {(data.projects || []).map((project, i) => (
-                                    <div key={i} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold text-sm border border-slate-100 dark:border-white/10">
-                                                {project.logo ? (
-                                                    <Image
-                                                        removeWrapper
-                                                        alt={project.name}
-                                                        className="w-full h-full object-cover"
-                                                        src={project.logo.replace("host.docker.internal", "localhost")}
-                                                    />
-                                                ) : (
-                                                    project.name.charAt(0)
-                                                )}
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 leading-none">{project.name}</p>
-                                                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{project.role}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`text-[10px] font-medium px-2 py-1 rounded-full ${project.status.toLowerCase().includes('progress') ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                                            project.status.toLowerCase().includes('completed') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
-                                                'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
-                                            }`}>
-                                            {project.status}
-                                        </div>
-                                    </div>
-                                ))}
-                                {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
-                            </div>
-                        </CardBody>
+                            </AccordionItem>
+                        </Accordion>
                     </Card>
 
                     {/* Birthdays */}
