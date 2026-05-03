@@ -268,7 +268,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     return (
         <div className="font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 px-1">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4 px-1">
                 <div className="flex-1">
                     <PageHeader
                         title={data.greeting.greeting_text}
@@ -383,10 +383,10 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
             </div>
 
             {/* Main Bento Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
 
                 {/* --- Column 1: Profile & Quick Stats (Span 4) --- */}
-                <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-6">
+                <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
                     {/* Profile Card */}
                     <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-3xl group">
                         {/* Background Image */}
@@ -460,16 +460,34 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
-
-
-
-
-
+                    {/* Birthdays */}
+                    {(data.birthdays || []).length > 0 && (
+                        <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10">
+                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
+                                <div className="p-1.5 bg-pink-100 dark:bg-pink-500/20 rounded-lg text-pink-500">
+                                    <Bell size={16} />
+                                </div>
+                                <h3 className="font-bold text-pink-900 dark:text-pink-300 text-sm">Today's Birthdays</h3>
+                            </CardHeader>
+                            <CardBody className="px-5 py-4">
+                                {(data.birthdays || []).map((b, i) => (
+                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
+                                        <User
+                                            name={b.name}
+                                            description={<span className="text-pink-600 dark:text-pink-400 text-xs font-medium">{b.date}</span>}
+                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
+                                            classNames={{ name: "text-sm font-semibold text-slate-700 dark:text-slate-200" }}
+                                        />
+                                    </div>
+                                ))}
+                            </CardBody>
+                        </Card>
+                    )}
                 </div>
 
 
                 {/* --- Column 2: Stats & Metrics (Span 5) --- */}
-                <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-6">
+                <div className="md:col-span-12 lg:col-span-5 flex flex-col gap-4">
                     {/* Attendance Overview Card (Premium Style) */}
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-visible">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
@@ -670,37 +688,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
-                    {/* Upcoming Holidays */}
-                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-5 pt-5 pb-2">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
-                                    <Calendar size={18} />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide">Upcoming Holidays</h3>
-                            </div>
-                        </CardHeader>
-                        <CardBody className="px-5 pb-5 pt-2 space-y-4">
-                            {(data.upcoming_holidays || []).length > 0 ? (
-                                (data.upcoming_holidays || []).slice(0, 3).map((holiday, idx) => (
-                                    <div key={idx} className="flex items-center gap-4 group cursor-default">
-                                        <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
-                                            <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
-                                            <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{holiday.name}</p>
-                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="py-2 text-center">
-                                    <p className="text-sm text-slate-400 italic">No upcoming holidays</p>
-                                </div>
-                            )}
-                        </CardBody>
-                    </Card>
+
 
 
 
@@ -712,17 +700,17 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
 
                 {/* --- Column 3: Stats & Lists (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-6">
+                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-4">
 
                     {/* Accordion Group for Task Overview and Active Projects */}
                     <Accordion 
                         variant="splitted"
-                        className="px-0 gap-6"
+                        className="px-0 gap-4"
                         selectionMode="multiple"
-                        defaultExpandedKeys={["task-overview", "active-projects"]}
+                        defaultExpandedKeys={["task-overview", "active-projects", "upcoming-holidays"]}
                         itemClasses={{
                             base: "bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md border border-slate-100 dark:border-white/5 shadow-sm rounded-2xl group",
-                            title: "font-bold text-slate-800 dark:text-slate-100",
+                            title: "font-semibold text-slate-800 dark:text-slate-100",
                             // trigger: "px-6 py-4",
                             // content: "px-6 pb-6 pt-0",
                             indicator: "text-slate-400"
@@ -733,7 +721,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             key="task-overview"
                             aria-label="Task Overview"
                             title="Task Overview"
-                            subtitle="Completion Status"
+                            // subtitle="Completion Status"
                             startContent={
                                 <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
                                     <ListTodo size={18} />
@@ -871,7 +859,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             key="active-projects"
                             aria-label="Active Projects"
                             title="Active Projects"
-                            subtitle={`${(data.projects || []).length} Assigned Projects`}
+                            // subtitle={`${(data.projects || []).length} Assigned Projects`}
                             startContent={
                                 <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
                                     <Briefcase size={18} />
@@ -910,31 +898,44 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 {(data.projects || []).length === 0 && <p className="text-sm text-slate-400 italic">No active projects.</p>}
                             </div>
                         </AccordionItem>
+
+                        {/* Upcoming Holidays Item */}
+                        <AccordionItem
+                            key="upcoming-holidays"
+                            aria-label="Upcoming Holidays"
+                            title="Upcoming Holidays"
+                            startContent={
+                                <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
+                                    <Calendar size={18} />
+                                </div>
+                            }
+                        >
+                            <div className="space-y-4 mt-2">
+                                {(data.upcoming_holidays || []).length > 0 ? (
+                                    (data.upcoming_holidays || []).slice(0, 3).map((holiday, idx) => (
+                                        <div key={idx} className="flex items-center gap-4 group cursor-default">
+                                            <div className="flex flex-col items-center justify-center w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-500/10 text-primary border border-primary-100 dark:border-primary-500/20">
+                                                <span className="text-[9px] font-bold uppercase leading-none tracking-wider">{new Date(holiday.date).toLocaleDateString(undefined, { month: 'short' })}</span>
+                                                <span className="text-lg font-bold leading-none mt-0.5">{new Date(holiday.date).getDate()}</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate">{holiday.name}</p>
+                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{new Date(holiday.date).toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-2 text-center">
+                                        <p className="text-sm text-slate-400 italic">No upcoming holidays</p>
+                                    </div>
+                                )}
+                            </div>
+                        </AccordionItem>
                     </Accordion>
 
-                    {/* Birthdays */}
-                    {(data.birthdays || []).length > 0 && (
-                        <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10">
-                            <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
-                                <div className="p-1.5 bg-pink-100 dark:bg-pink-500/20 rounded-lg text-pink-500">
-                                    <Bell size={16} />
-                                </div>
-                                <h3 className="font-bold text-pink-900 dark:text-pink-300 text-sm">Today's Birthdays</h3>
-                            </CardHeader>
-                            <CardBody className="px-5 py-4">
-                                {(data.birthdays || []).map((b, i) => (
-                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
-                                        <User
-                                            name={b.name}
-                                            description={<span className="text-pink-600 dark:text-pink-400 text-xs font-medium">{b.date}</span>}
-                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
-                                            classNames={{ name: "text-sm font-semibold text-slate-700 dark:text-slate-200" }}
-                                        />
-                                    </div>
-                                ))}
-                            </CardBody>
-                        </Card>
-                    )}
+
+
+
 
 
 
