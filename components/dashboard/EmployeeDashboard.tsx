@@ -17,7 +17,7 @@ import {
     MoreVertical, ArrowUpRight, Sun, Moon,
     ShieldCheck, AlertCircle, Target, ListTodo,
     Bug, Users, ClipboardList, LogOut,
-    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint, Activity
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -657,65 +657,65 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     {/* Tasks Widget - Integrated with Data */}
                     <Card className="shadow-sm border border-slate-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md relative overflow-visible rounded-2xl flex flex-col">
                         {/* Top Section: Overview */}
-                        <div className="px-8 pt-8 pb-4">
+                        <div className="px-6 pt-6 pb-2">
                             <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <h3 className="text-xl font-medium text-slate-800 dark:text-slate-100 tracking-tight">Task Overview</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Completion Status</p>
+                                    <h3 className="text-lg font-medium text-slate-800 dark:text-slate-100 tracking-tight">Task Overview</h3>
+                                    <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">Completion Status</p>
                                 </div>
                                 <div className="text-right">
-                                    <span className="text-3xl font-bold text-slate-800 dark:text-slate-100 leading-none">
+                                    <span className="text-2xl text-slate-800 dark:text-slate-100 leading-none">
                                         {data.task_metrics.total_assigned}
                                     </span>
-                                    <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1">Total Tasks</p>
+                                    <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5">Total Tasks</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-around gap-2 mb-8 mt-2">
+                            <div className="flex items-center justify-around gap-2 mb-4 mt-2">
                                 {/* Activity Rings Chart */}
-                                <div className="relative w-44 h-44 flex-shrink-0">
+                                <div className="relative w-32 h-32 flex-shrink-0">
                                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
                                         {/* --- Ring 1: Completed (Outer) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="80" stroke="#d1fae5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
+                                        <circle cx="64" cy="64" r="56" stroke="#d1fae5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
                                         {/* Progress */}
                                         <circle
-                                            cx="88" cy="88" r="80"
+                                            cx="64" cy="64" r="56"
                                             stroke="#10b981"
-                                            strokeWidth="10"
+                                            strokeWidth="8"
                                             fill="none"
-                                            strokeDasharray={502} // 2 * pi * 80
-                                            strokeDashoffset={502 - (502 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
+                                            strokeDasharray={352} // 2 * pi * 56
+                                            strokeDashoffset={352 - (352 * (data.task_metrics.completed / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
                                             className=""
                                         />
 
                                         {/* --- Ring 2: Pending (Middle) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="60" stroke="#ffedd5" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
+                                        <circle cx="64" cy="64" r="42" stroke="#ffedd5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
                                         {/* Progress */}
                                         <circle
-                                            cx="88" cy="88" r="60"
+                                            cx="64" cy="64" r="42"
                                             stroke="#f97316" // Orange for visibility
-                                            strokeWidth="10"
+                                            strokeWidth="8"
                                             fill="none"
-                                            strokeDasharray={377} // 2 * pi * 60
-                                            strokeDashoffset={377 - (377 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
+                                            strokeDasharray={264} // 2 * pi * 42
+                                            strokeDashoffset={264 - (264 * (data.task_metrics.pending / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
                                             className=""
                                         />
 
                                         {/* --- Ring 3: In Progress (Inner) --- */}
                                         {/* Background */}
-                                        <circle cx="88" cy="88" r="40" stroke="#dbeafe" strokeWidth="10" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
+                                        <circle cx="64" cy="64" r="28" stroke="#dbeafe" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-blue-500/10" />
                                         {/* Progress */}
                                         <circle
-                                            cx="88" cy="88" r="40"
+                                            cx="64" cy="64" r="28"
                                             stroke="#3b82f6"
-                                            strokeWidth="10"
+                                            strokeWidth="8"
                                             fill="none"
-                                            strokeDasharray={251} // 2 * pi * 40
-                                            strokeDashoffset={251 - (251 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
+                                            strokeDasharray={176} // 2 * pi * 28
+                                            strokeDashoffset={176 - (176 * (data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)))}
                                             strokeLinecap="round"
                                             className=""
                                         />
@@ -723,22 +723,25 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                                     {/* Central Icon */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                                        <div className="bg-white dark:bg-white/10 p-3 rounded-full shadow-sm text-primary">
-                                            <ListTodo size={24} className="text-primary dark:text-white" />
+                                        <div className="bg-white dark:bg-white/10 p-2 rounded-full shadow-sm text-primary">
+                                            <ListTodo size={20} className="text-primary dark:text-white" />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Legend Stats */}
-                                <div className="flex flex-col gap-4 min-w-[140px]">
+                                <div className="flex flex-col gap-2.5 min-w-[120px]">
                                     {/* Completed (Outer) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
-                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.completed}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <CheckCircle size={10} className="text-emerald-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Completed</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.completed}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                            <div className="w-full h-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
                                             <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">{Math.round((data.task_metrics.completed / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
@@ -748,11 +751,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     {/* Pending (Middle) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
-                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.pending}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock size={10} className="text-orange-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Pending</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.pending}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
+                                            <div className="w-full h-1 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
                                             <span className="text-[10px] font-medium text-orange-600 dark:text-orange-400 w-8 text-right">{Math.round((data.task_metrics.pending / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
@@ -762,11 +768,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     {/* In Progress (Inner) */}
                                     <div className="flex flex-col">
                                         <div className="flex justify-between items-center mb-1">
-                                            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
-                                            <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.in_progress}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <Activity size={10} className="text-blue-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">In Progress</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{data.task_metrics.in_progress}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-full h-1.5 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
+                                            <div className="w-full h-1 bg-blue-100 dark:bg-blue-500/20 rounded-full overflow-hidden">
                                                 <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100}%` }}></div>
                                             </div>
                                             <span className="text-[10px] font-medium text-blue-600 dark:text-blue-400 w-8 text-right">{Math.round((data.task_metrics.in_progress / (data.task_metrics.total_assigned || 1)) * 100)}%</span>
@@ -777,14 +786,14 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Overdue Alert Banner */}
                             {data.task_metrics.overdue > 0 && (
-                                <div className="flex items-center justify-between bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-3 rounded-2xl mb-2 transition-none">
-                                    <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-between bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-2 rounded-xl mb-2 transition-none">
+                                    <div className="flex items-center gap-2">
                                         <div className="p-1.5 bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 rounded-full">
-                                            <AlertCircle size={16} />
+                                            <AlertCircle size={14} />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Attention Needed</p>
-                                            <p className="text-[10px] text-red-600 dark:text-red-400 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
+                                            <p className="text-[10px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wide">Attention Needed</p>
+                                            <p className="text-[9px] text-red-600 dark:text-red-400 font-medium">{data.task_metrics.overdue} Tasks Overdue</p>
                                         </div>
                                     </div>
 
