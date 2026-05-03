@@ -276,12 +276,18 @@ export default function ProfilePage() {
                 <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6 self-start">
                     {/* Profile Card - Premium Style */}
                     <Card className="shadow-none border-none w-full h-[320px] relative overflow-hidden rounded-[32px] group">
-                        {/* Background Image */}
-                        <img
-                            src={profilePicPreview || profile?.profile_picture || user?.profile_picture || "/placeholder-avatar.png"}
-                            alt={formData.name}
-                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
+                        {/* Background Image or Placeholder */}
+                        {profilePicPreview || profile?.profile_picture || user?.profile_picture ? (
+                            <img
+                                src={profilePicPreview || profile?.profile_picture || user?.profile_picture}
+                                alt={formData.name}
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-default-100 to-default-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center">
+                                <UserIcon size={80} className="text-default-300 dark:text-neutral-700" />
+                            </div>
+                        )}
 
                         {/* Gradient Overlays */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />

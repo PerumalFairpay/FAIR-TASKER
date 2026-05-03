@@ -14,7 +14,7 @@ import { Button } from "@heroui/button";
 import { Tabs, Tab } from "@heroui/tabs";
 import { CircularProgress } from "@heroui/progress";
 import { PermissionGuard } from "@/components/PermissionGuard";
-import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye, Layers } from "lucide-react";
+import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye, Layers, User as UserIcon } from "lucide-react";
 import Lottie from "lottie-react";
 import HRMLoading from "@/app/assets/HRMLoading.json";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
@@ -84,12 +84,18 @@ export default function EmployeeSummaryPage() {
                         <div className="lg:col-span-1 space-y-6">
                             {/* Profile Card - Dashboard Style */}
                             <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[32px] group">
-                                {/* Background Image */}
-                                <img
-                                    src={employee?.profile_picture?.replace("host.docker.internal", "localhost")}
-                                    alt={employee?.name}
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
+                                {/* Background Image or Placeholder */}
+                                {employee?.profile_picture ? (
+                                    <img
+                                        src={employee?.profile_picture?.replace("host.docker.internal", "localhost")}
+                                        alt={employee?.name}
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-gradient-to-br from-default-100 to-default-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center">
+                                        <UserIcon size={80} className="text-default-300 dark:text-neutral-700" />
+                                    </div>
+                                )}
 
                                 {/* Gradient Overlays */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

@@ -18,7 +18,7 @@ import {
     MoreVertical, ArrowUpRight, Sun, Moon,
     ShieldCheck, AlertCircle, Target, ListTodo,
     Bug, Users, ClipboardList, LogOut,
-    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint, Activity
+    Award, RefreshCw, Ban, Baby, FileText, HeartPulse, Plane, Fingerprint, Activity, User as UserIcon
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -406,12 +406,18 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
                     {/* Profile Card */}
                     <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-2xl group">
-                        {/* Background Image */}
-                        <img
-                            src={data.profile.profile_picture?.replace("host.docker.internal", "localhost")}
-                            alt={data.profile.name}
-                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
-                        />
+                        {/* Background Image or Placeholder */}
+                        {data.profile.profile_picture ? (
+                            <img
+                                src={data.profile.profile_picture?.replace("host.docker.internal", "localhost")}
+                                alt={data.profile.name}
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-default-100 to-default-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center">
+                                <UserIcon size={64} className="text-default-300 dark:text-neutral-700" />
+                            </div>
+                        )}
 
                         {/* Gradient Overlay - Smooth fade at bottom */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
