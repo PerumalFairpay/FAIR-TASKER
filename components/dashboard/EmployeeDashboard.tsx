@@ -473,7 +473,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md overflow-visible">
                         <CardHeader className="flex justify-between items-center px-6 pt-6 pb-2">
                             <div>
-                                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Monthly Attendance</h3>
+                                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Monthly Attendance</h3>
                                 <p className="text-xs text-slate-400 dark:text-slate-500">
                                     Total: {displayMetrics.total_working_days} Working Days
                                 </p>
@@ -484,7 +484,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardHeader>
                         <CardBody className="px-6 py-4 space-y-6">
                             {/* Main Visual Row */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-4 border-b border-slate-50 dark:border-white/5">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
                                 {/* Activity Rings Chart for Attendance (4 Rings) */}
                                 <div className="relative w-32 h-32 flex-shrink-0">
                                     <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
@@ -648,20 +648,20 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             </div>
 
                             {/* Leave, Holiday, Half Day & Permission Grid - Moved to new row */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-                                <div className="px-2 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-100/50 dark:border-rose-500/20 text-center">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1.5">
+                                <div className="px-2 py-1 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-100/50 dark:border-rose-500/20 text-center">
                                     <span className="block text-xs font-bold text-rose-700 dark:text-rose-400">{displayMetrics.absent_days}</span>
                                     <span className="text-[9px] text-rose-600/70 uppercase">Absent</span>
                                 </div>
-                                <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
+                                <div className="px-2 py-1 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
                                     <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{displayMetrics.holiday_days}</span>
                                     <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
                                 </div>
-                                <div className="px-2 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
+                                <div className="px-2 py-1 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
                                     <span className="block text-xs font-bold text-teal-700 dark:text-teal-400">{(displayMetrics as any).half_day_days ?? 0}</span>
                                     <span className="text-[9px] text-teal-600/70 uppercase">Half Day</span>
                                 </div>
-                                <div className="px-2 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
+                                <div className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
                                     <span className="block text-xs font-bold text-indigo-700 dark:text-indigo-400">{(displayMetrics as any).permission_days ?? 0}</span>
                                     <span className="text-[9px] text-indigo-600/70 uppercase">Permission</span>
                                 </div>
