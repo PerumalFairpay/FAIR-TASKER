@@ -4,33 +4,44 @@ import { useEffect, useState } from "react";
 import { Joyride, EventData, STATUS, Step } from "react-joyride";
 import { useTheme } from "next-themes";
 
-export const ProfileJoyride = () => {
+export const TaskBoardJoyride = () => {
   const { resolvedTheme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
   const [{ run, steps }, setJoyrideState] = useState({
     run: false,
     steps: [
       {
-        target: '.joyride-security-tab',
-        content: 'To change your password, first click on the Security tab.',
+        target: '.joyride-task-date-picker',
+        content: 'Use the date picker to navigate between different days and view scheduled tasks.',
         disableBeacon: true,
-        spotlightClicks: true,
       },
       {
-        target: '.joyride-current-password',
-        content: 'Enter your current password here to verify your identity.',
+        target: '.joyride-task-actions',
+        content: 'Quickly access task reports, calendar view, or review the task management rules.',
       },
       {
-        target: '.joyride-new-password',
-        content: 'Enter your strong new password here.',
+        target: '.joyride-create-task-btn',
+        content: 'Ready to start something new? Click here to create a new task.',
       },
       {
-        target: '.joyride-confirm-password',
-        content: 'Re-type your new password to ensure it matches.',
+        target: '.joyride-column-overdue',
+        content: 'Overdue: Tasks that have passed their deadline appear here automatically.',
       },
       {
-        target: '.joyride-update-password-btn',
-        content: 'Click here to securely update your password.',
+        target: '.joyride-column-todo',
+        content: 'To Do: This is your backlog for the day. Pick tasks from here to start working.',
+      },
+      {
+        target: '.joyride-column-in-progress',
+        content: 'In Progress: Drag tasks here when you start working on them.',
+      },
+      {
+        target: '.joyride-column-completed',
+        content: 'Completed: Once a task is done, drop it here. You will be prompted to enter an EOD summary.',
+      },
+      {
+        target: '.joyride-column-moved',
+        content: 'Moved: Tasks that are carried over to the next day appear here.',
       }
     ] as Step[],
   });
@@ -38,7 +49,7 @@ export const ProfileJoyride = () => {
   useEffect(() => {
     setIsMounted(true);
     if (typeof window !== 'undefined') {
-      const hasSeenTour = localStorage.getItem('hasSeenProfileTour');
+      const hasSeenTour = localStorage.getItem('hasSeenTaskBoardTour');
       if (!hasSeenTour) {
         setTimeout(() => {
           setJoyrideState(prev => ({ ...prev, run: true }));
@@ -48,20 +59,12 @@ export const ProfileJoyride = () => {
   }, []);
 
   const handleJoyrideEvent = (data: EventData) => {
-    const { status, type, index } = data;
+    const { status } = data;
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
-
-    // Automatically switch to the Security tab when advancing from the first step
-    if (type === 'step:after' && index === 0) {
-      const tabElement = document.querySelector('.joyride-security-tab')?.closest('button');
-      if (tabElement) {
-        tabElement.click();
-      }
-    }
 
     if (finishedStatuses.includes(status)) {
       setJoyrideState(prev => ({ ...prev, run: false }));
-      localStorage.setItem('hasSeenProfileTour', 'true');
+      localStorage.setItem('hasSeenTaskBoardTour', 'true');
     }
   };
 

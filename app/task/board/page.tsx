@@ -30,6 +30,7 @@ import EodReportDrawer from "./EodReportDrawer";
 import AddEditTaskDrawer from "./AddEditTaskDrawer";
 import TaskDetailModal from "./TaskDetailModal";
 import TaskRulesDrawer from "./TaskRulesDrawer";
+import { TaskBoardJoyride } from "@/components/task-board-joyride";
 
 
 
@@ -314,6 +315,7 @@ const TaskBoard = () => {
             onMouseMove={handleMouseMove}
             className="h-full min-h-screen flex flex-col gap-4 sm:gap-6 p-4 sm:p-6 bg-white dark:bg-[#09090b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
         >
+            <TaskBoardJoyride />
             <div className="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                 <PageHeader
                     title="Task Management"
@@ -335,7 +337,7 @@ const TaskBoard = () => {
                         <DatePicker
                             size="sm"
                             variant="flat"
-                            className="w-32"
+                            className="w-32 joyride-task-date-picker"
                             classNames={{
                                 inputWrapper: "bg-transparent shadow-none hover:bg-transparent data-[hover=true]:bg-transparent",
                             }}
@@ -356,7 +358,7 @@ const TaskBoard = () => {
                     </div>
 
                     {/* Filters & Actions Group */}
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap joyride-task-actions">
                         {isAdmin && (
                             <Select
                                 size="sm"
@@ -422,7 +424,7 @@ const TaskBoard = () => {
                             startContent={<Plus size={18} />}
                             variant="shadow"
                             onPress={handleCreateTask}
-                            className="w-full sm:w-auto"
+                            className="w-full sm:w-auto joyride-create-task-btn"
                         >
                             Create Task
                         </Button>
@@ -431,9 +433,9 @@ const TaskBoard = () => {
             </div>
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <div className="relative z-10 flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 min-h-[calc(100vh-280px)] scrollbar-hide">
+                <div className="relative z-10 flex gap-4 sm:gap-6 overflow-x-auto pb-6 -mx-4 px-4 sm:mx-0 sm:px-0 min-h-[calc(100vh-280px)] scrollbar-hide joyride-task-columns">
                     {columns.map((column) => (
-                        <div key={column.id} className="flex flex-col flex-1 min-w-[260px] gap-4">
+                        <div key={column.id} className={clsx("flex flex-col flex-1 min-w-[260px] gap-4", `joyride-column-${column.id.toLowerCase().replace(/ /g, '-')}`)}>
                             <div className={clsx(
                                 "flex items-center justify-between p-3 rounded-xl border border-divider shadow-sm",
                                 column.color
