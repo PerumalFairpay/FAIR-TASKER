@@ -66,9 +66,10 @@ export default function AIAssistantSidebar() {
                 <div className="pointer-events-auto relative group">
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="relative flex items-center justify-center h-14 w-14 bg-default-900 dark:bg-white text-white dark:text-default-900 rounded-full shadow-2xl border border-default-800 dark:border-default-200 transition-all hover:scale-110 active:scale-95 hover:bg-default-800 dark:hover:bg-default-100"
+                        className="relative flex items-center justify-center h-12 w-12 bg-default-900 dark:bg-zinc-100 text-white dark:text-black rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.05)] border border-default-800 dark:border-white/20 transition-all hover:scale-110 active:scale-95 hover:bg-default-800 dark:hover:bg-white group"
                     >
-                        <Webhook size={28} />
+                        <Webhook size={22} className="transition-transform group-hover:rotate-12" />
+                        <div className="absolute -inset-0.5 bg-gradient-to-tr from-primary-500 to-secondary-500 rounded-full blur opacity-0 group-hover:opacity-20 transition-opacity" />
                     </button>
                 </div>
             </div>
@@ -81,10 +82,10 @@ export default function AIAssistantSidebar() {
                 size="lg"
                 backdrop="transparent"
                 classNames={{
-                    base: "max-w-[500px] border-l border-default-200 dark:border-white/10 shadow-[-20px_0_40px_rgba(0,0,0,0.1)]",
+                    base: "max-w-[500px] border-l border-default-200 dark:border-white/5 shadow-[-20px_0_80px_rgba(0,0,0,0.15)]",
                 }}
             >
-                <DrawerContent className="bg-white/90 dark:bg-[#09090b]/95 backdrop-blur-xl">
+                <DrawerContent className="bg-white/95 dark:bg-[#050505] backdrop-blur-3xl">
                     <div className="flex flex-col h-full">
                         <DrawerHeader className="flex flex-col gap-1 border-b border-default-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-md px-5 py-3">
                             <div className="flex justify-between items-center w-full">
@@ -92,7 +93,7 @@ export default function AIAssistantSidebar() {
                                     <div className="p-1.5 bg-default-100 dark:bg-white/5 rounded-lg shrink-0">
                                         <Webhook size={18} className="text-default-600 dark:text-default-400" />
                                     </div>
-                                    <h3 className="font-semibold text-sm tracking-tight text-default-900 dark:text-default-100">Astro</h3>
+                                    <h3 className="font-semibold text-sm tracking-tight text-default-900 dark:text-zinc-100">Astro</h3>
                                 </div>
                                 <Button
                                     isIconOnly
@@ -126,20 +127,22 @@ export default function AIAssistantSidebar() {
                                                 )}
                                                 <div
                                                     className={`max-w-[92%] text-[15px] transition-all ${msg.role === "user"
-                                                        ? "px-4 py-2.5 bg-default-900 dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none shadow-sm"
-                                                        : "py-1 px-1 text-default-800 dark:text-default-200 w-full"
+                                                        ? "px-4 py-2.5 bg-default-900 dark:bg-gradient-to-br dark:from-zinc-100 dark:to-zinc-300 text-white dark:text-black rounded-2xl rounded-br-none shadow-md"
+                                                        : "py-1 px-1 text-default-800 dark:text-zinc-300 w-full"
                                                         }`}
                                                 >
                                                     {msg.role === "user" ? (
                                                         <div style={{ whiteSpace: "pre-wrap" }}>{msg.content}</div>
                                                     ) : (
                                                         <div className="prose prose-sm dark:prose-invert max-w-none 
-                                                            prose-p:leading-relaxed 
-                                                            prose-pre:bg-default-100 dark:prose-pre:bg-default-50/50 prose-pre:rounded-xl prose-pre:p-4 
+                                                            prose-p:leading-relaxed dark:prose-p:text-zinc-300
+                                                            prose-headings:dark:text-zinc-100
+                                                            prose-strong:dark:text-zinc-50
+                                                            prose-pre:bg-default-100 dark:prose-pre:bg-zinc-900/50 dark:prose-pre:border dark:prose-pre:border-white/5 prose-pre:rounded-xl prose-pre:p-4 
                                                             prose-code:text-primary-600 dark:prose-code:text-primary-400 prose-code:bg-primary-500/10 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none 
-                                                            prose-table:border-separate prose-table:border-spacing-0 prose-table:w-full prose-table:border prose-table:border-default-200 prose-table:rounded-xl prose-table:overflow-hidden
-                                                            prose-th:bg-default-100/50 prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:border-b prose-th:border-r prose-th:border-default-200 prose-th:last:border-r-0 prose-th:first:pl-4
-                                                            prose-td:px-4 prose-td:py-3 prose-td:border-b prose-td:border-r prose-td:border-default-200 last:prose-td:border-b-0 prose-td:last:border-r-0 prose-td:first:pl-4">
+                                                            prose-table:border-separate prose-table:border-spacing-0 prose-table:w-full prose-table:border prose-table:border-default-200 dark:prose-table:border-white/5 prose-table:rounded-xl prose-table:overflow-hidden
+                                                            prose-th:bg-default-100/50 dark:prose-th:bg-white/[0.02] prose-th:px-4 prose-th:py-3 prose-th:text-left prose-th:font-semibold prose-th:border-b prose-th:border-r prose-th:border-default-200 dark:prose-th:border-white/5 prose-th:last:border-r-0 prose-th:first:pl-4
+                                                            prose-td:px-4 prose-td:py-3 prose-td:border-b prose-td:border-r prose-td:border-default-200 dark:prose-td:border-white/5 last:prose-td:border-b-0 prose-td:last:border-r-0 prose-td:first:pl-4">
                                                             <ReactMarkdown
                                                                 remarkPlugins={[remarkGfm]}
                                                                 rehypePlugins={[rehypeRaw as any]}
@@ -218,9 +221,9 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
             <div
                 className={clsx(
                     "relative flex flex-col transition-all duration-500 ease-in-out",
-                    "bg-white dark:bg-[#18181b]/50 backdrop-blur-2xl",
+                    "bg-white dark:bg-[#0c0c0e]",
                     "border border-default-200 dark:border-white/5",
-                    "focus-within:border-default-400 dark:focus-within:border-white/10",
+                    "focus-within:border-default-400 dark:focus-within:border-white/10 dark:focus-within:bg-[#111113]",
                     "rounded-2xl shadow-sm overflow-hidden p-3 min-h-[100px]"
                 )}
             >
@@ -246,7 +249,7 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                                 "p-0",
                                 "min-h-0"
                             ].join(" "),
-                            input: "text-[15px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-default-100 placeholder:text-default-400 font-normal",
+                            input: "text-[15px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-zinc-100 placeholder:text-zinc-500 font-normal",
                         }}
                     />
                 </div>
@@ -271,7 +274,7 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                                 key={rec}
                                 type="button"
                                 onClick={() => onChange(rec)}
-                                className="px-3 py-1 rounded-full bg-default-100/40 dark:bg-white/5 hover:bg-default-200/60 dark:hover:bg-white/10 text-default-500 hover:text-default-900 dark:text-default-400 dark:hover:text-white text-[11px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/10 active:scale-95"
+                                className="px-3 py-1 rounded-full bg-default-100/40 dark:bg-white/5 hover:bg-default-200/60 dark:hover:bg-white/10 text-default-500 hover:text-default-900 dark:text-zinc-400 dark:hover:text-zinc-100 text-[11px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/10 active:scale-95"
                             >
                                 {rec}
                             </button>
