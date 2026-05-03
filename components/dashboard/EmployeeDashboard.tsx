@@ -770,7 +770,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
 
                 {/* --- Column 3: Stats & Lists (Span 3) --- */}
-                <div className="md:col-span-12 lg:col-span-4 flex flex-col gap-4">
+                <div className="md:col-span-12 lg:col-span-4 flex flex-col justify-between h-full min-h-full gap-8">
 
                     {/* Accordion Group for Task Overview and Active Projects */}
                     <Accordion 
@@ -790,7 +790,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             key="task-overview"
                             aria-label="Task Overview"
                             title="Task Overview"
-                            // subtitle="Completion Status"
+                            subtitle={`${data.task_metrics.total_assigned} Assigned Tasks`}
                             startContent={
                                 <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
                                     <ListTodo size={18} />
@@ -928,7 +928,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             key="active-projects"
                             aria-label="Active Projects"
                             title="Active Projects"
-                            // subtitle={`${(data.projects || []).length} Assigned Projects`}
+                            subtitle={`${(data.projects || []).length} Active Projects`}
                             startContent={
                                 <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
                                     <Briefcase size={18} />
@@ -973,6 +973,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                             key="upcoming-holidays"
                             aria-label="Upcoming Holidays"
                             title="Upcoming Holidays"
+                            subtitle={`${(data.upcoming_holidays || []).length} Scheduled Holidays`}
                             startContent={
                                 <div className="p-2 bg-primary-50 dark:bg-primary-500/10 rounded-xl text-primary">
                                     <Calendar size={18} />
