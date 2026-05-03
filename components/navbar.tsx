@@ -69,6 +69,7 @@ import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
 import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
 import { ScrollShadow } from "@heroui/scroll-shadow";
+import { NavbarJoyride } from "./navbar-joyride";
 
 interface NavbarProps {
   isExpanded?: boolean;
@@ -334,8 +335,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   // AI Chat item
   const aiChatItem = resolveHref(AI_CHAT_HREF);
 
+
+
   return (
     <>
+      <NavbarJoyride />
       {/* ─── Mobile Bottom Nav ──────────────────────────────────────────── */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
 
@@ -742,7 +746,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       >
         <div className="flex flex-col h-full">
 
-          <div className="flex items-center justify-center p-2 border-b border-divider h-16">
+          <div className="flex items-center justify-center p-2 border-b border-divider h-16 joyride-logo">
             <NextLink
               className="flex justify-start items-center gap-2"
               href="/dashboard"
@@ -760,7 +764,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           </div>
 
           <ScrollShadow className="flex-1 py-4 scrollbar-hide">
-            <nav className="flex flex-col gap-1 px-2">
+            <nav className="flex flex-col gap-1 px-2 joyride-nav-menu">
               {siteConfig.navItems
                 .filter(item => {
                   const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
@@ -1005,7 +1009,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="p-1 border-t border-divider">
             {user && (
               <div className={clsx(
-                "flex items-center my-2 overflow-hidden transition-all duration-300",
+                "flex items-center my-2 overflow-hidden transition-all duration-300 joyride-profile",
                 isExpanded ? "justify-between px-2" : "justify-self-end"
               )}>
                 <NextLink href="/profile" className="flex-1 min-w-0">
@@ -1061,7 +1065,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               <Button
                 isIconOnly
                 className={clsx(
-                  "bg-default-100",
+                  "bg-default-100 joyride-sidebar-toggle",
                   isExpanded ? "flex-1 ml-1" : "w-full"
                 )}
                 variant="flat"
