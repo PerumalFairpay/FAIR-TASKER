@@ -87,6 +87,21 @@ interface DashboardData {
         date: string;
         profile_picture: string;
     }>;
+    leave_insights: {
+        total_allotted: number;
+        total_used: number;
+        total_pending: number;
+        total_available: number;
+        details: Array<{
+            id: string;
+            type: string;
+            code: string;
+            total: number;
+            used: number;
+            available: number;
+            pending: number;
+        }>;
+    };
 }
 
 // --- Component ---
@@ -688,6 +703,39 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
+                    {/* Ultra-Compact Leave Insights Card */}
+                    <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
+                        <CardHeader className="flex justify-between items-center px-4 py-3 border-b border-slate-50 dark:border-white/5">
+                            <div className="flex items-center gap-2">
+                                <Plane size={14} className="text-primary" />
+                                <h3 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Leave Credits</h3>
+                            </div>
+                            <Link href="/leaves" className="text-[10px] font-bold text-primary hover:underline">
+                                Details
+                            </Link>
+                        </CardHeader>
+                        <CardBody className="px-4 py-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                                {data.leave_insights.details.map((leave, idx) => (
+                                    <div key={idx} className="flex flex-col gap-1">
+                                        <div className="flex justify-between items-end">
+                                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase">{leave.type}</span>
+                                            <span className="text-[10px] font-bold text-slate-900 dark:text-white">{leave.available} / {leave.total}</span>
+                                        </div>
+                                        <div className="relative w-full h-1 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                                            <div 
+                                                className={`absolute top-0 left-0 h-full rounded-full ${
+                                                    leave.available === 0 ? 'bg-rose-500' : 'bg-primary'
+                                                }`}
+                                                style={{ width: `${(leave.used / (leave.total || 1)) * 100}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardBody>
+                    </Card>
+
 
 
 
@@ -931,6 +979,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 )}
                             </div>
                         </AccordionItem>
+
                     </Accordion>
 
 
