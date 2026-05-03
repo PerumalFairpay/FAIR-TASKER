@@ -28,6 +28,7 @@ import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import { Chip } from "@heroui/chip";
 import FileUpload from "@/components/common/FileUpload";
+import { ProfileJoyride } from "@/components/profile-joyride";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
@@ -259,6 +260,7 @@ export default function ProfilePage() {
 
     return (
         <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+            <ProfileJoyride />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <PageHeader title="My Profile" description="Manage your personal information and security settings." />
 
@@ -808,7 +810,7 @@ export default function ProfilePage() {
                                 <Tab
                                     key="security"
                                     title={
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 joyride-security-tab">
                                             <Lock size={18} />
                                             <span>Security</span>
                                         </div>
@@ -840,6 +842,7 @@ export default function ProfilePage() {
                                                 value={passwordData.current_password}
                                                 onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
                                                 variant="flat"
+                                                className="joyride-current-password"
                                                 radius="sm"
                                                 isRequired
                                                 startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
@@ -863,6 +866,7 @@ export default function ProfilePage() {
                                                     value={passwordData.new_password}
                                                     onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
                                                     variant="flat"
+                                                    className="joyride-new-password"
                                                     radius="sm"
                                                     isRequired
                                                     startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
@@ -885,6 +889,7 @@ export default function ProfilePage() {
                                                     value={passwordData.confirm_password}
                                                     onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
                                                     variant="flat"
+                                                    className="joyride-confirm-password"
                                                     radius="sm"
                                                     isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
                                                     errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
@@ -908,7 +913,7 @@ export default function ProfilePage() {
                                                     color="primary"
                                                     variant="shadow"
                                                     isLoading={passwordLoading}
-                                                    className="font-semibold px-8"
+                                                    className="font-semibold px-8 joyride-update-password-btn"
                                                 >
                                                     Update Password
                                                 </Button>
