@@ -161,7 +161,7 @@ export default function AIChatPage() {
                                         layoutId="astro-name"
                                         className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100"
                                     >
-                                        Hi {user?.first_name || 'there'}
+                                        Hi {user?.name || 'there'}
                                     </motion.h3>
                                 </div>
                                 <motion.h2
