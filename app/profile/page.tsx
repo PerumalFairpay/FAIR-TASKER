@@ -271,7 +271,7 @@ export default function ProfilePage() {
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
                 {/* Left Column: Profile Card & Quick Info */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6 self-start">
                     {/* Profile Card - Premium Style */}
                     <Card className="shadow-none border-none w-full h-[320px] relative overflow-hidden rounded-[32px] group">
                         {/* Background Image */}
