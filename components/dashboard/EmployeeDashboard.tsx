@@ -171,7 +171,8 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
     const { user } = useSelector((state: AppState) => state.Auth);
 
     useEffect(() => {
-        dispatch(getMyAttendanceHistoryRequest());
+        // Attendance history is now dispatched at the page level (dashboard/page.tsx)
+        // to synchronize with the loading skeleton.
     }, [dispatch]);
 
     // Handle Clock In/Out Toasts

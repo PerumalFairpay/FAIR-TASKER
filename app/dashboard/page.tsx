@@ -10,16 +10,21 @@ import { getBlogsRequest } from "@/store/blog/action";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
+import { getMyAttendanceHistoryRequest } from "@/store/attendance/action";
 
 export default function Dashboard() {
     const dispatch = useDispatch();
-    const { dashboardData, loading, error } = useSelector((state: RootState) => state.Dashboard);
+    const { dashboardData, loading: dashboardLoading, error } = useSelector((state: RootState) => state.Dashboard);
     const { blogs } = useSelector((state: RootState) => state.Blog);
     const { user } = useSelector((state: RootState) => state.Auth);
+    const { getMyHistoryLoading } = useSelector((state: RootState) => state.Attendance);
+
+    const isLoading = dashboardLoading || getMyHistoryLoading;
 
     useEffect(() => {
         dispatch(getDashboardData());
         dispatch(getBlogsRequest());
+        dispatch(getMyAttendanceHistoryRequest());
     }, [dispatch]);
 
     return (
@@ -28,7 +33,7 @@ export default function Dashboard() {
                 <PageHeader title="Dashboard" />
             </div> */}
 
-            {loading ? (
+            {isLoading ? (
                 <DashboardSkeleton type={user?.role} />
             ) : error ? (
                 <div className="flex h-[50vh] items-center justify-center text-danger">
