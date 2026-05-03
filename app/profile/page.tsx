@@ -179,8 +179,20 @@ export default function ProfilePage() {
         }
     }, [profileSuccess, profileError, passwordSuccess, passwordError, dispatch]);
 
+    const toTitleCase = (str: string) => {
+        return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        );
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+        
+        if (name === "first_name" || name === "last_name" || name === "name") {
+            value = toTitleCase(value);
+        }
+
         setFormData(prev => {
             const updated = { ...prev, [name]: value };
             if (name === "first_name" || name === "last_name") {

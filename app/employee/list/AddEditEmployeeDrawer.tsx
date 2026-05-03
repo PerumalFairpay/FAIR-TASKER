@@ -183,8 +183,19 @@ export default function AddEditEmployeeDrawer({
         }
     }, [formData.first_name, formData.last_name, mode]);
 
+    const toTitleCase = (str: string) => {
+        return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        );
+    };
+
     const handleChange = (name: string, value: string) => {
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        let finalValue = value;
+        if (name === "first_name" || name === "last_name" || name === "name") {
+            finalValue = toTitleCase(value);
+        }
+        setFormData((prev: any) => ({ ...prev, [name]: finalValue }));
     };
 
     const handleConfirmationPeriodChange = (value: string) => {
