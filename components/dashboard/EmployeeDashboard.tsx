@@ -705,22 +705,29 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                     {/* Ultra-Compact Leave Insights Card */}
                     <Card className="shadow-sm border border-default-100 dark:border-white/5 bg-white dark:bg-zinc-900/50 dark:backdrop-blur-md">
-                        <CardHeader className="flex justify-between items-center px-4 py-3 border-b border-slate-50 dark:border-white/5">
+                        <CardHeader className="flex justify-between items-center px-6 pt-5 pb-0 border-none">
                             <div className="flex items-center gap-2">
-                                <Plane size={14} className="text-primary" />
-                                <h3 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Leave Credits</h3>
+                                <div className="p-1.5 bg-primary-50 dark:bg-primary-500/10 rounded-lg text-primary">
+                                    <Plane size={18} />
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Leave Credits</h3>
                             </div>
-                            <Link href="/leaves" className="text-[10px] font-bold text-primary hover:underline">
-                                Details
+                            <Link href="/leaves" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+                                Manage
+                                <ArrowUpRight size={12} />
                             </Link>
                         </CardHeader>
-                        <CardBody className="px-4 py-3">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
+                        <CardBody className="px-4 py-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-5">
                                 {data.leave_insights.details.map((leave, idx) => (
-                                    <div key={idx} className="flex flex-col gap-1">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase">{leave.type}</span>
-                                            <span className="text-[10px] font-bold text-slate-900 dark:text-white">{leave.available} / {leave.total}</span>
+                                    <div key={idx} className="flex flex-col gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">{leave.type}</span>
+                                            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-900 dark:text-white">
+                                                <span>{leave.available}</span>
+                                                <span className="text-slate-300 dark:text-slate-600 font-normal">/</span>
+                                                <span className="text-slate-400 dark:text-slate-500">{leave.total}</span>
+                                            </div>
                                         </div>
                                         <div className="relative w-full h-1 bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                                             <div 
