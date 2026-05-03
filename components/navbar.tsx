@@ -804,7 +804,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   onPress={() => toggleMenu(item.label)}
                                   className={clsx(
                                     "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
-                                    "hover:bg-default-50 text-default-600"
+                                    "hover:bg-default-50 text-default-600",
+                                    `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                                   )}
                                   disableRipple
                                   isIconOnly
@@ -848,7 +849,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                               className={clsx(
                                 "w-full bg-transparent justify-start gap-2 h-10 px-2 relative",
                                 "hover:bg-default-50 text-default-600",
-                                !isExpanded && "justify-center px-0"
+                                !isExpanded && "justify-center px-0",
+                                `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                               )}
                               disableRipple
                             >
@@ -930,7 +932,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         href={item.href}
                         className={clsx(
                           "w-full justify-start gap-2 h-10 px-2 relative",
-                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600"
+                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600",
+                          `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                         )}
                       >
                         {pathname === item.href && (
@@ -971,7 +974,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                             className={clsx(
                               "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
                               "hover:bg-default-50 text-default-600",
-                              pathname === item.href && "text-primary bg-primary/10"
+                              pathname === item.href && "text-primary bg-primary/10",
+                              `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                             )}
                             disableRipple
                             isIconOnly
@@ -1051,7 +1055,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               {isExpanded && (
                 <Button
                   isIconOnly
-                  className="bg-default-100"
+                  className="bg-default-100 joyride-theme-toggle"
                   variant="flat"
                   onPress={toggleTheme}
                 >

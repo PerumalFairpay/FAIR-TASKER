@@ -12,20 +12,36 @@ export const NavbarJoyride = () => {
     steps: [
       {
         target: '.joyride-logo',
-        content: 'Welcome to FairTasker! Click here to go to your dashboard anytime.',
+        content: 'Welcome to FairPAY Tech Works! This is your main navigation hub.',
         disableBeacon: true,
       },
       {
-        target: '.joyride-nav-menu',
-        content: 'Here you can access all modules and features based on your permissions.',
+        target: '.joyride-attendance',
+        content: 'Track your work hours and mark your attendance daily here.',
+      },
+      {
+        target: '.joyride-task-management',
+        content: 'Stay on top of your work! Access your task board and submit EOD reports.',
+      },
+      {
+        target: '.joyride-astro',
+        content: 'Meet Astro, our AI assistant! Ask questions or get help with your work.',
+      },
+      {
+        target: '.joyride-feedback',
+        content: 'Have suggestions? Share your feedback with the team here.',
+      },
+      {
+        target: '.joyride-theme-toggle',
+        content: 'Switch between Light and Dark mode for a more comfortable view.',
       },
       {
         target: '.joyride-profile',
-        content: 'View your profile and account settings here.',
+        content: 'Manage your personal details and update your password here.',
       },
       {
         target: '.joyride-sidebar-toggle',
-        content: 'Click here to expand or collapse the sidebar for more details.',
+        content: 'Expand or collapse the sidebar to maximize your workspace.',
       }
     ] as Step[],
   });
