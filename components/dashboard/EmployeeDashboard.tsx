@@ -433,7 +433,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                     <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Daily Goal (9h)</span>
                                     <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">{Math.round(Math.min((elapsedSeconds / (9 * 3600)) * 100, 100))}%</span>
                                 </div>
-                                <Progress 
+                                <Progress
                                     size="sm"
                                     radius="full"
                                     value={(elapsedSeconds / (9 * 3600)) * 100}
@@ -485,105 +485,163 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <CardBody className="px-6 py-4 space-y-6">
                             {/* Main Visual Row */}
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pb-4 border-b border-slate-50 dark:border-white/5">
-                                {/* Premium Gauge */}
-                                <div className="relative w-48 h-48 flex-shrink-0 group">
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        <defs>
-                                            <linearGradient id="monthPresentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#10b981" />
-                                                <stop offset="100%" stopColor="#059669" />
-                                            </linearGradient>
-                                        </defs>
-
-                                        {/* Background Ring */}
+                                {/* Activity Rings Chart for Attendance (4 Rings) */}
+                                <div className="relative w-32 h-32 flex-shrink-0">
+                                    <svg className="w-full h-full transform -rotate-90 drop-shadow-xl">
+                                        {/* --- Ring 1: Present (Outer) --- */}
+                                        <circle cx="64" cy="64" r="60" stroke="#d1fae5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-emerald-500/10" />
                                         <circle
-                                            cx="96" cy="96" r="88"
-                                            strokeWidth="12" fill="none"
-                                            className="stroke-slate-100 dark:stroke-white/5"
+                                            cx="64" cy="64" r="60"
+                                            stroke="#10b981"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeDasharray={377}
+                                            strokeDashoffset={377 - (377 * (displayMetrics.present_days / (displayMetrics.total_working_days || 1)))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
                                         />
 
-                                        {/* Present Ring */}
+                                        {/* --- Ring 2: On Time --- */}
+                                        <circle cx="64" cy="64" r="48" stroke="#ccfbf1" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-teal-500/10" />
                                         <circle
-                                            cx="96" cy="96" r="88"
-                                            strokeWidth="12" fill="none"
-                                            stroke="url(#monthPresentGradient)"
-                                            className="transition-all duration-1500 ease-out"
-                                            strokeDasharray={552}
-                                            strokeDashoffset={552 - (552 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) || 0))}
+                                            cx="64" cy="64" r="48"
+                                            stroke="#14b8a6"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeDasharray={301}
+                                            strokeDashoffset={301 - (301 * ((displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)) / (displayMetrics.total_working_days || 1)))}
                                             strokeLinecap="round"
-                                            style={{ filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.4))" }}
+                                            className="transition-all duration-1000 ease-out"
+                                        />
+
+                                        {/* --- Ring 3: Late --- */}
+                                        <circle cx="64" cy="64" r="36" stroke="#ffedd5" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-orange-500/10" />
+                                        <circle
+                                            cx="64" cy="64" r="36"
+                                            stroke="#f97316"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeDasharray={226}
+                                            strokeDashoffset={226 - (226 * (displayMetrics.late_days / (displayMetrics.total_working_days || 1)))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
+                                        />
+
+                                        {/* --- Ring 4: Leave (Inner) --- */}
+                                        <circle cx="64" cy="64" r="24" stroke="#fef3c7" strokeWidth="8" fill="none" className="opacity-30 dark:stroke-amber-500/10" />
+                                        <circle
+                                            cx="64" cy="64" r="24"
+                                            stroke="#f59e0b"
+                                            strokeWidth="8"
+                                            fill="none"
+                                            strokeDasharray={151}
+                                            strokeDashoffset={151 - (151 * (displayMetrics.leave_days / (displayMetrics.total_working_days || 1)))}
+                                            strokeLinecap="round"
+                                            className="transition-all duration-1000 ease-out"
                                         />
                                     </svg>
 
-                                    {/* Central Info */}
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <div className="relative flex flex-col items-center justify-center w-32 h-32 rounded-full bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-lg border border-white/50 dark:border-white/5">
-                                            <div className="flex items-baseline gap-0.5">
-                                                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
-                                                    {Math.round((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100)}
-                                                </span>
-                                                <span className="text-sm font-bold text-emerald-500">%</span>
-                                            </div>
-                                            <span className="text-base font-bold text-emerald-600 dark:text-emerald-400 leading-none mt-0.5">
-                                                {displayMetrics.present_days} Days
-                                            </span>
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Present</span>
+                                    {/* Central Icon */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                                        <div className="bg-white dark:bg-white/10 p-1.5 rounded-full shadow-sm text-emerald-500">
+                                            <Fingerprint size={16} className="text-emerald-500 dark:text-emerald-400" />
                                         </div>
-                                    </div>
-
-                                    {/* Animated Marker Dot on the progress edge */}
-                                    <div
-                                        className="absolute top-1/2 left-1/2 w-3 h-3 -ml-1.5 -mt-1.5 transition-all duration-1500 ease-out z-10 pointer-events-none"
-                                        style={{
-                                            transform: `rotate(${(3.6 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100)) - 90}deg) translate(88px) rotate(${90 - (3.6 * ((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100))}deg)`
-                                        }}
-                                    >
-                                        <div className="w-full h-full bg-white dark:bg-emerald-500 border border-emerald-500 dark:border-white rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
                                     </div>
                                 </div>
 
                                 {/* Stats List */}
-                                <div className="flex-1 w-full flex flex-col gap-3 pl-0 sm:pl-2">
+                                <div className="flex-1 w-full flex flex-col gap-2.5 pl-0 sm:pl-2">
 
-                                    {/* On Time */}
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">On Time</span>
-                                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                                                {displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)} Days
+                                    {/* Present */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <ShieldCheck size={10} className="text-emerald-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Present</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                                {displayMetrics.present_days}
                                             </span>
                                         </div>
-                                        <Progress
-                                            size="sm" radius="sm"
-                                            classNames={{ base: "h-1.5", track: "bg-emerald-50 dark:bg-emerald-500/10", indicator: "bg-emerald-400" }}
-                                            value={((displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)) / (displayMetrics.total_working_days || 1)) * 100}
-                                        />
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1 bg-emerald-100 dark:bg-emerald-500/20 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-emerald-500 rounded-full" 
+                                                    style={{ width: `${(displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 w-8 text-right">
+                                                {Math.round((displayMetrics.present_days / (displayMetrics.total_working_days || 1)) * 100)}%
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* On Time */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <CheckCircle size={10} className="text-teal-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">On Time</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                                                {displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1 bg-teal-100 dark:bg-teal-500/20 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="h-full bg-teal-500 rounded-full" 
+                                                    style={{ width: `${((displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)) / (displayMetrics.total_working_days || 1)) * 100}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-teal-600 dark:text-teal-400 w-8 text-right">
+                                                {Math.round(((displayMetrics.on_time_days ?? (displayMetrics.present_days - displayMetrics.late_days)) / (displayMetrics.total_working_days || 1)) * 100)}%
+                                            </span>
+                                        </div>
                                     </div>
 
                                     {/* Late */}
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Late</span>
-                                            <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{displayMetrics.late_days} Days</span>
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock size={10} className="text-orange-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Late</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{displayMetrics.late_days}</span>
                                         </div>
-                                        <Progress
-                                            size="sm" radius="sm"
-                                            classNames={{ base: "h-1.5", track: "bg-orange-50 dark:bg-orange-500/10", indicator: "bg-orange-500" }}
-                                            value={(displayMetrics.late_days / (displayMetrics.total_working_days || 1)) * 100}
-                                        />
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1 bg-orange-100 dark:bg-orange-500/20 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-orange-500 rounded-full"
+                                                    style={{ width: `${(displayMetrics.late_days / (displayMetrics.total_working_days || 1)) * 100}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-orange-600 dark:text-orange-400 w-8 text-right">
+                                                {Math.round((displayMetrics.late_days / (displayMetrics.total_working_days || 1)) * 100)}%
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    {/* Absent */}
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">Absent</span>
-                                            <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{displayMetrics.absent_days} Days</span>
+                                    {/* Leaves */}
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-1.5">
+                                                <Plane size={10} className="text-amber-500" />
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Leaves</span>
+                                            </div>
+                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-100">{displayMetrics.leave_days}</span>
                                         </div>
-                                        <Progress
-                                            size="sm" radius="sm"
-                                            classNames={{ base: "h-1.5", track: "bg-rose-50 dark:bg-rose-500/10", indicator: "bg-rose-500" }}
-                                            value={(displayMetrics.absent_days / (displayMetrics.total_working_days || 1)) * 100}
-                                        />
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full h-1 bg-amber-100 dark:bg-amber-500/20 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-amber-500 rounded-full"
+                                                    style={{ width: `${(displayMetrics.leave_days / (displayMetrics.total_working_days || 1)) * 100}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 w-8 text-right">
+                                                {Math.round((displayMetrics.leave_days / (displayMetrics.total_working_days || 1)) * 100)}%
+                                            </span>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -591,9 +649,9 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
 
                             {/* Leave, Holiday, Half Day & Permission Grid - Moved to new row */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-                                <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
-                                    <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{displayMetrics.leave_days}</span>
-                                    <span className="text-[9px] text-amber-600/70 uppercase">Leaves</span>
+                                <div className="px-2 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/10 border border-rose-100/50 dark:border-rose-500/20 text-center">
+                                    <span className="block text-xs font-bold text-rose-700 dark:text-rose-400">{displayMetrics.absent_days}</span>
+                                    <span className="text-[9px] text-rose-600/70 uppercase">Absent</span>
                                 </div>
                                 <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
                                     <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{displayMetrics.holiday_days}</span>
