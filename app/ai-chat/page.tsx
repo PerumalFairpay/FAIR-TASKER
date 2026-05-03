@@ -82,7 +82,7 @@ export default function AIChatPage() {
         <div 
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#09090b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
+            className="flex flex-col h-[calc(100vh-64px)] lg:h-screen w-full bg-white dark:bg-[#0a0a0b] bg-dot-grid-interactive transition-colors duration-500 overflow-hidden"
         >
             {/* Header - Transparent and simple */}
             <header className="flex items-center justify-between px-6 py-3 z-30">
@@ -143,11 +143,11 @@ export default function AIChatPage() {
                                         className="relative group shrink-0"
                                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                     >
-                                        <Webhook size={28} className="relative text-default-900 dark:text-default-100" />
+                                        <Webhook size={28} className="relative text-default-900 dark:text-zinc-500" />
                                     </motion.div>
                                     <motion.h3
                                         layoutId="astro-name"
-                                        className="text-2xl font-semibold tracking-tight text-default-900 dark:text-default-100"
+                                        className="text-lg lg:text-xl font-normal tracking-tight text-default-500 dark:text-zinc-400"
                                     >
                                         Hi {user?.name || 'there'}
                                     </motion.h3>
@@ -195,8 +195,8 @@ export default function AIChatPage() {
                                             )}
                                         >
                                             {msg.role === "assistant" && (
-                                                <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-default-50 flex items-center justify-center shrink-0 mt-1 border border-default-200 dark:border-white/10">
-                                                    <Webhook size={16} className="text-default-700 dark:text-default-200" />
+                                                <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-zinc-900 flex items-center justify-center shrink-0 mt-1 border border-default-200 dark:border-white/[0.08]">
+                                                    <Webhook size={16} className="text-default-700 dark:text-zinc-400" />
                                                 </div>
                                             )}
                                             <div className={clsx(
@@ -206,8 +206,8 @@ export default function AIChatPage() {
                                                 <div className={clsx(
                                                     "text-[15px] leading-relaxed transition-all",
                                                     msg.role === "user"
-                                                        ? "px-5 py-3 bg-default-900 dark:bg-white text-white dark:text-black rounded-2xl rounded-br-none shadow-sm"
-                                                        : "text-default-800 dark:text-default-200 py-1"
+                                                        ? "px-5 py-3 bg-default-900 dark:bg-zinc-800 text-white dark:text-zinc-100 rounded-2xl rounded-br-none shadow-sm border border-transparent dark:border-white/5"
+                                                        : "text-default-800 dark:text-zinc-300 py-1"
                                                 )}>
                                                     {msg.role === "user" ? (
                                                         <span className="whitespace-pre-wrap">{msg.content}</span>
@@ -234,8 +234,8 @@ export default function AIChatPage() {
                                     ))}
                                     {isLoading && (
                                         <div className="flex gap-4 items-center">
-                                            <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-default-50 flex items-center justify-center border border-default-200 dark:border-white/10">
-                                                <Webhook size={16} className="text-default-700 dark:text-default-200 animate-spin" />
+                                            <div className="w-8 h-8 rounded-full bg-default-100 dark:bg-zinc-900 flex items-center justify-center border border-default-200 dark:border-white/[0.08]">
+                                                <Webhook size={16} className="text-default-700 dark:text-zinc-400 animate-spin" />
                                             </div>
                                             <div className="flex gap-1.5 py-4">
                                                 {[0, 0.2, 0.4].map((d) => (
@@ -256,7 +256,7 @@ export default function AIChatPage() {
                             {/* Sticky Search Bar for Chat View */}
                             <motion.div
                                 layoutId="search-bar"
-                                className="absolute bottom-0 inset-x-0 p-6 lg:p-10 pointer-events-none bg-gradient-to-t from-white dark:from-[#09090b] via-white/80 dark:via-[#09090b]/80 to-transparent z-10"
+                                className="absolute bottom-0 inset-x-0 p-6 lg:p-10 pointer-events-none bg-gradient-to-t from-white dark:from-[#0a0a0b] via-white/80 dark:via-[#0a0a0b]/80 to-transparent z-10"
                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                             >
                                 <div className="max-w-3xl mx-auto pointer-events-auto">
@@ -305,11 +305,11 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
             <div
                 className={clsx(
                     "relative flex flex-col transition-all duration-500 ease-in-out",
-                    "bg-white dark:bg-[#18181b]/50 backdrop-blur-2xl",
-                    "border border-default-200 dark:border-white/5",
-                    "focus-within:border-default-400 dark:focus-within:border-white/10",
-                    "rounded-[1.25rem] shadow-sm overflow-hidden",
-                    compact ? "p-3 min-h-[100px]" : "p-5 min-h-[140px]"
+                    "bg-white dark:bg-zinc-900/50 backdrop-blur-3xl",
+                    "border border-default-200 dark:border-white/[0.08]",
+                    "focus-within:border-default-400 dark:focus-within:border-white/20",
+                    "rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] overflow-hidden",
+                    compact ? "p-3.5 min-h-[100px]" : "p-5 min-h-[140px]"
                 )}
             >
                 <div className="flex-1 w-full">
@@ -335,7 +335,7 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                                 "min-h-0"
                             ].join(" "),
                             input: clsx(
-                                "text-[16px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-default-100 placeholder:text-default-400 font-normal",
+                                "text-[16px] py-1 resize-none bg-transparent leading-relaxed text-default-900 dark:text-zinc-100 placeholder:text-default-400/80 dark:placeholder:text-zinc-500 font-normal",
                                 compact ? "text-[15px]" : ""
                             ),
                         }}
@@ -358,11 +358,11 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                                 "Onboarding help"
                             ]
                         ).map((rec) => (
-                            <button
+                             <button
                                 key={rec}
                                 type="button"
                                 onClick={() => onChange(rec)}
-                                className="px-3.5 py-1.5 rounded-full bg-default-100/40 dark:bg-white/5 hover:bg-default-200/60 dark:hover:bg-white/10 text-default-500 hover:text-default-900 dark:text-default-400 dark:hover:text-white text-[12px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/10 active:scale-95"
+                                className="px-3.5 py-1.5 rounded-full bg-default-100/40 dark:bg-white/[0.03] hover:bg-default-200/60 dark:hover:bg-white/[0.08] text-default-500 hover:text-default-900 dark:text-zinc-400 dark:hover:text-zinc-100 text-[12px] font-medium transition-all whitespace-nowrap border border-transparent hover:border-default-200 dark:hover:border-white/[0.05] active:scale-95"
                             >
                                 {rec}
                             </button>
@@ -378,8 +378,8 @@ function SearchBar({ value, onChange, onKeyDown, onSubmit, isLoading, placeholde
                                 className={clsx(
                                     "h-8 w-8 rounded-full transition-all shrink-0",
                                     value.trim()
-                                        ? "bg-default-900 dark:bg-white text-white dark:text-black hover:opacity-90"
-                                        : "bg-default-100 dark:bg-white/5 text-default-400"
+                                        ? "bg-default-900 dark:bg-zinc-100 text-white dark:text-black hover:opacity-90"
+                                        : "bg-default-100 dark:bg-white/[0.03] text-default-400"
                                 )}
                                 size="sm"
                             >
