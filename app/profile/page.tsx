@@ -531,114 +531,7 @@ export default function ProfilePage() {
                                     </div>
                                 </Tab>
 
-                                <Tab
-                                    key="security"
-                                    title={
-                                        <div className="flex items-center gap-2">
-                                            <Lock size={18} />
-                                            <span>Security</span>
-                                        </div>
-                                    }
-                                >
-                                    <div className="p-6 space-y-6">
-                                        <div className="mb-10">
-                                            <h3 className="text-xl font-bold text-foreground">Change Password</h3>
-                                         </div>
 
-                                        {(passwordSuccess || passwordError) && (
-                                            <Alert
-                                                color={passwordError ? "danger" : "success"}
-                                                title={passwordError ? "Error" : "Success"}
-                                                description={passwordError || passwordSuccess}
-                                                variant="flat"
-                                            />
-                                        )}
-
-                                        <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                                            <Input
-                                                type={isVisible.current ? "text" : "password"}
-                                                label="Current Password"
-                                                labelPlacement="outside"
-                                                placeholder="Enter your current password"
-                                                value={passwordData.current_password}
-                                                onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
-                                                variant="flat"
-                                                radius="sm"
-                                                isRequired
-                                                startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                                endContent={
-                                                    <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('current')}>
-                                                        {isVisible.current ? (
-                                                            <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                        ) : (
-                                                            <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                        )}
-                                                    </button>
-                                                }
-                                                classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                            />
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <Input
-                                                    type={isVisible.new ? "text" : "password"}
-                                                    label="New Password"
-                                                    labelPlacement="outside"
-                                                    placeholder="Enter new password"
-                                                    value={passwordData.new_password}
-                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                                                    variant="flat"
-                                                    radius="sm"
-                                                    isRequired
-                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                                    endContent={
-                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('new')}>
-                                                            {isVisible.new ? (
-                                                                <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                            ) : (
-                                                                <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                            )}
-                                                        </button>
-                                                    }
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                />
-                                                <Input
-                                                    type={isVisible.confirm ? "text" : "password"}
-                                                    label="Confirm Password"
-                                                    labelPlacement="outside"
-                                                    placeholder="Retype password"
-                                                    value={passwordData.confirm_password}
-                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                                                    variant="flat"
-                                                    radius="sm"
-                                                    isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
-                                                    errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
-                                                    isRequired
-                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                                    endContent={
-                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('confirm')}>
-                                                            {isVisible.confirm ? (
-                                                                <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                            ) : (
-                                                                <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                            )}
-                                                        </button>
-                                                    }
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                />
-                                            </div>
-                                            <div className="flex justify-end pt-4">
-                                                <Button
-                                                    type="submit"
-                                                    color="primary"
-                                                    variant="shadow"
-                                                    isLoading={passwordLoading}
-                                                    className="font-semibold px-8"
-                                                >
-                                                    Update Password
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </Tab>
 
                                 <Tab
                                     key="documents"
@@ -872,6 +765,115 @@ export default function ProfilePage() {
                                                     startContent={!profileLoading && <CheckCircle size={18} />}
                                                 >
                                                     Save Bank Details
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </Tab>
+
+                                <Tab
+                                    key="security"
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <Lock size={18} />
+                                            <span>Security</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6 space-y-6">
+                                        <div className="mb-10">
+                                            <h3 className="text-xl font-bold text-foreground">Change Password</h3>
+                                         </div>
+
+                                        {(passwordSuccess || passwordError) && (
+                                            <Alert
+                                                color={passwordError ? "danger" : "success"}
+                                                title={passwordError ? "Error" : "Success"}
+                                                description={passwordError || passwordSuccess}
+                                                variant="flat"
+                                            />
+                                        )}
+
+                                        <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                                            <Input
+                                                type={isVisible.current ? "text" : "password"}
+                                                label="Current Password"
+                                                labelPlacement="outside"
+                                                placeholder="Enter your current password"
+                                                value={passwordData.current_password}
+                                                onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
+                                                variant="flat"
+                                                radius="sm"
+                                                isRequired
+                                                startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                endContent={
+                                                    <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('current')}>
+                                                        {isVisible.current ? (
+                                                            <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                        ) : (
+                                                            <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                        )}
+                                                    </button>
+                                                }
+                                                classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                            />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Input
+                                                    type={isVisible.new ? "text" : "password"}
+                                                    label="New Password"
+                                                    labelPlacement="outside"
+                                                    placeholder="Enter new password"
+                                                    value={passwordData.new_password}
+                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
+                                                    variant="flat"
+                                                    radius="sm"
+                                                    isRequired
+                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                    endContent={
+                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('new')}>
+                                                            {isVisible.new ? (
+                                                                <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            ) : (
+                                                                <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            )}
+                                                        </button>
+                                                    }
+                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                />
+                                                <Input
+                                                    type={isVisible.confirm ? "text" : "password"}
+                                                    label="Confirm Password"
+                                                    labelPlacement="outside"
+                                                    placeholder="Retype password"
+                                                    value={passwordData.confirm_password}
+                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
+                                                    variant="flat"
+                                                    radius="sm"
+                                                    isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
+                                                    errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
+                                                    isRequired
+                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                    endContent={
+                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('confirm')}>
+                                                            {isVisible.confirm ? (
+                                                                <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            ) : (
+                                                                <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            )}
+                                                        </button>
+                                                    }
+                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="shadow"
+                                                    isLoading={passwordLoading}
+                                                    className="font-semibold px-8"
+                                                >
+                                                    Update Password
                                                 </Button>
                                             </div>
                                         </form>
