@@ -337,7 +337,7 @@ export default function ProfilePage() {
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex gap-2 p-2 bg-primary-50 rounded-2xl border border-primary-100"
+                            className="flex gap-2 p-2 bg-primary-50 dark:bg-primary/5 rounded-2xl border border-primary-100 dark:border-primary/20"
                         >
                             <Button
                                 color="primary"
@@ -366,7 +366,7 @@ export default function ProfilePage() {
                     )}
 
                     {/* Quick Info Card */}
-                    <Card className="border-none shadow-sm bg-white p-2">
+                    <Card className="border-none shadow-sm bg-content1 p-2 dark:bg-[#0D0D0D] dark:border dark:border-white/5">
                         <CardBody className="p-4 space-y-4">
                             <div className="w-full space-y-4 px-2">
                                 {[
@@ -395,7 +395,7 @@ export default function ProfilePage() {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* Detailed Information Tabs */}
-                    <Card className="border-none shadow-sm overflow-hidden min-h-[500px]">
+                    <Card className="border-none shadow-sm overflow-hidden min-h-[500px] bg-content1 dark:bg-[#0D0D0D] dark:border dark:border-white/5">
                         <CardBody className="p-0">
                             <Tabs
                                 aria-label="Profile Sections"
@@ -405,10 +405,10 @@ export default function ProfilePage() {
                                 size="sm"
                                 classNames={{
                                     base: "w-full p-4 pb-0",
-                                    tabList: "bg-default-100/80 backdrop-blur-md p-1 border border-default-200/50 gap-1",
-                                    cursor: "bg-white shadow-sm border border-default-100",
+                                    tabList: "bg-default-100/80 dark:bg-white/5 backdrop-blur-md p-1 border border-default-200/50 dark:border-white/10 gap-1",
+                                    cursor: "bg-white dark:bg-primary shadow-sm border border-default-100 dark:border-white/10",
                                     tab: "h-8 px-6",
-                                    tabContent: "group-data-[selected=true]:text-primary text-default-500 font-bold"
+                                    tabContent: "group-data-[selected=true]:text-primary dark:group-data-[selected=true]:text-white text-default-500 font-bold"
                                 }}
                             >
                                 <Tab
@@ -450,7 +450,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <Input
                                                     label="Last Name"
@@ -461,7 +461,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <Input
                                                     label="Display Name"
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <div className="space-y-2">
                                                     <DatePicker
@@ -494,7 +494,7 @@ export default function ProfilePage() {
                                                     onChange={(e) => handleSelectChange("gender", e.target.value)}
                                                     variant="flat"
                                                     radius="sm"
-                                                    classNames={{ trigger: "bg-default-100" }}
+                                                    classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
                                                 >
                                                     <SelectItem key="Male">Male</SelectItem>
                                                     <SelectItem key="Female">Female</SelectItem>
@@ -508,7 +508,7 @@ export default function ProfilePage() {
                                                     onChange={(e) => handleSelectChange("marital_status", e.target.value)}
                                                     variant="flat"
                                                     radius="sm"
-                                                    classNames={{ trigger: "bg-default-100" }}
+                                                    classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
                                                 >
                                                     <SelectItem key="Single">Single</SelectItem>
                                                     <SelectItem key="Divorced">Divorced</SelectItem>
@@ -523,7 +523,7 @@ export default function ProfilePage() {
                                                     labelPlacement="outside"
                                                     radius="sm"
                                                     className="md:col-span-2"
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                             </div>
 
@@ -546,7 +546,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         radius="sm"
                                                         startContent={<UserIcon size={16} className="text-default-400" />}
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="Contact Number"
@@ -558,7 +558,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         radius="sm"
                                                         startContent={<Phone size={16} className="text-default-400" />}
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                 </div>
                                             <div className="flex justify-end pt-4">
@@ -619,7 +619,7 @@ export default function ProfilePage() {
                                             {existingDocuments.map((doc, index) => (
                                                 <div
                                                     key={index}
-                                                    className="flex items-center justify-between p-4 rounded-2xl border border-default-200 bg-default-50/30 hover:border-primary/30 hover:bg-white transition-all cursor-pointer group shadow-sm"
+                                                    className="flex items-center justify-between p-4 rounded-2xl border border-default-200 dark:border-white/10 bg-default-50/30 dark:bg-white/5 hover:border-primary/30 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer group shadow-sm"
                                                     onClick={() => setPreviewData({
                                                         url: doc.document_proof,
                                                         type: doc.file_type || 'application/pdf',
@@ -627,7 +627,7 @@ export default function ProfilePage() {
                                                     })}
                                                 >
                                                     <div className="flex items-center gap-4 min-w-0">
-                                                        <div className="p-3 bg-white dark:bg-black rounded-xl shadow-sm border border-default-100 group-hover:text-primary transition-colors">
+                                                        <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-xl shadow-sm border border-default-100 dark:border-white/10 group-hover:text-primary transition-colors">
                                                             <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} size={20} />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
@@ -707,7 +707,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="Bank Name"
@@ -718,7 +718,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="Account Number"
@@ -729,7 +729,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="IFSC Code"
@@ -740,7 +740,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                 </div>
 
@@ -762,7 +762,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="PF Account Number"
@@ -773,7 +773,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                     <Input
                                                         label="ESIC Number"
@@ -784,7 +784,7 @@ export default function ProfilePage() {
                                                         variant="flat"
                                                         labelPlacement="outside"
                                                         radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                     />
                                                 </div>
 
@@ -852,7 +852,7 @@ export default function ProfilePage() {
                                                         )}
                                                     </button>
                                                 }
-                                                classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                             />
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <Input
@@ -875,7 +875,7 @@ export default function ProfilePage() {
                                                             )}
                                                         </button>
                                                     }
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <Input
                                                     type={isVisible.confirm ? "text" : "password"}
@@ -899,7 +899,7 @@ export default function ProfilePage() {
                                                             )}
                                                         </button>
                                                     }
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                             </div>
                                             <div className="flex justify-end pt-4">
