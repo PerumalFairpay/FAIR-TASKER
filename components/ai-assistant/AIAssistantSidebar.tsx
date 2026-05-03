@@ -22,6 +22,7 @@ import clsx from "clsx";
 export default function AIAssistantSidebar() {
     const [isOpen, setIsOpen] = useState(false);
     const [inputValue, setInputValue] = useState("");
+    const isDraggingRef = useRef(false);
 
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,17 +63,39 @@ export default function AIAssistantSidebar() {
     return (
         <>
             {/* Minimalist Transparent Trigger */}
-            <div className="fixed bottom-8 right-8 z-50 pointer-events-none">
-                <div className="pointer-events-auto relative group">
+            <motion.div
+                drag
+                dragMomentum={false}
+                onDragStart={() => (isDraggingRef.current = true)}
+                onDragEnd={() => {
+                    // Short timeout to ensure the subsequent click event is blocked
+                    setTimeout(() => {
+                        isDraggingRef.current = false;
+                    }, 100);
+                }}
+                dragConstraints={{
+                    left: -(typeof window !== 'undefined' ? window.innerWidth - 80 : 0),
+                    right: 0,
+                    top: -(typeof window !== 'undefined' ? window.innerHeight - 80 : 0),
+                    bottom: 0,
+                }}
+                whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+                className="fixed bottom-8 right-8 z-50"
+            >
+                <div className="relative group">
                     <button
-                        onClick={() => setIsOpen(true)}
-                        className="relative flex items-center justify-center h-12 w-12 bg-default-900 dark:bg-zinc-100 text-white dark:text-black rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.05)] border border-default-800 dark:border-white/20 transition-all hover:scale-110 active:scale-95 hover:bg-default-800 dark:hover:bg-white group"
+                        onClick={() => {
+                            if (!isDraggingRef.current) {
+                                setIsOpen(true);
+                            }
+                        }}
+                        className="relative flex items-center justify-center h-12 w-12 bg-default-900 dark:bg-zinc-100 text-white dark:text-black rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(255,255,255,0.05)] border border-default-800 dark:border-white/20 transition-all active:scale-95 hover:bg-default-800 dark:hover:bg-white group"
                     >
                         <Webhook size={22} className="transition-transform group-hover:rotate-12" />
                         <div className="absolute -inset-0.5 bg-gradient-to-tr from-primary-500 to-secondary-500 rounded-full blur opacity-0 group-hover:opacity-20 transition-opacity" />
                     </button>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Sidebar Drawer */}
             <Drawer
