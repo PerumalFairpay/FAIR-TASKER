@@ -80,9 +80,11 @@ export const NavbarJoyride = () => {
       steps={steps}
       options={{
         zIndex: 10000,
-        primaryColor: '#000000',
-        backgroundColor: resolvedTheme === 'dark' ? '#18181b' : '#ffffff',
+        primaryColor: resolvedTheme === 'dark' ? '#ffffff' : '#000000',
+        backgroundColor: resolvedTheme === 'dark' ? '#1c1c1e' : '#ffffff',
         textColor: resolvedTheme === 'dark' ? '#f4f4f5' : '#18181b',
+        arrowColor: resolvedTheme === 'dark' ? '#1c1c1e' : '#ffffff',
+        overlayColor: resolvedTheme === 'dark' ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.5)',
         showProgress: true,
         buttons: ['back', 'primary', 'skip'],
       }}
