@@ -20,7 +20,7 @@ import {
     FileText, Shield, Mail, Phone,
     Briefcase, CheckCircle2,
     BadgeCheck, ExternalLink, Eye, EyeOff, KeyRound, RefreshCw,
-    MapPin, Calendar, CheckCircle, X
+    MapPin, Calendar, CheckCircle, X, CreditCard, Landmark
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { motion } from "framer-motion";
@@ -47,7 +47,14 @@ export default function ProfilePage() {
         marital_status: "",
         department: "",
         designation: "",
-        address: ""
+        address: "",
+        account_name: "",
+        bank_name: "",
+        account_number: "",
+        ifsc_code: "",
+        pf_account_number: "",
+        esic_number: "",
+        pan_number: ""
     });
 
     const [profilePic, setProfilePic] = useState<File | null>(null);
@@ -91,7 +98,14 @@ export default function ProfilePage() {
                 marital_status: profile.marital_status || "",
                 department: profile.department || "",
                 designation: profile.designation || user?.role || "",
-                address: profile.address || ""
+                address: profile.address || "",
+                account_name: profile.account_name || "",
+                bank_name: profile.bank_name || "",
+                account_number: profile.account_number || "",
+                ifsc_code: profile.ifsc_code || "",
+                pf_account_number: profile.pf_account_number || "",
+                esic_number: profile.esic_number || "",
+                pan_number: profile.pan_number || ""
             });
             setProfilePicPreview(profile.profile_picture || null);
             if (profile.documents && profile.documents.length > 0) {
@@ -724,6 +738,124 @@ export default function ProfilePage() {
                                                 </div>
                                             )}
                                         </div>
+                                    </div>
+                                </Tab>
+
+                                <Tab
+                                    key="bank"
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <Landmark size={18} />
+                                            <span>Bank Details</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-center mb-6">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-foreground">Financial & Statutory</h3>
+                                                <p className="text-small text-default-500 mt-1">Manage your bank account and tax identification details.</p>
+                                            </div>
+                                        </div>
+
+                                        <form onSubmit={handleProfileSubmit} className="space-y-8">
+                                            <div>
+                                                <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
+                                                    <Landmark size={18} className="text-primary" />
+                                                    Bank Account Information
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                                    <Input
+                                                        label="Account Holder Name"
+                                                        placeholder="Enter account holder name"
+                                                        name="account_name"
+                                                        value={formData.account_name}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                    <Input
+                                                        label="Bank Name"
+                                                        placeholder="Enter bank name"
+                                                        name="bank_name"
+                                                        value={formData.bank_name}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                    <Input
+                                                        label="Account Number"
+                                                        placeholder="Enter account number"
+                                                        name="account_number"
+                                                        value={formData.account_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                    <Input
+                                                        label="IFSC Code"
+                                                        placeholder="Enter IFSC code"
+                                                        name="ifsc_code"
+                                                        value={formData.ifsc_code}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <Divider className="opacity-50" />
+
+                                            <div>
+                                                <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
+                                                    <CreditCard size={18} className="text-secondary" />
+                                                    Statutory Details (Tax/ID)
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                                                    <Input
+                                                        label="PAN Number"
+                                                        placeholder="Enter PAN number"
+                                                        name="pan_number"
+                                                        value={formData.pan_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                    <Input
+                                                        label="PF Account Number"
+                                                        placeholder="Enter PF number"
+                                                        name="pf_account_number"
+                                                        value={formData.pf_account_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                    <Input
+                                                        label="ESIC Number"
+                                                        placeholder="Enter ESIC number"
+                                                        name="esic_number"
+                                                        value={formData.esic_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </Tab>
                             </Tabs>
