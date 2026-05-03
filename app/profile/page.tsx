@@ -222,20 +222,7 @@ export default function ProfilePage() {
         <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <PageHeader title="My Profile" description="Manage your personal information and security settings." />
-                {isLoadingInitial ? (
-                    <Skeleton className="h-10 w-32 rounded-lg" />
-                ) : (
-                    <Button
-                        color="primary"
-                        variant="solid"
-                        onPress={() => handleProfileSubmit()}
-                        isLoading={profileLoading}
-                        startContent={!profileLoading && <CheckCircle size={18} />}
-                        className="font-bold shadow-lg shadow-primary/30"
-                    >
-                        Save All Changes
-                    </Button>
-                )}
+
             </div>
 
             <motion.div
@@ -499,10 +486,7 @@ export default function ProfilePage() {
                                             </div>
 
                                             <div>
-                                                <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
-                                                    <Shield size={18} className="text-primary" />
-                                                    Emergency Contact
-                                                </h4>
+
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                                     <Input
                                                         label="Contact Name"
@@ -530,6 +514,19 @@ export default function ProfilePage() {
                                                     />
                                                 </div>
                                             </div>
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <CheckCircle size={18} />}
+                                                >
+                                                    Save Changes
+                                                </Button>
+                                            </div>
                                         </form>
                                     </div>
                                 </Tab>
@@ -544,10 +541,9 @@ export default function ProfilePage() {
                                     }
                                 >
                                     <div className="p-6 space-y-6">
-                                        <div>
+                                        <div className="mb-10">
                                             <h3 className="text-xl font-bold text-foreground">Change Password</h3>
-                                            <p className="text-small text-default-500 mt-1">Ensure your account stays secure with a strong password.</p>
-                                        </div>
+                                         </div>
 
                                         {(passwordSuccess || passwordError) && (
                                             <Alert
@@ -738,6 +734,21 @@ export default function ProfilePage() {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {(documentProof || profilePic) && (
+                                            <div className="flex justify-end mt-8 pt-4 border-t border-default-100">
+                                                <Button
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <Upload size={18} />}
+                                                >
+                                                    Upload & Save
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </Tab>
 
@@ -751,12 +762,7 @@ export default function ProfilePage() {
                                     }
                                 >
                                     <div className="p-6">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-foreground">Financial & Statutory</h3>
-                                                <p className="text-small text-default-500 mt-1">Manage your bank account and tax identification details.</p>
-                                            </div>
-                                        </div>
+                                         
 
                                         <form onSubmit={handleProfileSubmit} className="space-y-8">
                                             <div>
@@ -854,6 +860,19 @@ export default function ProfilePage() {
                                                         classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
+                                            </div>
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <CheckCircle size={18} />}
+                                                >
+                                                    Save Bank Details
+                                                </Button>
                                             </div>
                                         </form>
                                     </div>
