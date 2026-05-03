@@ -27,6 +27,7 @@ import { motion } from "framer-motion";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 import { Chip } from "@heroui/chip";
+import FileUpload from "@/components/common/FileUpload";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
@@ -59,7 +60,11 @@ export default function ProfilePage() {
 
     const [profilePic, setProfilePic] = useState<File | null>(null);
     const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
-    const [documentProof, setDocumentProof] = useState<File | null>(null); // For new uploads
+    const [documentProof, setDocumentProof] = useState<File | null>(null);
+    
+    // FilePond states
+    const [documentFiles, setDocumentFiles] = useState<any[]>([]);
+    const [profileFiles, setProfileFiles] = useState<any[]>([]); // For new uploads
     const [existingDocuments, setExistingDocuments] = useState<any[]>([]); // For legacy and new API list
     const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
@@ -78,6 +83,28 @@ export default function ProfilePage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const docInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync FilePond files with state
+    useEffect(() => {
+        if (documentFiles.length > 0) {
+            setDocumentProof(documentFiles[0].file);
+        } else {
+            setDocumentProof(null);
+        }
+    }, [documentFiles]);
+
+    useEffect(() => {
+        if (profileFiles.length > 0) {
+            setProfilePic(profileFiles[0].file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePicPreview(reader.result as string);
+            };
+            reader.readAsDataURL(profileFiles[0].file);
+        } else {
+            setProfilePic(null);
+        }
+    }, [profileFiles]);
 
     useEffect(() => {
         dispatch(getProfile());
@@ -382,12 +409,7 @@ export default function ProfilePage() {
                                     }
                                 >
                                     <div className="p-6">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-foreground">Edit Profile</h3>
-                                                <p className="text-small text-default-500 mt-1">Update your personal details below.</p>
-                                            </div>
-                                        </div>
+
                                         
                                         {(profileSuccess || profileError) && (
                                             <Alert
@@ -400,7 +422,13 @@ export default function ProfilePage() {
                                         )}
 
                                         <form onSubmit={handleProfileSubmit} className="space-y-8">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <UserIcon size={18} className="text-primary" />
+                                                    Personal Information
+                                                </h4>
+                                            </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                                 <Input
                                                     label="First Name"
                                                     placeholder="Enter first name"
@@ -460,17 +488,19 @@ export default function ProfilePage() {
                                                     <SelectItem key="Female">Female</SelectItem>
                                                     <SelectItem key="Other">Other</SelectItem>
                                                 </Select>
-                                                <Input
+                                                <Select
                                                     label="Marital Status"
-                                                    placeholder="Enter marital status"
-                                                    name="marital_status"
-                                                    value={formData.marital_status}
-                                                    onChange={handleInputChange}
-                                                    variant="flat"
+                                                    placeholder="Select marital status"
                                                     labelPlacement="outside"
+                                                    selectedKeys={formData.marital_status ? [formData.marital_status] : []}
+                                                    onChange={(e) => handleSelectChange("marital_status", e.target.value)}
+                                                    variant="flat"
                                                     radius="sm"
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                />
+                                                    classNames={{ trigger: "bg-default-100" }}
+                                                >
+                                                    <SelectItem key="Single">Single</SelectItem>
+                                                    <SelectItem key="Divorced">Divorced</SelectItem>
+                                                </Select>
                                                 <Input
                                                     label="Address"
                                                     placeholder="Enter your address"
@@ -485,8 +515,14 @@ export default function ProfilePage() {
                                                 />
                                             </div>
 
-                                            <div>
+                                            <Divider className="opacity-50" />
 
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <Phone size={18} className="text-secondary" />
+                                                    Emergency Contact Information
+                                                </h4>
+                                            </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                                     <Input
                                                         label="Contact Name"
@@ -513,7 +549,6 @@ export default function ProfilePage() {
                                                         classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
-                                            </div>
                                             <div className="flex justify-end pt-4">
                                                 <Button
                                                     type="submit"
@@ -543,28 +578,30 @@ export default function ProfilePage() {
                                     }
                                 >
                                     <div className="p-6">
-                                        <div className="flex justify-between items-center mb-6">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-foreground">My Documents</h3>
-                                                <p className="text-small text-default-500 mt-1">View and upload your documents.</p>
-                                            </div>
-                                            <Button
-                                                size="sm"
+                                        {(profileSuccess || profileError) && (
+                                            <Alert
+                                                color={profileError ? "danger" : "success"}
+                                                title={profileError ? "Error" : "Documents Updated"}
+                                                description={profileError || profileSuccess}
+                                                className="mb-6"
                                                 variant="flat"
-                                                color="primary"
-                                                startContent={<Upload size={14} />}
-                                                onPress={() => docInputRef.current?.click()}
-                                                className="font-bold"
-                                            >
-                                                Upload New
-                                            </Button>
-                                            <input
-                                                type="file"
-                                                ref={docInputRef}
-                                                hidden
-                                                onChange={(e) => handleFileChange(e, "document")}
                                             />
+                                        )}
+                                        <div className="mb-10">
+                                            <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                <FileText size={18} className="text-primary" />
+                                                My Documents
+                                            </h4>
                                         </div>
+
+                                            <FileUpload
+                                                files={documentFiles}
+                                                setFiles={setDocumentFiles}
+                                                allowMultiple={false}
+                                                acceptedFileTypes={['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+                                                labelIdle='Drag & Drop document or <span class="filepond--label-action">Browse</span>'
+                                                className="mb-6"
+                                            />
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {existingDocuments.map((doc, index) => (
@@ -596,31 +633,7 @@ export default function ProfilePage() {
                                                 </div>
                                             ))}
                                             
-                                            {documentProof && (
-                                                <div className="flex items-center justify-between p-4 rounded-2xl border-2 border-dashed border-primary bg-primary-50/30">
-                                                    <div className="flex items-center gap-4 min-w-0">
-                                                        <div className="p-3 bg-white rounded-xl shadow-sm text-primary">
-                                                            <Upload size={20} />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-bold truncate text-primary">{documentProof.name}</p>
-                                                            <p className="text-tiny text-primary font-black uppercase">Ready to upload</p>
-                                                        </div>
-                                                    </div>
-                                                    <Button
-                                                        size="sm"
-                                                        isIconOnly
-                                                        variant="light"
-                                                        color="danger"
-                                                        onPress={() => setDocumentProof(null)}
-                                                        className="rounded-full"
-                                                    >
-                                                        <X size={20} />
-                                                    </Button>
-                                                </div>
-                                            )}
-
-                                            {existingDocuments.length === 0 && !documentProof && (
+                                            {existingDocuments.length === 0 && documentFiles.length === 0 && (
                                                 <div className="md:col-span-2 flex flex-col items-center justify-center py-12 text-default-400">
                                                     <FileText size={48} className="mb-4 opacity-20" />
                                                     <p className="text-sm font-bold uppercase tracking-widest">No documents found</p>
@@ -628,7 +641,7 @@ export default function ProfilePage() {
                                             )}
                                         </div>
 
-                                        {(documentProof || profilePic) && (
+                                        {documentFiles.length > 0 && (
                                             <div className="flex justify-end mt-8 pt-4 border-t border-default-100">
                                                 <Button
                                                     color="primary"
@@ -655,14 +668,23 @@ export default function ProfilePage() {
                                     }
                                 >
                                     <div className="p-6">
-                                         
+                                        {(profileSuccess || profileError) && (
+                                            <Alert
+                                                color={profileError ? "danger" : "success"}
+                                                title={profileError ? "Error" : "Bank Details Updated"}
+                                                description={profileError || profileSuccess}
+                                                className="mb-6"
+                                                variant="flat"
+                                            />
+                                        )}
 
                                         <form onSubmit={handleProfileSubmit} className="space-y-8">
-                                            <div>
-                                                <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
                                                     <Landmark size={18} className="text-primary" />
                                                     Bank Account Information
                                                 </h4>
+                                            </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                                     <Input
                                                         label="Account Holder Name"
@@ -709,15 +731,15 @@ export default function ProfilePage() {
                                                         classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
-                                            </div>
 
                                             <Divider className="opacity-50" />
 
-                                            <div>
-                                                <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
                                                     <CreditCard size={18} className="text-secondary" />
                                                     Statutory Details (Tax/ID)
                                                 </h4>
+                                            </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
                                                     <Input
                                                         label="PAN Number"
@@ -753,7 +775,7 @@ export default function ProfilePage() {
                                                         classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
                                                     />
                                                 </div>
-                                            </div>
+
                                             <div className="flex justify-end pt-4">
                                                 <Button
                                                     type="submit"
@@ -782,8 +804,11 @@ export default function ProfilePage() {
                                 >
                                     <div className="p-6 space-y-6">
                                         <div className="mb-10">
-                                            <h3 className="text-xl font-bold text-foreground">Change Password</h3>
-                                         </div>
+                                            <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                <Lock size={18} className="text-primary" />
+                                                Change Password
+                                            </h4>
+                                        </div>
 
                                         {(passwordSuccess || passwordError) && (
                                             <Alert
