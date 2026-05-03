@@ -322,7 +322,7 @@ export function AdminDashboardSkeleton() {
 
 export default function DashboardSkeleton({ type }: { type?: "admin" | "employee" }) {
     return (
-        <div className="min-h-screen">
+        <div className="">
             {type === "admin" ? <AdminDashboardSkeleton /> : <EmployeeDashboardSkeleton />}
         </div>
     );
