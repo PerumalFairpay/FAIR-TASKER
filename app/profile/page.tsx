@@ -275,7 +275,7 @@ export default function ProfilePage() {
                 {/* Left Column: Profile Card & Quick Info */}
                 <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6 self-start">
                     {/* Profile Card - Premium Style */}
-                    <Card className="shadow-none border-none w-full h-[320px] relative overflow-hidden rounded-[32px] group">
+                    <Card className="shadow-none border-none w-full h-[320px] relative overflow-hidden rounded-2xl group">
                         {/* Background Image or Placeholder */}
                         {profilePicPreview || profile?.profile_picture || user?.profile_picture ? (
                             <img
