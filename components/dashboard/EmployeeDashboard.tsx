@@ -586,25 +586,26 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                         />
                                     </div>
 
-                                    {/* Leave, Holiday, Half Day & Permission Grid */}
-                                    <div className="grid grid-cols-2 gap-2 mt-1">
-                                        <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
-                                            <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{displayMetrics.leave_days}</span>
-                                            <span className="text-[9px] text-amber-600/70 uppercase">Leaves</span>
-                                        </div>
-                                        <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
-                                            <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{displayMetrics.holiday_days}</span>
-                                            <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
-                                        </div>
-                                        <div className="px-2 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
-                                            <span className="block text-xs font-bold text-teal-700 dark:text-teal-400">{(displayMetrics as any).half_day_days ?? 0}</span>
-                                            <span className="text-[9px] text-teal-600/70 uppercase">Half Day</span>
-                                        </div>
-                                        <div className="px-2 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
-                                            <span className="block text-xs font-bold text-indigo-700 dark:text-indigo-400">{(displayMetrics as any).permission_days ?? 0}</span>
-                                            <span className="text-[9px] text-indigo-600/70 uppercase">Permission</span>
-                                        </div>
-                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Leave, Holiday, Half Day & Permission Grid - Moved to new row */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                                <div className="px-2 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 border border-amber-100/50 dark:border-amber-500/20 text-center">
+                                    <span className="block text-xs font-bold text-amber-700 dark:text-amber-400">{displayMetrics.leave_days}</span>
+                                    <span className="text-[9px] text-amber-600/70 uppercase">Leaves</span>
+                                </div>
+                                <div className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 border border-purple-100/50 dark:border-purple-500/20 text-center">
+                                    <span className="block text-xs font-bold text-purple-700 dark:text-purple-400">{displayMetrics.holiday_days}</span>
+                                    <span className="text-[9px] text-purple-600/70 uppercase">Holidays</span>
+                                </div>
+                                <div className="px-2 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/10 border border-teal-100/50 dark:border-teal-500/20 text-center">
+                                    <span className="block text-xs font-bold text-teal-700 dark:text-teal-400">{(displayMetrics as any).half_day_days ?? 0}</span>
+                                    <span className="text-[9px] text-teal-600/70 uppercase">Half Day</span>
+                                </div>
+                                <div className="px-2 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100/50 dark:border-indigo-500/20 text-center">
+                                    <span className="block text-xs font-bold text-indigo-700 dark:text-indigo-400">{(displayMetrics as any).permission_days ?? 0}</span>
+                                    <span className="text-[9px] text-indigo-600/70 uppercase">Permission</span>
                                 </div>
                             </div>
                         </CardBody>
