@@ -447,7 +447,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                             indicator: "stroke-slate-800 dark:stroke-white",
                                             track: "stroke-slate-100 dark:stroke-white/10",
                                         }}
-                                        strokeWidth={4}
+                                        strokeWidth={2.5}
                                     />
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <span className="text-lg font-bold text-slate-800 dark:text-white leading-none">
@@ -485,8 +485,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         </CardBody>
                     </Card>
 
-                    {/* Birthdays */}
-                    {(data.birthdays || []).length > 0 && (
+                     
                         <Card className="shadow-sm border-none bg-pink-50/50 dark:bg-pink-500/10">
                             <CardHeader className="px-5 pt-5 pb-0 flex gap-2 items-center">
                                 <div className="p-1.5 bg-pink-100 dark:bg-pink-500/20 rounded-lg text-pink-500">
@@ -495,19 +494,25 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 <h3 className="font-bold text-pink-900 dark:text-pink-300 text-sm">Today's Birthdays</h3>
                             </CardHeader>
                             <CardBody className="px-5 py-4">
-                                {(data.birthdays || []).map((b, i) => (
-                                    <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
-                                        <User
-                                            name={b.name}
-                                            description={<span className="text-pink-600 dark:text-pink-400 text-xs font-medium">{b.date}</span>}
-                                            avatarProps={{ src: b.profile_picture, size: "sm" }}
-                                            classNames={{ name: "text-sm font-semibold text-slate-700 dark:text-slate-200" }}
-                                        />
+                                {(data.birthdays || []).length > 0 ? (
+                                    (data.birthdays || []).map((b, i) => (
+                                        <div key={i} className="flex items-center gap-3 mb-3 last:mb-0">
+                                            <User
+                                                name={b.name}
+                                                description={<span className="text-pink-600 dark:text-pink-400 text-xs font-medium">{b.date}</span>}
+                                                avatarProps={{ src: b.profile_picture, size: "sm" }}
+                                                classNames={{ name: "text-sm font-semibold text-slate-700 dark:text-slate-200" }}
+                                            />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-2 text-center">
+                                        <p className="text-xs text-pink-700/60 dark:text-pink-300/40 italic font-medium">No birthdays today</p>
                                     </div>
-                                ))}
+                                )}
                             </CardBody>
                         </Card>
-                    )}
+            
                 </div>
 
 
