@@ -44,6 +44,7 @@ interface DashboardData {
         profile_picture: string;
         employee_id: string;
         joining_date: string;
+        status?: string;
     };
     work_hours: {
         today: number;
@@ -416,11 +417,25 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"></div>
 
-                        {/* Content */}
-                        <div className="absolute bottom-0 left-0 right-0 px-8 pb-4 flex justify-between items-end z-10">
-                            <div className="flex flex-col gap-1">
+                        {/* Status Chip - Top Left */}
+                        <div className="absolute top-4 left-4 z-20">
+                            <Chip
+                                className="capitalize font-bold text-[10px] h-5"
+                                color={data.profile.status === "Active" ? "success" : "warning"}
+                                variant="solid"
+                                size="sm"
+                            >
+                                {data.profile.status || "Active"}
+                            </Chip>
+                        </div>
 
-                                <p className="text-white/90 text-sm font-light tracking-wide">{data.profile.designation}</p>
+                        {/* Content */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                            <div className="flex flex-col gap-1">
+                                <h2 className="text-2xl font-bold text-white tracking-tight leading-none">{data.profile.name}</h2>
+                                <p className="text-white/80 text-sm font-medium tracking-wide mt-1">
+                                    {data.profile.designation}
+                                </p>
                             </div>
                         </div>
                     </Card>

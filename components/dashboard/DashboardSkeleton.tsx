@@ -41,8 +41,15 @@ export function EmployeeDashboardSkeleton() {
                 {/* Column 1: Profile & Work Hours (Left) */}
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
                     {/* Profile Card */}
-                    <Card className="shadow-none border-none bg-default-100 dark:bg-zinc-900/50 w-full h-[260px] rounded-2xl overflow-hidden">
+                    <Card className="shadow-none border-none bg-default-100 dark:bg-zinc-900/50 w-full h-[260px] rounded-2xl overflow-hidden relative">
                         <Skeleton className="w-full h-full" />
+                        <div className="absolute top-4 left-4 z-20">
+                            <Skeleton className="w-16 h-5 rounded-full" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6 space-y-3">
+                            <Skeleton className="w-32 h-6 rounded-lg" />
+                            <Skeleton className="w-24 h-4 rounded-lg" />
+                        </div>
                     </Card>
 
                     {/* Work Hours Card */}
