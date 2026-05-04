@@ -508,11 +508,13 @@ export default function GenerateNDADrawer({
                                     />
                                     <Input
                                         label="Mobile"
+                                        type="number"
                                         placeholder="Enter employee mobile number"
                                         labelPlacement="outside"
                                         variant="bordered"
                                         value={formData.mobile}
                                         onChange={(e) => handleChange("mobile", e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         isInvalid={!!errors.mobile}
                                         errorMessage={errors.mobile}
                                     />

@@ -70,4 +70,14 @@
   .dark .bg-dot-grid-interactive::before {
     background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0.75px, transparent 0.75px);
   }
+
+  /* Hide number input arrows */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 }
