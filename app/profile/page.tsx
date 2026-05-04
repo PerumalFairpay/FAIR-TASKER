@@ -34,6 +34,7 @@ export default function ProfilePage() {
     const dispatch = useDispatch();
     const { profile, loading, profileLoading, passwordLoading, profileSuccess, profileError, passwordSuccess, passwordError } = useSelector((state: AppState) => state.Profile);
     const { user } = useSelector((state: AppState) => state.Auth);
+    const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
     // State for Profile Form
     const [formData, setFormData] = useState({
@@ -458,6 +459,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <Input
@@ -469,6 +471,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <Input
@@ -480,6 +483,7 @@ export default function ProfilePage() {
                                                     variant="flat"
                                                     labelPlacement="outside"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                                 <div className="space-y-2">
@@ -492,6 +496,7 @@ export default function ProfilePage() {
                                                         radius="sm"
                                                         showMonthAndYearPickers
                                                         className="w-full"
+                                                        isRequired={!isAdmin}
                                                     />
                                                 </div>
                                                 <Select
@@ -502,6 +507,7 @@ export default function ProfilePage() {
                                                     onChange={(e) => handleSelectChange("gender", e.target.value)}
                                                     variant="flat"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
                                                 >
                                                     <SelectItem key="Male">Male</SelectItem>
@@ -516,6 +522,7 @@ export default function ProfilePage() {
                                                     onChange={(e) => handleSelectChange("marital_status", e.target.value)}
                                                     variant="flat"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
                                                 >
                                                     <SelectItem key="Single">Single</SelectItem>
@@ -531,6 +538,7 @@ export default function ProfilePage() {
                                                     labelPlacement="outside"
                                                     radius="sm"
                                                     className="md:col-span-2"
+                                                    isRequired={!isAdmin}
                                                     classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
                                             </div>
