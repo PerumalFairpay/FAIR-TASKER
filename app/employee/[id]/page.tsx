@@ -83,7 +83,7 @@ export default function EmployeeSummaryPage() {
                         {/* Left Column: Profile Card & Quick Info */}
                         <div className="lg:col-span-1 space-y-6">
                             {/* Profile Card - Dashboard Style */}
-                            <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[32px] group">
+                            <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-2xl group">
                                 {/* Background Image or Placeholder */}
                                 {employee?.profile_picture ? (
                                     <img
