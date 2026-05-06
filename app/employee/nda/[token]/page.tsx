@@ -12,7 +12,7 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw, XCircle } from "lucide-react";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Checkbox } from "@heroui/checkbox";
@@ -270,6 +270,27 @@ export default function NDATokenPage() {
 
         if (nda?.required_documents) {
             setRequiredDocuments(nda.required_documents);
+        }
+
+        if (nda?.documents && nda.documents.length > 0) {
+            // Map existing documents to uploadedFiles format
+            // Ensure required documents come first to maintain isRequired logic in the UI
+            const requiredSet = new Set(nda.required_documents || []);
+            const required = nda.documents.filter((d: any) => requiredSet.has(d.document_name));
+            const others = nda.documents.filter((d: any) => !requiredSet.has(d.document_name));
+            
+            // If some required docs are NOT in nda.documents yet, they still need to be in the list
+            const uploadedNames = new Set(nda.documents.map((d: any) => d.document_name));
+            const missingRequired = (nda.required_documents || [])
+                .filter((name: string) => !uploadedNames.has(name))
+                .map((name: string) => ({ name, file: null }));
+
+            setUploadedFiles([
+                ...required.map((d: any) => ({ name: d.document_name, file: null })),
+                ...missingRequired,
+                ...others.map((d: any) => ({ name: d.document_name, file: null }))
+            ]);
+        } else if (nda?.required_documents) {
             setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
         }
 
@@ -384,12 +405,22 @@ export default function NDATokenPage() {
     };
 
     const handleUpload = () => {
-        const missingDocs = uploadedFiles.filter(f => !f.file);
+        const missingFiles = uploadedFiles.filter(f => !f.file && !ndaData?.documents?.find((d: any) => d.document_name === f.name));
+        const missingNames = uploadedFiles.filter(f => !f.name.trim());
 
-        if (missingDocs.length > 0) {
+        if (missingNames.length > 0 || missingFiles.length > 0) {
+            setShowErrors(true);
+            
+            let errorMsg = "";
+            if (missingNames.length > 0) {
+                errorMsg = "Please provide names for all documents.";
+            } else if (missingFiles.length > 0) {
+                errorMsg = `Please upload: ${missingFiles.map(d => d.name || "Unnamed Document").join(", ")}`;
+            }
+
             addToast({
-                title: "Missing Documents",
-                description: `Please upload: ${missingDocs.map(d => d.name).join(", ")}`,
+                title: "Incomplete Upload",
+                description: errorMsg,
                 color: "warning",
                 timeout: 3000,
                 shouldShowTimeoutProgress: true,
@@ -585,12 +616,39 @@ export default function NDATokenPage() {
 
     if (!isMounted) return null;
 
-    if (getByTokenError && getByTokenError.includes("expired")) {
+    if (getByTokenError && getByTokenError.toLowerCase().includes("expired")) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <AlertTriangle size={48} className="text-danger mb-4" />
                 <h1 className="text-2xl font-bold text-danger">Link Expired</h1>
                 <p className="text-gray-600 mt-2">This NDA link has expired. Please request a new one.</p>
+            </div>
+        );
+    }
+
+    if (getByTokenError && getByTokenError.toLowerCase().includes("rejected")) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                <XCircle size={64} className="text-danger mb-6 animate-pulse" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Access Denied</h1>
+                <div className="max-w-md mx-auto space-y-4">
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">
+                        This NDA request has been <span className="text-danger font-bold uppercase">Rejected</span> by the administration.
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                        Please refer to the notification email for details or contact the HR department for further clarification.
+                    </p>
+                    <div className="pt-6">
+                        <Button
+                            variant="flat"
+                            color="primary"
+                            onPress={() => window.close()}
+                            className="font-semibold"
+                        >
+                            Close Window
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -678,7 +736,7 @@ export default function NDATokenPage() {
                             setIsAuthenticated(true);
                             addToast({
                                 title: "Access Granted",
-                                description: "You can now view and sign the document.",
+                                // description: "You can now view and sign the document.",
                                 color: "success",
                                 timeout: 3000,
                                 shouldShowTimeoutProgress: true,
@@ -1053,10 +1111,12 @@ export default function NDATokenPage() {
                                     <div className="flex flex-col gap-4">
                                         {uploadedFiles.map((doc, index) => {
                                             const isRequired = index < requiredDocuments.length;
+                                            const isUploaded = !!ndaData?.documents?.find((d: any) => d.document_name === doc.name);
+
                                             return (
                                                 <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 relative group">
 
-                                                    {!isRequired && (
+                                                    {!isRequired && !isUploaded && (
                                                         <button
                                                             onClick={() => {
                                                                 const newFiles = uploadedFiles.filter((_, i) => i !== index);
@@ -1070,22 +1130,26 @@ export default function NDATokenPage() {
                                                     )}
 
                                                     <div className="w-full md:w-1/3 flex items-center gap-3">
-                                                        <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ring-2 ring-offset-2 dark:ring-offset-gray-900 ${doc.file
+                                                        <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ring-2 ring-offset-2 dark:ring-offset-gray-900 ${doc.file || isUploaded
                                                             ? "bg-green-100 text-green-700 ring-green-100 dark:bg-green-900/30 dark:text-green-400 dark:ring-green-900/30"
                                                             : "bg-primary/10 text-primary ring-primary/10"
                                                             }`}>
-                                                            {doc.file ? <CheckCircle2 size={18} /> : index + 1}
+                                                            {doc.file || isUploaded ? <CheckCircle2 size={18} /> : index + 1}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            {isRequired ? (
+                                                            {(isRequired || isUploaded) ? (
                                                                 <span className="font-semibold text-gray-800 dark:text-gray-100 text-base block truncate" title={doc.name}>
-                                                                    {doc.name} <span className="text-danger ml-0.5">*</span>
+                                                                    {doc.name} {isRequired && <span className="text-danger ml-0.5">*</span>}
                                                                 </span>
                                                             ) : (
                                                                 <input
                                                                     type="text"
                                                                     placeholder="Document Name"
-                                                                    className="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-primary focus:outline-none text-base font-semibold px-0 py-1 transition-colors"
+                                                                    className={`w-full bg-transparent border-b transition-colors focus:outline-none text-base font-semibold px-0 py-1 ${
+                                                                        showErrors && !doc.name.trim() 
+                                                                        ? "border-danger text-danger placeholder:text-danger/50" 
+                                                                        : "border-gray-300 dark:border-gray-700 focus:border-primary text-gray-800 dark:text-gray-100"
+                                                                    }`}
                                                                     value={doc.name}
                                                                     onChange={(e) => {
                                                                         const newFiles = [...uploadedFiles];

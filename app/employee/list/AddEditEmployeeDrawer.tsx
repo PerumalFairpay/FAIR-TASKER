@@ -375,8 +375,9 @@ export default function AddEditEmployeeDrawer({
                                                                     last_name: selectedNDA.last_name || prev.last_name,
                                                                     name: `${selectedNDA.first_name || ""} ${selectedNDA.last_name || ""}`.trim() || prev.name,
                                                                     mobile: selectedNDA.mobile || prev.mobile,
-                                                                    address: selectedNDA.address || prev.address,
+                                                                    address: selectedNDA.address.permanent_address || prev.address.permanent_address,
                                                                     designation: selectedNDA.designation || prev.designation,
+                                                                    department: selectedNDA.department || prev.department,
                                                                 }));
                                                             }
                                                         }
