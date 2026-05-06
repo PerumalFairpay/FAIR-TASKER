@@ -377,6 +377,7 @@ export default function AddEditEmployeeDrawer({
                                                                     mobile: selectedNDA.mobile || prev.mobile,
                                                                     address: selectedNDA.address.permanent_address || prev.address.permanent_address,
                                                                     designation: selectedNDA.designation || prev.designation,
+                                                                    department: selectedNDA.department || prev.department,
                                                                 }));
                                                             }
                                                         }
