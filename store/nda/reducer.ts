@@ -266,6 +266,7 @@ const ndaReducer = (
         regenerateLoading: true,
         regenerateError: null,
         regenerateSuccess: null,
+        generatedLink: null,
       };
     case REGENERATE_NDA_SUCCESS:
       return {
@@ -273,6 +274,7 @@ const ndaReducer = (
         regenerateLoading: false,
         regenerateSuccess:
           action.payload.message || "NDA link regenerated successfully",
+        generatedLink: action.payload.data?.link || null,
         ndaList: state.ndaList.map((item) =>
           item.id === action.payload.data?.nda?.id
             ? action.payload.data.nda

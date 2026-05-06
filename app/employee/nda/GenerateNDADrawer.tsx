@@ -225,6 +225,8 @@ export default function GenerateNDADrawer({
     useEffect(() => {
         if (generatedLink) {
             setShowLink(true);
+        } else {
+            setShowLink(false);
         }
     }, [generatedLink]);
 

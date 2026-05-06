@@ -708,7 +708,10 @@ export default function NDAPage() {
                     onOpenChange={(open) => {
                         onDrawerOpenChange();
                         if (!open) {
-                            setTimeout(() => setRegenerateData(null), 300);
+                            setTimeout(() => {
+                                setRegenerateData(null);
+                                dispatch(clearNDAState());
+                            }, 300);
                         }
                     }}
                     loading={generateLoading || regenerateLoading}

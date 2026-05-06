@@ -678,7 +678,7 @@ export default function NDATokenPage() {
                             setIsAuthenticated(true);
                             addToast({
                                 title: "Access Granted",
-                                description: "You can now view and sign the document.",
+                                // description: "You can now view and sign the document.",
                                 color: "success",
                                 timeout: 3000,
                                 shouldShowTimeoutProgress: true,
