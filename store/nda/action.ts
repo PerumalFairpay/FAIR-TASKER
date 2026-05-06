@@ -141,7 +141,30 @@ export const signNDAFailure = (error: any) => ({
 // Regenerate NDA Link
 export const regenerateNDARequest = (payload: {
   ndaId: string;
-  expires_in_hours: number;
+  expires_in_hours?: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  mobile?: string;
+  designation?: string;
+  address?: string;
+  residential_address?: string;
+  perma_door_no?: string;
+  perma_care_of_type?: string;
+  perma_care_of_name?: string;
+  perma_street?: string;
+  perma_city?: string;
+  perma_state?: string;
+  perma_pincode?: string;
+  res_door_no?: string;
+  res_care_of_type?: string;
+  res_care_of_name?: string;
+  res_street?: string;
+  res_city?: string;
+  res_state?: string;
+  res_pincode?: string;
+  required_documents?: string[];
+  nda_date?: string;
 }) => ({
   type: REGENERATE_NDA_REQUEST,
   payload,

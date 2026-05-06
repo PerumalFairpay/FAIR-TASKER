@@ -164,13 +164,9 @@ function* onSignNDA({ payload }: any): SagaIterator {
   }
 }
 
-function regenerateNDAApi(payload: {
-  ndaId: string;
-  expires_in_hours: number;
-}) {
-  return api.post(`/nda/regenerate/${payload.ndaId}`, {
-    expires_in_hours: payload.expires_in_hours,
-  });
+function regenerateNDAApi(payload: any) {
+  const { ndaId, ...data } = payload;
+  return api.post(`/nda/regenerate/${ndaId}`, data);
 }
 
 function* onRegenerateNDA({ payload }: any): SagaIterator {
