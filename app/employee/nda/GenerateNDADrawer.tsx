@@ -23,18 +23,9 @@ interface GenerateNDADrawerProps {
     onOpenChange: (open: boolean) => void;
     generatedLink: string | null;
     loading: boolean;
-    onSubmit: (data: {
-        first_name: string;
-        last_name: string;
-        email: string;
-        mobile: string;
-        designation: string;
-        address: string;
-        residential_address: string;
-        expires_in_hours: number;
-        required_documents: string[];
-        nda_date?: string;
-    }) => void;
+    initialData?: any;
+    isRegenerate?: boolean;
+    onSubmit: (data: any) => void;
 }
 
 export default function GenerateNDADrawer({
@@ -43,6 +34,8 @@ export default function GenerateNDADrawer({
     loading,
     onSubmit,
     generatedLink,
+    initialData,
+    isRegenerate,
 }: GenerateNDADrawerProps) {
     const dispatch = useDispatch();
     const { departments } = useSelector((state: RootState) => state.Department);
@@ -126,7 +119,51 @@ export default function GenerateNDADrawer({
     }, [formData.department, rootDepartments, departments]);
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && initialData) {
+            setFormData({
+                first_name: initialData.first_name || "",
+                last_name: initialData.last_name || "",
+                email: initialData.email || "",
+                mobile: initialData.mobile || "",
+                department: initialData.department || "",
+                designation: initialData.designation || "",
+                address: {
+                    door_no: initialData.address?.perma_door_no || "",
+                    care_of_type: initialData.address?.perma_care_of_type || "S/o",
+                    care_of_name: initialData.address?.perma_care_of_name || "",
+                    street: initialData.address?.perma_street || "",
+                    city: initialData.address?.perma_city || "",
+                    state: initialData.address?.perma_state || "",
+                    pincode: initialData.address?.perma_pincode || "",
+                },
+                residential_address: {
+                    door_no: initialData.residential_address?.res_door_no || "",
+                    care_of_type: initialData.residential_address?.res_care_of_type || "S/o",
+                    care_of_name: initialData.residential_address?.res_care_of_name || "",
+                    street: initialData.residential_address?.res_street || "",
+                    city: initialData.residential_address?.res_city || "",
+                    state: initialData.residential_address?.res_state || "",
+                    pincode: initialData.residential_address?.res_pincode || "",
+                },
+                expires_in_hours: 48,
+                required_documents: initialData.required_documents || [
+                    "10th Marksheet",
+                    "12th Marksheet",
+                    "Degree Certificate",
+                    "Adhar"
+                ],
+                nda_date: (() => {
+                    if (initialData.nda_date) {
+                        const parts = initialData.nda_date.split('/');
+                        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        return initialData.nda_date;
+                    }
+                    const now = new Date();
+                    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                })(),
+            });
+            dispatch(getDepartmentsRequest());
+        } else if (isOpen) {
             dispatch(getDepartmentsRequest());
         } else {
             // Reset form when drawer closes
@@ -171,7 +208,7 @@ export default function GenerateNDADrawer({
                 setIsExperience(false);
             }, 300); // Delay to avoid visual glitch during close animation
         }
-    }, [isOpen, dispatch]);
+    }, [isOpen, initialData, dispatch]);
 
     useEffect(() => {
         if (isSameAddress) {
@@ -299,6 +336,7 @@ export default function GenerateNDADrawer({
             const { department, address, residential_address, ...rest } = formData as any;
             const payload: any = {
                 ...rest,
+                ...(isRegenerate && initialData?.id && { ndaId: initialData.id }),
                 address: formatAddress(address),
                 residential_address: formatAddress(residential_address),
                 nda_date: formData.nda_date ? formData.nda_date.split('-').reverse().join('/') : undefined,
@@ -415,7 +453,7 @@ export default function GenerateNDADrawer({
                 {(onClose) => (
                     <>
                         <DrawerHeader className="flex flex-col gap-1">
-                            {showLink ? "NDA Link Generated" : "Generate NDA Link"}
+                            {showLink ? "NDA Link Generated" : isRegenerate ? "Edit & Regenerate NDA" : "Generate NDA Link"}
                         </DrawerHeader>
                         <DrawerBody className="py-6">
                             {showLink ? (
@@ -883,7 +921,7 @@ export default function GenerateNDADrawer({
                                         isLoading={loading}
                                         fullWidth
                                     >
-                                        Generate Link
+                                        {isRegenerate ? "Regenerate Link" : "Generate Link"}
                                     </Button>
                                 </>
                             )}

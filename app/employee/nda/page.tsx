@@ -60,8 +60,7 @@ export default function NDAPage() {
     const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
     // Regeneration State
-    const [regenerateId, setRegenerateId] = useState<string | null>(null);
-    const [regenerateExpiry, setRegenerateExpiry] = useState<number>(1);
+    const [regenerateData, setRegenerateData] = useState<any | null>(null);
     const { isOpen: isRegenerateOpen, onOpen: onRegenerateOpen, onOpenChange: onRegenerateOpenChange, onClose: onRegenerateClose } = useDisclosure();
 
     // Delete State
@@ -114,34 +113,19 @@ export default function NDAPage() {
         }
     }, [generateSuccess, regenerateSuccess, deleteSuccess, getListError, generateError, regenerateError, deleteError, dispatch]);
 
-    const handleGenerate = (data: {
-        first_name: string;
-        last_name: string;
-        email: string;
-        mobile: string;
-        designation: string;
-        address: string;
-        residential_address: string;
-        expires_in_hours: number;
-        required_documents: string[];
-        nda_date?: string;
-    }) => {
-        dispatch(generateNDARequest(data));
-    };
-
-    const handleRegenerateClick = (id: string) => {
-        setRegenerateId(id);
-        setRegenerateExpiry(48); // Default to 1 hour
-        onRegenerateOpen();
-    };
-
-    const confirmRegenerate = () => {
-        if (regenerateId) {
-            dispatch(regenerateNDARequest({ ndaId: regenerateId, expires_in_hours: regenerateExpiry }));
-            onRegenerateClose();
-            setRegenerateId(null);
+    const handleGenerate = (data: any) => {
+        if (regenerateData) {
+            dispatch(regenerateNDARequest(data));
+        } else {
+            dispatch(generateNDARequest(data));
         }
     };
+
+    const handleRegenerateClick = (item: any) => {
+        setRegenerateData(item);
+        onDrawerOpen();
+    };
+
 
     const handleDeleteClick = (id: string) => {
         setDeleteId(id);
@@ -445,7 +429,7 @@ export default function NDAPage() {
                                                             size="sm"
                                                             variant="light"
                                                             color="primary"
-                                                            onPress={() => handleRegenerateClick(item.id)}
+                                                            onPress={() => handleRegenerateClick(item)}
                                                             aria-label="Regenerate Link"
                                                             title="Regenerate Link"
                                                         >
@@ -617,7 +601,7 @@ export default function NDAPage() {
                                                                 size="sm"
                                                                 variant="flat"
                                                                 color="primary"
-                                                                onPress={() => handleRegenerateClick(item.id)}
+                                                                onPress={() => handleRegenerateClick(item)}
                                                             >
                                                                 <RefreshCw size={16} />
                                                             </Button>
@@ -721,10 +705,17 @@ export default function NDAPage() {
                 {/* Generate NDA Drawer */}
                 <GenerateNDADrawer
                     isOpen={isDrawerOpen}
-                    onOpenChange={onDrawerOpenChange}
-                    loading={generateLoading}
+                    onOpenChange={(open) => {
+                        onDrawerOpenChange();
+                        if (!open) {
+                            setTimeout(() => setRegenerateData(null), 300);
+                        }
+                    }}
+                    loading={generateLoading || regenerateLoading}
                     onSubmit={handleGenerate}
                     generatedLink={generatedLink}
+                    initialData={regenerateData}
+                    isRegenerate={!!regenerateData}
                 />
 
                 {/* Documents Modal */}
@@ -794,43 +785,6 @@ export default function NDAPage() {
                         fileName={previewData.name}
                     />
                 )}
-
-                {/* Regenerate Confirmation Modal */}
-                <Modal isOpen={isRegenerateOpen} onOpenChange={onRegenerateOpenChange} size="sm">
-                    <ModalContent>
-                        {(onClose) => (
-                            <>
-                                <ModalHeader className="flex flex-col gap-1">Regenerate Link</ModalHeader>
-                                <ModalBody className="flex flex-col gap-6">
-                                    <p className="text-sm text-default-500">
-                                        This will invalidate the previous link and generate a new one. Please select the new expiry time.
-                                    </p>
-                                    <Select
-                                        label="Expiry Time"
-                                        placeholder="Select expiry time"
-                                        labelPlacement="outside"
-                                        variant="bordered"
-                                        selectedKeys={[regenerateExpiry.toString()]}
-                                        onChange={(e) => setRegenerateExpiry(Number(e.target.value))}
-                                    >
-                                        <SelectItem key="1">1 Hour</SelectItem>
-                                        <SelectItem key="24">24 Hours</SelectItem>
-                                        <SelectItem key="48">2 Days</SelectItem>
-                                        <SelectItem key="168">7 Days</SelectItem>
-                                    </Select>
-                                </ModalBody>
-                                <ModalFooter>
-                                    <Button variant="light" onPress={onClose}>
-                                        Cancel
-                                    </Button>
-                                    <Button color="primary" onPress={confirmRegenerate}>
-                                        Regenerate
-                                    </Button>
-                                </ModalFooter>
-                            </>
-                        )}
-                    </ModalContent>
-                </Modal>
 
                 {/* Delete Confirmation Modal */}
                 <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteOpenChange} size="sm">
