@@ -42,7 +42,9 @@ export default function AddEditLeaveTypeDrawer({
         can_encash: false,
         probation_period_months: 0,
         min_service_days: 0,
+        notice_period_days: 0,
     });
+
 
     useEffect(() => {
         if (mode === "edit" && selectedLeaveType) {
@@ -59,7 +61,9 @@ export default function AddEditLeaveTypeDrawer({
                 can_encash: selectedLeaveType.can_encash || false,
                 probation_period_months: selectedLeaveType.probation_period_months || 0,
                 min_service_days: selectedLeaveType.min_service_days || 0,
+                notice_period_days: selectedLeaveType.notice_period_days || 0,
             });
+
         } else {
             setFormData({
                 name: "",
@@ -74,7 +78,9 @@ export default function AddEditLeaveTypeDrawer({
                 can_encash: false,
                 probation_period_months: 0,
                 min_service_days: 0,
+                notice_period_days: 0,
             });
+
         }
     }, [mode, selectedLeaveType, isOpen]);
 
@@ -82,7 +88,7 @@ export default function AddEditLeaveTypeDrawer({
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" ? parseFloat(value) || 0 : value
+            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" || name === "notice_period_days" ? parseFloat(value) || 0 : value
         }));
     };
 
@@ -230,7 +236,18 @@ export default function AddEditLeaveTypeDrawer({
                                     onChange={handleInputChange}
                                     variant="bordered"
                                 />
+
+                                
                             </div>
+                               <Input
+                                    label="Notice Period (Days)"
+                                    placeholder="15"
+                                    type="number"
+                                    name="notice_period_days"
+                                    value={formData.notice_period_days.toString()}
+                                    onChange={handleInputChange}
+                                    variant="bordered"
+                                />
 
                             <Select
                                 label="Status"
