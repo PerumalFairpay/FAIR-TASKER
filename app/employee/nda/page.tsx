@@ -322,34 +322,33 @@ export default function NDAPage() {
                                         <span className="text-sm">{item.designation}</span>
                                     </TableCell>
                                     <TableCell>
-                                        <Chip
-                                            color={getStatusColor(item.status)}
-                                            size="sm"
-                                            variant="flat"
-                                            startContent={
-                                                item.status === "Signed" ? (
-                                                    <CheckCircle2 size={14} />
-                                                ) : item.status === "Pending" ? (
-                                                    <Clock size={14} />
-                                                ) : item.status === "Approved" ? (
-                                                    <CheckCircle size={14} />
-                                                ) : item.status === "Rejected" ? (
-                                                    <XCircle size={14} />
-                                                ) : (
-                                                    <FileText size={14} />
-                                                )
-                                            }
+                                        <Tooltip 
+                                            content={item.rejection_reason} 
+                                            isDisabled={item.status !== "Rejected" || !item.rejection_reason}
+                                            color="danger"
+                                            placement="top"
                                         >
-                                            {item.status}
-                                        </Chip>
-                                        {item.status === "Rejected" && item.rejection_reason && (
-                                            <Tooltip content={item.rejection_reason}>
-                                                <div className="mt-1 flex items-center gap-1 text-danger cursor-help">
-                                                    <AlertCircle size={12} />
-                                                    <span className="text-[10px] font-medium">Reason</span>
-                                                </div>
-                                            </Tooltip>
-                                        )}
+                                            <Chip
+                                                color={getStatusColor(item.status)}
+                                                size="sm"
+                                                variant="flat"
+                                                startContent={
+                                                    item.status === "Signed" ? (
+                                                        <CheckCircle2 size={14} />
+                                                    ) : item.status === "Pending" ? (
+                                                        <Clock size={14} />
+                                                    ) : item.status === "Approved" ? (
+                                                        <CheckCircle size={14} />
+                                                    ) : item.status === "Rejected" ? (
+                                                        <XCircle size={14} />
+                                                    ) : (
+                                                        <FileText size={14} />
+                                                    )
+                                                }
+                                            >
+                                                {item.status}
+                                            </Chip>
+                                        </Tooltip>
                                     </TableCell>
                                     <TableCell>
                                         {(item.status === "Signed" || item.status === "Approved") && (item.browser || item.os || item.device_type || item.ip_address) ? (
@@ -538,27 +537,34 @@ export default function NDAPage() {
                                                 <p className="text-tiny text-default-400">{item.email}</p>
                                                 <p className="text-[10px] text-default-300 uppercase font-bold tracking-wider mt-1">{item.designation}</p>
                                             </div>
-                                            <Chip
-                                                color={getStatusColor(item.status)}
-                                                size="sm"
-                                                variant="flat"
-                                                className="h-6"
-                                                startContent={
-                                                    item.status === "Signed" ? (
-                                                        <CheckCircle2 size={12} />
-                                                    ) : item.status === "Pending" ? (
-                                                        <Clock size={12} />
-                                                    ) : item.status === "Approved" ? (
-                                                        <CheckCircle size={12} />
-                                                    ) : item.status === "Rejected" ? (
-                                                        <XCircle size={12} />
-                                                    ) : (
-                                                        <FileText size={12} />
-                                                    )
-                                                }
+                                            <Tooltip 
+                                                content={item.rejection_reason} 
+                                                isDisabled={item.status !== "Rejected" || !item.rejection_reason}
+                                                color="danger"
+                                                placement="top"
                                             >
-                                                {item.status}
-                                            </Chip>
+                                                <Chip
+                                                    color={getStatusColor(item.status)}
+                                                    size="sm"
+                                                    variant="flat"
+                                                    className="h-6"
+                                                    startContent={
+                                                        item.status === "Signed" ? (
+                                                            <CheckCircle2 size={12} />
+                                                        ) : item.status === "Pending" ? (
+                                                            <Clock size={12} />
+                                                        ) : item.status === "Approved" ? (
+                                                            <CheckCircle size={12} />
+                                                        ) : item.status === "Rejected" ? (
+                                                            <XCircle size={12} />
+                                                        ) : (
+                                                            <FileText size={12} />
+                                                        )
+                                                    }
+                                                >
+                                                    {item.status}
+                                                </Chip>
+                                            </Tooltip>
                                         </div>
 
                                         <Divider className="opacity-50" />
