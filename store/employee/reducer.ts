@@ -26,6 +26,9 @@ import {
   GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
   GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS,
   GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
+  DELETE_EMPLOYEE_DOCUMENT_REQUEST,
+  DELETE_EMPLOYEE_DOCUMENT_SUCCESS,
+  DELETE_EMPLOYEE_DOCUMENT_FAILURE,
   CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
 
@@ -64,6 +67,11 @@ interface EmployeeState {
   deleteLoading: boolean;
   deleteSuccess: string | null;
   deleteError: string | null;
+
+  // Delete Document
+  deleteDocLoading: boolean;
+  deleteDocSuccess: string | null;
+  deleteDocError: string | null;
 
   // Update Permissions
   updatePermissionsLoading: boolean;
@@ -117,6 +125,10 @@ const initialEmployeeState: EmployeeState = {
   deleteLoading: false,
   deleteSuccess: null,
   deleteError: null,
+
+  deleteDocLoading: false,
+  deleteDocSuccess: null,
+  deleteDocError: null,
 
   updatePermissionsLoading: false,
   updatePermissionsSuccess: null,
@@ -257,6 +269,49 @@ const employeeReducer = (
         deleteError: action.payload,
       };
 
+    // Delete Document
+    case DELETE_EMPLOYEE_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        deleteDocLoading: true,
+        deleteDocError: null,
+        deleteDocSuccess: null,
+      };
+    case DELETE_EMPLOYEE_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        deleteDocLoading: false,
+        deleteDocSuccess:
+          action.payload.message || "Document deleted successfully",
+        employee: state.employee
+          ? {
+              ...state.employee,
+              documents: state.employee.documents.filter(
+                (doc: any) => doc.id !== action.payload.id,
+              ),
+            }
+          : null,
+        employeeSummaryData: state.employeeSummaryData
+          ? {
+              ...state.employeeSummaryData,
+              employee: state.employeeSummaryData.employee
+                ? {
+                    ...state.employeeSummaryData.employee,
+                    documents: state.employeeSummaryData.employee.documents.filter(
+                      (doc: any) => doc.id !== action.payload.id,
+                    ),
+                  }
+                : null,
+            }
+          : null,
+      };
+    case DELETE_EMPLOYEE_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        deleteDocLoading: false,
+        deleteDocError: action.payload,
+      };
+
     // Update User Permissions
     case UPDATE_USER_PERMISSIONS_REQUEST:
       return {
@@ -361,6 +416,8 @@ const employeeReducer = (
         updateSuccess: null,
         deleteError: null,
         deleteSuccess: null,
+        deleteDocError: null,
+        deleteDocSuccess: null,
         updatePermissionsError: null,
         updatePermissionsSuccess: null,
         getPermissionsError: null,

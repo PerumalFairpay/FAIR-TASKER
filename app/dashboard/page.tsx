@@ -9,18 +9,22 @@ import { getDashboardData } from "@/store/dashboard/action";
 import { getBlogsRequest } from "@/store/blog/action";
 import AdminDashboard from "@/components/dashboard/AdminDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
-import { Spinner } from "@heroui/spinner";
-import Lottie from "lottie-react";
-import HRMLoading from "@/app/assets/HRMLoading.json";
+import DashboardSkeleton from "@/components/dashboard/DashboardSkeleton";
+import { getMyAttendanceHistoryRequest } from "@/store/attendance/action";
 
 export default function Dashboard() {
     const dispatch = useDispatch();
-    const { dashboardData, loading, error } = useSelector((state: RootState) => state.Dashboard);
+    const { dashboardData, loading: dashboardLoading, error } = useSelector((state: RootState) => state.Dashboard);
     const { blogs } = useSelector((state: RootState) => state.Blog);
+    const { user } = useSelector((state: RootState) => state.Auth);
+    const { getMyHistoryLoading } = useSelector((state: RootState) => state.Attendance);
+
+    const isLoading = dashboardLoading || getMyHistoryLoading;
 
     useEffect(() => {
         dispatch(getDashboardData());
         dispatch(getBlogsRequest());
+        dispatch(getMyAttendanceHistoryRequest());
     }, [dispatch]);
 
     return (
@@ -29,12 +33,8 @@ export default function Dashboard() {
                 <PageHeader title="Dashboard" />
             </div> */}
 
-            {loading ? (
-                <div className="flex h-[80vh] items-center justify-center">
-                    <div className="w-64 h-64">
-                        <Lottie animationData={HRMLoading} loop={true} />
-                    </div>
-                </div>
+            {isLoading ? (
+                <DashboardSkeleton type={user?.role} />
             ) : error ? (
                 <div className="flex h-[50vh] items-center justify-center text-danger">
                     Error loading dashboard: {error}

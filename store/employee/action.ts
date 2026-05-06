@@ -26,6 +26,9 @@ import {
   GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
   GET_EMPLOYEE_SUMMARY_DETAILS_SUCCESS,
   GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
+  DELETE_EMPLOYEE_DOCUMENT_REQUEST,
+  DELETE_EMPLOYEE_DOCUMENT_SUCCESS,
+  DELETE_EMPLOYEE_DOCUMENT_FAILURE,
   CLEAR_EMPLOYEE_DETAILS,
 } from "./actionType";
 
@@ -149,6 +152,19 @@ export const getEmployeeSummaryDetailsSuccess = (response: any) => ({
 });
 export const getEmployeeSummaryDetailsFailure = (error: any) => ({
   type: GET_EMPLOYEE_SUMMARY_DETAILS_FAILURE,
+  payload: error,
+});
+
+export const deleteEmployeeDocumentRequest = (docId: string) => ({
+  type: DELETE_EMPLOYEE_DOCUMENT_REQUEST,
+  payload: docId,
+});
+export const deleteEmployeeDocumentSuccess = (response: any) => ({
+  type: DELETE_EMPLOYEE_DOCUMENT_SUCCESS,
+  payload: response,
+});
+export const deleteEmployeeDocumentFailure = (error: any) => ({
+  type: DELETE_EMPLOYEE_DOCUMENT_FAILURE,
   payload: error,
 });
 

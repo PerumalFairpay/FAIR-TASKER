@@ -69,6 +69,7 @@ import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
 import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
 import { User } from "@heroui/user";
 import { ScrollShadow } from "@heroui/scroll-shadow";
+import { NavbarJoyride } from "./navbar-joyride";
 
 interface NavbarProps {
   isExpanded?: boolean;
@@ -334,8 +335,11 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
   // AI Chat item
   const aiChatItem = resolveHref(AI_CHAT_HREF);
 
+
+
   return (
     <>
+      <NavbarJoyride />
       {/* ─── Mobile Bottom Nav ──────────────────────────────────────────── */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
 
@@ -742,7 +746,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
       >
         <div className="flex flex-col h-full">
 
-          <div className="flex items-center justify-center p-2 border-b border-divider h-16">
+          <div className="flex items-center justify-center p-2 border-b border-divider h-16 joyride-logo">
             <NextLink
               className="flex justify-start items-center gap-2"
               href="/dashboard"
@@ -760,7 +764,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           </div>
 
           <ScrollShadow className="flex-1 py-4 scrollbar-hide">
-            <nav className="flex flex-col gap-1 px-2">
+            <nav className="flex flex-col gap-1 px-2 joyride-nav-menu">
               {siteConfig.navItems
                 .filter(item => {
                   const roleMatch = !item.allowedRoles || item.allowedRoles.includes(user?.role?.toLowerCase() || "employee");
@@ -800,7 +804,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                                   onPress={() => toggleMenu(item.label)}
                                   className={clsx(
                                     "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
-                                    "hover:bg-default-50 text-default-600"
+                                    "hover:bg-default-50 text-default-600",
+                                    `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                                   )}
                                   disableRipple
                                   isIconOnly
@@ -844,7 +849,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                               className={clsx(
                                 "w-full bg-transparent justify-start gap-2 h-10 px-2 relative",
                                 "hover:bg-default-50 text-default-600",
-                                !isExpanded && "justify-center px-0"
+                                !isExpanded && "justify-center px-0",
+                                `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                               )}
                               disableRipple
                             >
@@ -926,7 +932,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                         href={item.href}
                         className={clsx(
                           "w-full justify-start gap-2 h-10 px-2 relative",
-                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600"
+                          pathname === item.href ? "bg-primary/10 text-primary" : "bg-transparent hover:bg-default-50 text-default-600",
+                          `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                         )}
                       >
                         {pathname === item.href && (
@@ -967,7 +974,8 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                             className={clsx(
                               "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
                               "hover:bg-default-50 text-default-600",
-                              pathname === item.href && "text-primary bg-primary/10"
+                              pathname === item.href && "text-primary bg-primary/10",
+                              `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
                             )}
                             disableRipple
                             isIconOnly
@@ -1005,7 +1013,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
           <div className="p-1 border-t border-divider">
             {user && (
               <div className={clsx(
-                "flex items-center my-2 overflow-hidden transition-all duration-300",
+                "flex items-center my-2 overflow-hidden transition-all duration-300 joyride-profile",
                 isExpanded ? "justify-between px-2" : "justify-self-end"
               )}>
                 <NextLink href="/profile" className="flex-1 min-w-0">
@@ -1047,7 +1055,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               {isExpanded && (
                 <Button
                   isIconOnly
-                  className="bg-default-100"
+                  className="bg-default-100 joyride-theme-toggle"
                   variant="flat"
                   onPress={toggleTheme}
                 >
@@ -1061,7 +1069,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
               <Button
                 isIconOnly
                 className={clsx(
-                  "bg-default-100",
+                  "bg-default-100 joyride-sidebar-toggle",
                   isExpanded ? "flex-1 ml-1" : "w-full"
                 )}
                 variant="flat"

@@ -183,8 +183,19 @@ export default function AddEditEmployeeDrawer({
         }
     }, [formData.first_name, formData.last_name, mode]);
 
+    const toTitleCase = (str: string) => {
+        return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        );
+    };
+
     const handleChange = (name: string, value: string) => {
-        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        let finalValue = value;
+        if (name === "first_name" || name === "last_name" || name === "name") {
+            finalValue = toTitleCase(value);
+        }
+        setFormData((prev: any) => ({ ...prev, [name]: finalValue }));
     };
 
     const handleConfirmationPeriodChange = (value: string) => {
@@ -365,6 +376,7 @@ export default function AddEditEmployeeDrawer({
                                                                     name: `${selectedNDA.first_name || ""} ${selectedNDA.last_name || ""}`.trim() || prev.name,
                                                                     mobile: selectedNDA.mobile || prev.mobile,
                                                                     address: selectedNDA.address || prev.address,
+                                                                    designation: selectedNDA.designation || prev.designation,
                                                                 }));
                                                             }
                                                         }
@@ -427,11 +439,13 @@ export default function AddEditEmployeeDrawer({
                                             )}
                                             <Input
                                                 label="Mobile"
+                                                type="number"
                                                 placeholder="+1234567890"
                                                 labelPlacement="outside"
                                                 variant="bordered"
                                                 value={formData.mobile || ""}
                                                 onChange={(e) => handleChange("mobile", e.target.value)}
+                                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                                 isRequired
                                             />
                                             <I18nProvider locale="en-GB">

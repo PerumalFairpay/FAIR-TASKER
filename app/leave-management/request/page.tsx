@@ -231,7 +231,7 @@ export default function LeaveRequestPage() {
                             variant="shadow"
                             endContent={<PlusIcon size={16} />}
                             onPress={handleCreate}
-                            className="w-full sm:w-auto font-bold h-10"
+                            className="w-full sm:w-auto h-10"
                         >
                             Apply Leave
                         </Button>

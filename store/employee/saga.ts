@@ -10,6 +10,7 @@ import {
   GET_USER_PERMISSIONS_REQUEST,
   GET_EMPLOYEES_SUMMARY_REQUEST,
   GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
+  DELETE_EMPLOYEE_DOCUMENT_REQUEST,
 } from "./actionType";
 import {
   createEmployeeSuccess,
@@ -30,6 +31,8 @@ import {
   getEmployeesSummaryFailure,
   getEmployeeSummaryDetailsSuccess,
   getEmployeeSummaryDetailsFailure,
+  deleteEmployeeDocumentSuccess,
+  deleteEmployeeDocumentFailure,
 } from "./action";
 import api from "../api";
 
@@ -64,6 +67,10 @@ function updateEmployeeApi(id: string, payload: FormData) {
 
 function deleteEmployeeApi(id: string) {
   return api.delete(`/employees/delete/${id}`);
+}
+
+function deleteEmployeeDocumentApi(docId: string) {
+  return api.delete(`/employees/documents/${docId}`);
 }
 
 function updateUserPermissionsApi(id: string, permissions: string[]) {
@@ -147,6 +154,24 @@ function* onDeleteEmployee({ payload }: any): SagaIterator {
   }
 }
 
+function* onDeleteEmployeeDocument({ payload }: any): SagaIterator {
+  try {
+    const response = yield call(deleteEmployeeDocumentApi, payload);
+    yield put(
+      deleteEmployeeDocumentSuccess({
+        id: payload,
+        message: response.data.message || "Document deleted successfully",
+      }),
+    );
+  } catch (error: any) {
+    yield put(
+      deleteEmployeeDocumentFailure(
+        error.response?.data?.message || "Failed to delete document",
+      ),
+    );
+  }
+}
+
 function* onUpdateUserPermissions({ payload }: any): SagaIterator {
   try {
     const { id, permissions } = payload;
@@ -224,4 +249,5 @@ export default function* employeeSaga(): SagaIterator {
     GET_EMPLOYEE_SUMMARY_DETAILS_REQUEST,
     onGetEmployeeSummaryDetails,
   );
+  yield takeEvery(DELETE_EMPLOYEE_DOCUMENT_REQUEST, onDeleteEmployeeDocument);
 }

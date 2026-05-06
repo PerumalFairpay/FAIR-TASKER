@@ -191,8 +191,19 @@ export default function GenerateNDADrawer({
         }
     }, [generatedLink]);
 
+    const toTitleCase = (str: string) => {
+        return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        );
+    };
+
     const handleChange = (name: string, value: string | number) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        let finalValue = value;
+        if ((name === "first_name" || name === "last_name") && typeof value === 'string') {
+            finalValue = toTitleCase(value);
+        }
+        setFormData((prev) => ({ ...prev, [name]: finalValue }));
         // Clear error when user starts typing
         if (name !== 'expires_in_hours' && errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -497,11 +508,13 @@ export default function GenerateNDADrawer({
                                     />
                                     <Input
                                         label="Mobile"
+                                        type="number"
                                         placeholder="Enter employee mobile number"
                                         labelPlacement="outside"
                                         variant="bordered"
                                         value={formData.mobile}
                                         onChange={(e) => handleChange("mobile", e.target.value)}
+                                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                         isInvalid={!!errors.mobile}
                                         errorMessage={errors.mobile}
                                     />

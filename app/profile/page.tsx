@@ -19,17 +19,22 @@ import {
     Camera, Lock, User as UserIcon, Upload,
     FileText, Shield, Mail, Phone,
     Briefcase, CheckCircle2,
-    BadgeCheck, ExternalLink, Eye, EyeOff, KeyRound, RefreshCw
+    BadgeCheck, ExternalLink, Eye, EyeOff, KeyRound, RefreshCw,
+    MapPin, Calendar, CheckCircle, X, CreditCard, Landmark
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { motion } from "framer-motion";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
+import { Chip } from "@heroui/chip";
+import FileUpload from "@/components/common/FileUpload";
+import { ProfileJoyride } from "@/components/profile-joyride";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
     const { profile, loading, profileLoading, passwordLoading, profileSuccess, profileError, passwordSuccess, passwordError } = useSelector((state: AppState) => state.Profile);
     const { user } = useSelector((state: AppState) => state.Auth);
+    const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
     // State for Profile Form
     const [formData, setFormData] = useState({
@@ -45,12 +50,23 @@ export default function ProfilePage() {
         marital_status: "",
         department: "",
         designation: "",
-        address: ""
+        address: "",
+        account_name: "",
+        bank_name: "",
+        account_number: "",
+        ifsc_code: "",
+        pf_account_number: "",
+        esic_number: "",
+        pan_number: ""
     });
 
     const [profilePic, setProfilePic] = useState<File | null>(null);
     const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
-    const [documentProof, setDocumentProof] = useState<File | null>(null); // For new uploads
+    const [documentProof, setDocumentProof] = useState<File | null>(null);
+    
+    // FilePond states
+    const [documentFiles, setDocumentFiles] = useState<any[]>([]);
+    const [profileFiles, setProfileFiles] = useState<any[]>([]); // For new uploads
     const [existingDocuments, setExistingDocuments] = useState<any[]>([]); // For legacy and new API list
     const [previewData, setPreviewData] = useState<{ url: string; type: string; name: string } | null>(null);
 
@@ -69,6 +85,28 @@ export default function ProfilePage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const docInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync FilePond files with state
+    useEffect(() => {
+        if (documentFiles.length > 0) {
+            setDocumentProof(documentFiles[0].file);
+        } else {
+            setDocumentProof(null);
+        }
+    }, [documentFiles]);
+
+    useEffect(() => {
+        if (profileFiles.length > 0) {
+            setProfilePic(profileFiles[0].file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePicPreview(reader.result as string);
+            };
+            reader.readAsDataURL(profileFiles[0].file);
+        } else {
+            setProfilePic(null);
+        }
+    }, [profileFiles]);
 
     useEffect(() => {
         dispatch(getProfile());
@@ -89,7 +127,14 @@ export default function ProfilePage() {
                 marital_status: profile.marital_status || "",
                 department: profile.department || "",
                 designation: profile.designation || user?.role || "",
-                address: profile.address || ""
+                address: profile.address || "",
+                account_name: profile.account_name || "",
+                bank_name: profile.bank_name || "",
+                account_number: profile.account_number || "",
+                ifsc_code: profile.ifsc_code || "",
+                pf_account_number: profile.pf_account_number || "",
+                esic_number: profile.esic_number || "",
+                pan_number: profile.pan_number || ""
             });
             setProfilePicPreview(profile.profile_picture || null);
             if (profile.documents && profile.documents.length > 0) {
@@ -136,8 +181,20 @@ export default function ProfilePage() {
         }
     }, [profileSuccess, profileError, passwordSuccess, passwordError, dispatch]);
 
+    const toTitleCase = (str: string) => {
+        return str.replace(
+            /\w\S*/g,
+            (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        );
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+        
+        if (name === "first_name" || name === "last_name" || name === "name") {
+            value = toTitleCase(value);
+        }
+
         setFormData(prev => {
             const updated = { ...prev, [name]: value };
             if (name === "first_name" || name === "last_name") {
@@ -203,547 +260,684 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="p-4 md:p-8 mx-auto min-h-screen space-y-8">
-            <PageHeader title="My Profile" description="Manage your personal information and security settings." />
+        <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+            <ProfileJoyride />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <PageHeader title="My Profile" description="Manage your personal information and security settings." />
+
+            </div>
 
             <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
+                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
             >
-                {/* Simplified Profile Header */}
-                <Card className="border-none shadow-sm bg-background mb-8">
-                    <CardBody className="p-6 md:p-8">
-                        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                            {/* Avatar */}
-                            <div className="flex flex-col items-center gap-3 shrink-0">
-                                <div className="relative group">
-                                    {isLoadingInitial ? (
-                                        <Skeleton className="rounded-full w-24 h-24 md:w-32 md:h-32" />
-                                    ) : (
-                                        <Avatar
-                                            src={profilePicPreview || user?.profile_picture || ""}
-                                            name={(formData.first_name || "").charAt(0).toUpperCase()}
-                                            className="w-24 h-24 md:w-32 md:h-32 text-2xl"
-                                            isBordered
-                                            color="primary"
-                                        />
-                                    )}
-                                    <Button
-                                        isIconOnly
-                                        className="absolute bottom-0 right-0 rounded-full bg-content1 text-default-600 shadow-lg border border-default-200 hover:text-primary"
-                                        size="sm"
-                                        onPress={() => fileInputRef.current?.click()}
-                                    >
-                                        <Camera size={14} />
-                                    </Button>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        hidden
-                                        accept="image/*"
-                                        onChange={(e) => handleFileChange(e, "profile")}
-                                    />
-                                </div>
-                                {profilePic && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="flex gap-2"
-                                    >
-                                        <Button
-                                            color="primary"
-                                            variant="solid"
-                                            size="sm"
-                                            onPress={() => handleProfileSubmit()}
-                                            isLoading={profileLoading}
-                                            startContent={!profileLoading && <Upload size={14} />}
-                                            className="font-medium h-8 rounded-lg shadow-lg shadow-primary/30"
-                                        >
-                                            Save Photo
-                                        </Button>
-                                        <Button
-                                            color="danger"
-                                            variant="flat"
-                                            size="sm"
-                                            onPress={() => {
-                                                setProfilePic(null);
-                                                setProfilePicPreview(profile?.profile_picture || user?.profile_picture || null);
-                                            }}
-                                            className="h-8 w-8 min-w-0 p-0 rounded-lg"
-                                        >
-                                            ×
-                                        </Button>
-                                    </motion.div>
-                                )}
+                {/* Left Column: Profile Card & Quick Info */}
+                <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-6 self-start">
+                    {/* Profile Card - Premium Style */}
+                    <Card className="shadow-none border-none w-full h-[320px] relative overflow-hidden rounded-2xl group">
+                        {/* Background Image or Placeholder */}
+                        {profilePicPreview || profile?.profile_picture || user?.profile_picture ? (
+                            <img
+                                src={profilePicPreview || profile?.profile_picture || user?.profile_picture}
+                                alt={formData.name}
+                                className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-default-100 to-default-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center">
+                                <UserIcon size={80} className="text-default-300 dark:text-neutral-700" />
                             </div>
+                        )}
 
-                            {/* Name & Basic Info */}
-                            <div className="flex-1 w-full pt-2">
-                                {isLoadingInitial ? (
-                                    <div className="space-y-3 flex flex-col items-center md:items-start">
-                                        <Skeleton className="h-8 w-48 rounded-lg" />
-                                        <Skeleton className="h-5 w-32 rounded-lg" />
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col gap-6">
-                                        <div className="text-center md:text-left">
-                                            <h2 className="text-2xl font-bold text-foreground">
-                                                {formData.name}
-                                            </h2>
-                                        </div>
+                        {/* Gradient Overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                        
+                        {/* Camera Action Overlay */}
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                             <div className="bg-white/20 backdrop-blur-md p-4 rounded-full border border-white/30">
+                                <Camera size={32} className="text-white" />
+                             </div>
+                        </div>
 
-                                        <Divider className="opacity-50" />
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-default-50 hover:bg-default-100 transition-colors">
-                                                <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0">
-                                                    <Mail size={18} />
-                                                </div>
-                                                <div className="overflow-hidden">
-                                                    <p className="text-xs text-default-500 font-semibold uppercase">Email</p>
-                                                    <p className="text-sm font-medium truncate" title={formData.email}>{formData.email}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-default-50 hover:bg-default-100 transition-colors">
-                                                <div className="p-2 bg-secondary/10 text-secondary rounded-lg shrink-0">
-                                                    <Phone size={18} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-default-500 font-semibold uppercase">Phone</p>
-                                                    <p className="text-sm font-medium">{formData.mobile || "N/A"}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex items-center gap-3 p-3 rounded-xl bg-default-50 hover:bg-default-100 transition-colors">
-                                                <div className="p-2 bg-warning/10 text-warning rounded-lg shrink-0">
-                                                    <Briefcase size={18} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-default-500 font-semibold uppercase">Department</p>
-                                                    <p className="text-sm font-medium">{formData.department || "N/A"}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                        {/* Content Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Chip
+                                        className="capitalize font-bold text-[10px] h-5"
+                                        color={profile?.status === "Active" ? "success" : "warning"}
+                                        variant="solid"
+                                        size="sm"
+                                    >
+                                        {profile?.status || "Active"}
+                                    </Chip>
+                                    <Chip
+                                        className="capitalize font-bold text-[10px] h-5 bg-white/20 backdrop-blur-md text-white border-none"
+                                        variant="flat"
+                                        size="sm"
+                                    >
+                                        {profile?.employee_type || "Full-Time"}
+                                    </Chip>
+                                </div>
+                                <h2 className="text-2xl font-bold text-white tracking-tight leading-none">{formData.name || "N/A"}</h2>
+                                <p className="text-white/80 text-sm font-medium tracking-wide mt-1">
+                                    {formData.designation || "N/A"} • {formData.department || "N/A"}
+                                </p>
                             </div>
                         </div>
-                    </CardBody>
-                </Card>
 
-                <div className="flex w-full flex-col">
-                    <Tabs
-                        aria-label="Profile Sections"
-                        color="primary"
-                        variant="solid"
-                        size="sm"
-                        classNames={{
-                            base: "mb-8",
-                            tabList: "bg-default-100/80 dark:bg-default-50 p-1 rounded-xl border border-default-200/50 dark:border-white/5 shadow-sm backdrop-blur-md",
-                            cursor: "rounded-lg bg-white dark:bg-default-200 shadow-sm",
-                            tab: "h-8 px-4",
-                            tabContent: "font-semibold text-default-500 group-data-[selected=true]:text-primary"
-                        }}
-                    >
-                        <Tab
-                            key="personal"
-                            title={
-                                <div className="flex items-center gap-2">
-                                    <UserIcon size={18} />
-                                    <span>Personal Information</span>
-                                </div>
-                            }
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            hidden
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e, "profile")}
+                        />
+                        <button 
+                            className="absolute inset-0 w-full h-full cursor-pointer z-20" 
+                            onClick={() => fileInputRef.current?.click()}
+                            title="Change Profile Picture"
+                        />
+                    </Card>
+
+                    {/* Photo Actions if changed */}
+                    {profilePic && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex gap-2 p-2 bg-primary-50 dark:bg-primary/5 rounded-2xl border border-primary-100 dark:border-primary/20"
                         >
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                                {/* Sidebar: Quick Overview & Docs */}
-                                <div className="lg:col-span-4 space-y-6">
-                                    <Card className="border-none shadow-sm bg-background">
-                                        <CardHeader className="flex justify-between items-center px-6 pt-6">
-                                            <h3 className="font-bold text-lg">Documents</h3>
-                                            <Button
-                                                size="sm"
-                                                variant="light"
-                                                color="primary"
-                                                startContent={<Upload size={14} />}
-                                                onPress={() => docInputRef.current?.click()}
-                                                className="font-medium"
-                                            >
-                                                Upload
-                                            </Button>
-                                            <input
-                                                type="file"
-                                                ref={docInputRef}
-                                                hidden
-                                                onChange={(e) => handleFileChange(e, "document")}
-                                            />
-                                        </CardHeader>
-                                        <CardBody className="px-6 pb-6 pt-2">
-                                            <div className="space-y-3">
-                                                {existingDocuments.map((doc, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center gap-3 p-3 rounded-xl border border-default-200 bg-default-50/50 hover:bg-default-100 transition-all cursor-pointer group"
-                                                        onClick={() => setPreviewData({
-                                                            url: doc.document_proof,
-                                                            type: doc.file_type || 'application/pdf',
-                                                            name: doc.document_name || `Document ${index + 1}`
-                                                        })}
-                                                    >
-                                                        <div className="p-2 bg-white dark:bg-black rounded-lg shadow-sm">
-                                                            <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} size={18} />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                                                                {doc.document_name || "Document"}
-                                                            </p>
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-tiny text-default-400 uppercase">
-                                                                    {doc.file_type ? doc.file_type.split('/')[1] : "FILE"}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="p-2 rounded-full text-default-400 hover:text-primary hover:bg-primary/10 transition-colors">
-                                                            <Eye size={16} />
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                {existingDocuments.length === 0 && !documentProof && (
-                                                    <div className="text-center py-6 text-default-400">
-                                                        <FileText size={32} className="mx-auto mb-2 opacity-50" />
-                                                        <span className="text-sm">No documents found</span>
-                                                    </div>
-                                                )}
-                                                {documentProof && (
-                                                    <div className="flex items-center gap-3 p-3 rounded-xl border border-primary-200 bg-primary-50">
-                                                        <div className="p-2 bg-white rounded-lg shadow-sm text-primary">
-                                                            <Upload size={18} />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium truncate">{documentProof.name}</p>
-                                                            <p className="text-tiny text-primary font-medium">Ready to upload</p>
-                                                        </div>
-                                                        <Button
-                                                            size="sm"
-                                                            isIconOnly
-                                                            variant="light"
-                                                            color="danger"
-                                                            onPress={() => setDocumentProof(null)}
-                                                        >
-                                                            ×
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </CardBody>
-                                    </Card>
-                                </div>
+                            <Button
+                                color="primary"
+                                variant="solid"
+                                fullWidth
+                                onPress={() => handleProfileSubmit()}
+                                isLoading={profileLoading}
+                                startContent={!profileLoading && <Upload size={16} />}
+                                className="font-bold h-10 rounded-xl"
+                            >
+                                Update Photo
+                            </Button>
+                            <Button
+                                color="danger"
+                                variant="flat"
+                                isIconOnly
+                                onPress={() => {
+                                    setProfilePic(null);
+                                    setProfilePicPreview(profile?.profile_picture || user?.profile_picture || null);
+                                }}
+                                className="h-10 w-10 rounded-xl"
+                            >
+                                <X size={20} />
+                            </Button>
+                        </motion.div>
+                    )}
 
-                                {/* Main Edit Form */}
-                                <div className="lg:col-span-8">
-                                    <Card className="border-none shadow-sm bg-background h-full">
-                                        <CardHeader className="px-8 pt-8 pb-0">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-foreground">Edit Profile</h3>
-                                                <p className="text-small text-default-500 mt-1">
-                                                    Update your personal information to keep your profile fresh.
-                                                </p>
-                                            </div>
-                                        </CardHeader>
-                                        <CardBody className="p-8">
-                                            {(profileSuccess || profileError) && (
-                                                <Alert
-                                                    color={profileError ? "danger" : "success"}
-                                                    title={profileError ? "Error" : "Profile Updated"}
-                                                    description={profileError || profileSuccess}
-                                                    className="mb-6"
-                                                    variant="flat"
-                                                />
-                                            )}
-                                            <form onSubmit={handleProfileSubmit} className="space-y-8">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                                    <Input
-                                                        label="First Name"
-                                                        placeholder="Enter first name"
-                                                        name="first_name"
-                                                        value={formData.first_name}
-                                                        onChange={handleInputChange}
-                                                        variant="flat"
-                                                        labelPlacement="outside"
-                                                        radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                    <Input
-                                                        label="Last Name"
-                                                        placeholder="Enter last name"
-                                                        name="last_name"
-                                                        value={formData.last_name}
-                                                        onChange={handleInputChange}
-                                                        variant="flat"
-                                                        labelPlacement="outside"
-                                                        radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                    <Input
-                                                        label="Display Name"
-                                                        placeholder="Enter display name"
-                                                        name="name"
-                                                        value={formData.name}
-                                                        onChange={handleInputChange}
-                                                        variant="flat"
-                                                        labelPlacement="outside"
-                                                        radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                    <div className="space-y-2">
-                                                        <DatePicker
-                                                            label="Date of Birth"
-                                                            labelPlacement="outside"
-                                                            value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
-                                                            onChange={handleDateChange}
-                                                            variant="flat"
-                                                            radius="sm"
-                                                            showMonthAndYearPickers
-                                                            className="w-full"
-                                                        />
-                                                    </div>
-                                                    <Select
-                                                        label="Gender"
-                                                        placeholder="Select gender"
-                                                        labelPlacement="outside"
-                                                        selectedKeys={formData.gender ? [formData.gender] : []}
-                                                        onChange={(e) => handleSelectChange("gender", e.target.value)}
-                                                        variant="flat"
-                                                        radius="sm"
-                                                        classNames={{ trigger: "bg-default-100" }}
-                                                    >
-                                                        <SelectItem key="Male">Male</SelectItem>
-                                                        <SelectItem key="Female">Female</SelectItem>
-                                                        <SelectItem key="Other">Other</SelectItem>
-                                                    </Select>
-                                                    <Input
-                                                        label="Marital Status"
-                                                        placeholder="Enter marital status"
-                                                        name="marital_status"
-                                                        value={formData.marital_status}
-                                                        onChange={handleInputChange}
-                                                        variant="flat"
-                                                        labelPlacement="outside"
-                                                        radius="sm"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                    <Input
-                                                        label="Address"
-                                                        placeholder="Enter your address"
-                                                        name="address"
-                                                        value={formData.address}
-                                                        onChange={handleInputChange}
-                                                        variant="flat"
-                                                        labelPlacement="outside"
-                                                        radius="sm"
-                                                        className="md:col-span-2"
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="text-md font-bold text-foreground mb-6 flex items-center gap-2">
-                                                        <Shield size={18} className="text-primary" />
-                                                        Emergency Contact
-                                                    </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                                                        <Input
-                                                            label="Contact Name"
-                                                            placeholder="Contact person's name"
-                                                            labelPlacement="outside"
-                                                            name="emergency_contact_name"
-                                                            value={formData.emergency_contact_name}
-                                                            onChange={handleInputChange}
-                                                            variant="flat"
-                                                            radius="sm"
-                                                            startContent={<UserIcon size={16} className="text-default-400" />}
-                                                            classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                        />
-                                                        <Input
-                                                            label="Contact Number"
-                                                            placeholder="Contact phone number"
-                                                            labelPlacement="outside"
-                                                            name="emergency_contact_number"
-                                                            value={formData.emergency_contact_number}
-                                                            onChange={handleInputChange}
-                                                            variant="flat"
-                                                            radius="sm"
-                                                            startContent={<Phone size={16} className="text-default-400" />}
-                                                            classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </CardBody>
-                                        <CardFooter className="px-8 pb-8 pt-0 flex justify-end">
-                                            <Button
-                                                color="primary"
-                                                variant="solid"
-                                                onPress={() => handleProfileSubmit()}
-                                                isLoading={profileLoading}
-                                                className="px-8 font-semibold shadow-lg shadow-primary/30"
-                                            >
-                                                Save Changes
-                                            </Button>
-                                        </CardFooter>
-                                    </Card>
-                                </div>
-                            </div>
-                        </Tab>
-
-                        <Tab
-                            key="security"
-                            title={
-                                <div className="flex items-center gap-2">
-                                    <Lock size={18} />
-                                    <span>Security & Privacy</span>
-                                </div>
-                            }
-                        >
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4">
-                                <div className="lg:col-span-5">
-                                    <div className="sticky top-8">
-                                        <Card className="border-none shadow-sm bg-gradient-to-br from-default-100 to-default-50 overflow-visible">
-                                            <CardBody className="p-8">
-                                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6">
-                                                    <Lock size={24} />
-                                                </div>
-                                                <h3 className="text-xl font-bold text-foreground">Password Security</h3>
-                                                <p className="text-default-500 mt-3 leading-relaxed">
-                                                    Ensure your account is using a long, random password to stay secure.
-                                                </p>
-                                                <Divider className="my-6" />
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-3 text-sm text-default-600">
-                                                        <BadgeCheck size={18} className="text-success" />
-                                                        <span>Min 8 characters</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 text-sm text-default-600">
-                                                        <BadgeCheck size={18} className="text-success" />
-                                                        <span>At least one number</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-3 text-sm text-default-600">
-                                                        <BadgeCheck size={18} className="text-success" />
-                                                        <span>Special characters (!@#$)</span>
-                                                    </div>
-                                                </div>
-                                            </CardBody>
-                                        </Card>
+                    {/* Quick Info Card */}
+                    <Card className="border-none shadow-sm bg-content1 p-2 dark:bg-[#0D0D0D] dark:border dark:border-white/5">
+                        <CardBody className="p-4 space-y-4">
+                            <div className="w-full space-y-4 px-2">
+                                {[
+                                    { icon: <Mail size={18} className="text-primary" />, label: "Email", text: formData.email },
+                                    { icon: <Phone size={18} className="text-success" />, label: "Mobile", text: formData.mobile },
+                                    { icon: <Briefcase size={18} className="text-secondary" />, label: "Department", text: formData.department, subtext: formData.designation },
+                                    { icon: <MapPin size={18} className="text-warning" />, label: "Address", text: formData.address }
+                                ].map((item, index) => (
+                                    <div key={index} className="flex items-start gap-4">
+                                        <div className="mt-1 p-2 bg-default-100/50 rounded-lg shrink-0">
+                                            {item.icon}
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-[10px] font-bold text-default-400 uppercase tracking-wider">{item.label}</span>
+                                            <span className="text-sm font-semibold text-default-700 truncate">{item.text || "N/A"}</span>
+                                            {item.subtext && <span className="text-xs text-default-400 capitalize">{item.subtext}</span>}
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
+                            </div>
+                        </CardBody>
+                    </Card>
+                </div>
 
-                                <div className="lg:col-span-7">
-                                    <Card className="border-none shadow-sm bg-background">
-                                        <CardHeader className="px-8 pt-8 pb-0 flex-col items-start">
-                                            <h3 className="text-xl font-bold text-foreground">Change Password</h3>
-                                            <p className="text-small text-default-500 mt-1">
-                                                Update your password regularly to keep your account safe.
-                                            </p>
-                                        </CardHeader>
-                                        <CardBody className="p-8 space-y-6">
-                                            {(passwordSuccess || passwordError) && (
-                                                <Alert
-                                                    color={passwordError ? "danger" : "success"}
-                                                    title={passwordError ? "Error" : "Success"}
-                                                    description={passwordError || passwordSuccess}
-                                                    variant="flat"
-                                                />
-                                            )}
-                                            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                {/* Right Column: Form Tabs */}
+                <div className="lg:col-span-2 space-y-6">
+
+                    {/* Detailed Information Tabs */}
+                    <Card className="border-none shadow-sm overflow-hidden min-h-[500px] bg-content1 dark:bg-[#0D0D0D] dark:border dark:border-white/5">
+                        <CardBody className="p-0">
+                            <Tabs
+                                aria-label="Profile Sections"
+                                color="primary"
+                                variant="solid"
+                                radius="lg"
+                                size="sm"
+                                classNames={{
+                                    base: "w-full p-4 pb-0",
+                                    tabList: "bg-default-100/80 dark:bg-white/5 backdrop-blur-md p-1 border border-default-200/50 dark:border-white/10 gap-1",
+                                    cursor: "bg-white dark:bg-primary shadow-sm border border-default-100 dark:border-white/10",
+                                    tab: "h-8 px-6",
+                                    tabContent: "group-data-[selected=true]:text-primary dark:group-data-[selected=true]:text-white text-default-500 font-bold"
+                                }}
+                            >
+                                <Tab
+                                    key="personal"
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <UserIcon size={18} />
+                                            <span>Personal Info</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6">
+
+                                        
+                                        {(profileSuccess || profileError) && (
+                                            <Alert
+                                                color={profileError ? "danger" : "success"}
+                                                title={profileError ? "Error" : "Profile Updated"}
+                                                description={profileError || profileSuccess}
+                                                className="mb-6"
+                                                variant="flat"
+                                            />
+                                        )}
+
+                                        <form onSubmit={handleProfileSubmit} className="space-y-8">
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <UserIcon size={18} className="text-primary" />
+                                                    Personal Information
+                                                </h4>
+                                            </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                                                 <Input
-                                                    type={isVisible.current ? "text" : "password"}
-                                                    label="Current Password"
+                                                    label="First Name"
+                                                    placeholder="Enter first name"
+                                                    name="first_name"
+                                                    value={formData.first_name}
+                                                    onChange={handleInputChange}
+                                                    variant="flat"
                                                     labelPlacement="outside"
-                                                    placeholder="Enter your current password"
-                                                    value={passwordData.current_password}
-                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
+                                                    radius="sm"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                />
+                                                <Input
+                                                    label="Last Name"
+                                                    placeholder="Enter last name"
+                                                    name="last_name"
+                                                    value={formData.last_name}
+                                                    onChange={handleInputChange}
+                                                    variant="flat"
+                                                    labelPlacement="outside"
+                                                    radius="sm"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                />
+                                                <Input
+                                                    label="Display Name"
+                                                    placeholder="Enter display name"
+                                                    name="name"
+                                                    value={formData.name}
+                                                    onChange={handleInputChange}
+                                                    variant="flat"
+                                                    labelPlacement="outside"
+                                                    radius="sm"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                />
+                                                <div className="space-y-2">
+                                                    <DatePicker
+                                                        label="Date of Birth"
+                                                        labelPlacement="outside"
+                                                        value={formData.date_of_birth ? parseDate(formData.date_of_birth) : null}
+                                                        onChange={handleDateChange}
+                                                        variant="flat"
+                                                        radius="sm"
+                                                        showMonthAndYearPickers
+                                                        className="w-full"
+                                                        isRequired={!isAdmin}
+                                                    />
+                                                </div>
+                                                <Select
+                                                    label="Gender"
+                                                    placeholder="Select gender"
+                                                    labelPlacement="outside"
+                                                    selectedKeys={formData.gender ? [formData.gender] : []}
+                                                    onChange={(e) => handleSelectChange("gender", e.target.value)}
                                                     variant="flat"
                                                     radius="sm"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
+                                                >
+                                                    <SelectItem key="Male">Male</SelectItem>
+                                                    <SelectItem key="Female">Female</SelectItem>
+                                                    <SelectItem key="Other">Other</SelectItem>
+                                                </Select>
+                                                <Select
+                                                    label="Marital Status"
+                                                    placeholder="Select marital status"
+                                                    labelPlacement="outside"
+                                                    selectedKeys={formData.marital_status ? [formData.marital_status] : []}
+                                                    onChange={(e) => handleSelectChange("marital_status", e.target.value)}
+                                                    variant="flat"
+                                                    radius="sm"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
+                                                >
+                                                    <SelectItem key="Single">Single</SelectItem>
+                                                    <SelectItem key="Divorced">Divorced</SelectItem>
+                                                </Select>
+                                                <Input
+                                                    label="Address"
+                                                    placeholder="Enter your address"
+                                                    name="address"
+                                                    value={formData.address}
+                                                    onChange={handleInputChange}
+                                                    variant="flat"
+                                                    labelPlacement="outside"
+                                                    radius="sm"
+                                                    className="md:col-span-2"
+                                                    isRequired={!isAdmin}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                />
+                                            </div>
+
+                                            <Divider className="opacity-50" />
+
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <Phone size={18} className="text-secondary" />
+                                                    Emergency Contact Information
+                                                </h4>
+                                            </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                                    <Input
+                                                        label="Contact Name"
+                                                        placeholder="Contact person's name"
+                                                        labelPlacement="outside"
+                                                        name="emergency_contact_name"
+                                                        value={formData.emergency_contact_name}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        radius="sm"
+                                                        startContent={<UserIcon size={16} className="text-default-400" />}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="Contact Number"
+                                                        placeholder="Contact phone number"
+                                                        labelPlacement="outside"
+                                                        name="emergency_contact_number"
+                                                        value={formData.emergency_contact_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        radius="sm"
+                                                        startContent={<Phone size={16} className="text-default-400" />}
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                </div>
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <CheckCircle size={18} />}
+                                                >
+                                                    Save Changes
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </Tab>
+
+
+
+                                <Tab
+                                    key="documents"
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <FileText size={18} />
+                                            <span>Documents</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6">
+                                        {(profileSuccess || profileError) && (
+                                            <Alert
+                                                color={profileError ? "danger" : "success"}
+                                                title={profileError ? "Error" : "Documents Updated"}
+                                                description={profileError || profileSuccess}
+                                                className="mb-6"
+                                                variant="flat"
+                                            />
+                                        )}
+                                        <div className="mb-10">
+                                            <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                <FileText size={18} className="text-primary" />
+                                                My Documents
+                                            </h4>
+                                        </div>
+
+                                            <FileUpload
+                                                files={documentFiles}
+                                                setFiles={setDocumentFiles}
+                                                allowMultiple={false}
+                                                acceptedFileTypes={['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
+                                                labelIdle='Drag & Drop document or <span class="filepond--label-action">Browse</span>'
+                                                className="mb-6"
+                                            />
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {existingDocuments.map((doc, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center justify-between p-4 rounded-2xl border border-default-200 dark:border-white/10 bg-default-50/30 dark:bg-white/5 hover:border-primary/30 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer group shadow-sm"
+                                                    onClick={() => setPreviewData({
+                                                        url: doc.document_proof,
+                                                        type: doc.file_type || 'application/pdf',
+                                                        name: doc.document_name || `Document ${index + 1}`
+                                                    })}
+                                                >
+                                                    <div className="flex items-center gap-4 min-w-0">
+                                                        <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-xl shadow-sm border border-default-100 dark:border-white/10 group-hover:text-primary transition-colors">
+                                                            <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} size={20} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">
+                                                                {doc.document_name || "Document"}
+                                                            </p>
+                                                            <span className="text-tiny text-default-400 font-bold uppercase tracking-wider">
+                                                                {doc.file_type ? doc.file_type.split('/')[1] : "FILE"}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-2 rounded-full text-default-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                                                        <Eye size={18} />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            
+                                            {existingDocuments.length === 0 && documentFiles.length === 0 && (
+                                                <div className="md:col-span-2 flex flex-col items-center justify-center py-12 text-default-400">
+                                                    <FileText size={48} className="mb-4 opacity-20" />
+                                                    <p className="text-sm font-bold uppercase tracking-widest">No documents found</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {documentFiles.length > 0 && (
+                                            <div className="flex justify-end mt-8 pt-4 border-t border-default-100">
+                                                <Button
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <Upload size={18} />}
+                                                >
+                                                    Upload & Save
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Tab>
+
+                                <Tab
+                                    key="bank"
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <Landmark size={18} />
+                                            <span>Bank Details</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6">
+                                        {(profileSuccess || profileError) && (
+                                            <Alert
+                                                color={profileError ? "danger" : "success"}
+                                                title={profileError ? "Error" : "Bank Details Updated"}
+                                                description={profileError || profileSuccess}
+                                                className="mb-6"
+                                                variant="flat"
+                                            />
+                                        )}
+
+                                        <form onSubmit={handleProfileSubmit} className="space-y-8">
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <Landmark size={18} className="text-primary" />
+                                                    Bank Account Information
+                                                </h4>
+                                            </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                                    <Input
+                                                        label="Account Holder Name"
+                                                        placeholder="Enter account holder name"
+                                                        name="account_name"
+                                                        value={formData.account_name}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="Bank Name"
+                                                        placeholder="Enter bank name"
+                                                        name="bank_name"
+                                                        value={formData.bank_name}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="Account Number"
+                                                        placeholder="Enter account number"
+                                                        name="account_number"
+                                                        value={formData.account_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="IFSC Code"
+                                                        placeholder="Enter IFSC code"
+                                                        name="ifsc_code"
+                                                        value={formData.ifsc_code}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                </div>
+
+                                            <Divider className="opacity-50" />
+
+                                            <div className="mb-10">
+                                                <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                    <CreditCard size={18} className="text-secondary" />
+                                                    Statutory Details (Tax/ID)
+                                                </h4>
+                                            </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                                                    <Input
+                                                        label="PAN Number"
+                                                        placeholder="Enter PAN number"
+                                                        name="pan_number"
+                                                        value={formData.pan_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="PF Account Number"
+                                                        placeholder="Enter PF number"
+                                                        name="pf_account_number"
+                                                        value={formData.pf_account_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                    <Input
+                                                        label="ESIC Number"
+                                                        placeholder="Enter ESIC number"
+                                                        name="esic_number"
+                                                        value={formData.esic_number}
+                                                        onChange={handleInputChange}
+                                                        variant="flat"
+                                                        labelPlacement="outside"
+                                                        radius="sm"
+                                                        classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                    />
+                                                </div>
+
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="solid"
+                                                    isLoading={profileLoading}
+                                                    onPress={() => handleProfileSubmit()}
+                                                    className="font-bold px-8"
+                                                    startContent={!profileLoading && <CheckCircle size={18} />}
+                                                >
+                                                    Save Bank Details
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </Tab>
+
+                                <Tab
+                                    key="security"
+                                    title={
+                                        <div className="flex items-center gap-2 joyride-security-tab">
+                                            <Lock size={18} />
+                                            <span>Security</span>
+                                        </div>
+                                    }
+                                >
+                                    <div className="p-6 space-y-6">
+                                        <div className="mb-10">
+                                            <h4 className="text-md font-bold text-foreground flex items-center gap-2">
+                                                <Lock size={18} className="text-primary" />
+                                                Change Password
+                                            </h4>
+                                        </div>
+
+                                        {(passwordSuccess || passwordError) && (
+                                            <Alert
+                                                color={passwordError ? "danger" : "success"}
+                                                title={passwordError ? "Error" : "Success"}
+                                                description={passwordError || passwordSuccess}
+                                                variant="flat"
+                                            />
+                                        )}
+
+                                        <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                                            <Input
+                                                type={isVisible.current ? "text" : "password"}
+                                                label="Current Password"
+                                                labelPlacement="outside"
+                                                placeholder="Enter your current password"
+                                                value={passwordData.current_password}
+                                                onChange={(e) => setPasswordData(prev => ({ ...prev, current_password: e.target.value }))}
+                                                variant="flat"
+                                                className="joyride-current-password"
+                                                radius="sm"
+                                                isRequired
+                                                startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                endContent={
+                                                    <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('current')}>
+                                                        {isVisible.current ? (
+                                                            <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                        ) : (
+                                                            <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                        )}
+                                                    </button>
+                                                }
+                                                classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                            />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <Input
+                                                    type={isVisible.new ? "text" : "password"}
+                                                    label="New Password"
+                                                    labelPlacement="outside"
+                                                    placeholder="Enter new password"
+                                                    value={passwordData.new_password}
+                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
+                                                    variant="flat"
+                                                    className="joyride-new-password"
+                                                    radius="sm"
                                                     isRequired
-                                                    startContent={<KeyRound size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
                                                     endContent={
-                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('current')}>
-                                                            {isVisible.current ? (
+                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('new')}>
+                                                            {isVisible.new ? (
                                                                 <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
                                                             ) : (
                                                                 <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
                                                             )}
                                                         </button>
                                                     }
-                                                    classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
                                                 />
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <Input
-                                                        type={isVisible.new ? "text" : "password"}
-                                                        label="New Password"
-                                                        labelPlacement="outside"
-                                                        placeholder="Enter new password"
-                                                        value={passwordData.new_password}
-                                                        onChange={(e) => setPasswordData(prev => ({ ...prev, new_password: e.target.value }))}
-                                                        variant="flat"
-                                                        radius="sm"
-                                                        isRequired
-                                                        startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                                        endContent={
-                                                            <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('new')}>
-                                                                {isVisible.new ? (
-                                                                    <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                                ) : (
-                                                                    <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                                )}
-                                                            </button>
-                                                        }
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                    <Input
-                                                        type={isVisible.confirm ? "text" : "password"}
-                                                        label="Confirm Password"
-                                                        labelPlacement="outside"
-                                                        placeholder="Retype password"
-                                                        value={passwordData.confirm_password}
-                                                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
-                                                        variant="flat"
-                                                        radius="sm"
-                                                        isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
-                                                        errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
-                                                        isRequired
-                                                        startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                                        endContent={
-                                                            <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('confirm')}>
-                                                                {isVisible.confirm ? (
-                                                                    <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                                ) : (
-                                                                    <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
-                                                                )}
-                                                            </button>
-                                                        }
-                                                        classNames={{ inputWrapper: "bg-default-100 group-data-[focus=true]:bg-default-200" }}
-                                                    />
-                                                </div>
-                                                <div className="flex justify-end pt-4">
-                                                    <Button
-                                                        type="submit"
-                                                        color="primary"
-                                                        variant="shadow"
-                                                        isLoading={passwordLoading}
-                                                        className="font-semibold px-8"
-                                                    >
-                                                        Update Password
-                                                    </Button>
-                                                </div>
-                                            </form>
-                                        </CardBody>
-                                    </Card>
-                                </div>
-                            </div>
-                        </Tab>
-                    </Tabs>
+                                                <Input
+                                                    type={isVisible.confirm ? "text" : "password"}
+                                                    label="Confirm Password"
+                                                    labelPlacement="outside"
+                                                    placeholder="Retype password"
+                                                    value={passwordData.confirm_password}
+                                                    onChange={(e) => setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }))}
+                                                    variant="flat"
+                                                    className="joyride-confirm-password"
+                                                    radius="sm"
+                                                    isInvalid={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password}
+                                                    errorMessage={!!passwordData.confirm_password && passwordData.new_password !== passwordData.confirm_password ? "Passwords do not match" : ""}
+                                                    isRequired
+                                                    startContent={<Lock size={18} className="text-default-400 pointer-events-none flex-shrink-0" />}
+                                                    endContent={
+                                                        <button className="focus:outline-none" type="button" onClick={() => toggleVisibility('confirm')}>
+                                                            {isVisible.confirm ? (
+                                                                <EyeOff className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            ) : (
+                                                                <Eye className="text-2xl text-default-400 pointer-events-none" size={20} />
+                                                            )}
+                                                        </button>
+                                                    }
+                                                    classNames={{ inputWrapper: "bg-default-100 dark:bg-white/5 group-data-[focus=true]:bg-default-200 dark:group-data-[focus=true]:bg-white/10" }}
+                                                />
+                                            </div>
+                                            <div className="flex justify-end pt-4">
+                                                <Button
+                                                    type="submit"
+                                                    color="primary"
+                                                    variant="shadow"
+                                                    isLoading={passwordLoading}
+                                                    className="font-semibold px-8 joyride-update-password-btn"
+                                                >
+                                                    Update Password
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </Tab>
+                            </Tabs>
+                        </CardBody>
+                    </Card>
                 </div>
             </motion.div>
 

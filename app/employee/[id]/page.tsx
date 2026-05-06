@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
-import { getEmployeeSummaryDetailsRequest } from "@/store/employee/action";
+import { getEmployeeSummaryDetailsRequest, deleteEmployeeDocumentRequest } from "@/store/employee/action";
 import { RootState } from "@/store/store";
 import { PageHeader } from "@/components/PageHeader"; // Assuming this exists as used in list page
 import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
@@ -14,10 +14,12 @@ import { Button } from "@heroui/button";
 import { Tabs, Tab } from "@heroui/tabs";
 import { CircularProgress } from "@heroui/progress";
 import { PermissionGuard } from "@/components/PermissionGuard";
-import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye, Layers } from "lucide-react";
+import { ArrowLeft, Mail, Phone, MapPin, Briefcase, Calendar, Clock, CheckCircle, AlertCircle, FileText, UserCircle, X, Eye, Layers, User as UserIcon, Trash2 } from "lucide-react";
 import Lottie from "lottie-react";
 import HRMLoading from "@/app/assets/HRMLoading.json";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
+import toast from "react-hot-toast";
 export default function EmployeeSummaryPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -26,15 +28,28 @@ export default function EmployeeSummaryPage() {
         employeeSummaryData,
         employeeSummaryLoading,
         employeeSummaryError,
+        deleteDocSuccess,
+        deleteDocError,
     } = useSelector((state: RootState) => state.Employee);
 
     const [selectedPeriod, setSelectedPeriod] = React.useState<"month" | "year" | "today">("month");
+    
+    useEffect(() => {
+        if (deleteDocSuccess) {
+            toast.success(deleteDocSuccess);
+        }
+        if (deleteDocError) {
+            toast.error(deleteDocError);
+        }
+    }, [deleteDocSuccess, deleteDocError]);
     const [previewData, setPreviewData] = React.useState<{ url: string | null; type: string | null; name: string }>({
         url: null,
         type: null,
         name: "",
     });
     const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
+    const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+    const [docToDelete, setDocToDelete] = React.useState<string | null>(null);
 
     const handlePreview = (doc: any) => {
         setPreviewData({
@@ -43,6 +58,19 @@ export default function EmployeeSummaryPage() {
             name: doc.document_name,
         });
         setIsPreviewOpen(true);
+    };
+
+    const handleDeleteDocument = (docId: string) => {
+        setDocToDelete(docId);
+        onDeleteOpen();
+    };
+
+    const confirmDelete = () => {
+        if (docToDelete) {
+            dispatch(deleteEmployeeDocumentRequest(docToDelete));
+            onDeleteClose();
+            setDocToDelete(null);
+        }
     };
 
     useEffect(() => {
@@ -83,13 +111,19 @@ export default function EmployeeSummaryPage() {
                         {/* Left Column: Profile Card & Quick Info */}
                         <div className="lg:col-span-1 space-y-6">
                             {/* Profile Card - Dashboard Style */}
-                            <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-[32px] group">
-                                {/* Background Image */}
-                                <img
-                                    src={employee?.profile_picture?.replace("host.docker.internal", "localhost")}
-                                    alt={employee?.name}
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                />
+                            <Card className="shadow-none border-none bg-transparent w-full h-[320px] relative overflow-hidden rounded-2xl group">
+                                {/* Background Image or Placeholder */}
+                                {employee?.profile_picture ? (
+                                    <img
+                                        src={employee?.profile_picture?.replace("host.docker.internal", "localhost")}
+                                        alt={employee?.name}
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 bg-gradient-to-br from-default-100 to-default-200 dark:from-neutral-800 dark:to-neutral-900 flex items-center justify-center">
+                                        <UserIcon size={80} className="text-default-300 dark:text-neutral-700" />
+                                    </div>
+                                )}
 
                                 {/* Gradient Overlays */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -569,17 +603,30 @@ export default function EmployeeSummaryPage() {
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="flat"
-                                                                    color="primary"
-                                                                    radius="lg"
-                                                                    onPress={() => handlePreview(doc)}
-                                                                    startContent={<Eye size={16} />}
-                                                                    className="font-bold h-9 bg-primary/5 text-primary border-none"
-                                                                >
-                                                                    View
-                                                                </Button>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="flat"
+                                                                        color="primary"
+                                                                        radius="lg"
+                                                                        onPress={() => handlePreview(doc)}
+                                                                        startContent={<Eye size={16} />}
+                                                                        className="font-bold h-9 bg-primary/5 text-primary border-none"
+                                                                    >
+                                                                        View
+                                                                    </Button>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="flat"
+                                                                        color="danger"
+                                                                        radius="lg"
+                                                                        isIconOnly
+                                                                        onPress={() => handleDeleteDocument(doc.id)}
+                                                                        className="font-bold h-9 bg-danger/5 text-danger border-none"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </Button>
+                                                                </div>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -606,6 +653,34 @@ export default function EmployeeSummaryPage() {
                 fileType={previewData.type}
                 fileName={previewData.name}
             />
+
+            {/* Delete Confirmation Modal */}
+            <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} backdrop="blur" size="sm">
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">Confirm Deletion</ModalHeader>
+                            <ModalBody>
+                                <div className="flex flex-col items-center justify-center py-4 text-center">
+                                    <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center text-danger mb-4">
+                                        <AlertCircle size={24} />
+                                    </div>
+                                    <p className="text-sm font-semibold text-default-700">Are you sure you want to delete this document?</p>
+                                    <p className="text-xs text-default-500 mt-2">This action cannot be undone and the document will be permanently removed.</p>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose} className="font-bold">
+                                    Cancel
+                                </Button>
+                                <Button color="danger" onPress={confirmDelete} className="font-bold">
+                                    Delete Document
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </PermissionGuard>
     );
 }
