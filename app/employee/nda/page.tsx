@@ -111,11 +111,7 @@ export default function NDAPage() {
             });
             dispatch(clearNDAState());
         }
-    }, [
-        generateSuccess, regenerateSuccess, deleteSuccess, updateStatusSuccess,
-        getListError, generateError, regenerateError, deleteError, updateStatusError,
-        dispatch
-    ]);
+    }, [generateSuccess, regenerateSuccess, deleteSuccess, getListError, generateError, regenerateError, deleteError, dispatch]);
 
     const handleGenerate = (data: any) => {
         if (regenerateData) {
@@ -448,7 +444,6 @@ export default function NDAPage() {
                                                         onPress={() => handleDeleteClick(item.id)}
                                                         aria-label="Delete NDA Request"
                                                         title="Delete NDA Request"
-                                                        isLoading={deleteLoading && deleteId === item.id}
                                                     >
                                                         <Trash size={16} />
                                                     </Button>
@@ -618,7 +613,6 @@ export default function NDAPage() {
                                                             variant="flat"
                                                             color="danger"
                                                             onPress={() => handleDeleteClick(item.id)}
-                                                            isLoading={deleteLoading && deleteId === item.id}
                                                         >
                                                             <Trash size={16} />
                                                         </Button>
@@ -656,7 +650,6 @@ export default function NDAPage() {
                                                                 color="primary"
                                                                 className="bg-primary/10"
                                                                 aria-label="Review Actions"
-                                                                isLoading={updateStatusLoading}
                                                             >
                                                                 <MoreVertical size={16} />
                                                             </Button>

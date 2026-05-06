@@ -312,6 +312,8 @@ const ndaReducer = (
 
     // Update NDA Status
     case UPDATE_NDA_STATUS_REQUEST:
+      console.log("REDUCEER",action.payload);
+      
       return {
         ...state,
         updateStatusLoading: true,
