@@ -336,6 +336,7 @@ export default function GenerateNDADrawer({
             const { department, address, residential_address, ...rest } = formData as any;
             const payload: any = {
                 ...rest,
+                department,
                 ...(isRegenerate && initialData?.id && { ndaId: initialData.id }),
                 address: formatAddress(address),
                 residential_address: formatAddress(residential_address),
