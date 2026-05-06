@@ -12,7 +12,7 @@ import {
 import { RootState } from "@/store/store";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Button } from "@heroui/button";
-import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw } from "lucide-react";
+import { Upload, CheckCircle2, AlertTriangle, FileText, Lock, ShieldCheck, Eye, MapPin, Home, ArrowRight, ChevronsRight, Save, PenTool, RefreshCw, XCircle } from "lucide-react";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Checkbox } from "@heroui/checkbox";
@@ -585,12 +585,39 @@ export default function NDATokenPage() {
 
     if (!isMounted) return null;
 
-    if (getByTokenError && getByTokenError.includes("expired")) {
+    if (getByTokenError && getByTokenError.toLowerCase().includes("expired")) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
                 <AlertTriangle size={48} className="text-danger mb-4" />
                 <h1 className="text-2xl font-bold text-danger">Link Expired</h1>
                 <p className="text-gray-600 mt-2">This NDA link has expired. Please request a new one.</p>
+            </div>
+        );
+    }
+
+    if (getByTokenError && getByTokenError.toLowerCase().includes("rejected")) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+                <XCircle size={64} className="text-danger mb-6 animate-pulse" />
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">Access Denied</h1>
+                <div className="max-w-md mx-auto space-y-4">
+                    <p className="text-gray-500 dark:text-gray-400 text-lg">
+                        This NDA request has been <span className="text-danger font-bold uppercase">Rejected</span> by the administration.
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                        Please refer to the notification email for details or contact the HR department for further clarification.
+                    </p>
+                    <div className="pt-6">
+                        <Button
+                            variant="flat"
+                            color="primary"
+                            onPress={() => window.close()}
+                            className="font-semibold"
+                        >
+                            Close Window
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
