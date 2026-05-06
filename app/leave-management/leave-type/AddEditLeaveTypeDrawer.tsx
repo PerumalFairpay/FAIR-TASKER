@@ -9,7 +9,7 @@ import {
     DrawerFooter,
 } from "@heroui/drawer";
 import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
+import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 
 interface AddEditLeaveTypeDrawerProps {
@@ -33,6 +33,7 @@ export default function AddEditLeaveTypeDrawer({
         name: "",
         type: "Paid",
         code: "",
+        description: "",
         status: "Active",
         number_of_days: 0,
         monthly_allowed: 0,
@@ -49,6 +50,7 @@ export default function AddEditLeaveTypeDrawer({
                 name: selectedLeaveType.name || "",
                 type: selectedLeaveType.type || "Paid",
                 code: selectedLeaveType.code || "",
+                description: selectedLeaveType.description || "",
                 status: selectedLeaveType.status || "Active",
                 number_of_days: selectedLeaveType.number_of_days || 0,
                 monthly_allowed: selectedLeaveType.monthly_allowed || 0,
@@ -63,6 +65,7 @@ export default function AddEditLeaveTypeDrawer({
                 name: "",
                 type: "Paid",
                 code: "",
+                description: "",
                 status: "Active",
                 number_of_days: 0,
                 monthly_allowed: 0,
@@ -81,6 +84,11 @@ export default function AddEditLeaveTypeDrawer({
             ...prev,
             [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" ? parseFloat(value) || 0 : value
         }));
+    };
+
+    const handleTextareaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSelectChange = (name: string, value: any) => {
@@ -121,6 +129,16 @@ export default function AddEditLeaveTypeDrawer({
                                 onChange={handleInputChange}
                                 variant="bordered"
                                 isRequired
+                            />
+
+                            <Textarea
+                                label="Description"
+                                placeholder="Enter leave type description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleTextareaChange}
+                                variant="bordered"
+                                minRows={2}
                             />
 
                             <Select

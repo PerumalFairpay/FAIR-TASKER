@@ -132,6 +132,11 @@ export default function LeaveTypePage() {
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-sm text-default-700">{item.name}</span>
+                                            {item.description && (
+                                                <span className="text-[10px] text-default-400 max-w-[200px] truncate italic" title={item.description}>
+                                                    {item.description}
+                                                </span>
+                                            )}
                                             <span className="text-tiny text-default-400 font-mono underline decoration-dotted">
                                                 {item.code}
                                             </span>
@@ -233,6 +238,11 @@ export default function LeaveTypePage() {
                                         </div>
                                         <div className="flex flex-col">
                                             <h3 className="text-sm font-bold text-default-900">{item.name}</h3>
+                                            {item.description && (
+                                                <p className="text-[10px] text-default-400 italic line-clamp-1 max-w-[150px]">
+                                                    {item.description}
+                                                </p>
+                                            )}
                                             <span className="text-[10px] text-default-400 font-mono tracking-tight">{item.code}</span>
                                         </div>
                                     </div>
