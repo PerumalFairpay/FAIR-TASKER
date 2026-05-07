@@ -698,13 +698,12 @@ export default function AddEditEmployeeDrawer({
 
                                             <Input
                                                 label="Biometric ID"
-                                                placeholder="e.g., 101"
+                                                placeholder="e.g., FPAY101"
                                                 labelPlacement="outside"
                                                 variant="bordered"
                                                 value={formData.biometric_id || ""}
                                                 onChange={(e) => handleChange("biometric_id", e.target.value)}
-                                                description="Unique integer ID from the biometric device"
-                                                type="number"
+                                                description="Unique ID from the biometric device (e.g., FPAY101)"
                                             />
 
                                             {/* Weekly Off */}
