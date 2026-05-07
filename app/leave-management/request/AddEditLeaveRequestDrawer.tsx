@@ -176,19 +176,7 @@ export default function AddEditLeaveRequestDrawer({
     const handleSelectChange = (name: string, value: any) => {
         let newData = { ...formData };
 
-        if (name === "date_range") {
-            if (value) {
-                if (value.start.toString() === value.end.toString()) {
-                    newData.start_date = "";
-                    newData.end_date = "";
-                } else {
-                    newData.start_date = value.start.toString();
-                    newData.end_date = value.end.toString();
-                }
-            }
-        } else {
-            newData = { ...newData, [name]: value };
-        }
+        newData = { ...newData, [name]: value };
 
         // Handle Permission constraints
         if (name === "leave_type_id") {
@@ -230,7 +218,7 @@ export default function AddEditLeaveRequestDrawer({
         }
 
         // Auto calculate days if dates or type change
-        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "date_range" || name === "leave_type_id" || name === "start_session" || name === "end_session" || name === "employee_id") {
+        if (name === "start_date" || name === "end_date" || name === "leave_duration_type" || name === "leave_type_id" || name === "start_session" || name === "end_session" || name === "employee_id") {
 
             if (newData.leave_duration_type === "Single") {
                 newData.end_date = newData.start_date;
@@ -239,7 +227,11 @@ export default function AddEditLeaveRequestDrawer({
                 newData.end_date = newData.start_date;
                 newData.total_days = 0.5;
             } else if (newData.leave_duration_type === "Multiple") {
-                try {
+                if ((name === "start_date" || name === "leave_duration_type") && newData.start_date) {
+                    newData.end_date = parseDate(newData.start_date).add({ days: 1 }).toString();
+                }
+                if (newData.start_date && newData.end_date) {
+                    try {
                     const start = parseDate(newData.start_date);
                     const end = parseDate(newData.end_date);
                     const d1 = new Date(start.year, start.month - 1, start.day);
@@ -284,11 +276,12 @@ export default function AddEditLeaveRequestDrawer({
                 } catch (e) {
                     console.error("Error calculating days:", e);
                 }
-            } else if (newData.leave_duration_type === "Permission") {
-                newData.end_date = newData.start_date;
-                newData.total_days = 0;
             }
+        } else if (newData.leave_duration_type === "Permission") {
+            newData.end_date = newData.start_date;
+            newData.total_days = 0;
         }
+    }
 
         setFormData(newData);
     };
@@ -421,24 +414,30 @@ export default function AddEditLeaveRequestDrawer({
                             <div className="grid grid-cols-2 gap-4">
                                 {formData.leave_duration_type === "Multiple" ? (
                                     <>
-                                        <DateRangePicker
-                                            label="Date Range"
-                                            value={formData.start_date && formData.end_date ? {
-                                                start: parseDate(formData.start_date),
-                                                end: parseDate(formData.end_date),
-                                            } : null}
-                                            onChange={(value) => handleSelectChange("date_range", value)}
+                                        <DatePicker
+                                            label="Start Date"
+                                            value={formData.start_date ? parseDate(formData.start_date) : null}
+                                            onChange={(date) => handleSelectChange("start_date", date?.toString())}
                                             variant="bordered"
                                             isRequired
-                                            className="col-span-2"
+                                            className="col-span-1"
                                             minValue={today(getLocalTimeZone())}
-                                            allowsNonContiguousRanges
                                             isDateUnavailable={isDateUnavailable}
                                             calendarProps={{
                                                 className: dynamicCalendarClass
                                             }}
-                                            popoverProps={{
-                                            isDismissable: false
+                                        />
+                                        <DatePicker
+                                            label="End Date"
+                                            value={formData.end_date ? parseDate(formData.end_date) : null}
+                                            onChange={(date) => handleSelectChange("end_date", date?.toString())}
+                                            variant="bordered"
+                                            isRequired
+                                            className="col-span-1"
+                                            minValue={formData.start_date ? parseDate(formData.start_date).add({ days: 1 }) : today(getLocalTimeZone())}
+                                            isDateUnavailable={isDateUnavailable}
+                                            calendarProps={{
+                                                className: dynamicCalendarClass
                                             }}
                                         />
                                         <div className="col-span-1">
@@ -479,9 +478,9 @@ export default function AddEditLeaveRequestDrawer({
                                         calendarProps={{
                                             className: dynamicCalendarClass
                                         }}
-                                        popoverProps={{
-                                            isDismissable: false
-                                        }}
+                                        // popoverProps={{
+                                        //     isDismissable: false
+                                        // }}
                                     />
                                 )}
                             </div>

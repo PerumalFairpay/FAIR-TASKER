@@ -9,7 +9,7 @@ import {
     DrawerFooter,
 } from "@heroui/drawer";
 import { Button } from "@heroui/button";
-import { Input } from "@heroui/input";
+import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 
 interface AddEditLeaveTypeDrawerProps {
@@ -33,6 +33,7 @@ export default function AddEditLeaveTypeDrawer({
         name: "",
         type: "Paid",
         code: "",
+        description: "",
         status: "Active",
         number_of_days: 0,
         monthly_allowed: 0,
@@ -41,7 +42,9 @@ export default function AddEditLeaveTypeDrawer({
         can_encash: false,
         probation_period_months: 0,
         min_service_days: 0,
+        notice_period_days: 0,
     });
+
 
     useEffect(() => {
         if (mode === "edit" && selectedLeaveType) {
@@ -49,6 +52,7 @@ export default function AddEditLeaveTypeDrawer({
                 name: selectedLeaveType.name || "",
                 type: selectedLeaveType.type || "Paid",
                 code: selectedLeaveType.code || "",
+                description: selectedLeaveType.description || "",
                 status: selectedLeaveType.status || "Active",
                 number_of_days: selectedLeaveType.number_of_days || 0,
                 monthly_allowed: selectedLeaveType.monthly_allowed || 0,
@@ -57,12 +61,15 @@ export default function AddEditLeaveTypeDrawer({
                 can_encash: selectedLeaveType.can_encash || false,
                 probation_period_months: selectedLeaveType.probation_period_months || 0,
                 min_service_days: selectedLeaveType.min_service_days || 0,
+                notice_period_days: selectedLeaveType.notice_period_days || 0,
             });
+
         } else {
             setFormData({
                 name: "",
                 type: "Paid",
                 code: "",
+                description: "",
                 status: "Active",
                 number_of_days: 0,
                 monthly_allowed: 0,
@@ -71,7 +78,9 @@ export default function AddEditLeaveTypeDrawer({
                 can_encash: false,
                 probation_period_months: 0,
                 min_service_days: 0,
+                notice_period_days: 0,
             });
+
         }
     }, [mode, selectedLeaveType, isOpen]);
 
@@ -79,8 +88,13 @@ export default function AddEditLeaveTypeDrawer({
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" ? parseFloat(value) || 0 : value
+            [name]: name === "number_of_days" || name === "monthly_allowed" || name === "allowed_hours" || name === "probation_period_months" || name === "min_service_days" || name === "notice_period_days" ? parseFloat(value) || 0 : value
         }));
+    };
+
+    const handleTextareaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSelectChange = (name: string, value: any) => {
@@ -121,6 +135,16 @@ export default function AddEditLeaveTypeDrawer({
                                 onChange={handleInputChange}
                                 variant="bordered"
                                 isRequired
+                            />
+
+                            <Textarea
+                                label="Description"
+                                placeholder="Enter leave type description"
+                                name="description"
+                                value={formData.description}
+                                onChange={handleTextareaChange}
+                                variant="bordered"
+                                minRows={2}
                             />
 
                             <Select
@@ -212,7 +236,18 @@ export default function AddEditLeaveTypeDrawer({
                                     onChange={handleInputChange}
                                     variant="bordered"
                                 />
+
+                                
                             </div>
+                               <Input
+                                    label="Notice Period (Days)"
+                                    placeholder="15"
+                                    type="number"
+                                    name="notice_period_days"
+                                    value={formData.notice_period_days.toString()}
+                                    onChange={handleInputChange}
+                                    variant="bordered"
+                                />
 
                             <Select
                                 label="Status"
