@@ -177,14 +177,9 @@ export default function AddEditLeaveRequestDrawer({
         let newData = { ...formData };
 
         if (name === "date_range") {
-            if (value) {
-                if (value.start.toString() === value.end.toString()) {
-                    newData.start_date = "";
-                    newData.end_date = "";
-                } else {
-                    newData.start_date = value.start.toString();
-                    newData.end_date = value.end.toString();
-                }
+            if (value && value.start && value.end) {
+                newData.start_date = value.start.toString();
+                newData.end_date = value.end.toString();
             }
         } else {
             newData = { ...newData, [name]: value };
@@ -240,6 +235,8 @@ export default function AddEditLeaveRequestDrawer({
                 newData.total_days = 0.5;
             } else if (newData.leave_duration_type === "Multiple") {
                 try {
+                    if (!newData.start_date || !newData.end_date) return;
+                    
                     const start = parseDate(newData.start_date);
                     const end = parseDate(newData.end_date);
                     const d1 = new Date(start.year, start.month - 1, start.day);
@@ -640,6 +637,7 @@ export default function AddEditLeaveRequestDrawer({
                                 let addedDays = 0;
                                 let normalDays = 0;
                                 try {
+                                    if (!formData.start_date || !formData.end_date) return null;
                                     const d1 = parseDate(formData.start_date);
                                     const d2 = parseDate(formData.end_date);
                                     const start = new Date(d1.year, d1.month - 1, d1.day);
