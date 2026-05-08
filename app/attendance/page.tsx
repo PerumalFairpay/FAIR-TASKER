@@ -222,7 +222,7 @@ export default function AttendancePage() {
 
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
         return () => clearInterval(timer);
-    }, [dispatch, isAdmin, filters, viewMode, currentMonth]);
+    }, [dispatch, isAdmin, filters, viewMode, currentMonth, page, limit]);
 
     const uniqueEmployees = useMemo(() => {
         const sourceData = isAdmin ? allAttendance : attendanceHistory;
@@ -252,11 +252,13 @@ export default function AttendancePage() {
 
     const handleFilterChange = (key: string, value: any) => {
         setFilters(prev => ({ ...prev, [key]: value }));
+        setPage(1);
     };
 
     const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value) {
             setCurrentMonth(new Date(e.target.value));
+            setPage(1);
         }
     }
 
