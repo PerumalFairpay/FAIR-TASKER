@@ -24,8 +24,8 @@ export const NavbarJoyride = () => {
         content: 'Stay on top of your work! Access your task board and submit EOD reports.',
       },
       {
-        target: '.joyride-astro',
-        content: 'Meet Astro, our AI assistant! Ask questions or get help with your work.',
+        target: '.joyride-fyro',
+        content: 'Meet Fyro, our AI assistant! Ask questions or get help with your work.',
       },
       {
         target: '.joyride-feedback',

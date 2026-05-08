@@ -90,18 +90,18 @@ export default function AIChatPage() {
                     {!isLanding && (
                         <>
                             <motion.div
-                                layoutId="astro-logo"
+                                layoutId="fyro-logo"
                                 className="p-1.5 bg-default-100 rounded-lg shrink-0"
                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                             >
                                 <Webhook size={18} className="text-default-600" />
                             </motion.div>
                             <motion.span
-                                layoutId="astro-name"
+                                layoutId="fyro-name"
                                 className="font-semibold text-sm tracking-tight"
                                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
                             >
-                                Astro
+                                Fyro
                             </motion.span>
                         </>
                     )}
@@ -139,14 +139,14 @@ export default function AIChatPage() {
                             <div className="flex flex-col items-start mb-10 w-full">
                                 <div className="flex items-center gap-3 mb-4">
                                     <motion.div
-                                        layoutId="astro-logo"
+                                        layoutId="fyro-logo"
                                         className="relative group shrink-0"
                                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
                                     >
                                         <Webhook size={28} className="relative text-default-900 dark:text-zinc-500" />
                                     </motion.div>
                                     <motion.h3
-                                        layoutId="astro-name"
+                                        layoutId="fyro-name"
                                         className="text-lg lg:text-xl font-normal tracking-tight text-default-500 dark:text-zinc-400"
                                     >
                                         Hi {user?.name || 'there'}
