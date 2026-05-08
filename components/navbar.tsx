@@ -65,8 +65,8 @@ import { AppState } from "@/store/rootReducer";
 
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
-import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
-import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
+import FairPayMiniLogo from "@/app/assets/favicon-3.png";
+import FairPayMiniDarkLogo from "@/app/assets/favicon-3.png";
 import { User } from "@heroui/user";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { NavbarJoyride } from "./navbar-joyride";
@@ -741,7 +741,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 alt="FairPay"
                 className={clsx(
                   "object-contain transition-all duration-300",
-                  isExpanded ? "h-10 w-auto" : "h-13 w-auto"
+                  isExpanded ? "h-10 w-auto" : "h-9 w-auto"
                 )}
               />
             </NextLink>
@@ -987,6 +987,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   isExpanded ? "flex-1 ml-1" : "w-full"
                 )}
                 variant="flat"
+                
                 onPress={toggleSidebar}
               >
                 {isExpanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}
