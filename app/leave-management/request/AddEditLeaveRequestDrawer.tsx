@@ -394,7 +394,7 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
-                            {formData.leave_type_id && (selectedType?.monthly_allowed && formData.total_days > selectedType.monthly_allowed) && (
+                            {formData.leave_type_id && (!!selectedType?.monthly_allowed && formData.total_days > selectedType.monthly_allowed) && (
                                 <Alert color="warning" variant="faded" className="border-warning-200" title="Policy Warning">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
