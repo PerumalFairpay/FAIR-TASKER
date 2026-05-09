@@ -309,21 +309,51 @@ export default function AddEditLeaveRequestDrawer({
         return classes.join(" ");
     }, [empWeeklyOff]);
 
-    const isDateUnavailable = (date: DateValue) => {
-        // Disable company holidays
+    const isNonWorkingDay = React.useCallback((date: DateValue) => {
+        // Check company holidays
         const isHoliday = holidays.some(
             (holiday: any) => holiday.date === date.toString() && holiday.status === "Active"
         );
         if (isHoliday) return true;
 
-        // Disable employee's weekly off days
+        // Check employee's weekly off days
         const jsDate = new Date(date.year, date.month - 1, date.day);
         const jsDay = jsDate.getDay();
         const pyDay = jsDay === 0 ? 6 : jsDay - 1;
 
-
         return empWeeklyOff.includes(pyDay);
+    }, [holidays, empWeeklyOff]);
+
+    const isDateUnavailable = (date: DateValue) => {
+        return isNonWorkingDay(date);
     };
+
+    const hasNonWorkingDayNearbyOrInside = React.useMemo(() => {
+        if (!formData.start_date || !formData.end_date || formData.leave_duration_type === "Permission") return false;
+
+        try {
+            const start = parseDate(formData.start_date);
+            const end = parseDate(formData.end_date);
+
+            // Check day before
+            if (isNonWorkingDay(start.subtract({ days: 1 }))) return true;
+            // Check day after
+            if (isNonWorkingDay(end.add({ days: 1 }))) return true;
+
+            // Check days inside (only for Multiple)
+            if (formData.leave_duration_type === "Multiple") {
+                let cursor = start;
+                while (cursor.compare(end) <= 0) {
+                    if (isNonWorkingDay(cursor)) return true;
+                    cursor = cursor.add({ days: 1 });
+                }
+            }
+        } catch (error) {
+            console.error("Error checking non-working days:", error);
+        }
+
+        return false;
+    }, [formData.start_date, formData.end_date, formData.leave_duration_type, isNonWorkingDay]);
 
     return (
         <Drawer 
@@ -360,6 +390,17 @@ export default function AddEditLeaveRequestDrawer({
                                         <span className="text-sm text-warning-800">
                                             You have selected <strong>{formData.total_days} days</strong>. 
                                             Only <strong>{selectedType.monthly_allowed} {selectedType.name}</strong> allowed per month.
+                                        </span>
+                                    </div>
+                                </Alert>
+                            )}
+
+                            {hasNonWorkingDayNearbyOrInside && (
+                                <Alert color="warning" variant="faded" className="border-warning-200" title="Holiday/Weekend Proximity">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm text-warning-800">
+                                            This leave request is <strong>adjacent to</strong> or <strong>includes</strong> holidays/weekends. 
+                                            Please ensure this follows company policy.
                                         </span>
                                     </div>
                                 </Alert>
