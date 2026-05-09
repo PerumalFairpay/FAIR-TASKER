@@ -116,7 +116,7 @@ export default function AIAssistantSidebar() {
                                     <div className="p-1.5 bg-default-100 dark:bg-white/5 rounded-lg shrink-0">
                                         <Webhook size={18} className="text-default-600 dark:text-default-400" />
                                     </div>
-                                    <h3 className="font-semibold text-sm tracking-tight text-default-900 dark:text-zinc-100">Astro</h3>
+                                    <h3 className="font-semibold text-sm tracking-tight text-default-900 dark:text-zinc-100">Fyro</h3>
                                 </div>
                                 <Button
                                     isIconOnly

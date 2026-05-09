@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+
 
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/modal";
 
@@ -65,8 +65,8 @@ import { AppState } from "@/store/rootReducer";
 
 import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
-import FairPayMiniLogo from "@/app/assets/FairPaymini.svg";
-import FairPayMiniDarkLogo from "@/app/assets/FairPaymini-dark.svg";
+import FairPayMiniLogo from "@/app/assets/favicon-3.png";
+import FairPayMiniDarkLogo from "@/app/assets/favicon-3.png";
 import { User } from "@heroui/user";
 import { ScrollShadow } from "@heroui/scroll-shadow";
 import { NavbarJoyride } from "./navbar-joyride";
@@ -123,25 +123,9 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
 
   /* eslint-disable react-hooks/exhaustive-deps */
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isAltPressed, setIsAltPressed] = useState(false);
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [moreOpenMenus, setMoreOpenMenus] = useState<Record<string, boolean>>({});
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = (label: string) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    setHoveredItem(label);
-  };
-
-  const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setHoveredItem(null);
-    }, 200);
-  };
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -757,7 +741,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                 alt="FairPay"
                 className={clsx(
                   "object-contain transition-all duration-300",
-                  isExpanded ? "h-10 w-auto" : "h-13 w-auto"
+                  isExpanded ? "h-10 w-auto" : "h-9 w-auto"
                 )}
               />
             </NextLink>
@@ -789,59 +773,21 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                     return (
                       <div key={item.label} className="relative">
                         {!isExpanded ? (
-                          <Dropdown
-                            isOpen={hoveredItem === item.label}
-                            placement="right-start"
-                            offset={10}
-                          >
-                            <DropdownTrigger>
-                              <div
-                                onMouseEnter={() => handleMouseEnter(item.label)}
-                                onMouseLeave={handleMouseLeave}
-                                className="w-full flex justify-center h-10 items-center"
-                              >
-                                <Button
-                                  onPress={() => toggleMenu(item.label)}
-                                  className={clsx(
-                                    "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
-                                    "hover:bg-default-50 text-default-600",
-                                    `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
-                                  )}
-                                  disableRipple
-                                  isIconOnly
-                                >
-                                  <Icon className={clsx("w-5 h-5 flex-shrink-0", isSectionActive ? "text-primary" : "text-default-500")} />
-                                  <ShortcutBadge label={item.label} />
-                                </Button>
-                              </div>
-                            </DropdownTrigger>
-                            <DropdownMenu
-                              onMouseEnter={() => handleMouseEnter(item.label)}
-                              onMouseLeave={handleMouseLeave}
-                              aria-label={item.label}
-                              closeOnSelect={true}
-                              onAction={() => setHoveredItem(null)}
+                          <div className="w-full flex justify-center h-10 items-center">
+                            <Button
+                              onPress={() => toggleMenu(item.label)}
+                              className={clsx(
+                                "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
+                                "hover:bg-default-50 text-default-600",
+                                `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
+                              )}
+                              disableRipple
+                              isIconOnly
                             >
-                              {filteredChildren.map((child: any) => {
-                                const ChildIcon = child.icon && iconMap[child.icon] ? iconMap[child.icon] : Logo;
-                                const isChildActive = pathname === child.href;
-
-                                return (
-                                  <DropdownItem
-                                    key={child.href}
-                                    href={child.href}
-                                    as={NextLink}
-                                    startContent={<ChildIcon size={16} />}
-                                    className={clsx(
-                                      isChildActive ? "text-primary bg-primary/10" : "text-default-500"
-                                    )}
-                                  >
-                                    {child.label}
-                                  </DropdownItem>
-                                );
-                              })}
-                            </DropdownMenu>
-                          </Dropdown>
+                              <Icon className={clsx("w-5 h-5 flex-shrink-0", isSectionActive ? "text-primary" : "text-default-500")} />
+                              <ShortcutBadge label={item.label} />
+                            </Button>
+                          </div>
                         ) : (
                           <>
                             <Button
@@ -957,54 +903,22 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   }
 
                   return (
-                    <Dropdown
-                      key={item.href}
-                      isOpen={hoveredItem === item.label}
-                      placement="right-start"
-                      offset={10}
-                    >
-                      <DropdownTrigger>
-                        <div
-                          onMouseEnter={() => handleMouseEnter(item.label)}
-                          onMouseLeave={handleMouseLeave}
-                          className="w-full flex justify-center h-10 items-center"
-                        >
-                          <Button
-                            onPress={() => router.push(item.href)}
-                            className={clsx(
-                              "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
-                              "hover:bg-default-50 text-default-600",
-                              pathname === item.href && "text-primary bg-primary/10",
-                              `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
-                            )}
-                            disableRipple
-                            isIconOnly
-                          >
-                            <Icon className={clsx("w-5 h-5 flex-shrink-0", pathname === item.href ? "text-primary" : "text-default-500")} />
-                            <ShortcutBadge label={item.label} />
-                          </Button>
-                        </div>
-                      </DropdownTrigger>
-                      <DropdownMenu
-                        onMouseEnter={() => handleMouseEnter(item.label)}
-                        onMouseLeave={handleMouseLeave}
-                        aria-label={item.label}
-                        closeOnSelect={true}
-                        onAction={() => setHoveredItem(null)}
+                    <div key={item.href} className="w-full flex justify-center h-10 items-center">
+                      <Button
+                        onPress={() => router.push(item.href)}
+                        className={clsx(
+                          "bg-transparent h-10 px-0 min-w-10 w-10 justify-center relative",
+                          "hover:bg-default-50 text-default-600",
+                          pathname === item.href && "text-primary bg-primary/10",
+                          `joyride-${item.label.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`
+                        )}
+                        disableRipple
+                        isIconOnly
                       >
-                        <DropdownItem
-                          key={item.href}
-                          href={item.href}
-                          as={NextLink}
-                          startContent={<Icon size={16} />}
-                          className={clsx(
-                            pathname === item.href ? "text-primary bg-primary/10" : "text-default-500"
-                          )}
-                        >
-                          {item.label}
-                        </DropdownItem>
-                      </DropdownMenu>
-                    </Dropdown>
+                        <Icon className={clsx("w-5 h-5 flex-shrink-0", pathname === item.href ? "text-primary" : "text-default-500")} />
+                        <ShortcutBadge label={item.label} />
+                      </Button>
+                    </div>
                   );
                 })}
             </nav>
@@ -1073,6 +987,7 @@ export const Navbar = ({ isExpanded = false, onToggle }: NavbarProps) => {
                   isExpanded ? "flex-1 ml-1" : "w-full"
                 )}
                 variant="flat"
+                
                 onPress={toggleSidebar}
               >
                 {isExpanded ? <ChevronLeftIcon /> : <ChevronRightIcon />}

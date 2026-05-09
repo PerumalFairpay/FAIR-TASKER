@@ -170,7 +170,7 @@ export const siteConfig: SiteConfig = {
       ],
     },
     {
-      label: "Astro",
+      label: "Fyro",
       href: "/ai-chat",
       icon: "Webhook",
       allowedRoles: ["admin", "employee"],

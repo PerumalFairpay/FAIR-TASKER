@@ -40,7 +40,7 @@ export default function ClearChatModal({
                         </ModalHeader>
                         <ModalBody className="py-6">
                             <p className="text-default-600 dark:text-default-400">
-                                Are you sure you want to clear all messages? This action cannot be undone and your conversation with Astro will be started fresh.
+                                Are you sure you want to clear all messages? This action cannot be undone and your conversation with Fyro will be started fresh.
                             </p>
                         </ModalBody>
                         <ModalFooter>
