@@ -243,8 +243,12 @@ export default function AddEditLeaveRequestDrawer({
 
                         const isWeeklyOff = weeklyOff.includes(pyDay);
 
-                        // Only count working days
-                        if (!isHoliday && !isWeeklyOff) {
+                        // Check if it's LOP leave type
+                        const selectedTypeForCalc = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
+                        const isLOPCalc = selectedTypeForCalc?.code === "LOP" || selectedTypeForCalc?.name === "Loss of Pay";
+
+                        // Count working days, or count all days if it's LOP
+                        if (isLOPCalc || (!isHoliday && !isWeeklyOff)) {
                             total += 1;
                         }
                         cursor.setDate(cursor.getDate() + 1);
@@ -324,7 +328,15 @@ export default function AddEditLeaveRequestDrawer({
         return empWeeklyOff.includes(pyDay);
     }, [holidays, empWeeklyOff]);
 
+    const isLOP = React.useMemo(() => {
+        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+        return selectedType?.code === "LOP" || selectedType?.name === "Loss of Pay";
+    }, [formData.leave_type_id, leaveTypes]);
+
     const isDateUnavailable = (date: DateValue) => {
+        // Allow all dates for LOP leave type
+        if (isLOP) return false;
+        
         return isNonWorkingDay(date);
     };
 
