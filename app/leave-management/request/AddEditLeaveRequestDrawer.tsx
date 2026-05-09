@@ -46,7 +46,6 @@ export default function AddEditLeaveRequestDrawer({
     onSubmit,
 }: AddEditLeaveRequestDrawerProps) {
     const dispatch = useDispatch();
-    const { employees } = useSelector((state: RootState) => state.Employee);
     const { leaveTypes } = useSelector((state: RootState) => state.LeaveType);
     const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
     const { holidays } = useSelector((state: RootState) => state.Holiday);
@@ -73,9 +72,6 @@ export default function AddEditLeaveRequestDrawer({
 
     useEffect(() => {
         if (isOpen) {
-            if (!employees || employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
             if (!leaveTypes || leaveTypes.length === 0) {
                 dispatch(getLeaveTypesRequest());
             }
@@ -224,9 +220,8 @@ export default function AddEditLeaveRequestDrawer({
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    // Get selected employee's weekly off days (0=Mon...6=Sun)
-                    const selectedEmp = (employees || []).find((e: any) => e.id === newData.employee_id);
-                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6]; // Default: Sunday
+                    // Get current user's weekly off days (0=Mon...6=Sun)
+                    const weeklyOff: number[] = user?.weekly_off ?? [6]; // Default: Sunday
 
                     // Iterate day-by-day
                     let total = 0;
@@ -246,7 +241,7 @@ export default function AddEditLeaveRequestDrawer({
                         // Check if it's LOP leave type and if the employee has the exception flag
                         const selectedTypeForCalc = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
                         const isLOPCalc = selectedTypeForCalc?.code === "LOP" || selectedTypeForCalc?.name === "Loss of Pay";
-                        const excludeNonWorkingFromLOP = selectedEmp?.lop_rule_01 || false;
+                        const excludeNonWorkingFromLOP = user?.lop_rule_01 || false;
 
                         // Count day if:
                         // 1. It's a working day
@@ -295,9 +290,8 @@ export default function AddEditLeaveRequestDrawer({
     const startSessions = ["Full Day", "Second Half"];
     const endSessions = ["Full Day", "First Half"];
 
-    // Get selected employee's weekly off to disable those days on the calendar
-    const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
-    const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
+    // Get current user's weekly off to disable those days on the calendar
+    const empWeeklyOff: number[] = user?.weekly_off ?? [6];
 
     const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
     const exceedsMonthlyLimit = selectedType && selectedType.monthly_allowed > 0 && formData.total_days > selectedType.monthly_allowed;
@@ -338,8 +332,7 @@ export default function AddEditLeaveRequestDrawer({
 
     const isDateUnavailable = (date: DateValue) => {
         // Allow all dates for LOP leave type, UNLESS the employee has the exception flag
-        const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
-        if (isLOP && !selectedEmp?.lop_rule_01) return false;
+        if (isLOP && !user?.lop_rule_01) return false;
         
         return isNonWorkingDay(date);
     };
@@ -433,8 +426,7 @@ export default function AddEditLeaveRequestDrawer({
 
                             >
                                 {(leaveTypes || []).filter((lt: any) => {
-                                    const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
-                                    if (selectedEmp?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
+                                    if (user?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
                                         return false;
                                     }
                                     return true;
