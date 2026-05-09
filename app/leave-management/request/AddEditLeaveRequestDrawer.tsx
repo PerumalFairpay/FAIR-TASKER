@@ -432,7 +432,13 @@ export default function AddEditLeaveRequestDrawer({
                                 isRequired
 
                             >
-                                {(leaveTypes || []).map((lt: any) => {
+                                {(leaveTypes || []).filter((lt: any) => {
+                                    const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
+                                    if (selectedEmp?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).map((lt: any) => {
                                     const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
                                     return (
                                         <SelectItem key={lt.id} textValue={lt.name}>

@@ -241,7 +241,12 @@ export default function LeaveRequestPage() {
 
             {user?.role === "employee" && leaveMetrics && leaveMetrics.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 mb-6">
-                    {leaveMetrics.map((metric: any, index: number) => {
+                    {leaveMetrics.filter((metric: any) => {
+                        if (user?.gender === "Male" && (metric.leave_type?.toLowerCase().includes("maternity") || metric.leave_type === "ML")) {
+                            return false;
+                        }
+                        return true;
+                    }).map((metric: any, index: number) => {
                         const percentage = metric.total_allowed > 0 ? ((metric.total_allowed - metric.used) / metric.total_allowed) * 100 : 0;
                         let color: "success" | "warning" | "danger" = "success";
                         if (percentage < 25) color = "danger";
