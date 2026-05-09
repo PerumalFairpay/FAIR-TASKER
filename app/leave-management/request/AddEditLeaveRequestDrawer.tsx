@@ -243,12 +243,15 @@ export default function AddEditLeaveRequestDrawer({
 
                         const isWeeklyOff = weeklyOff.includes(pyDay);
 
-                        // Check if it's LOP leave type
+                        // Check if it's LOP leave type and if the employee has the exception flag
                         const selectedTypeForCalc = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
                         const isLOPCalc = selectedTypeForCalc?.code === "LOP" || selectedTypeForCalc?.name === "Loss of Pay";
+                        const excludeNonWorkingFromLOP = selectedEmp?.exclude_non_working_days_from_lop || false;
 
-                        // Count working days, or count all days if it's LOP
-                        if (isLOPCalc || (!isHoliday && !isWeeklyOff)) {
+                        // Count day if:
+                        // 1. It's a working day
+                        // 2. OR it's LOP AND we ARE NOT excluding non-working days for this employee
+                        if ((!isHoliday && !isWeeklyOff) || (isLOPCalc && !excludeNonWorkingFromLOP)) {
                             total += 1;
                         }
                         cursor.setDate(cursor.getDate() + 1);
@@ -334,8 +337,9 @@ export default function AddEditLeaveRequestDrawer({
     }, [formData.leave_type_id, leaveTypes]);
 
     const isDateUnavailable = (date: DateValue) => {
-        // Allow all dates for LOP leave type
-        if (isLOP) return false;
+        // Allow all dates for LOP leave type, UNLESS the employee has the exception flag
+        const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
+        if (isLOP && !selectedEmp?.exclude_non_working_days_from_lop) return false;
         
         return isNonWorkingDay(date);
     };
