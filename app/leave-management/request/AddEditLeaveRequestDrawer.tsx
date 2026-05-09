@@ -394,8 +394,8 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
-                            {exceedsMonthlyLimit && (
-                                <Alert color="warning" variant="faded" className="border-warning-200">
+                            {formData.leave_type_id && (selectedType?.monthly_allowed && formData.total_days > selectedType.monthly_allowed) && (
+                                <Alert color="warning" variant="faded" className="border-warning-200" title="Policy Warning">
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">
                                             <span className="font-semibold text-warning-700">Policy Warning</span>
@@ -411,7 +411,7 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
-                            {hasNonWorkingDayNearbyOrInside && (
+                            {formData.leave_type_id && hasNonWorkingDayNearbyOrInside && (
                                 <Alert color="warning" variant="faded" className="border-warning-200" title="Holiday/Weekend Proximity">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-sm text-warning-800">
