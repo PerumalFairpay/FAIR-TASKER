@@ -292,6 +292,9 @@ export default function AddEditLeaveRequestDrawer({
     const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
     const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
 
+    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+    const exceedsMonthlyLimit = selectedType && selectedType.monthly_allowed > 0 && formData.total_days > selectedType.monthly_allowed;
+
     const dynamicCalendarClass = React.useMemo(() => {
         const classes = ["[&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"];
 
@@ -341,6 +344,23 @@ export default function AddEditLeaveRequestDrawer({
                                     <div className="flex flex-col gap-1">
                                         <span className="font-semibold text-danger-600">Request Rejected</span>
                                         <span className="text-sm">{selectedRequest.rejection_reason}</span>
+                                    </div>
+                                </Alert>
+                            )}
+
+                            {exceedsMonthlyLimit && (
+                                <Alert color="warning" variant="faded" className="border-warning-200">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold text-warning-700">Policy Warning</span>
+                                            <Chip size="sm" variant="flat" color="warning">
+                                                {selectedType.monthly_allowed} Days Max
+                                            </Chip>
+                                        </div>
+                                        <span className="text-sm text-warning-800">
+                                            You have selected <strong>{formData.total_days} days</strong>. 
+                                            Only <strong>{selectedType.monthly_allowed} {selectedType.name}</strong> allowed per month.
+                                        </span>
                                     </div>
                                 </Alert>
                             )}
@@ -678,6 +698,7 @@ export default function AddEditLeaveRequestDrawer({
                                     handleSubmit();
                                 }}
                                 isLoading={loading}
+                                isDisabled={exceedsMonthlyLimit}
                             >
                                 {mode === "create" ? "Submit Request" : "Update Request"}
                             </Button>
