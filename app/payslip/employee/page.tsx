@@ -145,7 +145,6 @@ const EmployeePayslipList = () => {
                     <TableHeader>
                         <TableColumn>MONTH</TableColumn>
                         <TableColumn>YEAR</TableColumn>
-                        <TableColumn>NET PAY</TableColumn>
                         <TableColumn>GENERATED AT</TableColumn>
                         <TableColumn align="center">ACTIONS</TableColumn>
                     </TableHeader>
@@ -154,9 +153,6 @@ const EmployeePayslipList = () => {
                             <TableRow key={item.id}>
                                 <TableCell className="font-medium">{item.month}</TableCell>
                                 <TableCell>{item.year}</TableCell>
-                                <TableCell className="font-semibold text-primary">
-                                    {`₹ ${item.net_pay.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
-                                </TableCell>
                                 <TableCell>{new Date(item.generated_at).toLocaleDateString()}</TableCell>
                                 <TableCell>
                                     <div className="flex justify-center">
