@@ -685,9 +685,7 @@ export default function AddEditLeaveRequestDrawer({
                                     const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
                                     const isRequired =
                                         selectedType?.name === "Marriage Leave" ||
-                                        selectedType?.name === "Maternity Leave" ||
-                                        selectedType?.name === "Paternity Leave" ||
-                                        (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+                                        selectedType?.name === "Maternity Leave";
 
                                     if (isRequired && files.length === 0) {
                                         alert("An attachment is required for this leave type/duration.");
