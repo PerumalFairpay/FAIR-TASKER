@@ -744,11 +744,11 @@ export default function AddEditEmployeeDrawer({
                                             {/* LOP Exception Flag */}
                                             <div className="md:col-span-2">
                                                 <Checkbox
-                                                    isSelected={formData.exclude_non_working_days_from_lop || false}
+                                                    isSelected={formData.lop_rule_01 || false}
                                                     onValueChange={(val) =>
                                                         setFormData((prev: any) => ({
                                                             ...prev,
-                                                            exclude_non_working_days_from_lop: val,
+                                                            lop_rule_01: val,
                                                         }))
                                                     }
                                                 >

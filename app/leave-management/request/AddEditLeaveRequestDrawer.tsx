@@ -246,7 +246,7 @@ export default function AddEditLeaveRequestDrawer({
                         // Check if it's LOP leave type and if the employee has the exception flag
                         const selectedTypeForCalc = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
                         const isLOPCalc = selectedTypeForCalc?.code === "LOP" || selectedTypeForCalc?.name === "Loss of Pay";
-                        const excludeNonWorkingFromLOP = selectedEmp?.exclude_non_working_days_from_lop || false;
+                        const excludeNonWorkingFromLOP = selectedEmp?.lop_rule_01 || false;
 
                         // Count day if:
                         // 1. It's a working day
@@ -339,7 +339,7 @@ export default function AddEditLeaveRequestDrawer({
     const isDateUnavailable = (date: DateValue) => {
         // Allow all dates for LOP leave type, UNLESS the employee has the exception flag
         const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
-        if (isLOP && !selectedEmp?.exclude_non_working_days_from_lop) return false;
+        if (isLOP && !selectedEmp?.lop_rule_01) return false;
         
         return isNonWorkingDay(date);
     };
