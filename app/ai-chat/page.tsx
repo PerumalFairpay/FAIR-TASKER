@@ -21,7 +21,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import { 
     sendChatQuery, 
-    clearChatHistory, 
     fetchChatSessions, 
     setCurrentSessionId 
 } from "@/store/aiAssistant/action";
@@ -29,7 +28,6 @@ import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import ClearChatModal from "./ClearChatModal";
 import { useDisclosure } from "@heroui/modal";
 import ChatSidebar from "./ChatSidebar";
 
@@ -39,7 +37,7 @@ export default function AIChatPage() {
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const { isOpen: isClearModalOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     const { user } = useSelector((state: AppState) => state.Auth);
     const { 
@@ -81,9 +79,6 @@ export default function AIChatPage() {
         }
     };
 
-    const handleClearChat = () => {
-        dispatch(clearChatHistory());
-    };
     
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!containerRef.current) return;
@@ -142,19 +137,6 @@ export default function AIChatPage() {
                         )}
                     </div>
                     <div className="flex items-center gap-1">
-                        {!isLanding && (
-                            <Tooltip content="Clear History">
-                                <Button
-                                    isIconOnly
-                                    variant="light"
-                                    size="sm"
-                                    onClick={onOpen}
-                                    className="text-default-400 hover:text-danger rounded-full"
-                                >
-                                    <Trash2 size={18} />
-                                </Button>
-                            </Tooltip>
-                        )}
                     </div>
                 </header>
 
@@ -322,11 +304,6 @@ export default function AIChatPage() {
                     </AnimatePresence>
                 </main>
 
-                <ClearChatModal
-                    isOpen={isClearModalOpen}
-                    onOpenChange={onOpenChange}
-                    onConfirm={handleClearChat}
-                />
             </div>
         </div>
     );
