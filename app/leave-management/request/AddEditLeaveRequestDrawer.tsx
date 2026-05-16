@@ -46,14 +46,12 @@ export default function AddEditLeaveRequestDrawer({
     onSubmit,
 }: AddEditLeaveRequestDrawerProps) {
     const dispatch = useDispatch();
-    const { employees } = useSelector((state: RootState) => state.Employee);
     const { leaveTypes } = useSelector((state: RootState) => state.LeaveType);
     const { leaveMetrics } = useSelector((state: RootState) => state.LeaveRequest);
     const { holidays } = useSelector((state: RootState) => state.Holiday);
     const { user } = useSelector((state: RootState) => state.Auth);
     const { publicSettings, settings } = useSelector((state: RootState) => state.Settings);
 
-    const [sandwichRuleEnabled, setSandwichRuleEnabled] = useState(false);
 
     const [formData, setFormData] = useState({
         employee_id: user?.employee_id || "",
@@ -74,9 +72,6 @@ export default function AddEditLeaveRequestDrawer({
 
     useEffect(() => {
         if (isOpen) {
-            if (!employees || employees.length === 0) {
-                dispatch(getEmployeesSummaryRequest());
-            }
             if (!leaveTypes || leaveTypes.length === 0) {
                 dispatch(getLeaveTypesRequest());
             }
@@ -92,18 +87,6 @@ export default function AddEditLeaveRequestDrawer({
         }
     }, [isOpen, dispatch]);
 
-    // Extract sandwich_rule from settings
-    useEffect(() => {
-        let isSandwichEnabled = false;
-        const allSettings = settings || publicSettings || {};
-        if (allSettings["Leave Management"]) {
-            const sandwichSetting = allSettings["Leave Management"].find((s: any) => s.key === "sandwich_rule");
-            if (sandwichSetting && sandwichSetting.value === true) {
-                isSandwichEnabled = true;
-            }
-        }
-        setSandwichRuleEnabled(isSandwichEnabled);
-    }, [settings, publicSettings]);
 
 
     useEffect(() => {
@@ -237,9 +220,8 @@ export default function AddEditLeaveRequestDrawer({
                     const d1 = new Date(start.year, start.month - 1, start.day);
                     const d2 = new Date(end.year, end.month - 1, end.day);
 
-                    // Get selected employee's weekly off days (0=Mon...6=Sun)
-                    const selectedEmp = (employees || []).find((e: any) => e.id === newData.employee_id);
-                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6]; // Default: Sunday
+                    // Get current user's weekly off days (0=Mon...6=Sun)
+                    const weeklyOff: number[] = user?.weekly_off ?? [6]; // Default: Sunday
 
                     // Iterate day-by-day
                     let total = 0;
@@ -256,14 +238,16 @@ export default function AddEditLeaveRequestDrawer({
 
                         const isWeeklyOff = weeklyOff.includes(pyDay);
 
-                        if (sandwichRuleEnabled) {
-                            // If sandwich rule is ON, all days within the leave range count
+                        // Check if it's LOP leave type and if the employee has the exception flag
+                        const selectedTypeForCalc = leaveTypes?.find((lt: any) => lt.id === newData.leave_type_id);
+                        const isLOPCalc = selectedTypeForCalc?.code === "LOP" || selectedTypeForCalc?.name === "Loss of Pay";
+                        const excludeNonWorkingFromLOP = user?.lop_rule_01 || false;
+
+                        // Count day if:
+                        // 1. It's a working day
+                        // 2. OR it's LOP AND we ARE NOT excluding non-working days for this employee
+                        if ((!isHoliday && !isWeeklyOff) || (isLOPCalc && !excludeNonWorkingFromLOP)) {
                             total += 1;
-                        } else {
-                            // If OFF, only count working days
-                            if (!isHoliday && !isWeeklyOff) {
-                                total += 1;
-                            }
                         }
                         cursor.setDate(cursor.getDate() + 1);
                     }
@@ -306,9 +290,11 @@ export default function AddEditLeaveRequestDrawer({
     const startSessions = ["Full Day", "Second Half"];
     const endSessions = ["Full Day", "First Half"];
 
-    // Get selected employee's weekly off to disable those days on the calendar
-    const selectedEmpForCalendar = (employees || []).find((e: any) => e.id === formData.employee_id);
-    const empWeeklyOff: number[] = selectedEmpForCalendar?.weekly_off ?? [6];
+    // Get current user's weekly off to disable those days on the calendar
+    const empWeeklyOff: number[] = user?.weekly_off ?? [6];
+
+    const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+    const exceedsMonthlyLimit = selectedType && selectedType.monthly_allowed > 0 && formData.total_days > selectedType.monthly_allowed;
 
     const dynamicCalendarClass = React.useMemo(() => {
         const classes = ["[&_[data-unavailable=true]_span]:!text-red-500 [&_[data-unavailable=true]_button]:!text-red-500"];
@@ -324,26 +310,59 @@ export default function AddEditLeaveRequestDrawer({
         return classes.join(" ");
     }, [empWeeklyOff]);
 
-    const isDateUnavailable = (date: DateValue) => {
-        // Disable company holidays
+    const isNonWorkingDay = React.useCallback((date: DateValue) => {
+        // Check company holidays
         const isHoliday = holidays.some(
             (holiday: any) => holiday.date === date.toString() && holiday.status === "Active"
         );
         if (isHoliday) return true;
 
-        // Disable employee's weekly off days
+        // Check employee's weekly off days
         const jsDate = new Date(date.year, date.month - 1, date.day);
         const jsDay = jsDate.getDay();
         const pyDay = jsDay === 0 ? 6 : jsDay - 1;
 
-        // If sandwich rule is enabled, we don't disable holidays or weekly offs
-        // on the calendar because they can be "sandwiched" and selected as part of the leave
-        if (sandwichRuleEnabled) {
-            return false;
+        return empWeeklyOff.includes(pyDay);
+    }, [holidays, empWeeklyOff]);
+
+    const isLOP = React.useMemo(() => {
+        const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
+        return selectedType?.code === "LOP" || selectedType?.name === "Loss of Pay";
+    }, [formData.leave_type_id, leaveTypes]);
+
+    const isDateUnavailable = (date: DateValue) => {
+        // Allow all dates for LOP leave type, UNLESS the employee has the exception flag
+        if (isLOP && !user?.lop_rule_01) return false;
+        
+        return isNonWorkingDay(date);
+    };
+
+    const hasNonWorkingDayNearbyOrInside = React.useMemo(() => {
+        if (!formData.start_date || !formData.end_date || formData.leave_duration_type === "Permission") return false;
+
+        try {
+            const start = parseDate(formData.start_date);
+            const end = parseDate(formData.end_date);
+
+            // Check day before
+            if (isNonWorkingDay(start.subtract({ days: 1 }))) return true;
+            // Check day after
+            if (isNonWorkingDay(end.add({ days: 1 }))) return true;
+
+            // Check days inside (only for Multiple)
+            if (formData.leave_duration_type === "Multiple") {
+                let cursor = start;
+                while (cursor.compare(end) <= 0) {
+                    if (isNonWorkingDay(cursor)) return true;
+                    cursor = cursor.add({ days: 1 });
+                }
+            }
+        } catch (error) {
+            console.error("Error checking non-working days:", error);
         }
 
-        return empWeeklyOff.includes(pyDay);
-    };
+        return false;
+    }, [formData.start_date, formData.end_date, formData.leave_duration_type, isNonWorkingDay]);
 
     return (
         <Drawer 
@@ -368,6 +387,34 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
+                            {formData.leave_type_id && (!!selectedType?.monthly_allowed && formData.total_days > selectedType.monthly_allowed) && (
+                                <Alert color="warning" variant="faded" className="border-warning-200" title="Policy Warning">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold text-warning-700">Policy Warning</span>
+                                            <Chip size="sm" variant="flat" color="warning">
+                                                {selectedType.monthly_allowed} Days Max
+                                            </Chip>
+                                        </div>
+                                        <span className="text-sm text-warning-800">
+                                            You have selected <strong>{formData.total_days} days</strong>. 
+                                            Only <strong>{selectedType.monthly_allowed} {selectedType.name}</strong> allowed per month.
+                                        </span>
+                                    </div>
+                                </Alert>
+                            )}
+
+                            {formData.leave_type_id && hasNonWorkingDayNearbyOrInside && (
+                                <Alert color="warning" variant="faded" className="border-warning-200" title="Holiday/Weekend Proximity">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm text-warning-800">
+                                            This leave request is <strong>adjacent to</strong> or <strong>includes</strong> holidays/weekends. 
+                                            Please ensure this follows company policy.
+                                        </span>
+                                    </div>
+                                </Alert>
+                            )}
+
 
                             <Select
                                 label="Leave Type"
@@ -378,7 +425,12 @@ export default function AddEditLeaveRequestDrawer({
                                 isRequired
 
                             >
-                                {(leaveTypes || []).map((lt: any) => {
+                                {(leaveTypes || []).filter((lt: any) => {
+                                    if (user?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).map((lt: any) => {
                                     const metric = leaveMetrics?.find((m: any) => m.leave_type === lt.name);
                                     return (
                                         <SelectItem key={lt.id} textValue={lt.name}>
@@ -634,55 +686,6 @@ export default function AddEditLeaveRequestDrawer({
                                 </>
                             )}
 
-                            {sandwichRuleEnabled && formData.leave_duration_type === "Multiple" && (() => {
-                                // Calculate how many days are added by the sandwich rule
-                                let addedDays = 0;
-                                let normalDays = 0;
-                                try {
-                                    const d1 = parseDate(formData.start_date);
-                                    const d2 = parseDate(formData.end_date);
-                                    const start = new Date(d1.year, d1.month - 1, d1.day);
-                                    const end = new Date(d2.year, d2.month - 1, d2.day);
-
-                                    const selectedEmp = (employees || []).find((e: any) => e.id === formData.employee_id);
-                                    const weeklyOff: number[] = selectedEmp?.weekly_off ?? [6];
-
-                                    const cursor = new Date(start);
-                                    while (cursor <= end) {
-                                        const jsDay = cursor.getDay();
-                                        const pyDay = jsDay === 0 ? 6 : jsDay - 1;
-
-                                        const dateStr = cursor.toISOString().split('T')[0];
-                                        const isHoliday = holidays.some(
-                                            (holiday: any) => holiday.date === dateStr && holiday.status === "Active"
-                                        );
-                                        const isOffDay = weeklyOff.includes(pyDay);
-
-                                        if (isHoliday || isOffDay) {
-                                            addedDays += 1;
-                                        } else {
-                                            normalDays += 1;
-                                        }
-                                        cursor.setDate(cursor.getDate() + 1);
-                                    }
-                                } catch (e) {
-                                    console.error(e);
-                                }
-
-                                if (addedDays > 0) {
-                                    return (
-                                        <Alert color="warning" title="Sandwich Rule Applied">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-sm">
-                                                    {addedDays} holiday/weekly off {addedDays === 1 ? 'day' : 'days'} between your leave dates
-                                                    will be counted as leave due to the Sandwich Rule.
-                                                </span>
-                                            </div>
-                                        </Alert>
-                                    );
-                                }
-                                return null;
-                            })()}
 
                             <Input
                                 label="Total Days"
@@ -711,9 +714,7 @@ export default function AddEditLeaveRequestDrawer({
                                         const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
                                         const isRequired =
                                             selectedType?.name === "Marriage Leave" ||
-                                            selectedType?.name === "Maternity Leave" ||
-                                            selectedType?.name === "Paternity Leave" ||
-                                            (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+                                            selectedType?.name === "Maternity Leave";
 
                                         return isRequired ? <span className="text-danger">* (Required for this leave type)</span> : "(Optional)";
                                     })()}
@@ -739,9 +740,7 @@ export default function AddEditLeaveRequestDrawer({
                                     const selectedType = leaveTypes?.find((lt: any) => lt.id === formData.leave_type_id);
                                     const isRequired =
                                         selectedType?.name === "Marriage Leave" ||
-                                        selectedType?.name === "Maternity Leave" ||
-                                        selectedType?.name === "Paternity Leave" ||
-                                        (selectedType?.name === "Casual & Sick Leave" && formData.total_days > 2);
+                                        selectedType?.name === "Maternity Leave";
 
                                     if (isRequired && files.length === 0) {
                                         alert("An attachment is required for this leave type/duration.");
@@ -750,6 +749,7 @@ export default function AddEditLeaveRequestDrawer({
                                     handleSubmit();
                                 }}
                                 isLoading={loading}
+                                isDisabled={exceedsMonthlyLimit}
                             >
                                 {mode === "create" ? "Submit Request" : "Update Request"}
                             </Button>

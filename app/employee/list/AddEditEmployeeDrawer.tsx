@@ -741,6 +741,24 @@ export default function AddEditEmployeeDrawer({
                                                 </p>
                                             </div>
 
+                                            {/* LOP Exception Flag */}
+                                            <div className="md:col-span-2">
+                                                <Checkbox
+                                                    isSelected={formData.lop_rule_01 || false}
+                                                    onValueChange={(val) =>
+                                                        setFormData((prev: any) => ({
+                                                            ...prev,
+                                                            lop_rule_01: val,
+                                                        }))
+                                                    }
+                                                >
+                                                    Exclude Holidays/Weekends from LOP
+                                                </Checkbox>
+                                                <p className="text-tiny text-default-400 mt-1">
+                                                    If enabled, weekends and holidays will not be counted as leave days when this employee applies for Loss of Pay (LOP).
+                                                </p>
+                                            </div>
+
                                             <Input
                                                 label="Notice Period"
                                                 placeholder="e.g., 30 days"
