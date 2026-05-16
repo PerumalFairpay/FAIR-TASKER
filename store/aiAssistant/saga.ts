@@ -122,7 +122,7 @@ function* onSendChatQuery(action: any): Generator<any, void, any> {
 function* onFetchChatSessions(): SagaIterator {
     try {
         const response = yield call(fetchChatSessionsApi);
-        yield put(fetchChatSessionsSuccess(response.data));
+        yield put(fetchChatSessionsSuccess(response.data.data));
     } catch (error: any) {
         yield put(fetchChatSessionsFailure(error.response?.data?.message || "Failed to fetch sessions"));
     }
@@ -131,7 +131,7 @@ function* onFetchChatSessions(): SagaIterator {
 function* onFetchSessionMessages({ payload }: any): SagaIterator {
     try {
         const response = yield call(fetchSessionMessagesApi, payload);
-        yield put(fetchSessionMessagesSuccess(response.data));
+        yield put(fetchSessionMessagesSuccess(response.data.data));
     } catch (error: any) {
         yield put(fetchSessionMessagesFailure(error.response?.data?.message || "Failed to fetch messages"));
     }
