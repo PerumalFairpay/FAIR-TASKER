@@ -101,12 +101,32 @@ export default function AddEditAssetDrawer({
 
     useEffect(() => {
         if (isOpen && mode === "edit" && selectedAsset) {
-            setFormData({ ...selectedAsset });
+            let prefix = "FPD";
+            let id = selectedAsset.asset_unique_id || "";
+            if (id.startsWith("FPC")) {
+                prefix = "FPC";
+                id = id.substring(3);
+            } else if (id.startsWith("FPD")) {
+                prefix = "FPD";
+                id = id.substring(3);
+            } else if (id.startsWith("FPS")) {
+                prefix = "FPS";
+                id = id.substring(3);
+            } else if (id.startsWith("FPQ")) {
+                prefix = "FPQ";
+                id = id.substring(3);
+            }
+            setFormData({ 
+                ...selectedAsset, 
+                asset_dept_prefix: prefix, 
+                asset_unique_id: id 
+            });
         } else if (isOpen && mode === "create") {
             setFormData({
                 purchase_date: new Date().toISOString().split('T')[0],
                 status: "Available",
                 purchase_cost: 0,
+                asset_dept_prefix: "FPD", // Default prefix
             });
             setFiles([]);
         }
@@ -117,6 +137,14 @@ export default function AddEditAssetDrawer({
             const newData = { ...prev, [name]: value };
             if (name === "asset_category_id") {
                 newData.asset_subcategory_id = "";
+            }
+            // If prefix changes, we could auto-update asset_unique_id if it's empty or starts with old prefix
+            if (name === "asset_dept_prefix") {
+                const oldPrefix = prev.asset_dept_prefix || "";
+                const currentId = prev.asset_unique_id || "";
+                if (!currentId || currentId.startsWith(oldPrefix)) {
+                    // This is optional logic, maybe just let the user type the rest
+                }
             }
             return newData;
         });
@@ -134,7 +162,15 @@ export default function AddEditAssetDrawer({
 
         fields.forEach(field => {
             if (formData[field] !== undefined && formData[field] !== null) {
-                data.append(field, formData[field]);
+                if (field === "asset_unique_id") {
+                    const prefix = formData.asset_dept_prefix || "FPD";
+                    const id = formData.asset_unique_id;
+                    // Combine if not already combined
+                    const finalId = id.startsWith(prefix) ? id : `${prefix}${id}`;
+                    data.append(field, finalId);
+                } else {
+                    data.append(field, formData[field]);
+                }
             }
         });
 
@@ -170,17 +206,40 @@ export default function AddEditAssetDrawer({
                                     onChange={(e) => handleChange("asset_name", e.target.value)}
                                     isRequired
                                     variant="bordered"
+                                    className="md:col-span-2"
                                 />
 
-                                <Input
-                                    label="Asset Unique ID"
-                                    placeholder="e.g. AST-001"
-                                    labelPlacement="outside"
-                                    value={formData.asset_unique_id || ""}
-                                    onChange={(e) => handleChange("asset_unique_id", e.target.value)}
-                                    isRequired
-                                    variant="bordered"
-                                />
+                                <div className="flex gap-2 items-end col-span-1 md:col-span-2">
+                                    <Select
+                                        label="Dept Code"
+                                        labelPlacement="outside"
+                                        placeholder="Code"
+                                        selectedKeys={formData.asset_dept_prefix ? [formData.asset_dept_prefix] : ["FPD"]}
+                                        onChange={(e) => handleChange("asset_dept_prefix", e.target.value)}
+                                        variant="bordered"
+                                        className="w-[150px]"
+                                        classNames={{
+                                            value: "whitespace-nowrap min-w-fit",
+                                            trigger: "min-h-unit-10",
+                                        }}
+                                    >
+                                        <SelectItem key="FPD" textValue="FPD (Dev)">FPD (Dev)</SelectItem>
+                                        <SelectItem key="FPC" textValue="FPC (CS)">FPC (CS)</SelectItem>
+                                        <SelectItem key="FPS" textValue="FPS (Sales)">FPS (Sales)</SelectItem>
+                                        <SelectItem key="FPQ" textValue="FPQ (QA)">FPQ (QA)</SelectItem>
+                                    </Select>
+                                    <Input
+                                        label="Asset Unique ID"
+                                        placeholder="e.g. 001"
+                                        labelPlacement="outside"
+                                        value={formData.asset_unique_id || ""}
+                                        onChange={(e) => handleChange("asset_unique_id", e.target.value)}
+                                        isRequired
+                                        variant="bordered"
+                                        startContent={<span className="text-default-400 font-bold">{formData.asset_dept_prefix || "FPD"}</span>}
+                                        className="flex-1"
+                                    />
+                                </div>
 
                                 <Select
                                     label="Category"
