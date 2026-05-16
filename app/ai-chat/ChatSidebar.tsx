@@ -10,7 +10,8 @@ import {
     Search,
     History,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    AlertTriangle
 } from "lucide-react";
 import { Button } from "@heroui/button";
 import { ScrollShadow } from "@heroui/scroll-shadow";
@@ -20,6 +21,14 @@ import {
     DropdownMenu, 
     DropdownItem 
 } from "@heroui/dropdown";
+import { 
+    Modal, 
+    ModalContent, 
+    ModalHeader, 
+    ModalBody, 
+    ModalFooter,
+    useDisclosure
+} from "@heroui/modal";
 import { Input } from "@heroui/input";
 import { useSelector, useDispatch } from "react-redux";
 import { AppState } from "@/store/rootReducer";
@@ -40,6 +49,21 @@ interface ChatSidebarProps {
 export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedSession, setSelectedSession] = useState<{id: string, title: string} | null>(null);
+    const [newTitle, setNewTitle] = useState("");
+    
+    const { 
+        isOpen: isDeleteOpen, 
+        onOpen: onDeleteOpen, 
+        onOpenChange: onDeleteOpenChange 
+    } = useDisclosure();
+    
+    const { 
+        isOpen: isRenameOpen, 
+        onOpen: onRenameOpen, 
+        onOpenChange: onRenameOpenChange 
+    } = useDisclosure();
+
     const { sessions, currentSessionId, sessionsLoading } = useSelector((state: AppState) => state.AIAssistant);
 
     const handleSessionClick = (sessionId: string) => {
@@ -53,16 +77,28 @@ export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
         if (window.innerWidth < 1024) onToggle();
     };
 
-    const handleDelete = (id: string) => {
-        if (confirm("Are you sure you want to delete this chat?")) {
-            dispatch(deleteChatSession(id));
+    const openDeleteModal = (id: string, title: string) => {
+        setSelectedSession({ id, title });
+        onDeleteOpen();
+    };
+
+    const openRenameModal = (id: string, title: string) => {
+        setSelectedSession({ id, title });
+        setNewTitle(title);
+        onRenameOpen();
+    };
+
+    const confirmDelete = () => {
+        if (selectedSession) {
+            dispatch(deleteChatSession(selectedSession.id));
+            onDeleteOpenChange();
         }
     };
 
-    const handleRename = (id: string, currentTitle: string) => {
-        const newTitle = prompt("Enter new title:", currentTitle);
-        if (newTitle && newTitle !== currentTitle) {
-            dispatch(renameChatSession(id, newTitle));
+    const confirmRename = () => {
+        if (selectedSession && newTitle.trim() && newTitle !== selectedSession.title) {
+            dispatch(renameChatSession(selectedSession.id, newTitle.trim()));
+            onRenameOpenChange();
         }
     };
 
@@ -197,7 +233,7 @@ export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
                                                                 <DropdownItem 
                                                                     key="rename"
                                                                     startContent={<Edit2 size={14} />}
-                                                                    onClick={(e) => { e.stopPropagation(); handleRename(session.id, session.title); }}
+                                                                    onPress={() => openRenameModal(session.id, session.title)}
                                                                 >
                                                                     Rename
                                                                 </DropdownItem>
@@ -206,7 +242,7 @@ export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
                                                                     className="text-danger"
                                                                     color="danger"
                                                                     startContent={<Trash2 size={14} />}
-                                                                    onClick={(e) => { e.stopPropagation(); handleDelete(session.id); }}
+                                                                    onPress={() => openDeleteModal(session.id, session.title)}
                                                                 >
                                                                     Delete
                                                                 </DropdownItem>
@@ -231,12 +267,103 @@ export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
                 size="sm"
                 onClick={onToggle}
                 className={clsx(
-                    "fixed lg:absolute top-1/2 -translate-y-1/2 z-[60] h-10 w-6 min-w-0 bg-white dark:bg-zinc-900 border border-default-200 dark:border-white/[0.08] rounded-r-lg rounded-l-none shadow-sm transition-all hidden lg:flex",
-                    isOpen ? "left-[280px]" : "left-0"
+                    "fixed lg:absolute top-1/2 -translate-y-1/2 z-40 h-10 w-6 min-w-0 bg-white dark:bg-zinc-900 border border-default-200 dark:border-white/[0.08] rounded-r-lg rounded-l-none shadow-sm transition-all hidden lg:flex",
+                    isOpen ? "left-[280px]" : "left-0",
+                    (isDeleteOpen || isRenameOpen) && "opacity-0 pointer-events-none"
                 )}
             >
                 {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
             </Button>
+
+            {/* Delete Confirmation Modal */}
+            <Modal 
+                isOpen={isDeleteOpen} 
+                onOpenChange={onDeleteOpenChange}
+                backdrop="blur"
+                classNames={{
+                    base: "bg-white dark:bg-[#121214] border border-default-200 dark:border-white/[0.08]",
+                    header: "border-b border-default-100 dark:border-white/[0.05]",
+                    footer: "border-t border-default-100 dark:border-white/[0.05]"
+                }}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex gap-3 items-center">
+                                <div className="p-2 bg-danger-50 dark:bg-danger-500/10 rounded-lg">
+                                    <AlertTriangle className="text-danger" size={20} />
+                                </div>
+                                <span className="text-lg font-bold">Delete Chat?</span>
+                            </ModalHeader>
+                            <ModalBody className="py-6">
+                                <p className="text-default-600 dark:text-zinc-400">
+                                    Are you sure you want to delete <span className="font-semibold text-default-900 dark:text-zinc-100">"{selectedSession?.title}"</span>? 
+                                    This action cannot be undone and all message history will be lost.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button color="danger" onPress={confirmDelete}>
+                                    Delete Chat
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+
+            {/* Rename Modal */}
+            <Modal 
+                isOpen={isRenameOpen} 
+                onOpenChange={onRenameOpenChange}
+                backdrop="blur"
+                classNames={{
+                    base: "bg-white dark:bg-[#121214] border border-default-200 dark:border-white/[0.08]",
+                    header: "border-b border-default-100 dark:border-white/[0.05]",
+                    footer: "border-t border-default-100 dark:border-white/[0.05]"
+                }}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex gap-3 items-center">
+                                <div className="p-2 bg-default-100 dark:bg-white/[0.05] rounded-lg">
+                                    <Edit2 className="text-default-600 dark:text-zinc-400" size={20} />
+                                </div>
+                                <span className="text-lg font-bold">Rename Chat</span>
+                            </ModalHeader>
+                            <ModalBody className="py-6 flex flex-col gap-4">
+                                <p className="text-xs text-default-400 uppercase font-bold tracking-wider">New Title</p>
+                                <Input
+                                    autoFocus
+                                    placeholder="Enter chat title..."
+                                    value={newTitle}
+                                    onChange={(e) => setNewTitle(e.target.value)}
+                                    variant="bordered"
+                                    classNames={{
+                                        inputWrapper: "border-default-200 dark:border-white/[0.08] focus-within:border-default-400 h-12 rounded-xl"
+                                    }}
+                                    onKeyDown={(e) => e.key === "Enter" && confirmRename()}
+                                />
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button variant="light" onPress={onClose}>
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    color="primary" 
+                                    onPress={confirmRename}
+                                    isDisabled={!newTitle.trim() || newTitle === selectedSession?.title}
+                                >
+                                    Save Changes
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
         </>
     );
 }
