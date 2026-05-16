@@ -164,8 +164,8 @@ export default function LoginPage() {
               <Image
                 src={FairPayLogo}
                 alt="FairPay Logo"
-                width={220}
-                height={80}
+                width={200}
+                height={72}
                 className="object-contain drop-shadow-sm"
                 priority
               />
@@ -176,7 +176,7 @@ export default function LoginPage() {
               transition={{ delay: 0.3 }}
               className="text-2xl font-bold tracking-tight text-foreground"
             >
-              Welcome Back
+              Streamline Your Workspace
             </motion.h2>
           </div>
 
@@ -199,7 +199,7 @@ export default function LoginPage() {
                 className="max-w-full"
                 classNames={{
                   label: "text-foreground font-semibold text-xs uppercase tracking-wider",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
+                  // inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
                 }}
               />
             </motion.div>
@@ -230,7 +230,7 @@ export default function LoginPage() {
                 }
                 classNames={{
                   label: "text-foreground font-semibold text-xs uppercase tracking-wider",
-                  inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
+                  // inputWrapper: "h-12 border-default-200 focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all duration-300",
                 }}
               />
             </motion.div>
@@ -257,16 +257,16 @@ export default function LoginPage() {
               className="pt-2"
             >
               <Button
-                className="h-12 w-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white shadow-xl shadow-blue-500/20 transition-all hover:shadow-blue-500/40 hover:brightness-110"
+                className="h-10 w-full bg-gradient-to-r from-blue-600 to-indigo-600 font-bold text-white shadow-xl shadow-blue-500/20 transition-all hover:shadow-blue-500/40 hover:brightness-110"
                 type="submit"
                 isLoading={loginLoading}
-                size="lg"
+                size="md"
               >
                 Sign In
               </Button>
             </motion.div>
 
-            <div className="relative flex items-center py-2">
+            <div className="relative flex items-center ">
               <div className="flex-grow border-t border-default-200"></div>
               <span className="mx-4 flex-shrink text-[10px] font-semibold uppercase tracking-widest text-default-400">
                 Or continue with
@@ -282,9 +282,9 @@ export default function LoginPage() {
               whileTap={{ scale: 0.99 }}
             >
               <Button
-                className="h-12 w-full border-default-200 bg-background font-semibold text-foreground hover:bg-default-100 transition-all"
-                variant="bordered"
-                size="lg"
+                className="h-10 w-full bg-zinc-900 font-semibold text-white hover:bg-zinc-800 transition-all shadow-lg dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                variant="flat"
+                size="md"
                 onPress={handleGoogleLogin}
                 startContent={
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
