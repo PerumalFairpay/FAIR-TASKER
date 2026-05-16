@@ -126,7 +126,7 @@ export default function AddEditAssetDrawer({
         const data = new FormData();
 
         const fields = [
-            "asset_name", "asset_category_id", "asset_subcategory_id", "manufacturer", "supplier",
+            "asset_name", "asset_unique_id", "asset_category_id", "asset_subcategory_id", "manufacturer", "supplier",
             "purchase_from", "model_no", "serial_no", "purchase_date",
             "purchase_cost", "warranty_expiry", "condition", "status",
             "assigned_to", "description"
@@ -168,6 +168,16 @@ export default function AddEditAssetDrawer({
                                     labelPlacement="outside"
                                     value={formData.asset_name || ""}
                                     onChange={(e) => handleChange("asset_name", e.target.value)}
+                                    isRequired
+                                    variant="bordered"
+                                />
+
+                                <Input
+                                    label="Asset Unique ID"
+                                    placeholder="e.g. AST-001"
+                                    labelPlacement="outside"
+                                    value={formData.asset_unique_id || ""}
+                                    onChange={(e) => handleChange("asset_unique_id", e.target.value)}
                                     isRequired
                                     variant="bordered"
                                 />
