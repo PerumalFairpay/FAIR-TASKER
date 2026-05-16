@@ -187,30 +187,30 @@ export default function ChatSidebar({ isOpen, onToggle }: ChatSidebarProps) {
                                             {items.map((session) => (
                                                 <div 
                                                     key={session.id}
-                                                    onClick={() => handleSessionClick(session.id)}
                                                     className={clsx(
-                                                        "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all",
+                                                        "group relative flex items-center rounded-xl transition-all",
                                                         currentSessionId === session.id
                                                             ? "bg-white dark:bg-white/[0.05] shadow-[0_2px_10px_rgba(0,0,0,0.05)] dark:shadow-none border border-default-200 dark:border-white/[0.08]"
                                                             : "hover:bg-default-100/50 dark:hover:bg-white/[0.02] border border-transparent"
                                                     )}
                                                 >
-                                                    <div className={clsx(
-                                                        "p-1.5 rounded-lg shrink-0",
-                                                        currentSessionId === session.id 
-                                                            ? "bg-default-900 text-white" 
-                                                            : "bg-default-100 dark:bg-white/[0.05] text-default-500"
-                                                    )}>
-                                                        <MessageSquare size={14} />
-                                                    </div>
-                                                    <div className="flex-1 overflow-hidden">
-                                                        <p className={clsx(
-                                                            "text-[13px] font-medium truncate",
-                                                            currentSessionId === session.id ? "text-default-900 dark:text-zinc-100" : "text-default-600 dark:text-zinc-400"
-                                                        )}>
-                                                            {session.title}
-                                                        </p>
-                                                    </div>
+                                                    <Button 
+                                                        variant="light"
+                                                        className={clsx(
+                                                            "flex-1 justify-start px-3 py-2.5 h-auto min-h-0 bg-transparent hover:bg-transparent data-[hover=true]:bg-transparent",
+                                                            "overflow-hidden"
+                                                        )}
+                                                        onPress={() => handleSessionClick(session.id)}
+                                                    >
+                                                        <div className="flex flex-col items-start overflow-hidden w-full">
+                                                            <p className={clsx(
+                                                                "text-[13px] font-medium truncate w-full text-left",
+                                                                currentSessionId === session.id ? "text-default-900 dark:text-zinc-100" : "text-default-600 dark:text-zinc-400"
+                                                            )}>
+                                                                {session.title}
+                                                            </p>
+                                                        </div>
+                                                    </Button>
 
                                                     {/* Actions Dropdown */}
                                                     <div className={clsx(
