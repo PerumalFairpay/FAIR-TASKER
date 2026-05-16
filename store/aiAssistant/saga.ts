@@ -98,7 +98,7 @@ function* onSendChatQuery(action: any): Generator<any, void, any> {
       const { chunk, error } = yield take(channel);
       if (chunk) {
         if (chunk.startsWith("__SESSION_ID__: ")) {
-            const newSessionId = chunk.replace("__SESSION_ID__:", "").trim();
+            const newSessionId = chunk.replace("__SESSION_ID__: ", "").trim();
             yield put(updateSessionId(newSessionId));
             yield put(fetchChatSessionsAction());
         } else {
