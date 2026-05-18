@@ -27,7 +27,7 @@ export default function AIAssistantSidebar() {
     const dispatch = useDispatch();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { user } = useSelector((state: AppState) => state.Auth);
-    const { messages, loading: isLoading } = useSelector((state: AppState) => state.AIAssistant);
+    const { messages, loading: isLoading, currentSessionId } = useSelector((state: AppState) => state.AIAssistant);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,9 +46,8 @@ export default function AIAssistantSidebar() {
         const userMessage = inputValue.trim();
         setInputValue("");
 
-        // Pass the current messages as history, excluding any temporary or loading messages
-        const historyData = messages.map(msg => ({ role: msg.role, content: msg.content }));
-        dispatch(sendChatQuery(userMessage, historyData));
+        // Pass the current session ID to maintain chat history continuity
+        dispatch(sendChatQuery(userMessage, currentSessionId));
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {

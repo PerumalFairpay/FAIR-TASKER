@@ -22,7 +22,7 @@ import {
 
 export const sendChatQuery = (
   query: string,
-  sessionId?: string,
+  sessionId?: string | null,
 ) => ({
   type: SEND_CHAT_QUERY,
   payload: { query, sessionId },
