@@ -526,7 +526,7 @@ export default function ProfilePage() {
                                                     classNames={{ trigger: "bg-default-100 dark:bg-white/5" }}
                                                 >
                                                     <SelectItem key="Single">Single</SelectItem>
-                                                    <SelectItem key="Divorced">Divorced</SelectItem>
+                                                    <SelectItem key="Married">Married</SelectItem>
                                                 </Select>
                                                 <Input
                                                     label="Address"
