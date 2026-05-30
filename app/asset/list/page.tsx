@@ -150,6 +150,7 @@ export default function AssetListPage() {
                     <Table aria-label="Asset table" removeWrapper isHeaderSticky>
                         <TableHeader>
                             <TableColumn>ASSET NAME</TableColumn>
+                            <TableColumn>ASSET ID</TableColumn>
                             <TableColumn>CATEGORY</TableColumn>
                             <TableColumn>SUBCATEGORY</TableColumn>
                             <TableColumn>MODEL/SERIAL</TableColumn>
@@ -163,6 +164,11 @@ export default function AssetListPage() {
                             {(item: any) => (
                                 <TableRow key={item.id}>
                                     <TableCell className="font-medium">{item.asset_name}</TableCell>
+                                    <TableCell>
+                                        <span className="text-primary font-bold text-xs bg-primary/10 px-2 py-1 rounded-lg">
+                                            {item.asset_unique_id}
+                                        </span>
+                                    </TableCell>
                                     <TableCell>{getCategoryName(item.asset_category_id)}</TableCell>
                                     <TableCell>{item.asset_subcategory_id ? getCategoryName(item.asset_subcategory_id) : "-"}</TableCell>
                                     <TableCell>
@@ -260,14 +266,18 @@ export default function AssetListPage() {
 
                                     {/* NDA-style compact info bar */}
                                     <div className="flex justify-between items-center bg-default-50 dark:bg-white/5 p-2 rounded-xl">
-                                        <div className="flex gap-4 items-center">
+                                        <div className="grid grid-cols-2 gap-y-2 gap-x-4 items-center">
                                             <div className="flex flex-col gap-0.5">
+                                                <span className="text-[9px] font-bold text-default-400 uppercase">Asset ID</span>
+                                                <span className="text-tiny font-bold text-primary">{item.asset_unique_id || "-"}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
                                                 <span className="text-[9px] font-bold text-default-400 uppercase">Cost</span>
                                                 <span className="text-tiny font-bold text-default-800">
                                                     ₹{item.purchase_cost ? parseFloat(item.purchase_cost).toLocaleString() : "0"}
                                                 </span>
                                             </div>
-                                            <div className="flex flex-col gap-0.5 border-l border-default-200 dark:border-white/10 pl-4">
+                                            <div className="flex flex-col gap-0.5">
                                                 <span className="text-[9px] font-bold text-default-400 uppercase">Model</span>
                                                 <span className="text-tiny">{item.model_no || "N/A"}</span>
                                             </div>
