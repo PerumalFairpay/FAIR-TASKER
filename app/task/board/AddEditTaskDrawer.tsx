@@ -17,6 +17,7 @@ import { X, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 import FileUpload from "@/components/common/FileUpload";
+import { getCurrentDateInTimezone } from "@/utils/dateFormatter";
 
 const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
@@ -51,7 +52,7 @@ const AddEditTaskDrawer = ({ isOpen, onClose, task, selectedDate, allowedStatuse
     // Derived loading state for disabling inputs generally
     const anyLoading = createTaskLoading || updateTaskLoading || deleteTaskLoading;
 
-    const today = new Date();
+    const today = getCurrentDateInTimezone();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const day = String(today.getDate()).padStart(2, "0");

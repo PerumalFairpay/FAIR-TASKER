@@ -70,7 +70,8 @@ interface AttendanceRecord {
     date: string;
 }
 
-import { startOfMonth, endOfMonth, format } from "date-fns";
+import { startOfMonth, endOfMonth } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 import AttendanceCalendar from "./AttendanceCalendar";
 import AttendanceMetrics from "./AttendanceMetrics";
 

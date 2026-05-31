@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Skeleton } from "@heroui/skeleton";
-import { format } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 
 export function EmployeeDashboardSkeleton() {
     const [currentDate, setCurrentDate] = useState<Date | null>(null);

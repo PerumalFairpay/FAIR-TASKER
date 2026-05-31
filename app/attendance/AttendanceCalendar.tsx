@@ -1,5 +1,6 @@
 import React from "react";
-import { format, getDaysInMonth, startOfMonth, endOfMonth, isSameDay, parseISO } from "date-fns";
+import { getDaysInMonth, startOfMonth, endOfMonth, isSameDay, parseISO } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/table";
 import { Avatar } from "@heroui/avatar";
 import { Tooltip } from "@heroui/tooltip";

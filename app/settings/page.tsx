@@ -127,6 +127,14 @@ export default function SettingsPage() {
                     </div>
                 );
             case "select":
+                let selectOptions = options || [];
+                if (key === "company_timezone") {
+                    try {
+                        selectOptions = Intl.supportedValuesOf("timeZone");
+                    } catch (e) {
+                        selectOptions = ["UTC", "Asia/Kolkata", "Asia/Singapore", "Europe/London", "America/New_York", "America/Los_Angeles"];
+                    }
+                }
                 return (
                     <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
                         <div className="p-3">
@@ -137,7 +145,7 @@ export default function SettingsPage() {
                                 selectedKeys={currentValue ? [currentValue] : []}
                                 onChange={(e) => handleInputChange(key, e.target.value)}
                             >
-                                {(options || []).map((opt: string) => (
+                                {selectOptions.map((opt: string) => (
                                     <SelectItem key={opt}>
                                         {opt}
                                     </SelectItem>

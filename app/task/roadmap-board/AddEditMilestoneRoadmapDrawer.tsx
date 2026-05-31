@@ -16,6 +16,7 @@ import { Trash2 } from "lucide-react";
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
 import FileUpload from "@/components/common/FileUpload";
+import { getCurrentDateInTimezone } from "@/utils/dateFormatter";
 import {
     createMilestoneRoadmapRequest,
     updateMilestoneRoadmapRequest,
@@ -55,7 +56,7 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
     const isEditMode = !!task;
     const anyLoading = createLoading || updateLoading || deleteLoading;
 
-    const today = new Date();
+    const today = getCurrentDateInTimezone();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const day = String(today.getDate()).padStart(2, "0");
