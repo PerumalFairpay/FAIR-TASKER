@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { getEodReportsRequest } from "@/store/task/action";
 import { AppState } from "@/store/rootReducer";
+import { format } from "@/utils/dateFormatter";
 import {
     Table,
     TableHeader,
@@ -342,7 +343,7 @@ const EODReportsPage = () => {
                                         <div className="flex items-center gap-1.5 text-[10px] text-default-400 font-medium">
                                             <span>{item.date}</span>
                                             <span className="text-default-300">•</span>
-                                            <span>{new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                            <span>{format(item.timestamp, "hh:mm aa")}</span>
                                         </div>
                                     </div>
                                 </div>

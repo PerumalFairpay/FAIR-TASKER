@@ -12,6 +12,7 @@ import FilePreviewModal from "@/components/common/FilePreviewModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getTaskRequest } from "@/store/task/action";
 import { AppState } from "@/store/rootReducer";
+import { format } from "@/utils/dateFormatter";
 import { Spinner } from "@heroui/spinner";
 import { Divider } from "@heroui/divider";
 import { ScrollShadow } from "@heroui/scroll-shadow";
@@ -230,12 +231,12 @@ const EodReportDetailDrawer = ({ isOpen, onClose, report }: EodReportDetailDrawe
                                                                         <header className="flex justify-between items-start mb-4">
                                                                             <div className="flex flex-col gap-0.5">
                                                                                 <h4 className={`text-sm font-black tracking-tight ${isSelected ? 'text-primary' : 'text-foreground'}`}>
-                                                                                    {new Date(item.date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                                    {format(item.timestamp, "EEE, MMM d, yyyy")}
                                                                                 </h4>
                                                                                 <div className="flex items-center gap-1.5 mt-0.5">
                                                                                     <Clock size={10} className="text-default-400" />
                                                                                     <span className="text-[9px] font-bold text-default-400 uppercase">
-                                                                                        {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                                        {format(item.timestamp, "hh:mm aa")}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
