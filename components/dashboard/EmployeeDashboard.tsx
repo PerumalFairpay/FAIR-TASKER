@@ -749,7 +749,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 </div>
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Leave Credits</h3>
                             </div>
-                            <Link href="/leaves" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+                            <Link href="/leave-management/request" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
                                 Manage
                                 <ArrowUpRight size={12} />
                             </Link>
