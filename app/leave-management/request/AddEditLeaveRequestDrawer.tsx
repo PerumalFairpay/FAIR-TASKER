@@ -404,17 +404,6 @@ export default function AddEditLeaveRequestDrawer({
                                 </Alert>
                             )}
 
-                            {formData.leave_type_id && hasNonWorkingDayNearbyOrInside && (
-                                <Alert color="warning" variant="faded" className="border-warning-200" title="Holiday/Weekend Proximity">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-sm text-warning-800">
-                                            This leave request is <strong>adjacent to</strong> or <strong>includes</strong> holidays/weekends. 
-                                            Please ensure this follows company policy.
-                                        </span>
-                                    </div>
-                                </Alert>
-                            )}
-
 
                             <Select
                                 label="Leave Type"
@@ -427,6 +416,9 @@ export default function AddEditLeaveRequestDrawer({
                             >
                                 {(leaveTypes || []).filter((lt: any) => {
                                     if (user?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
+                                        return false;
+                                    }
+                                    if (lt.code === "PER" || lt.name?.toLowerCase() === "permission") {
                                         return false;
                                     }
                                     return true;
@@ -536,6 +528,17 @@ export default function AddEditLeaveRequestDrawer({
                                     />
                                 )}
                             </div>
+
+                            {formData.leave_type_id && hasNonWorkingDayNearbyOrInside && (
+                                <Alert color="warning" variant="faded" className="border-warning-200" title="Holiday/Weekend Proximity">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-sm text-warning-800">
+                                            This leave request is <strong>adjacent to</strong> or <strong>includes</strong> holidays/weekends. 
+                                            Please ensure this follows company policy.
+                                        </span>
+                                    </div>
+                                </Alert>
+                            )}
 
                             {formData.leave_duration_type === "Half Day" && (
                                 <Select
