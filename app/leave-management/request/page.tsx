@@ -175,9 +175,9 @@ export default function LeaveRequestPage() {
                     <Tooltip
                         content={
                             <div className="px-1 py-1 max-w-[280px]">
-                                <div className="text-xs font-bold text-default-800 dark:text-default-200 mb-0.5">HRM System Under Testing</div>
+                                <div className="text-xs font-bold text-red-500 dark:text-default-200 mb-0.5">HRM System Under Testing</div>
                                 <div className="text-[11px] text-default-600 dark:text-default-400 leading-normal">
-                                    The Leave Management module is currently undergoing performance testing. Leave balances, accruals, and transaction histories shown here may be simulated or subject to HR verification.
+                                    The HRM system is currently undergoing testing. The leave request records displayed here are not final and may be modified. For any queries or concerns, please contact the HR department.
                                 </div>
                             </div>
                         }
