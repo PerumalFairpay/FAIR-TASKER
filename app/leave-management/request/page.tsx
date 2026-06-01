@@ -29,7 +29,7 @@ import {
     PlusIcon, PencilIcon, TrashIcon,
     Calendar, CheckCircle2, XCircle,
     Clock, User as UserIcon, FileText,
-    MoreVertical, Eye, Paperclip
+    MoreVertical, Eye, Paperclip, Info
 } from "lucide-react";
 import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
@@ -171,7 +171,25 @@ export default function LeaveRequestPage() {
                 <PageHeader
                     title="Leave Requests"
                     description="Track and manage employee leave applications"
-                />
+                >
+                    <Tooltip
+                        content={
+                            <div className="px-1 py-1 max-w-[280px]">
+                                <div className="text-xs font-bold text-default-800 dark:text-default-200 mb-0.5">HRM System Under Testing</div>
+                                <div className="text-[11px] text-default-600 dark:text-default-400 leading-normal">
+                                    The Leave Management module is currently undergoing performance testing. Leave balances, accruals, and transaction histories shown here may be simulated or subject to HR verification.
+                                </div>
+                            </div>
+                        }
+                        color="default"
+                        placement="right"
+                        closeDelay={0}
+                    >
+                        <span className="text-warning-500 hover:text-warning-600 transition-colors cursor-help inline-flex items-center">
+                            <Info size={16} />
+                        </span>
+                    </Tooltip>
+                </PageHeader>
                 <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
                     {(user?.role === "admin" || user?.role === "hr") && (
                         <Select

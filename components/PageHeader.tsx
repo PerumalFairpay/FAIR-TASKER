@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 interface PageHeaderProps {
     title: string;
     description?: string;
+    children?: React.ReactNode;
 }
 
-export const PageHeader = ({ title, description }: PageHeaderProps) => {
+export const PageHeader = ({ title, description, children }: PageHeaderProps) => {
     // Animation for the container of letters
     const container = {
         hidden: { opacity: 0 },
@@ -42,27 +43,30 @@ export const PageHeader = ({ title, description }: PageHeaderProps) => {
 
     return (
         <div className="flex flex-col gap-1 select-none">
-            <motion.div
-                className="flex flex-wrap overflow-hidden"
-                variants={container}
-                initial="hidden"
-                animate="visible"
-            >
-                {title.split("").map((letter, index) => (
-                    <motion.h1
-                        key={index}
-                        variants={child}
-                        className="text-2xl font-bold cursor-default"
-                        whileHover={{
-                            y: -3,
-                            color: "hsl(var(--heroui-primary))",
-                            transition: { duration: 0.2 }
-                        }}
-                    >
-                        {letter === " " ? "\u00A0" : letter}
-                    </motion.h1>
-                ))}
-            </motion.div>
+            <div className="flex items-center gap-2">
+                <motion.div
+                    className="flex flex-wrap overflow-hidden"
+                    variants={container}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    {title.split("").map((letter, index) => (
+                        <motion.h1
+                            key={index}
+                            variants={child}
+                            className="text-2xl font-bold cursor-default"
+                            whileHover={{
+                                y: -3,
+                                color: "hsl(var(--heroui-primary))",
+                                transition: { duration: 0.2 }
+                            }}
+                        >
+                            {letter === " " ? "\u00A0" : letter}
+                        </motion.h1>
+                    ))}
+                </motion.div>
+                {children}
+            </div>
 
             {description && (
                 <motion.p
