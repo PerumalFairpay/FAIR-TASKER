@@ -162,7 +162,7 @@ export default function NDATokenPage() {
 
     // Initialize with required documents
     const [requiredDocuments, setRequiredDocuments] = useState<string[]>([]);
-    const [uploadedFiles, setUploadedFiles] = useState<{ name: string, file: File | null }[]>([]);
+    const [uploadedFiles, setUploadedFiles] = useState<{ id: string, name: string, file: File | null }[]>([]);
 
 
     const [signature, setSignature] = useState<string | null>(null);
@@ -286,12 +286,12 @@ export default function NDATokenPage() {
                 .map((name: string) => ({ name, file: null }));
 
             setUploadedFiles([
-                ...required.map((d: any) => ({ name: d.document_name, file: null })),
-                ...missingRequired,
-                ...others.map((d: any) => ({ name: d.document_name, file: null }))
+                ...required.map((d: any) => ({ id: `required-${d.document_name}`, name: d.document_name, file: null })),
+                ...missingRequired.map((item: any) => ({ id: `required-missing-${item.name}`, ...item })),
+                ...others.map((d: any, idx: number) => ({ id: `other-${d.id || idx}-${Math.random().toString(36).substring(2, 9)}`, name: d.document_name, file: null }))
             ]);
         } else if (nda?.required_documents) {
-            setUploadedFiles(nda.required_documents.map((name: string) => ({ name, file: null })));
+            setUploadedFiles(nda.required_documents.map((name: string) => ({ id: `required-${name}`, name, file: null })));
         }
 
         if (nda?.mobile) setMobile(nda.mobile);
@@ -1114,13 +1114,12 @@ export default function NDATokenPage() {
                                             const isUploaded = !!ndaData?.documents?.find((d: any) => d.document_name === doc.name);
 
                                             return (
-                                                <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 relative group">
+                                                <div key={doc.id} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 relative group">
 
                                                     {!isRequired && !isUploaded && (
                                                         <button
                                                             onClick={() => {
-                                                                const newFiles = uploadedFiles.filter((_, i) => i !== index);
-                                                                setUploadedFiles(newFiles);
+                                                                setUploadedFiles(prev => prev.filter(f => f.id !== doc.id));
                                                             }}
                                                             className="absolute -top-2 -right-2 md:top-1/2 md:-translate-y-1/2 md:-right-4 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md z-20 opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
                                                             title="Remove Document"
@@ -1152,9 +1151,8 @@ export default function NDATokenPage() {
                                                                     }`}
                                                                     value={doc.name}
                                                                     onChange={(e) => {
-                                                                        const newFiles = [...uploadedFiles];
-                                                                        newFiles[index].name = e.target.value;
-                                                                        setUploadedFiles(newFiles);
+                                                                        const newName = e.target.value;
+                                                                        setUploadedFiles(prev => prev.map(f => f.id === doc.id ? { ...f, name: newName } : f));
                                                                     }}
                                                                 />
                                                             )}
@@ -1198,9 +1196,7 @@ export default function NDATokenPage() {
                                                                 files={doc.file ? [doc.file] : []}
                                                                 setFiles={(fileItems) => {
                                                                     const file = fileItems[0]?.file as File || null;
-                                                                    const newFiles = [...uploadedFiles];
-                                                                    newFiles[index].file = file;
-                                                                    setUploadedFiles(newFiles);
+                                                                    setUploadedFiles(prev => prev.map(f => f.id === doc.id ? { ...f, file } : f));
                                                                 }}
                                                                 name={`file-${index}`}
                                                                 acceptedFileTypes={['image/png', 'image/jpeg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']}
@@ -1215,7 +1211,7 @@ export default function NDATokenPage() {
                                         {ndaData?.status !== "Document Uploaded" && (
                                             <button
                                                 className="flex items-center justify-center gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-800 cursor-pointer w-full"
-                                                onClick={() => setUploadedFiles([...uploadedFiles, { name: "", file: null }])}
+                                                onClick={() => setUploadedFiles([...uploadedFiles, { id: `new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`, name: "", file: null }])}
                                             >
                                                 <div className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
                                                     <Upload size={18} className="text-gray-400" />

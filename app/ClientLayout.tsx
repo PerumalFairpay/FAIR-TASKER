@@ -5,6 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserRequest, clearAuth } from "@/store/auth/action";
+import { getSettingsRequest } from "@/store/settings/action";
 import clsx from "clsx";
 import { AppState } from "@/store/rootReducer";
 import Lottie from "lottie-react";
@@ -24,6 +25,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     useEffect(() => { 
         if (!isNDATokenPage) {
             dispatch(getUserRequest());
+            dispatch(getSettingsRequest());
         }
     }, [dispatch, isNDATokenPage]);
 

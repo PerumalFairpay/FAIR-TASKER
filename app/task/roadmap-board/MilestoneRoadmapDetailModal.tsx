@@ -6,7 +6,7 @@ import { Chip } from "@heroui/chip";
 import { Divider } from "@heroui/divider";
 import { Avatar } from "@heroui/avatar";
 import { Calendar, Paperclip, Tag, User, CheckCircle2, Eye, Download } from "lucide-react";
-import { format } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 import FilePreviewModal from "@/components/common/FilePreviewModal";
 import FileTypeIcon from "@/components/common/FileTypeIcon";
 

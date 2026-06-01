@@ -22,7 +22,7 @@ import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
 import { Chip } from "@heroui/chip";
 import { addToast } from "@heroui/toast";
-import { format } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 import {
     Plus, Edit, Trash2, MessageSquare, Bug, Lightbulb,
     ClipboardList, Search, Calendar, Paperclip, MoreVertical,

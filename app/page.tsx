@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
@@ -14,7 +14,7 @@ import Image from "next/image";
 import FairPayLogo from "@/app/assets/FairPay.png";
 import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { loginLoading, loginError, token } = useSelector(
@@ -325,3 +325,16 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen w-full items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
+

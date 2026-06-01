@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { format } from "date-fns";
+import { format } from "@/utils/dateFormatter";
 import Link from "next/link";
 import { Card, CardBody, CardHeader, CardFooter } from "@heroui/card";
 import { Progress, CircularProgress } from "@heroui/progress";
@@ -749,7 +749,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                                 </div>
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider">Leave Credits</h3>
                             </div>
-                            <Link href="/leaves" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+                            <Link href="/leave-management/request" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
                                 Manage
                                 <ArrowUpRight size={12} />
                             </Link>
