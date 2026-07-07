@@ -430,7 +430,7 @@ export default function EmployeeListPage() {
                             <TableColumn>DESIGNATION</TableColumn>
                             <TableColumn>WORK MODE</TableColumn>
                             <TableColumn>CONTACT</TableColumn>
-                            <TableColumn>DOCUMENT</TableColumn>
+                            {/* <TableColumn>DOCUMENT</TableColumn> */}
                             <TableColumn>ROLE</TableColumn>
                             <TableColumn>STATUS</TableColumn>
                             <TableColumn align="center">ACTIONS</TableColumn>
@@ -463,7 +463,7 @@ export default function EmployeeListPage() {
                                             <p className="text-bold text-sm capitalize">{item.mobile || "N/A"}</p>
                                         </div>
                                     </TableCell>
-                                    <TableCell>
+                                    {/* <TableCell>
                                         {(item.documents && item.documents.length > 0) || item.document_proof ? (
                                             <div
                                                 className="flex items-center gap-2 cursor-pointer text-primary hover:opacity-80 transition-opacity w-fit"
@@ -477,7 +477,7 @@ export default function EmployeeListPage() {
                                         ) : (
                                             <span className="text-default-300 text-sm">-</span>
                                         )}
-                                    </TableCell>
+                                    </TableCell> */}
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <p className="text-bold text-sm capitalize">{item.role}</p>
