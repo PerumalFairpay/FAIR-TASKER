@@ -166,6 +166,8 @@ export default function ProfilePage() {
         if (profileSuccess) {
             setDocumentProof(null);
             setProfilePic(null);
+            setDocumentFiles([]);
+            setProfileFiles([]);
             if (docInputRef.current) {
                 docInputRef.current.value = "";
             }
@@ -631,43 +633,45 @@ export default function ProfilePage() {
                                                 className="mb-6"
                                             />
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {existingDocuments.map((doc, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex items-center justify-between p-4 rounded-2xl border border-default-200 dark:border-white/10 bg-default-50/30 dark:bg-white/5 hover:border-primary/30 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer group shadow-sm"
-                                                    onClick={() => setPreviewData({
-                                                        url: doc.document_proof,
-                                                        type: doc.file_type || 'application/pdf',
-                                                        name: doc.document_name || `Document ${index + 1}`
-                                                    })}
-                                                >
-                                                    <div className="flex items-center gap-4 min-w-0">
-                                                        <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-xl shadow-sm border border-default-100 dark:border-white/10 group-hover:text-primary transition-colors">
-                                                            <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} size={20} />
+                                        {isAdmin && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {existingDocuments.map((doc, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-center justify-between p-4 rounded-2xl border border-default-200 dark:border-white/10 bg-default-50/30 dark:bg-white/5 hover:border-primary/30 hover:bg-white dark:hover:bg-white/10 transition-all cursor-pointer group shadow-sm"
+                                                        onClick={() => setPreviewData({
+                                                            url: doc.document_proof,
+                                                            type: doc.file_type || 'application/pdf',
+                                                            name: doc.document_name || `Document ${index + 1}`
+                                                        })}
+                                                    >
+                                                        <div className="flex items-center gap-4 min-w-0">
+                                                            <div className="p-3 bg-white dark:bg-[#1A1A1A] rounded-xl shadow-sm border border-default-100 dark:border-white/10 group-hover:text-primary transition-colors">
+                                                                <FileTypeIcon fileType={doc.file_type} fileName={doc.document_proof} size={20} />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">
+                                                                    {doc.document_name || "Document"}
+                                                                </p>
+                                                                <span className="text-tiny text-default-400 font-bold uppercase tracking-wider">
+                                                                    {doc.file_type ? doc.file_type.split('/')[1] : "FILE"}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">
-                                                                {doc.document_name || "Document"}
-                                                            </p>
-                                                            <span className="text-tiny text-default-400 font-bold uppercase tracking-wider">
-                                                                {doc.file_type ? doc.file_type.split('/')[1] : "FILE"}
-                                                            </span>
+                                                        <div className="p-2 rounded-full text-default-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                                                            <Eye size={18} />
                                                         </div>
                                                     </div>
-                                                    <div className="p-2 rounded-full text-default-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                                                        <Eye size={18} />
+                                                ))}
+                                                
+                                                {existingDocuments.length === 0 && documentFiles.length === 0 && (
+                                                    <div className="md:col-span-2 flex flex-col items-center justify-center py-12 text-default-400">
+                                                        <FileText size={48} className="mb-4 opacity-20" />
+                                                        <p className="text-sm font-bold uppercase tracking-widest">No documents found</p>
                                                     </div>
-                                                </div>
-                                            ))}
-                                            
-                                            {existingDocuments.length === 0 && documentFiles.length === 0 && (
-                                                <div className="md:col-span-2 flex flex-col items-center justify-center py-12 text-default-400">
-                                                    <FileText size={48} className="mb-4 opacity-20" />
-                                                    <p className="text-sm font-bold uppercase tracking-widest">No documents found</p>
-                                                </div>
-                                            )}
-                                        </div>
+                                                )}
+                                            </div>
+                                        )}
 
                                         {documentFiles.length > 0 && (
                                             <div className="flex justify-end mt-8 pt-4 border-t border-default-100">
