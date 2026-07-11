@@ -16,6 +16,7 @@ import {
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Tabs, Tab } from "@heroui/tabs";
 import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landmark, RefreshCw } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
@@ -353,44 +354,40 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("email", e.target.value)}
                                                 isRequired
                                             />
-                                            <div className="flex flex-col gap-1">
-                                                <label className="text-small font-medium text-foreground">
-                                                    Personal Email
-                                                </label>
-                                                <Select
-                                                    placeholder="Select Personal Email"
-                                                    labelPlacement="outside"
-                                                    variant="bordered"
-                                                    selectedKeys={formData.personal_email ? [formData.personal_email] : []}
-                                                    onChange={(e) => {
-                                                        const selectedEmail = e.target.value;
-                                                        handleChange("personal_email", selectedEmail);
-                                                        if (mode === "create") {
-                                                            const selectedNDA = (approvedNDAList || []).find((nda: any) => nda.email === selectedEmail);
-                                                            if (selectedNDA) {
-                                                                setFormData((prev: any) => ({
-                                                                    ...prev,
-                                                                    personal_email: selectedEmail,
-                                                                    first_name: selectedNDA.first_name || prev.first_name,
-                                                                    last_name: selectedNDA.last_name || prev.last_name,
-                                                                    name: `${selectedNDA.first_name || ""} ${selectedNDA.last_name || ""}`.trim() || prev.name,
-                                                                    mobile: selectedNDA.mobile || prev.mobile,
-                                                                    address: selectedNDA.address.permanent_address || prev.address.permanent_address,
-                                                                    designation: selectedNDA.designation || prev.designation,
-                                                                    department: selectedNDA.department || prev.department,
-                                                                }));
-                                                            }
-                                                        }
-                                                    }}
-                                                    description="Used to fetching NDA documents"
-                                                >
-                                                    {(approvedNDAList || []).map((nda: any) => (
-                                                        <SelectItem key={nda.email} textValue={nda.email}>
-                                                            {nda.email} ({nda.first_name} {nda.last_name})
-                                                        </SelectItem>
-                                                    ))}
-                                                </Select>
-                                            </div>
+                                            <Autocomplete
+                                                 label="Personal Email"
+                                                 placeholder="Select Personal Email"
+                                                 labelPlacement="outside"
+                                                 variant="bordered"
+                                                 selectedKey={formData.personal_email || null}
+                                                 onSelectionChange={(key) => {
+                                                     const selectedEmail = key as string;
+                                                     handleChange("personal_email", selectedEmail || "");
+                                                     if (mode === "create" && selectedEmail) {
+                                                         const selectedNDA = (approvedNDAList || []).find((nda: any) => nda.email === selectedEmail);
+                                                         if (selectedNDA) {
+                                                             setFormData((prev: any) => ({
+                                                                 ...prev,
+                                                                 personal_email: selectedEmail,
+                                                                 first_name: selectedNDA.first_name || prev.first_name,
+                                                                 last_name: selectedNDA.last_name || prev.last_name,
+                                                                 name: `${selectedNDA.first_name || ""} ${selectedNDA.last_name || ""}`.trim() || prev.name,
+                                                                 mobile: selectedNDA.mobile || prev.mobile,
+                                                                 address: selectedNDA.address.permanent_address || prev.address.permanent_address,
+                                                                 designation: selectedNDA.designation || prev.designation,
+                                                                 department: selectedNDA.department || prev.department,
+                                                             }));
+                                                         }
+                                                     }
+                                                 }}
+                                                 description="Used to fetching NDA documents"
+                                             >
+                                                 {(approvedNDAList || []).map((nda: any) => (
+                                                     <AutocompleteItem key={nda.email} textValue={nda.email}>
+                                                         {`${nda.email} (${nda.first_name} ${nda.last_name})`}
+                                                     </AutocompleteItem>
+                                                 ))}
+                                             </Autocomplete>
                                             {mode === "create" && (
                                                 <>
                                                     <Input
@@ -532,50 +529,54 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("employee_no_id", e.target.value)}
                                                 isRequired
                                             />
-                                            <Select
-                                                label="Department"
-                                                placeholder="Select Department"
-                                                labelPlacement="outside"
-                                                variant="bordered"
-                                                selectedKeys={formData.department ? [formData.department] : []}
-                                                onChange={(e) => {
-                                                    handleChange("department", e.target.value);
-                                                    handleChange("designation", ""); // Reset designation when department changes
-                                                }}
-                                            >
-                                                {rootDepartments.map((dept: any) => (
-                                                    <SelectItem key={dept.name} textValue={dept.name}>
-                                                        {dept.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </Select>
-                                            <Select
-                                                label="Designation"
-                                                placeholder="Select Designation"
-                                                labelPlacement="outside"
-                                                variant="bordered"
-                                                selectedKeys={formData.designation ? [formData.designation] : []}
-                                                onChange={(e) => handleChange("designation", e.target.value)}
-                                                isDisabled={!formData.department || designationOptions.length === 0}
-                                            >
-                                                {designationOptions.map((desig: any) => (
-                                                    <SelectItem 
-                                                        key={desig.name} 
-                                                        textValue={desig.name}
-                                                    >
-                                                        <div className="flex items-center w-full text-left">
-                                                            {desig.level > 0 && (
-                                                                <span className="text-default-400 mr-1.5 flex-shrink-0">
-                                                                    {"\u00A0".repeat((desig.level - 1) * 2)}└─
-                                                                </span>
-                                                            )}
-                                                            <span className={`truncate ${desig.level > 0 ? "text-default-600 text-small" : "font-medium"}`}>
-                                                                {desig.name}
-                                                            </span>
-                                                        </div>
-                                                    </SelectItem>
-                                                ))}
-                                            </Select>
+                                             <Autocomplete
+                                                 label="Department"
+                                                 placeholder="Select Department"
+                                                 labelPlacement="outside"
+                                                 variant="bordered"
+                                                 selectedKey={formData.department || null}
+                                                 onSelectionChange={(key) => {
+                                                     const val = key as string;
+                                                     handleChange("department", val || "");
+                                                     handleChange("designation", ""); // Reset designation when department changes
+                                                 }}
+                                             >
+                                                 {(rootDepartments || []).map((dept: any) => (
+                                                     <AutocompleteItem key={dept.name} textValue={dept.name}>
+                                                         {dept.name}
+                                                     </AutocompleteItem>
+                                                 ))}
+                                             </Autocomplete>
+                                             <Autocomplete
+                                                 label="Designation"
+                                                 placeholder="Select Designation"
+                                                 labelPlacement="outside"
+                                                 variant="bordered"
+                                                 selectedKey={formData.designation || null}
+                                                 onSelectionChange={(key) => {
+                                                     const val = key as string;
+                                                     handleChange("designation", val || "");
+                                                 }}
+                                                 isDisabled={!formData.department || designationOptions.length === 0}
+                                             >
+                                                 {(designationOptions || []).map((desig: any) => (
+                                                     <AutocompleteItem 
+                                                         key={desig.name} 
+                                                         textValue={desig.name}
+                                                     >
+                                                         <div className="flex items-center w-full text-left">
+                                                             {desig.level > 0 && (
+                                                                 <span className="text-default-400 mr-1.5 flex-shrink-0">
+                                                                     {"\u00A0".repeat((desig.level - 1) * 2)}└─
+                                                                 </span>
+                                                             )}
+                                                             <span className={`truncate ${desig.level > 0 ? "text-default-600 text-small" : "font-medium"}`}>
+                                                                 {desig.name}
+                                                             </span>
+                                                         </div>
+                                                     </AutocompleteItem>
+                                                 ))}
+                                             </Autocomplete>
                                             <Select
                                                 label="Role"
                                                 placeholder="Select Role"
