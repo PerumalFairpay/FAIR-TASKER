@@ -16,6 +16,7 @@ import {
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Tabs, Tab } from "@heroui/tabs";
 import { User, Briefcase, PhoneCall, Files, Eye, EyeOff, Plus, Trash2, X, Landmark, RefreshCw } from "lucide-react";
 import { DatePicker } from "@heroui/date-picker";
@@ -357,15 +358,15 @@ export default function AddEditEmployeeDrawer({
                                                 <label className="text-small font-medium text-foreground">
                                                     Personal Email
                                                 </label>
-                                                <Select
+                                                <Autocomplete
                                                     placeholder="Select Personal Email"
                                                     labelPlacement="outside"
                                                     variant="bordered"
-                                                    selectedKeys={formData.personal_email ? [formData.personal_email] : []}
-                                                    onChange={(e) => {
-                                                        const selectedEmail = e.target.value;
+                                                    selectedKey={formData.personal_email || ""}
+                                                    onSelectionChange={(key) => {
+                                                        const selectedEmail = key ? String(key) : "";
                                                         handleChange("personal_email", selectedEmail);
-                                                        if (mode === "create") {
+                                                        if (mode === "create" && selectedEmail) {
                                                             const selectedNDA = (approvedNDAList || []).find((nda: any) => nda.email === selectedEmail);
                                                             if (selectedNDA) {
                                                                 setFormData((prev: any) => ({
@@ -385,11 +386,11 @@ export default function AddEditEmployeeDrawer({
                                                     description="Used to fetching NDA documents"
                                                 >
                                                     {(approvedNDAList || []).map((nda: any) => (
-                                                        <SelectItem key={nda.email} textValue={nda.email}>
-                                                            {nda.email} ({nda.first_name} {nda.last_name})
-                                                        </SelectItem>
+                                                        <AutocompleteItem key={nda.email} textValue={nda.email}>
+                                                            {`${nda.email} (${nda.first_name} ${nda.last_name})`}
+                                                        </AutocompleteItem>
                                                     ))}
-                                                </Select>
+                                                </Autocomplete>
                                             </div>
                                             {mode === "create" && (
                                                 <>
@@ -532,34 +533,38 @@ export default function AddEditEmployeeDrawer({
                                                 onChange={(e) => handleChange("employee_no_id", e.target.value)}
                                                 isRequired
                                             />
-                                            <Select
+                                            <Autocomplete
                                                 label="Department"
                                                 placeholder="Select Department"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                selectedKeys={formData.department ? [formData.department] : []}
-                                                onChange={(e) => {
-                                                    handleChange("department", e.target.value);
+                                                selectedKey={formData.department || ""}
+                                                onSelectionChange={(key) => {
+                                                    const selectedDept = key ? String(key) : "";
+                                                    handleChange("department", selectedDept);
                                                     handleChange("designation", ""); // Reset designation when department changes
                                                 }}
                                             >
                                                 {rootDepartments.map((dept: any) => (
-                                                    <SelectItem key={dept.name} textValue={dept.name}>
+                                                    <AutocompleteItem key={dept.name} textValue={dept.name}>
                                                         {dept.name}
-                                                    </SelectItem>
+                                                    </AutocompleteItem>
                                                 ))}
-                                            </Select>
-                                            <Select
+                                            </Autocomplete>
+                                            <Autocomplete
                                                 label="Designation"
                                                 placeholder="Select Designation"
                                                 labelPlacement="outside"
                                                 variant="bordered"
-                                                selectedKeys={formData.designation ? [formData.designation] : []}
-                                                onChange={(e) => handleChange("designation", e.target.value)}
+                                                selectedKey={formData.designation || ""}
+                                                onSelectionChange={(key) => {
+                                                    const selectedDesig = key ? String(key) : "";
+                                                    handleChange("designation", selectedDesig);
+                                                }}
                                                 isDisabled={!formData.department || designationOptions.length === 0}
                                             >
                                                 {designationOptions.map((desig: any) => (
-                                                    <SelectItem 
+                                                    <AutocompleteItem 
                                                         key={desig.name} 
                                                         textValue={desig.name}
                                                     >
@@ -573,9 +578,9 @@ export default function AddEditEmployeeDrawer({
                                                                 {desig.name}
                                                             </span>
                                                         </div>
-                                                    </SelectItem>
+                                                    </AutocompleteItem>
                                                 ))}
-                                            </Select>
+                                            </Autocomplete>
                                             <Select
                                                 label="Role"
                                                 placeholder="Select Role"
