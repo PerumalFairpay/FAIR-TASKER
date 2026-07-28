@@ -405,7 +405,7 @@ export default function EmployeeDashboard({ data, blogs }: { data: DashboardData
                 {/* --- Column 1: Profile & Quick Stats (Span 4) --- */}
                 <div className="md:col-span-4 lg:col-span-3 flex flex-col gap-4">
                     {/* Profile Card */}
-                    <Card className="shadow-none border-none bg-transparent w-full h-[260px] relative overflow-hidden rounded-2xl group">
+                    <Card className="shadow-none border-none bg-transparent w-full aspect-square relative overflow-hidden rounded-2xl group">
                         {/* Background Image or Placeholder */}
                         {data.profile.profile_picture ? (
                             <img
