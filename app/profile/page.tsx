@@ -29,6 +29,7 @@ import FileTypeIcon from "@/components/common/FileTypeIcon";
 import { Chip } from "@heroui/chip";
 import FileUpload from "@/components/common/FileUpload";
 import { ProfileJoyride } from "@/components/profile-joyride";
+import ImageCropperModal from "@/components/common/ImageCropperModal";
 
 export default function ProfilePage() {
     const dispatch = useDispatch();
@@ -63,6 +64,10 @@ export default function ProfilePage() {
     const [profilePic, setProfilePic] = useState<File | null>(null);
     const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
     const [documentProof, setDocumentProof] = useState<File | null>(null);
+    
+    // Image Cropper states
+    const [cropperOpen, setCropperOpen] = useState(false);
+    const [imageToCrop, setImageToCrop] = useState<string | null>(null);
     
     // FilePond states
     const [documentFiles, setDocumentFiles] = useState<any[]>([]);
@@ -218,13 +223,21 @@ export default function ProfilePage() {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             if (type === "profile") {
-                setProfilePic(file);
-                // Create a local URL for preview
-                setProfilePicPreview(URL.createObjectURL(file));
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setImageToCrop(reader.result as string);
+                    setCropperOpen(true);
+                };
+                reader.readAsDataURL(file);
             } else {
                 setDocumentProof(file);
             }
         }
+    };
+
+    const handleCropComplete = (croppedFile: File) => {
+        setProfilePic(croppedFile);
+        setProfilePicPreview(URL.createObjectURL(croppedFile));
     };
 
     const handleProfileSubmit = (e?: React.FormEvent) => {
@@ -264,6 +277,12 @@ export default function ProfilePage() {
     return (
         <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
             <ProfileJoyride />
+            <ImageCropperModal
+                isOpen={cropperOpen}
+                onClose={() => setCropperOpen(false)}
+                imageSrc={imageToCrop}
+                onCropComplete={handleCropComplete}
+            />
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <PageHeader title="My Profile" description="Manage your personal information and security settings." />
 
