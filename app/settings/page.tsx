@@ -9,6 +9,7 @@ import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Input, Textarea } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Switch } from "@heroui/switch";
 import { addToast } from "@heroui/toast";
 import { Save, RefreshCw } from "lucide-react";
@@ -138,19 +139,19 @@ export default function SettingsPage() {
                 return (
                     <div key={key} className="mb-4 border border-default-200 rounded-lg overflow-hidden">
                         <div className="p-3">
-                            <Select
+                            <Autocomplete
                                 label={label}
                                 variant="bordered"
                                 placeholder={`Select ${label}`}
-                                selectedKeys={currentValue ? [currentValue] : []}
-                                onChange={(e) => handleInputChange(key, e.target.value)}
+                                selectedKey={currentValue ? String(currentValue) : ""}
+                                onSelectionChange={(val) => handleInputChange(key, val ? String(val) : "")}
                             >
                                 {selectOptions.map((opt: string) => (
-                                    <SelectItem key={opt}>
+                                    <AutocompleteItem key={opt} textValue={opt}>
                                         {opt}
-                                    </SelectItem>
+                                    </AutocompleteItem>
                                 ))}
-                            </Select>
+                            </Autocomplete>
                         </div>
                         {renderPublicToggle()}
                     </div>

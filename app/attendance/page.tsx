@@ -480,10 +480,7 @@ export default function AttendancePage() {
             case "clock_in":
             case "clock_out":
                 if (typeof cellValue === "string") {
-                    const date = new Date(cellValue);
-                    if (!isNaN(date.getTime())) {
-                        return format(date, "hh:mm a");
-                    }
+                    return format(cellValue, "hh:mm a") || "-";
                 }
                 return "-";
             case "status": {
@@ -927,8 +924,8 @@ export default function AttendancePage() {
                                     return { color, label };
                                 })();
 
-                                const clockInTime = item.clock_in ? (() => { const d = new Date(item.clock_in); return isNaN(d.getTime()) ? "-" : format(d, "hh:mm a"); })() : "-";
-                                const clockOutTime = item.clock_out ? (() => { const d = new Date(item.clock_out); return isNaN(d.getTime()) ? "-" : format(d, "hh:mm a"); })() : "-";
+                                const clockInTime = item.clock_in ? format(item.clock_in, "hh:mm a") || "-" : "-";
+                                const clockOutTime = item.clock_out ? format(item.clock_out, "hh:mm a") || "-" : "-";
 
                                 return (
                                     <Card key={item.id} className="shadow-sm border border-default-100 bg-white dark:bg-zinc-900/50">

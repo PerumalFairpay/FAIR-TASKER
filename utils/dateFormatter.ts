@@ -38,15 +38,23 @@ export function getCurrentDateInTimezone(): Date {
   }
 }
 
-/**
- * Format a date string, number, or Date object into a target timezone.
- * Defaults to the globally configured company timezone from the Redux store.
- */
 export function format(
   date: Date | string | number | undefined | null,
   formatStr: string
 ): string {
   if (!date) return "";
+
+  // If it's a naive ISO datetime string (e.g. "2026-07-25T08:32:09" or "2026-07-25"), 
+  // parse and format it directly as local to preserve the wall-clock time.
+  if (typeof date === "string") {
+    const hasOffset = date.includes("Z") || /T.*[+-]\d{2}/.test(date);
+    if (!hasOffset) {
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      return dateFnsFormat(d, formatStr);
+    }
+  }
+
   const d = new Date(date);
   if (isNaN(d.getTime())) return "";
 
