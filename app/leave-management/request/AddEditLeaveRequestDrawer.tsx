@@ -72,9 +72,7 @@ export default function AddEditLeaveRequestDrawer({
 
     useEffect(() => {
         if (isOpen) {
-            if (!leaveTypes || leaveTypes.length === 0) {
-                dispatch(getLeaveTypesRequest());
-            }
+            dispatch(getLeaveTypesRequest("Active"));
             if (!holidays || holidays.length === 0) {
                 dispatch(getHolidaysRequest());
             }
@@ -415,6 +413,9 @@ export default function AddEditLeaveRequestDrawer({
 
                             >
                                 {(leaveTypes || []).filter((lt: any) => {
+                                    if (lt.status !== "Active") {
+                                        return false;
+                                    }
                                     if (user?.gender === "Male" && (lt.code === "ML" || lt.name?.toLowerCase().includes("maternity"))) {
                                         return false;
                                     }

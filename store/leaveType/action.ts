@@ -22,8 +22,9 @@ export const createLeaveTypeFailure = (payload: any) => ({
 });
 
 // Get All Leave Types
-export const getLeaveTypesRequest = () => ({
+export const getLeaveTypesRequest = (status?: string) => ({
     type: GET_LEAVE_TYPES_REQUEST,
+    payload: status,
 });
 export const getLeaveTypesSuccess = (payload: any) => ({
     type: GET_LEAVE_TYPES_SUCCESS,

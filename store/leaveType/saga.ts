@@ -21,8 +21,9 @@ function createLeaveTypeApi(payload: any) {
     return api.post("/leave-types/create", payload);
 }
 
-function getLeaveTypesApi() {
-    return api.get("/leave-types/all");
+function getLeaveTypesApi(status?: string) {
+    const url = status ? `/leave-types/all?status=${status}` : "/leave-types/all";
+    return api.get(url);
 }
 
 function getLeaveTypeApi(id: string) {
@@ -51,9 +52,9 @@ function* onCreateLeaveType({ payload }: any): SagaIterator {
     }
 }
 
-function* onGetLeaveTypes(): SagaIterator {
+function* onGetLeaveTypes({ payload }: any): SagaIterator {
     try {
-        const response = yield call(getLeaveTypesApi);
+        const response = yield call(getLeaveTypesApi, payload);
         if (response.data.success) {
             yield put(getLeaveTypesSuccess(response.data));
         } else {

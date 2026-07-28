@@ -25,8 +25,15 @@ import { PlusIcon, PencilIcon, TrashIcon, Info, ClipboardList } from "lucide-rea
 import { Chip } from "@heroui/chip";
 import { Card, CardBody } from "@heroui/card";
 import { Divider } from "@heroui/divider";
+import { Select, SelectItem } from "@heroui/select";
 import DeleteLeaveTypeModal from "./DeleteLeaveTypeModal";
 import AddEditLeaveTypeDrawer from "./AddEditLeaveTypeDrawer";
+
+const STATUS_OPTIONS = [
+    { key: "", label: "All Status" },
+    { key: "Active", label: "Active" },
+    { key: "Inactive", label: "Inactive" },
+];
 
 export default function LeaveTypePage() {
     const dispatch = useDispatch();
@@ -37,18 +44,20 @@ export default function LeaveTypePage() {
 
     const [mode, setMode] = useState<"create" | "edit">("create");
     const [selectedLeaveType, setSelectedLeaveType] = useState<any>(null);
+    const [statusFilter, setStatusFilter] = useState<string>("");
 
     useEffect(() => {
-        dispatch(getLeaveTypesRequest());
-    }, [dispatch]);
+        dispatch(getLeaveTypesRequest(statusFilter));
+    }, [dispatch, statusFilter]);
 
     useEffect(() => {
         if (success) {
             onAddEditClose();
             onDeleteClose();
             dispatch(clearLeaveTypeDetails());
+            dispatch(getLeaveTypesRequest(statusFilter));
         }
-    }, [success, onAddEditClose, onDeleteClose, dispatch]);
+    }, [success, onAddEditClose, onDeleteClose, dispatch, statusFilter]);
 
     const handleCreate = () => {
         setMode("create");
@@ -107,6 +116,24 @@ export default function LeaveTypePage() {
                 >
                     Add Leave Type
                 </Button>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <Select
+                    placeholder="All Status"
+                    selectedKeys={statusFilter ? [statusFilter] : [""]}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    variant="bordered"
+                    className="w-full sm:max-w-[160px]"
+                    aria-label="Filter by status"
+                >
+                    {STATUS_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.key} textValue={opt.label}>
+                            {opt.label}
+                        </SelectItem>
+                    ))}
+                </Select>
             </div>
 
             {/* Desktop View */}
