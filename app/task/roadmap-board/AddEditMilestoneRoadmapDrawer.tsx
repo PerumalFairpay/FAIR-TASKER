@@ -6,6 +6,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@heroui/popover";
 import { Button } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Select, SelectItem } from "@heroui/select";
+import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@/store/rootReducer";
 import { DatePicker } from "@heroui/date-picker";
@@ -204,24 +205,25 @@ const AddEditMilestoneRoadmapDrawer = ({ isOpen, onClose, task, selectedDate, al
                         {task ? "Edit Item" : "Create New Item"}
                     </DrawerHeader>
                     <DrawerBody className="gap-4">
-                        <Select
+                        <Autocomplete
                             label="Project"
                             placeholder="Select project"
-                            selectedKeys={formData.project_id ? [formData.project_id] : []}
-                            onChange={(e) => {
-                                setFormData({ ...formData, project_id: e.target.value });
-                                if (e.target.value) setErrors((prev) => ({ ...prev, project_id: "" }));
+                            selectedKey={formData.project_id || ""}
+                            onSelectionChange={(key) => {
+                                const val = key ? String(key) : "";
+                                setFormData({ ...formData, project_id: val });
+                                if (val) setErrors((prev) => ({ ...prev, project_id: "" }));
                             }}
                             isInvalid={!!errors.project_id}
                             errorMessage={errors.project_id}
                             isDisabled={anyLoading}
                         >
                             {projects.map((project: any) => (
-                                <SelectItem key={project.id}>
+                                <AutocompleteItem key={project.id} textValue={project.name}>
                                     {project.name}
-                                </SelectItem>
+                                </AutocompleteItem>
                             ))}
-                        </Select>
+                        </Autocomplete>
 
                         {allowedStatuses && (
                             <Select
